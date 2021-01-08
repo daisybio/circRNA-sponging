@@ -199,6 +199,53 @@ process get_software_versions {
     """
 }
 
+process STAR {
+    publishDir "${params.out_dir}/samples/${datasetID}/circRNA_detection/"
+    
+    input:
+    tuple val(datasetID), file(datasetFile) from totalRNA_files
+
+    output:
+    tuple val(datasetID), file("Chimeric.out.junction") into chimeric_junction_files
+
+    script:
+    """
+    STAR --chimSegmentMin 10 --runThreadN 10 --genomeDir $params.genome_dir --readFilesIn $datasetFile
+    """
+}
+
+process circExplorer2_Parse {
+    publishDir "${params.out_dir}/samples/${datasetID}/circRNA_detection/circExplorer2"
+    
+    input:
+    tuple val(datasetID), file(chimeric_junction) from chimeric_junction_files
+
+    output:
+    tuple val(datasetID), file("back_spliced_junction.bed") into backspliced_junction_bed_files
+
+    script:
+    """
+    CIRCexplorer2 parse -b "back_spliced_junction.bed" -t STAR $chimeric_junction        
+    """
+}
+
+process circExplorer2_Annotate {
+    publishDir "${params.out_dir}/samples/${datasetID}/circRNA_detection/circExplorer2"
+    
+    input:
+    tuple val(datasetID), file(backspliced_junction_bed) from backspliced_junction_bed_files
+
+    output:
+    tuple val(datasetID), file("circularRNA_known.txt") into circRNA_known_files
+
+    script:
+    """
+    CIRCexplorer2 annotate -r $params.gene_pred -g $params.fasta -b $backspliced_junction_bed -o "circularRNA_known.txt"
+    """
+}
+
+
+
 /*
  * STEP 1 - FastQC
  */

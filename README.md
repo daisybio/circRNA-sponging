@@ -2,13 +2,13 @@
 
 **Analysis of circRNA and miRNA sponging**.
 
-[![GitHub Actions CI Status](https://github.com/nf-core/circrnasponging/workflows/nf-core%20CI/badge.svg)](https://github.com/nf-core/circrnasponging/actions)
-[![GitHub Actions Linting Status](https://github.com/nf-core/circrnasponging/workflows/nf-core%20linting/badge.svg)](https://github.com/nf-core/circrnasponging/actions)
-[![Nextflow](https://img.shields.io/badge/nextflow-%E2%89%A520.04.0-brightgreen.svg)](https://www.nextflow.io/)
+<!--[![GitHub Actions CI Status](https://github.com/nf-core/circrnasponging/workflows/nf-core%20CI/badge.svg)](https://github.com/nf-core/circrnasponging/actions)-->
+<!--[![GitHub Actions Linting Status](https://github.com/nf-core/circrnasponging/workflows/nf-core%20linting/badge.svg)](https://github.com/nf-core/circrnasponging/actions)-->
+<!--[![Nextflow](https://img.shields.io/badge/nextflow-%E2%89%A520.04.0-brightgreen.svg)](https://www.nextflow.io/)-->
 
-[![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg)](https://bioconda.github.io/)
-[![Docker](https://img.shields.io/docker/automated/nfcore/circrnasponging.svg)](https://hub.docker.com/r/nfcore/circrnasponging)
-[![Get help on Slack](http://img.shields.io/badge/slack-nf--core%20%23circrnasponging-4A154B?logo=slack)](https://nfcore.slack.com/channels/circrnasponging)
+<!--[![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg)](https://bioconda.github.io/)-->
+<!--[![Docker](https://img.shields.io/docker/automated/nfcore/circrnasponging.svg)](https://hub.docker.com/r/nfcore/circrnasponging)-->
+<!--[![Get help on Slack](http://img.shields.io/badge/slack-nf--core%20%23circrnasponging-4A154B?logo=slack)](https://nfcore.slack.com/channels/circrnasponging)-->
 
 ## Introduction
 
@@ -20,7 +20,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool
 ## Quick Start
 
 Command: nextflow run nf-core-circrnasponging/ -c my.config -profile cluster -resume
-
+<!--
 1. Install [`nextflow`](https://nf-co.re/usage/installation)
 
 2. Install any of [`Docker`](https://docs.docker.com/engine/installation/), [`Singularity`](https://www.sylabs.io/guides/3.0/user-guide/) or [`Podman`](https://podman.io/) for full pipeline reproducibility _(please only use [`Conda`](https://conda.io/miniconda.html) as a last resort; see [docs](https://nf-co.re/usage/configuration#basic-configuration-profiles))_
@@ -42,21 +42,25 @@ Command: nextflow run nf-core-circrnasponging/ -c my.config -profile cluster -re
     ```
 
 See [usage docs](https://nf-co.re/circrnasponging/usage) for all of the available options when running the pipeline.
-
+-->
 ## Pipeline Summary
 
 By default, the pipeline currently performs the following:
 
 <!-- TODO nf-core: Fill in short bullet-pointed list of default steps of pipeline -->
 
-* Sequencing quality control (`FastQC`)
-* Overall pipeline run summaries (`MultiQC`)
+* totalRNA read mapping (`STAR`)
+* circRNA detection and quantification (`circExplorer2`)
+* circRNA processing and fasta extraction
+* miRNA binding sites detection on quantified circRNAs (`miranda`)
+* Sponging analysis between circRNAs and miRNAs
+* Overall results summaries and plots
 
 ## Documentation
+TODO
+<!--The nf-core/circrnasponging pipeline comes with documentation about the pipeline: [usage](https://nf-co.re/circrnasponging/usage) and [output](https://nf-co.re/circrnasponging/output).
 
-The nf-core/circrnasponging pipeline comes with documentation about the pipeline: [usage](https://nf-co.re/circrnasponging/usage) and [output](https://nf-co.re/circrnasponging/output).
-
-<!-- TODO nf-core: Add a brief overview of what the pipeline does and how it works -->
+ TODO nf-core: Add a brief overview of what the pipeline does and how it works -->
 
 ## Credits
 

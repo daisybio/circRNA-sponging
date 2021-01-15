@@ -175,7 +175,7 @@ process extract_circRNA_sequences {
 }
 
 process miranda {
-    label 'process_medium'
+    label 'process_high'
     publishDir "${params.out_dir}/results/binding_sites/output/", mode: params.publish_dir_mode
     
     input:
@@ -225,7 +225,7 @@ process binding_sites_filtering {
 
 }
 
-ch_miRNA_counts_raw = Channel.value(params.miRNA_raw) 
+ch_miRNA_counts_raw = Channel.fromPath(params.miRNA_raw) 
 
 
 process normalize_miRNAs{

@@ -9,17 +9,18 @@ library(ggpubr)
 
 # read input parameters
 args = commandArgs(trailingOnly=TRUE)
-if (length(args)!=4) {
-  stop("Four argument must be supplied", call.=FALSE)
+if (length(args)!=5) {
+  stop("Five argument must be supplied", call.=FALSE)
 }
 dataset_path = args[1]
 miRNA_norm_path = args[2]
 circRNA_norm_path = args[3]
 correlations_path = args[4]
+out_dir = args[5]
 
 # compute paths
 statistics_file <- paste0("sponging_statistics.txt")
-plot_folder <- paste0("")
+plot_folder <- paste0(out_dir,"/results/sponging/plots/")
 
 # get dataset structure, samples, miRNA expression and circRNA expression
 dataset <- read.table(dataset_path, sep = "\t", header=F, stringsAsFactors = F)

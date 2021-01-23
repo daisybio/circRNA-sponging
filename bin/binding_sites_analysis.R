@@ -16,11 +16,11 @@ allBindSites <- count(bindSites, Target, name="freq")
 distinct <- distinct(bindSites)
 distinctBindSites <- count(distinct, Target, name="freq")
 
-write.table(allBindSites, file = paste0(output_dir, "bindsites_per_circRNA.tsv"), sep = "\t", quote = F, row.names = F)
+write.table(allBindSites, file = paste0("bindsites_per_circRNA.tsv"), sep = "\t", quote = F, row.names = F)
 
 # miRanda score distribution
 scores <- raw_bindSites[,c(1,3)]
 
 # fiter 25% worst scores
 filtered_scores <- raw_bindSites[raw_bindSites$Score > quantile(raw_bindSites$Score, 0.25),]
-write.table(filtered_scores, file = paste0(output_dir, "bindsites_25%_filtered.tsv"), sep = "\t", quote = F, row.names = F)
+write.table(filtered_scores, file = paste0("bindsites_25%_filtered.tsv"), sep = "\t", quote = F, row.names = F)

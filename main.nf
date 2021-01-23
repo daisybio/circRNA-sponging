@@ -283,7 +283,8 @@ process correlation_analysis{
 
     script:
     """
-    Rscript "${projectDir}"/bin/correlation_analysis.R $params.dataset $miRNA_counts_norm $circRNA_counts_norm $correlations
+    mkdir -p "${params.out_dir}/results/sponging/plots/"
+    Rscript "${projectDir}"/bin/correlation_analysis.R $params.dataset $miRNA_counts_norm $circRNA_counts_norm $correlations $params.out_dir
     """
 }
 

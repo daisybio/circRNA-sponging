@@ -198,12 +198,12 @@ process binding_sites_processing {
     file(bind_sites_raw) from bind_sites_out
 
     output:
-    file("circRNA_bind_sites_results.txt") into bind_sites_processed
+    file("bind_sites_processed.txt") into bind_sites_processed
 
     script:
     """
         echo -e "miRNA\tTarget\tScore\tEnergy-Kcal/Mol\tQuery-Al(Start-End)\tSubject-Al(Start-End)\tAl-Len\tSubject-Identity\tQuery-Identity" > "circRNA_bind_sites_results.txt"
-        grep -A 1 "Scores for this hit:" $bind_sites_raw | sort | grep ">" | cut -c 2- >> "circRNA_bind_sites_results.txt"
+        grep -A 1 "Scores for this hit:" $bind_sites_raw | sort | grep ">" | cut -c 2- >> "bind_sites_processed.txt"
     """
 }
 
@@ -219,7 +219,7 @@ process binding_sites_filtering {
 
     script:
     """
-    Rscript "${projectDir}"/bin/binding_sites_analysis.R ${params.out_dir}
+    Rscript "${projectDir}"/bin/binding_sites_analysis.R ${bind_sites_proc}
 
     """
 

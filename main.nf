@@ -279,7 +279,7 @@ process correlation_analysis{
 
     output:
     file("sponging_statistics.txt") into ch_sponging_statistics
-    file("*.png") into ch_plots
+    file("plots/*.png") into ch_plots
 
     script:
     """

@@ -46,12 +46,15 @@ if (params.help) {
  */
 
 Channel
-        .fromFilePairs(params.input, size: params.single_end ? 1 : 2)
-        .ifEmpty { exit 1, "Cannot find any reads matching: ${params.input}\nNB: Path needs to be enclosed in quotes!\nIf this is single-end data, please specify --single_end on the command line." }
+        .fromFilePairs(params.totalRNA_reads, size: params.single_end ? 1 : 2)
+        .ifEmpty { exit 1, "Cannot find any reads matching: ${params.totalRNA_reads}\nNB: Path needs to be enclosed in quotes!\nIf this is single-end data, please specify --single_end on the command line." }
         .set{ch_totalRNA_reads}
 
+
+/*
+* PERFORM READ MAPPING OF totalRNA SAMPLES USING STAR
+*/
 process STAR {
-    //label 'process_medium'
     publishDir "${params.out_dir}/samples/${sampleID}/circRNA_detection/", mode: params.publish_dir_mode
    //    saveAs: { filename ->
    //                   filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename"
@@ -69,6 +72,9 @@ process STAR {
     """
 }
 
+/*
+* PARSE STAR OUTPUT INTO CIRCExplorer2 FORMAT
+*/
 process circExplorer2_Parse {
     label 'process_medium'
 
@@ -86,6 +92,9 @@ process circExplorer2_Parse {
     """
 }
 
+/*
+* PERFORM circRNA QUANTIFICATION USING CIRCExplorer2
+*/
 process circExplorer2_Annotate {
     label 'process_medium'
 
@@ -103,6 +112,9 @@ process circExplorer2_Annotate {
     """
 }
 
+/*
+* MERGE RAW circRNA RESULTS INTO ONE TABLE SUMMARIZING ALL SAMPLES
+*/
 process summarize_detected_circRNAs{
     label 'process_medium'
 
@@ -120,6 +132,9 @@ process summarize_detected_circRNAs{
     """
 }
 
+/*
+* NORMALIZE RAW circRNA COUNT USING LIBRARY SIZE ESTIMATION
+*/
 process normalize_circRNAs{
     label 'process_medium'
 
@@ -140,6 +155,9 @@ process normalize_circRNAs{
 ch_circRNA_counts_norm.into { ch_circRNA_counts_norm_filter; ch_circRNA_counts_norm_sponging; ch_circRNA_counts_norm_analysis}
 
 
+/*
+* FILTER circRNAs TO REDUCE LOW EXPRESSED ONES
+*/
 process filter_circRNAs{
     label 'process_medium'
 
@@ -157,6 +175,9 @@ process filter_circRNAs{
     """
 }
 
+/*
+* FOR THE PREVIOUSLY DETECTED circRNAs EXTRACT FASTA SEQUENCES
+*/
 process extract_circRNA_sequences {
     label 'process_medium'
     publishDir "${params.out_dir}/results/binding_sites/input/", mode: params.publish_dir_mode
@@ -173,6 +194,9 @@ process extract_circRNA_sequences {
     """
 }
 
+/*
+* DETERMINE miRNA BINDING SITES ON THE PREVIOUSLY DETECTED circRNAs USING miranda
+*/
 process miranda {
     label 'process_long'
     publishDir "${params.out_dir}/results/binding_sites/output/", mode: params.publish_dir_mode
@@ -189,6 +213,9 @@ process miranda {
     """
 }
 
+/*
+* PROCESS miranda OUTPUT INTO A TABLE FORMAT
+*/
 process binding_sites_processing {
     label 'process_medium'
     publishDir "${params.out_dir}/results/binding_sites/output/", mode: params.publish_dir_mode
@@ -206,6 +233,9 @@ process binding_sites_processing {
     """
 }
 
+/*
+* FILTER BINDING SITES, KEEP TOP 25%
+*/
 process binding_sites_filtering {
     label 'process_medium'
     publishDir "${params.out_dir}/results/binding_sites/output/", mode: params.publish_dir_mode
@@ -224,9 +254,95 @@ process binding_sites_filtering {
 
 }
 
-ch_miRNA_counts_raw = Channel.fromPath(params.miRNA_raw) 
 
+/*
+ * GET miRNA RAW COUNTS
+ */
+if( params.miRNA_raw_counts != null ) {
 
+    /*
+     * IF RAW miRNA COUNTS ARE ALREADY SPECIFIED IN A FILE
+     */
+    ch_miRNA_counts_raw = Channel.fromPath(params.miRNA_raw_counts) 
+
+} else {
+   
+    /*
+     * PERFORM miRNA DETECTION USING miRDeep2 FROM SPECIFIED READ FILES
+     */
+    ch_smallRNA_reads = Channel
+        .fromPath{smallRNA_reads}			
+	.map { file -> tuple(file.baseName, file) }
+
+    /*
+     * PERFORM miRNA READ MAPPING USING miRDeep2
+     */
+    process miRDeep2_mapping {
+        label 'process_high'
+        publishDir "${params.out_dir}/samples/${sampleID}/miRNA_detection/", mode: params.publish_dir_mode
+       //    saveAs: { filename ->
+       //                   filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename"
+       //             }
+
+        input:
+        tuple val(sampleID), file(read_file) from ch_smallRNA_reads
+
+        output: 
+        tuple val(sampleID), file("reads_collapsed.fa"), file("reads_vs_ref.arf") into ch_miRNA_mapping_output
+
+        script:
+        """
+        mapper.pl $read_file -e -h -i -j -k $params.miRNA_adapter -l 18 -m -p $params.ref_prefix -s "reads_collapsed.fa" -t "reads_vs_ref.arf" -v
+        """
+    }
+
+    /*
+     * PERFORM miRNA QUANTIFICATION USING miRDeep2
+     */
+    process miRDeep2_quantification {
+        label 'process_high'
+        publishDir "${params.out_dir}/samples/${sampleID}/miRNA_detection/", mode: params.publish_dir_mode
+       //    saveAs: { filename ->
+       //                   filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename"
+       //             }
+
+        input:
+        tuple val(sampleID), file(reads_collapsed_fa), file(reads_vs_ref_arf) from ch_miRNA_mapping_output
+
+        output:
+        tuple val(sampleID), file("miRNAs_expressed*") into ch_miRNA_expression_files
+
+        script:
+        """
+        miRDeep2.pl $reads_collapsed_fa "${params.ref_prefix}.fa" $reads_vs_ref_arf "${params.mirbase_ref_folder}/mature_ref.fa" "${params.mirbase_ref_folder}/mature_other.fa" "${params.mirbase_ref_folder}/hairpin_ref.fa" -t $params.species -d -v 
+        """
+    }
+
+    /*
+     * MERGE RAW miRNA RESULTS INTO ONE TABLE SUMMARIZING ALL SAMPLES
+     */
+    process summarize_detected_miRNAs{
+        label 'process_medium'
+
+        publishDir "${params.out_dir}/results/miRNA/", mode: params.publish_dir_mode
+    
+        input:
+        tuple val(sampleID), file(miRNAs_expressed) from ch_miRNA_expression_files.collect()
+
+        output:
+        file("miRNA_counts_raw.tsv") into ch_miRNA_counts_raw
+
+        script:
+        """
+        Rscript "${projectDir}"/bin/miRNA_summarize_results.R $params.dataset $params.out_dir
+        """
+    }
+
+}
+
+/*
+* NORMALIZE RAW miRNA COUNT USING LIBRARY SIZE ESTIMATION
+*/
 process normalize_miRNAs{
     label 'process_low'
 
@@ -247,6 +363,9 @@ process normalize_miRNAs{
 ch_miRNA_counts_norm.into { ch_miRNA_counts_norm_sponging; ch_miRNA_counts_norm_analysis}
 
 
+/*
+* FOR ALL POSSIBLE circRNA-miRNA PAIRS COMPUTE PEARSON CORRELATION
+*/
 process compute_correlations{
     label 'process_medium'
 
@@ -266,6 +385,10 @@ process compute_correlations{
     """
 }
 
+/*
+* ANALYZE THE CORRELATION OF ALL PAIRS AND DETERMINE OVERALL DISTRIBUTION
+* USING BINDING SITES INFORMATION. COMPUTE STATISTICS AND PLOTS
+*/
 process correlation_analysis{
     label 'process_medium'
 

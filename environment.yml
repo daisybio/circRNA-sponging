@@ -1,14 +1,23 @@
 # You can use this file to create a conda environment for this pipeline:
 #   conda env create -f environment.yml
-name: nf-core-circrnasponging-1.0dev
+name: nf-core-circrnasponging
 channels:
   - conda-forge
   - bioconda
   - defaults
 dependencies:
-  - conda-forge::python=3.7.3
-  - conda-forge::markdown=3.1.1
-  - conda-forge::pymdown-extensions=6.0
-  - conda-forge::pygments=2.5.2
-  # TODO nf-core: Add required software dependencies here
+  # conda forge packages
+  - conda-forge::r-base=4.0.2
+  - conda-forge::r-data.table=1.13.2
+  - conda-forge::r-dplyr=1.0.3
+  - conda-forge::r-plyr=1.8.6
+  - conda-forge::r-ggplot2=3.3.3
+  - conda-forge::r-ggpubr=0.4.0
+  # bioconda packages
   - bioconda::star=2.7.6a
+  - bioconda::circexplorer2=2.3.6
+  - bioconda::mirdeep2=2.0.1.2
+  - bioconda::samtools=0.1.19
+  - bioconda::bioconductor-deseq2=1.30.0
+  - bioconda::miranda=3.3a
+  - bioconda::mirdeep2=2.0.1.2

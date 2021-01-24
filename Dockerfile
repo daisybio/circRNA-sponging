@@ -3,6 +3,7 @@ LABEL authors="Octavia Ciora" \
       description="Docker image containing all software requirements for the nf-core/circrnasponging pipeline"
 
 # Install the conda environment
+# All conda/bioconda dependencies are listed there
 COPY environment.yml /
 RUN conda env create --quiet -f /environment.yml && conda clean -a
 

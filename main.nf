@@ -51,7 +51,6 @@ Channel
         .set{ch_totalRNA_reads}
 
 process STAR {
-    tag "$name"
     //label 'process_medium'
     publishDir "${params.out_dir}/samples/${sampleID}/circRNA_detection/", mode: params.publish_dir_mode
    //    saveAs: { filename ->

@@ -1,0 +1,30 @@
+Bootstrap: docker
+From: nfcore/base:1.12.1
+Stage: spython-base
+
+%files
+environment.yml /
+%labels
+authors="Octavia Ciora" 
+description="Docker image containing all software requirements for the nf-core/circrnasponging pipeline"
+%post
+
+# Install the conda environment
+# All conda/bioconda dependencies are listed there
+conda env create --quiet -f /environment.yml && conda clean -a
+
+# Add conda installation dir to PATH (instead of doing 'conda activate')
+PATH=/opt/conda/envs/nf-core-circrnasponging/bin:$PATH
+
+# Dump the details of the installed packages to a file for posterity
+conda env export --name nf-core-circrnasponging > nf-core-circrnasponging.yml
+
+# Instruct R processes to use these empty files instead of clashing with a local version
+touch .Rprofile
+touch .Renviron
+%environment
+export PATH=/opt/conda/envs/nf-core-circrnasponging/bin:$PATH
+%runscript
+exec /bin/bash "$@"
+%startscript
+exec /bin/bash "$@"

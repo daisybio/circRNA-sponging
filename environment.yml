@@ -12,7 +12,6 @@ dependencies:
   - conda-forge::r-dplyr=1.0.3
   - conda-forge::r-plyr=1.8.6
   - conda-forge::r-ggplot2=3.3.3
-  - conda-forge::r-ggpubr=0.4.0
   # bioconda packages
   - bioconda::star=2.7.6a
   - bioconda::circexplorer2=2.3.6

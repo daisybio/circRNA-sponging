@@ -5,7 +5,6 @@ suppressMessages(library(data.table))
 suppressMessages(library(gridExtra))
 suppressMessages(library(grid))
 suppressMessages(library(ggplot2))
-suppressMessages(library(ggpubr))
 
 # read input parameters
 args = commandArgs(trailingOnly=TRUE)

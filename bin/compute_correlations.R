@@ -6,7 +6,6 @@ library(data.table)
 library(gridExtra)
 library(grid)
 library(ggplot2)
-library(ggpubr)
 
 args = commandArgs(trailingOnly=TRUE)
 if (length(args)!=4) {

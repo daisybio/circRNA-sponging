@@ -57,7 +57,7 @@ plotCorrelationDistribution <- function(correlations_df, filter_criteria_string,
   # add mean line
   y_coord <- max(ggplot_build(p)$data[[1]]$y)/2 # y coordinate for mean label
   p + geom_vline(data = correlations_df, xintercept = mean(pearson_R), linetype="dashed", 
-                 color = "black", size=0.7) + geom_text(aes(x=mean(pearson_R), label=paste(round(mean(pearson_R), digits = 3), "\n"), y = y_coord), vjust = 1.25, angle=90)
+                 color = "black", size=0.7) + geom_text(data = correlations_df, aes(x=mean(pearson_R), label=paste(round(mean(pearson_R), digits = 3), "\n"), y = y_coord), vjust = 1.25, angle=90)
   ggsave(paste0(plot_folder, "/", plot_name, ".png"), width = 4, height = 3)
   }
 

@@ -330,6 +330,33 @@ if( params.miRNA_raw_counts != null ) {
         .ifEmpty { exit 1, "Cannot find any reads matching: ${params.smallRNA_reads}\nNB: Path needs to be enclosed in quotes!" }
         .set{ch_smallRNA_reads}
 
+/*
+* GENERATE STAR INDEX IN CASE IT IS NOT ALREADY PROVIDED
+*/
+process generate_bowtie_index{
+    label 'process_high'
+    publishDir "${params.out_dir}/bowtie_index/", mode: params.publish_dir_mode
+
+    input:
+    file(fasta) from Channel.value(file(params.fasta))
+    
+    output:
+    file("${fasta.baseName}*") into ch_generated_bowtie_index
+                      
+    when: (params.bowtie_index == null)
+
+    script:
+    """
+    echo "bowtie index is in ${fasta.baseName}"
+    bowtie-build $fasta ${fasta.baseName}
+    """
+}
+
+ch_bowtie_index = params.bowtie_index ? Channel.value(file(params.bowtie_index)) : ch_generated_bowtie_index
+ch_bowtie_index.view()
+
+
+
     /*
      * PERFORM miRNA READ MAPPING USING miRDeep2
      */
@@ -339,13 +366,15 @@ if( params.miRNA_raw_counts != null ) {
 
         input:
         tuple val(sampleID), file(read_file) from ch_smallRNA_reads
+        file(index) from ch_bowtie_index.collect()
+        file(fasta) from Channel.value(file(params.fasta))
 
         output: 
         tuple val(sampleID), file("reads_collapsed.fa"), file("reads_vs_ref.arf") into ch_miRNA_mapping_output
 
         script:
         """
-        mapper.pl $read_file -e -h -i -j -k $params.miRNA_adapter -l 18 -m -p $params.ref_prefix -s "reads_collapsed.fa" -t "reads_vs_ref.arf" -v
+        mapper.pl $read_file -e -h -i -j -k $params.miRNA_adapter -l 18 -m -p ${fasta.baseName} -s "reads_collapsed.fa" -t "reads_vs_ref.arf" -v
         """
     }
 

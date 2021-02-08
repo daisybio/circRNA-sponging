@@ -1,7 +1,6 @@
 #!/usr/bin/env Rscript
-# update.packages(ask = FALSE, checkBuilt = TRUE)
 
-c("dplyr", "plyr", "ggplot2", "data.table", "devtools") -> chk_pkgs
+c("dplyr", "plyr", "ggplot2", "data.table") -> chk_pkgs
 
 suppressPackageStartupMessages(
   sapply(chk_pkgs, require, character.only=TRUE, quietly=FALSE, warn.conflicts=FALSE)
@@ -14,4 +13,4 @@ if (length(missing_pkgs) > 0) {
           paste0(sprintf("  - %s", missing_pkgs), collapse="\n"))
 }
 
-quit(save=FALSE, status=length(names) == 0, runLast = FALSE)
+quit(save='no', status=length(names) == 0, runLast = FALSE)

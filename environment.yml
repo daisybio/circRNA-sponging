@@ -20,3 +20,4 @@ dependencies:
   - bioconda::bioconductor-deseq2=1.30.0
   - bioconda::miranda=3.3a
   - bioconda::mirdeep2=2.0.1.2
+  - bioconda::bowtie=1.0.0

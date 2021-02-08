@@ -73,27 +73,26 @@ Channel
         .fromFilePairs(params.totalRNA_reads, size: params.single_end ? 1 : 2)
         .ifEmpty { exit 1, "Cannot find any reads matching: ${params.totalRNA_reads}\nNB: Path needs to be enclosed in quotes!\nIf this is single-end data, please specify --single_end on the command line." }
         .set{ch_totalRNA_reads}
-ch_totalRNA_reads.view()
-
 
 /*
 * GENERATE STAR INDEX IN CASE IT IS NOT ALREADY PROVIDED
 */
 process generate_star_index{
     label 'process_high'
-    publishDir "${params.out_dir}/star_index/", mode: params.publish_dir_mode
+    publishDir "${params.out_dir}/", mode: params.publish_dir_mode
 
     input:
     file(fasta) from Channel.value(file(params.fasta))
     file(gtf) from Channel.value(file(params.gtf))            
     
     output:
-    path "star_index", emit: generated_star_index
+    file("star_index") into generated_star_index
                       
-    when: !(params.STAR_index)
+    when: (params.STAR_index == null)
 
     script:
     """
+    echo "star index is running"
     mkdir star_index
       
     STAR \\
@@ -105,8 +104,8 @@ process generate_star_index{
     """
 }
 
-star_index = params.STAR_index ? params.STAR_index : generated_star_index
-println star_index
+ch_star_index = params.STAR_index ? Channel.value(file(params.STAR_index)) : generated_star_index
+ch_star_index.view()
 
 /*
 * PERFORM READ MAPPING OF totalRNA SAMPLES USING STAR
@@ -117,7 +116,7 @@ process STAR {
     
     input:
     set val(sampleID), file(reads) from ch_totalRNA_reads
-    path star_index
+    file star_index from ch_star_index
 
     output:
     tuple val(sampleID), file("Chimeric.out.junction") into chimeric_junction_files
@@ -326,9 +325,10 @@ if( params.miRNA_raw_counts != null ) {
     /*
      * PERFORM miRNA DETECTION USING miRDeep2 FROM SPECIFIED READ FILES
      */
-    ch_smallRNA_reads = Channel
-        .fromPath{smallRNA_reads}			
-	.map { file -> tuple(file.baseName, file) }
+    Channel
+        .fromFilePairs(params.smallRNA_reads, size: 1)
+        .ifEmpty { exit 1, "Cannot find any reads matching: ${params.smallRNA_reads}\nNB: Path needs to be enclosed in quotes!" }
+        .set{ch_smallRNA_reads}
 
     /*
      * PERFORM miRNA READ MAPPING USING miRDeep2
@@ -336,9 +336,6 @@ if( params.miRNA_raw_counts != null ) {
     process miRDeep2_mapping {
         label 'process_high'
         publishDir "${params.out_dir}/samples/${sampleID}/miRNA_detection/", mode: params.publish_dir_mode
-       //    saveAs: { filename ->
-       //                   filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename"
-       //             }
 
         input:
         tuple val(sampleID), file(read_file) from ch_smallRNA_reads
@@ -358,10 +355,7 @@ if( params.miRNA_raw_counts != null ) {
     process miRDeep2_quantification {
         label 'process_high'
         publishDir "${params.out_dir}/samples/${sampleID}/miRNA_detection/", mode: params.publish_dir_mode
-       //    saveAs: { filename ->
-       //                   filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename"
-       //             }
-
+ 
         input:
         tuple val(sampleID), file(reads_collapsed_fa), file(reads_vs_ref_arf) from ch_miRNA_mapping_output
 

@@ -41,27 +41,83 @@ if (params.help) {
     exit 0
 }
 
+if(params.test_container_mode){
+process test_correlation_analysis{
+    label 'process_high'
+
+    publishDir "/nfs/home/students/ciora/nf_circRNA_pipeline/human_data/nf-core_output/second_run/results/sponging", mode: params.publish_dir_mode
+    
+    input:
+    file(correlations) from Channel.value(file("/nfs/home/students/ciora/nf_circRNA_pipeline/human_data/nf-core_output/second_run/results/sponging/filtered_circRNA_miRNA_correlation.tsv"))
+    file(miRNA_counts_norm) from Channel.value(file("/nfs/home/students/ciora/nf_circRNA_pipeline/human_data/nf-core_output/second_run/results/miRNA/miRNA_counts_all_samples_libSizeEstNorm.tsv"))
+    file(circRNA_counts_norm) from Channel.value(file("/nfs/home/students/ciora/nf_circRNA_pipeline/human_data/nf-core_output/second_run/results/circRNA/circRNA_counts_libSizeEstNorm.tsv"))
+
+    output:
+    file("sponging_statistics.txt") into ch_sponging_statistics
+    file("plots/*.png") into ch_plots
+
+    script:
+    """
+    mkdir -p "${params.out_dir}/results/sponging/plots/"
+    Rscript "${projectDir}"/bin/correlation_analysis.R $params.dataset $miRNA_counts_norm $circRNA_counts_norm $correlations $params.out_dir
+    """
+}
+
+} else {
+
 /*
- * Create a channel for input read files
+ * CREATE A CHANNEL FOR INPUT READ FILES
  */
 
 Channel
         .fromFilePairs(params.totalRNA_reads, size: params.single_end ? 1 : 2)
         .ifEmpty { exit 1, "Cannot find any reads matching: ${params.totalRNA_reads}\nNB: Path needs to be enclosed in quotes!\nIf this is single-end data, please specify --single_end on the command line." }
         .set{ch_totalRNA_reads}
+ch_totalRNA_reads.view()
 
+
+/*
+* GENERATE STAR INDEX IN CASE IT IS NOT ALREADY PROVIDED
+*/
+process generate_star_index{
+    label 'process_high'
+    publishDir "${params.out_dir}/star_index/", mode: params.publish_dir_mode
+
+    input:
+    file(fasta) from Channel.value(file(params.fasta))
+    file(gtf) from Channel.value(file(params.gtf))            
+    
+    output:
+    path "star_index", emit: generated_star_index
+                      
+    when: !(params.STAR_index)
+
+    script:
+    """
+    mkdir star_index
+      
+    STAR \\
+    --runMode genomeGenerate \\
+    --runThreadN 8 \\
+    --sjdbGTFfile $gtf \\
+    --genomeDir star_index/ \\
+    --genomeFastaFiles $fasta 
+    """
+}
+
+star_index = params.STAR_index ? params.STAR_index : generated_star_index
+println star_index
 
 /*
 * PERFORM READ MAPPING OF totalRNA SAMPLES USING STAR
 */
 process STAR {
+    label 'process_high'
     publishDir "${params.out_dir}/samples/${sampleID}/circRNA_detection/", mode: params.publish_dir_mode
-   //    saveAs: { filename ->
-   //                   filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename"
-   //             }
-
+    
     input:
     set val(sampleID), file(reads) from ch_totalRNA_reads
+    path star_index
 
     output:
     tuple val(sampleID), file("Chimeric.out.junction") into chimeric_junction_files
@@ -390,7 +446,7 @@ process compute_correlations{
 * USING BINDING SITES INFORMATION. COMPUTE STATISTICS AND PLOTS
 */
 process correlation_analysis{
-    label 'process_medium'
+    label 'process_high'
 
     publishDir "${params.out_dir}/results/sponging/", mode: params.publish_dir_mode
     
@@ -412,6 +468,6 @@ process correlation_analysis{
 
 
 
-
+}
 
 

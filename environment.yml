@@ -8,10 +8,10 @@ channels:
 dependencies:
   # conda forge packages
   - conda-forge::r-base=4.0.2
-  - conda-forge::r-data.table=1.13.2
   - conda-forge::r-dplyr=1.0.3
   - conda-forge::r-plyr=1.8.6
   - conda-forge::r-ggplot2=3.3.3
+  - conda-forge::r-data.table=1.13.2
   # bioconda packages
   - bioconda::star=2.7.6a
   - bioconda::circexplorer2=2.3.6

@@ -2,8 +2,6 @@
 suppressMessages(library(plyr))
 suppressMessages(library(dplyr))
 suppressMessages(library(data.table))
-suppressMessages(library(gridExtra))
-suppressMessages(library(grid))
 suppressMessages(library(ggplot2))
 
 # read input parameters
@@ -56,8 +54,8 @@ plotCorrelationDistribution <- function(correlations_df, filter_criteria_string,
          y = "circRNA-miRNA pairs") + xlim(c(-1.1,1.1))
   # add mean line
   y_coord <- max(ggplot_build(p)$data[[1]]$y)/2 # y coordinate for mean label
-  p + geom_vline(data = correlations_df, xintercept = mean(pearson_R), linetype="dashed", 
-                 color = "black", size=0.7) + geom_text(data = correlations_df, aes(x=mean(pearson_R), label=paste(round(mean(pearson_R), digits = 3), "\n"), y = y_coord), vjust = 1.25, angle=90)
+  p + geom_vline(xintercept = mean(correlations_df$pearson_R), linetype="dashed", 
+                 color = "black", size=0.7) + geom_text(data = correlations_df, aes(x=mean(correlations_df$pearson_R), label=paste(round(mean(correlations_df$pearson_R), digits = 3), "\n"), y = y_coord), vjust = 1.25, angle=90)
   ggsave(paste0(plot_folder, "/", plot_name, ".png"), width = 4, height = 3)
   }
 

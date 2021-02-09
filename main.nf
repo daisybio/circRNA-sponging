@@ -264,7 +264,7 @@ process miranda {
 
     script:
     """
-        miranda "${params.ref_dir}/mature_ref.fa" $circRNA_fasta -out "bind_sites_raw.out" -quiet
+        miranda $params.mature_fasta $circRNA_fasta -out "bind_sites_raw.out" -quiet
     """
 }
 
@@ -393,7 +393,7 @@ ch_bowtie_index.view()
 
         script:
         """
-        miRDeep2.pl $reads_collapsed_fa "${params.ref_prefix}.fa" $reads_vs_ref_arf "${params.mirbase_ref_folder}/mature_ref.fa" "${params.mirbase_ref_folder}/mature_other.fa" "${params.mirbase_ref_folder}/hairpin_ref.fa" -t $params.species -d -v 
+        miRDeep2.pl $reads_collapsed_fa $params.fasta $reads_vs_ref_arf $params.mature_fasta $params.mature_other_fasta $params.hairpin_fasta -t $params.species -d -v 
         """
     }
 

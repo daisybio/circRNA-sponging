@@ -123,7 +123,7 @@ process STAR {
 
     script:
     """
-    STAR --chimSegmentMin 10 --runThreadN 10 --genomeDir $params.STAR_index --readFilesCommand zcat --readFilesIn $reads
+    STAR --chimSegmentMin 10 --runThreadN 10 --genomeDir $star_index --readFilesCommand zcat --readFilesIn $reads
     """
 }
 

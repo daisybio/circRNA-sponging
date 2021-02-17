@@ -35,6 +35,33 @@ def helpMessage() {
     """.stripIndent() 
 }
 
+def get_circRNA_paths(LinkedHashMap row) {
+    def array = []
+    if (!file(row.totalRNA1).exists()) {
+        exit 1, "Error: Fastq file does not exist!\n${row.totalRNA1}"
+    }
+    if (params.single_end) {
+        array = [ row.sample, [ file(row.totalRNA1) ] ]
+    } else {
+        if (!file(row.totalRNA2).exists()) {
+             exit 1, "Error: Fastq file does not exist!\n${row.totalRNA2}"
+        }
+        array = [ row.sample, [ file(row.totalRNA1), file(row.totalRNA2) ] ]
+    }
+    return array
+}
+
+def get_miRNA_paths(LinkedHashMap row) {
+    def array = []
+    if (!file(row.smallRNA).exists()) {
+        exit 1, "ERROR:FastQ file does not exist!\n${row.smallRNA}"
+    }
+    array = [ row.sample, [ file(row.smallRNA) ] ]
+    return array
+}
+
+
+
 // Show help message
 if (params.help) {
     helpMessage()
@@ -68,11 +95,9 @@ process test_correlation_analysis{
 /*
  * CREATE A CHANNEL FOR INPUT READ FILES
  */
-
-Channel
-        .fromFilePairs(params.totalRNA_reads, size: params.single_end ? 1 : 2)
-        .ifEmpty { exit 1, "Cannot find any reads matching: ${params.totalRNA_reads}\nNB: Path needs to be enclosed in quotes!\nIf this is single-end data, please specify --single_end on the command line." }
-        .set{ch_totalRNA_reads}
+ch_totalRNA_reads=Channel.fromPath(params.dataset)
+   .splitCsv( header:true, sep:'\t')
+   .map { get_circRNA_paths(it) }
 
 /*
 * GENERATE STAR INDEX IN CASE IT IS NOT ALREADY PROVIDED
@@ -324,14 +349,15 @@ if( params.miRNA_raw_counts != null ) {
    
     /*
      * PERFORM miRNA DETECTION USING miRDeep2 FROM SPECIFIED READ FILES
+     * CREATE INPUT CHANNEL
      */
-    Channel
-        .fromFilePairs(params.smallRNA_reads, size: 1)
-        .ifEmpty { exit 1, "Cannot find any reads matching: ${params.smallRNA_reads}\nNB: Path needs to be enclosed in quotes!" }
-        .set{ch_smallRNA_reads}
+
+ch_smallRNA_reads=Channel.fromPath(params.dataset)
+   .splitCsv( header:true, sep:'\t')
+   .map { get_miRNA_paths(it) }
 
 /*
-* GENERATE STAR INDEX IN CASE IT IS NOT ALREADY PROVIDED
+* GENERATE BOWTIE INDEX IN CASE IT IS NOT ALREADY PROVIDED
 */
 process generate_bowtie_index{
     label 'process_high'

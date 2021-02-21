@@ -64,12 +64,12 @@ If your totalRNA sequencing data is single-end, the samplesheet file should have
 * Column 2: path to totalRNA fastq.gz file corresponding to the sample mentioned in column 1
 * Column 3: path to the miRNA fastq.gz file corresponding to the sample mentioned in column 1. In case you are running the pipeline without miRNA fastq files (see Option 1 in [Input](#input)), replace the path with NA.
 ```
-      sample     |             totalRNA1               |             smallRNA
----------------- | ------------------------------------|------------------------------------
- cerebellum_rep1 | path/to/<totalRNA_sample1>.fastq.gz | path/to/<smallRNA_sample1>.fastq.gz
- cerebellum_rep2 | path/to/<totalRNA_sample2>.fastq.gz | path/to/<smallRNA_sample2>.fastq.gz
-hippocampus_rep1 | path/to/<totalRNA_sample3>.fastq.gz | path/to/<smallRNA_sample3>.fastq.gz
-      ...        |                ...                  |               ...
+   sample  |             totalRNA1               |             smallRNA
+-----------|-------------------------------------|------------------------------------
+  sample1  | path/to/<totalRNA_sample1>.fastq.gz | path/to/<smallRNA_sample1>.fastq.gz
+  sample2  | path/to/<totalRNA_sample2>.fastq.gz | path/to/<smallRNA_sample2>.fastq.gz
+  sample3  | path/to/<totalRNA_sample3>.fastq.gz | path/to/<smallRNA_sample3>.fastq.gz
+    ...    |                ...                  |               ...
 ```
 
 ##### paired-end
@@ -80,12 +80,12 @@ Column 3: path to totalRNA read2 fastq.gz file corresponding to the sample menti
 Column 4: path to the miRNA fastq.gz file corresponding to the sample mentioned in column 1. In case you are running the pipeline without miRNA fastq files (see Option 1 in [Input](#input)), replace the path with NA.
 
 ```
-      sample     |                totalRNA1               |               totalRNA2               |             smallRNA
----------------- | ---------------------------------------|---------------------------------------|-------------------------------------
- cerebellum_rep1 | path/to/<totalRNA_sample1_R1>.fastq.gz | path/to/<totalRNA_sample1_R2>.fastq.gz| path/to/<smallRNA_sample1>.fastq.gz
- cerebellum_rep2 | path/to/<totalRNA_sample2_R1>.fastq.gz | path/to/<totalRNA_sample2_R2>.fastq.gz| path/to/<smallRNA_sample2>.fastq.gz
-hippocampus_rep1 | path/to/<totalRNA_sample3_R1>.fastq.gz | path/to/<totalRNA_sample3_R2>.fastq.gz| path/to/<smallRNA_sample3>.fastq.gz
-      ...        |                  ...                   |                  ...                  |                ...
+   sample  |                totalRNA1               |               totalRNA2               |             smallRNA
+-----------|----------------------------------------|---------------------------------------|-------------------------------------
+  sample1  | path/to/<totalRNA_sample1_R1>.fastq.gz | path/to/<totalRNA_sample1_R2>.fastq.gz| path/to/<smallRNA_sample1>.fastq.gz
+  sample2  | path/to/<totalRNA_sample2_R1>.fastq.gz | path/to/<totalRNA_sample2_R2>.fastq.gz| path/to/<smallRNA_sample2>.fastq.gz
+  sample3  | path/to/<totalRNA_sample3_R1>.fastq.gz | path/to/<totalRNA_sample3_R2>.fastq.gz| path/to/<smallRNA_sample3>.fastq.gz
+   ...     |                  ...                   |                  ...                  |                ...
 ```
 
 ### Reference Files
@@ -99,29 +99,70 @@ Reference files needed for this analysis are:
 #### Optional
 A STAR index is required for the detection of circRNAs and a bowtie index is needed for the read mapping of smRNAs. If you skip the miRNA quantification step, and input the tabulated miRNA read counts, the bowtie index is not needed. Specifying already built STAR index or bowtie index is supported, but this is optional, since the pipeline generates them once from the fasta file, if they are not provided.
 
-#### Parameters
-For instructions about how to specify the parameters, see [Configuration](#configuration).
-```
-[MANDATORY]
-out_dir = "path/to/out_dir" # directory where the results will be stored
-single_end = true/false # whether the totalRNA sequencing data is single-end or paired-end
-dataset = "path/to/sampleseet.tsv"
-fasta = "path/to/genome.fasta"
-gtf = "path/to/genome.gtf"
-gene_pred = ""
-species = "hsa" # 3-letter code: hsa, mmu etc.
-mature_fasta
-mature_other_fasta
-hairpin_fasta
-[OPTIONAL]
-miRNA_raw_counts = "path/to/miRNA_raw_counts.tsv" (if Option 1 is used)
-miRNA_adapter = "AAAAAAAAAA" # miRNA adapter used for trimming (if Option 2 is used)
-STAR_index = "path/to/STAR_index_folder" # path to folder containing STAR index
-bowtie_index = "path/to/bowtie_index" # path to bowtie index
-```
-
 ### Configuration
+It is recommended to create a config file `my.config` specifying parameters and execution details. An example config file is shown below:
+
+```
+params {
+    # MANDATORY
+    out_dir = "path/to/out_dir"   # directory where the results will be stored
+    single_end = true/false   # whether the totalRNA sequencing data is single-end or paired-end
+    dataset = "path/to/sampleseet.tsv"
+    fasta = "path/to/genome.fasta"
+    gtf = "path/to/genome.gtf"
+    gene_pred = ""
+    species = "hsa"   # 3-letter code: hsa, mmu etc.
+    mature_fasta
+    mature_other_fasta
+    hairpin_fasta
+
+    # OPTIONAL
+    miRNA_raw_counts = "path/to/miRNA_raw_counts.tsv"   # (if Option 1 is used)
+    miRNA_adapter = "AAAAAAAAAA"    # miRNA adapter used for trimming (if Option 2 is used)
+    STAR_index = "path/to/STAR_index_folder"    # path to folder containing STAR index
+    bowtie_index = "path/to/bowtie_index"   # path to bowtie index
+}
+
+profiles {
+     standard {
+         process.executor = 'local'
+     }
+     cluster {
+         executor.queueSize = 20
+         process.executor = 'slurm'
+         process.cpu = '8'
+	 process.memory = '50 GB'
+     }
+}
+
+```
 ### Output
+The output folder is structured as shown below. The circRNA/miRNA results for each sample are stored in folder `samples`. The tabulated circRNA and miRNA counts summarized over all samples are `results/circRNA` and `results/miRNA`. The results of the sponging analysis are stored in the subfolder `results/sponging`. 
+
+```
+├─── output_folder
+│   ├─── samples
+|   │   ├─── sample_1
+|   |   |   |─── circRNA_detection
+|   |   |   └─── miRNA_detection
+|   │   ├─── sample_2
+|   |   |   |─── circRNA_detection
+|   |   |   └─── miRNA_detection
+|   │   ├─── ...
+│   ├─── results
+|   |   |─── circRNA
+|   |   |   |─── circRNA_counts_raw.tsv
+|   |   |   └─── circRNA_counts_filtered.tsv
+|   |   |─── miRNA
+|   |   |   |─── miRNA_counts_raw.tsv
+|   |   |   └─── miRNA_counts_filtered.tsv
+|   |   |─── binding_sites
+|   |   |─── sponging
+|   |   |   |─── sponging_statistics.txt
+|   |   |   |─── filtered_circRNA_miRNA_correlation.tsv
+|   |   |   └─── plots
+└── └── └── 
+```
 
 ## Running the Pipeline
 After preparing the input files and setting up the configuration file, you can run the analysis using the following command: 

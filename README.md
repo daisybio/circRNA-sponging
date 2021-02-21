@@ -17,7 +17,7 @@ This pipeline was written by Octavia Ciora as part of her Advanced Lab Course Bi
 * [Introduction](#introduction)
 * [Pipeline Summary](#pipeline-summary)
 * [Documentation](#documentation)
-  + [Input Format](#input-format)
+  + [Input](#input)
   + [Configuration](#configuration)
   + [Output](#output)
 * [Running the Pipeline](#running-the-pipeline)
@@ -48,11 +48,30 @@ By default, the pipeline currently performs the following:
 
 ## Documentation
 <!--The nf-core/circrnasponging pipeline comes with documentation about the pipeline: [usage](https://nf-co.re/circrnasponging/usage) and [output](https://nf-co.re/circrnasponging/output). -->
+This analysis is based on both totalRNA (or rRNA-depleted) and smRNA data coming from the same samples. It is recommended to run this analysis with a minimum of 5 samples. The exact input format and how to get the needed reference files is described below.
 
-### Input Format
+### Input
+These pipeline can be applied in two ways:
+* Option 1: Input fastq files only for totalRNA data and tabulated raw read counts for miRNAs quantified previously. It is recommended to use the [`nf-core/smarnaseq`](https://github.com/nf-core/smrnaseq) pipeline for the quantification of miRNAs.
+* Option 2: Input fastq files for both totalRNA and smRNA data. In this case the pipeline perform the read mapping and quantification of circRNAs and miRNAs.
+
+#### Samplesheet
+
+#### Parameters
+For instructions about how to specify the parameters, see [Configuration](#configuration).
+
+
+### Reference Files
+#### Mandatory
+Reference files needed for this analysis are:
+* GTF file
+* genome fasta file
+* miR-Base reference files for hairpin and mature miRNA sequences
+* gene-pred file 
+#### Optional
+A STAR index is required for the detection of circRNAs and a bowtie index is needed for the read mapping of smRNAs. If you skip the miRNA quantification step, and input the tabulated miRNA read counts, the bowtie index is not needed. Specifying already built STAR index or bowtie index is supported, but this is optional, since the pipeline generates them once from the fasta file, if they are not provided.
 
 ### Configuration
-
 ### Output
 
 ## Running the Pipeline

@@ -56,9 +56,41 @@ These pipeline can be applied in two ways:
 * Option 2: Input fastq files for both totalRNA and smRNA data. In this case the pipeline perform the read mapping and quantification of circRNAs and miRNAs.
 
 #### Samplesheet
+The pipeline requires a tab-separated samplesheet file with information about the samples and the paths to the fastq.gz read files.
+
+##### single-end
+If your totalRNA sequencing data is single-end, the samplesheet file should have the following structure:
+* Column 1: sample name
+* Column 2: path to totalRNA fastq.gz file corresponding to the sample mentioned in column 1
+* Column 3: path to the miRNA fastq.gz file corresponding to the sample mentioned in column 1. In case you are running the pipeline without miRNA fastq files (see Option 1 in [Input](#input)), replace the path with NA.
+```
+      sample     |             totalRNA1               |             smallRNA
+---------------- | ------------------------------------|------------------------------------
+ cerebellum_rep1 | path/to/<totalRNA_sample1>.fastq.gz | path/to/<smallRNA_sample1>.fastq.gz
+ cerebellum_rep2 | path/to/<totalRNA_sample2>.fastq.gz | path/to/<smallRNA_sample2>.fastq.gz
+hippocampus_rep1 | path/to/<totalRNA_sample3>.fastq.gz | path/to/<smallRNA_sample3>.fastq.gz
+      ...        |                ...                  |               ...
+```
+
+##### paired-end
+If your totalRNA sequencing data is single-end, the ```dataset.tsv``` file should look like this:
+Column 1: sample name
+Column 2: path to totalRNA read1 fastq.gz file corresponding to the sample mentioned in column 1
+Column 3: path to totalRNA read2 fastq.gz file corresponding to the sample mentioned in column 1
+Column 4: path to the miRNA fastq.gz file corresponding to the sample mentioned in column 1. In case you are running the pipeline without miRNA fastq files (see Option 1 in [Input](#input)), replace the path with NA.
+
+```
+      sample     |                totalRNA1               |               totalRNA2               |             smallRNA
+---------------- | ---------------------------------------|---------------------------------------|-------------------------------------
+ cerebellum_rep1 | path/to/<totalRNA_sample1_R1>.fastq.gz | path/to/<totalRNA_sample1_R2>.fastq.gz| path/to/<smallRNA_sample1>.fastq.gz
+ cerebellum_rep2 | path/to/<totalRNA_sample2_R1>.fastq.gz | path/to/<totalRNA_sample2_R2>.fastq.gz| path/to/<smallRNA_sample2>.fastq.gz
+hippocampus_rep1 | path/to/<totalRNA_sample3_R1>.fastq.gz | path/to/<totalRNA_sample3_R2>.fastq.gz| path/to/<smallRNA_sample3>.fastq.gz
+      ...        |                  ...                   |                  ...                  |                ...
+```
 
 #### Parameters
 For instructions about how to specify the parameters, see [Configuration](#configuration).
+
 
 
 ### Reference Files

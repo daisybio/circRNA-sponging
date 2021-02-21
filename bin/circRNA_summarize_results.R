@@ -9,8 +9,8 @@ if (length(args)!=2) {
 dataset_path = args[1]
 output_dir = args[2]
 
-dataset <- read.table(dataset_path, sep = "\t", header=F, stringsAsFactors = F)
-samples <- dataset$V1
+dataset <- read.table(dataset_path, sep = "\t", header=T, stringsAsFactors = F)
+samples <- dataset$sample
 
 finaldata <- NULL
 N_of_circRNAs_raw <- c()

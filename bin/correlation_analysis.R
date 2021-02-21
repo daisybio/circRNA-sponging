@@ -22,8 +22,8 @@ dir.create(file.path(plot_folder))
 
 
 # get dataset structure, samples, miRNA expression and circRNA expression
-dataset <- read.table(dataset_path, sep = "\t", header=F, stringsAsFactors = F)
-samples <- dataset$V1
+dataset <- read.table(dataset_path, sep = "\t", header=T, stringsAsFactors = F)
+samples <- dataset$sample
 
 expression_cutoff = 0.2 # keep only circRNAs/miRNAs expressed in at least 20% samples
 max_low_counts_samples <- ceiling(expression_cutoff*nrow(dataset))

@@ -8,8 +8,8 @@ output_dir = args[2]
 
 library(ggplot2)
 
-dataset <- read.table(dataset_path, sep = "\t", header=F, stringsAsFactors = F)
-samples <- dataset$V1
+dataset <- read.table(dataset_path, sep = "\t", header=T, stringsAsFactors = F)
+samples <- dataset$sample
 
 dataset_counts_raw <- NULL
 for(i in 1:length(samples)){
@@ -32,4 +32,4 @@ for(i in 1:length(samples)){
   
 }
 dataset_counts_raw[is.na(dataset_counts_raw)]  <- 0
-write.table(dataset_counts_raw, paste0("/miRNA_counts_raw.tsv"), quote = F, sep = "\t", row.names = F)
+write.table(dataset_counts_raw, paste0("miRNA_counts_raw.tsv"), quote = F, sep = "\t", row.names = F)

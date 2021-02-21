@@ -18,8 +18,8 @@ filtered_bindsites_path = args[4]
 
 expression_cutoff = 0.2 # keep only circRNAs/miRNAs expressed in at least 20% samples
 
-dataset <- read.table(dataset_path, sep = "\t", header=F, stringsAsFactors = F)
-samples <- dataset$V1
+dataset <- read.table(dataset_path, sep = "\t", header=T, stringsAsFactors = F)
+samples <- dataset$sample
 
 raw_bindSites <- read.table(filtered_bindsites_path, header = T, sep = "\t", stringsAsFactors = F)
 bindSites <- raw_bindSites[,c(1,2)]

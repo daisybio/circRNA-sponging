@@ -97,7 +97,7 @@ cat(paste0("Number of circRNA-miRNA pairs (filter: number of binding sites >= ",
 plotCorrelationDistribution(correlations_processed, paste("Filter: adj_pval <", adj_pval_filter, ", normRSS <", maxRSS, ", bind_sites >", bind_sites_filter), plot_folder, paste0("correlation_distribution_minBindSites_", bind_sites_filter, "_adj_pval", adj_pval_filter,"_RSS", maxRSS))
 
 # define function for plotting correlation for specific pair
-plotCorrelationForPair <- function(circRNA, miRNA, circRNA_expression_df, miRNA_expression_df, bind_sites, plot_folder, plot_name){
+plotCorrelationForPair <- function(circRNA, miRNA, circRNA_expression_df, miRNA_expression_df, bind_sites, R_value, adjusted_p_value, plot_folder, plot_name){
   #get coordinates of circRNA
   chr <- sapply(strsplit(as.character(circRNA),':'), "[", 1)
   start <- as.numeric(sapply(strsplit(sapply(strsplit(as.character(circRNA),':'), "[", 2),'-'), "[", 1))
@@ -120,12 +120,18 @@ plotCorrelationForPair <- function(circRNA, miRNA, circRNA_expression_df, miRNA_
   
   # compute circRNA expression vs. miRNA expression
   joined_counts <- merge(circRNA_counts, miRNA_counts, by="sample")
-  ggscatter(joined_counts, y = "miRNA_counts", x = "circRNA_counts",
-            add = "reg.line",  # Add regressin line
-            add.params = list(color = "blue", fill = "lightgray"), # Customize reg. line
-            conf.int = TRUE) + stat_cor(method = "pearson") + labs(title=paste(chr, ":", start,"-", end ," VS. ", miRNA, sep=""),
-    xlab="circRNA counts", ylab = "miRNA counts", subtitle=paste0("binding sites: ", bind_sites))
-  
+    
+  ggplot(joined_counts, aes(x=circRNA_counts, y=miRNA_counts)) + 
+    geom_point(size = 2)+
+    geom_smooth(method = "lm", formula = y ~ x) +
+    labs(title=paste(chr, ":", start,"-", end ," VS. ", miRNA, sep=""), 
+       x ="circRNA counts", 
+       y = "miRNA counts", 
+       subtitle=paste0("R=",round(R_value, digits = 2),
+		       ", bind-sites=", bind_sites,
+                       ", p-adj=",round(adjusted_p_value, digits = 8)))
+
+
   ggsave(paste0(plot_folder, plot_name,".png"), width = 6, height = 4)
 }
 
@@ -138,7 +144,9 @@ for (i in 1:10){
   circRNA_min <- correlations_sign[i,1]
   miRNA_min <- correlations_sign[i,2]
   bind_sites <- correlations_sign[i,"miRNA_binding_sites"]
-  plotCorrelationForPair(circRNA_min, miRNA_min, circRNA_expression, miRNA_expression, bind_sites, plot_folder, paste0("correlation_pair_", circRNA_min, "_", miRNA_min))
+  R_value <- correlations_sign[i,"pearson_R"]
+  adjusted_p_value <- correlations_sign[i,"adj_pval"]
+  plotCorrelationForPair(circRNA_min, miRNA_min, circRNA_expression, miRNA_expression, bind_sites, R_value, adjusted_p_value, plot_folder, paste0("correlation_pair_", circRNA_min, "_", miRNA_min))
 
 }
 

@@ -88,11 +88,6 @@ hippocampus_rep1 | path/to/<totalRNA_sample3_R1>.fastq.gz | path/to/<totalRNA_sa
       ...        |                  ...                   |                  ...                  |                ...
 ```
 
-#### Parameters
-For instructions about how to specify the parameters, see [Configuration](#configuration).
-
-
-
 ### Reference Files
 #### Mandatory
 Reference files needed for this analysis are:
@@ -100,8 +95,30 @@ Reference files needed for this analysis are:
 * genome fasta file
 * miR-Base reference files for hairpin and mature miRNA sequences
 * gene-pred file 
+
 #### Optional
 A STAR index is required for the detection of circRNAs and a bowtie index is needed for the read mapping of smRNAs. If you skip the miRNA quantification step, and input the tabulated miRNA read counts, the bowtie index is not needed. Specifying already built STAR index or bowtie index is supported, but this is optional, since the pipeline generates them once from the fasta file, if they are not provided.
+
+#### Parameters
+For instructions about how to specify the parameters, see [Configuration](#configuration).
+```
+[MANDATORY]
+out_dir = "path/to/out_dir" # directory where the results will be stored
+single_end = true/false # whether the totalRNA sequencing data is single-end or paired-end
+dataset = "path/to/sampleseet.tsv"
+fasta = "path/to/genome.fasta"
+gtf = "path/to/genome.gtf"
+gene_pred = ""
+species = "hsa" # 3-letter code: hsa, mmu etc.
+mature_fasta
+mature_other_fasta
+hairpin_fasta
+[OPTIONAL]
+miRNA_raw_counts = "path/to/miRNA_raw_counts.tsv" (if Option 1 is used)
+miRNA_adapter = "AAAAAAAAAA" # miRNA adapter used for trimming (if Option 2 is used)
+STAR_index = "path/to/STAR_index_folder" # path to folder containing STAR index
+bowtie_index = "path/to/bowtie_index" # path to bowtie index
+```
 
 ### Configuration
 ### Output
@@ -147,11 +164,8 @@ See [usage docs](https://nf-co.re/circrnasponging/usage) for all of the availabl
 -->
 
 <!--## Credits
-
-First scripts were originally written by Octavia Ciora as part of her Bachelor's Thesis at the Chair of Experimental Bioinformatics under the supervision of Prof. Dr. Jan Baumbach and Dr. MArkus List
-The pipeline was re-written in Nextflow 
 We thank the following people for their extensive assistance in the development
-of this pipeline: Dr. Markus List
+of this pipeline:
 TODO nf-core: If applicable, make list of people who have also contributed
 -->
 

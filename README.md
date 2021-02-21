@@ -20,6 +20,7 @@ This pipeline was written by Octavia Ciora as part of her Advanced Lab Course Bi
   + [Input Format](#input-format)
   + [Configuration](#configuration)
   + [Output](#output)
+* [Running the Pipeline](#running-the-pipeline)
 
 ## Introduction
 
@@ -54,14 +55,23 @@ By default, the pipeline currently performs the following:
 
 ### Output
 
-## Quick Start
-Command: 
+## Running the Pipeline
+After preparing the input files and setting up the configuration file, you can run the analysis using the following command: 
  ```bash
- nextflow run nf-core-circrnasponging/ -c my.config -profile cluster -resume
+ nextflow run nf-core-circrnasponging/ -c my.config -profile cluster
  ```
+ Add the `-resume` tag to continue a previously stopped pipeline execution without losing already finished tasks.
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
 <!--
-
-
 1. Install [`nextflow`](https://nf-co.re/usage/installation)
 
 2. Install any of [`Docker`](https://docs.docker.com/engine/installation/), [`Singularity`](https://www.sylabs.io/guides/3.0/user-guide/) or [`Podman`](https://podman.io/) for full pipeline reproducibility _(please only use [`Conda`](https://conda.io/miniconda.html) as a last resort; see [docs](https://nf-co.re/usage/configuration#basic-configuration-profiles))_
@@ -85,7 +95,6 @@ Command:
 See [usage docs](https://nf-co.re/circrnasponging/usage) for all of the available options when running the pipeline.
 -->
 
-
 <!--## Credits
 
 First scripts were originally written by Octavia Ciora as part of her Bachelor's Thesis at the Chair of Experimental Bioinformatics under the supervision of Prof. Dr. Jan Baumbach and Dr. MArkus List
@@ -94,8 +103,6 @@ We thank the following people for their extensive assistance in the development
 of this pipeline: Dr. Markus List
 TODO nf-core: If applicable, make list of people who have also contributed
 -->
-
- 
 
 <!--## Contributions and Support
 

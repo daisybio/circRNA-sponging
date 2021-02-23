@@ -7,8 +7,8 @@ if (length(args)!=4) {
 }
 expression_norm_path = args[1]
 output_dir = args[2]
-samples_percentage = args[3] # default 0.2, minimum percentage of samples, a circRNA has to be expressed in is to pass filtering
-read_cutoff = args[4] # default 5, minimum number of reads, a circRNA is required to have to pass filtering
+samples_percentage = as.numeric(args[3]) # default 0.2, minimum percentage of samples, a circRNA has to be expressed in is to pass filtering
+read_cutoff = as.numeric(args[4]) # default 5, minimum number of reads, a circRNA is required to have to pass filtering
 
 expression_norm <- read.table(expression_norm_path, sep = "\t", header=T, stringsAsFactors = F, check.names = F)
 

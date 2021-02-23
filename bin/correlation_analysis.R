@@ -15,8 +15,8 @@ miRNA_norm_path = args[2]
 circRNA_norm_path = args[3]
 correlations_path = args[4]
 out_dir = args[5]
-sample_percentage = args[6] # default=0.2 means keep only circRNAs/miRNAs expressed in at least 20% samples
-read_threshold = args[7] # default 5
+sample_percentage = as.numeric(args[6]) # default=0.2 means keep only circRNAs/miRNAs expressed in at least 20% samples
+read_threshold = as.numeric(args[7]) # default 5
 sample_path = args[8]
 
 # compute paths

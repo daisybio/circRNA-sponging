@@ -12,8 +12,8 @@ dataset_path = args[1]
 miRNA_norm_path = args[2]
 circRNA_norm_path = args[3]
 filtered_bindsites_path = args[4]
-sample_percentage = args[5] # default=0.2 means keep only circRNAs/miRNAs expressed in at least 20% samples
-read_threshold = args[6] # default=5
+sample_percentage = as.numeric(args[5]) # default=0.2 means keep only circRNAs/miRNAs expressed in at least 20% samples
+read_threshold = as.numeric(args[6]) # default=5
 
 
 dataset <- read.table(dataset_path, sep = "\t", header=T, stringsAsFactors = F)

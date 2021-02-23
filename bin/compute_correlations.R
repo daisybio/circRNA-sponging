@@ -3,9 +3,6 @@
 library(plyr)
 library(dplyr)
 library(data.table)
-library(gridExtra)
-library(grid)
-library(ggplot2)
 
 args = commandArgs(trailingOnly=TRUE)
 if (length(args)!=4) {

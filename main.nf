@@ -251,7 +251,7 @@ process filter_circRNAs{
 
     script:
     """
-    Rscript "${projectDir}"/bin/circRNA_filtering.R $circRNA_counts_norm $params.out_dir
+    Rscript "${projectDir}"/bin/circRNA_filtering.R $circRNA_counts_norm $params.out_dir $params.sample_percentage $params.read_threshold
     """
 }
 
@@ -486,7 +486,7 @@ process compute_correlations{
 
     script:
     """
-    Rscript "${projectDir}"/bin/compute_correlations.R $params.dataset $miRNA_counts_norm $circRNA_counts_norm $filtered_bindsites
+    Rscript "${projectDir}"/bin/compute_correlations.R $params.dataset $miRNA_counts_norm $circRNA_counts_norm $filtered_bindsites $params.sample_percentage $params.read_threshold
     """
 }
 
@@ -511,7 +511,7 @@ process correlation_analysis{
     script:
     """
     mkdir -p "${params.out_dir}/results/sponging/plots/"
-    Rscript "${projectDir}"/bin/correlation_analysis.R $params.dataset $miRNA_counts_norm $circRNA_counts_norm $correlations $params.out_dir $params.sample_group
+    Rscript "${projectDir}"/bin/correlation_analysis.R $params.dataset $miRNA_counts_norm $circRNA_counts_norm $correlations $params.out_dir $params.sample_percentage $params.read_threshold $params.sample_group
     """
 }
 

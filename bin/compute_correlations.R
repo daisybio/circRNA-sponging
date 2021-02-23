@@ -5,15 +5,16 @@ library(dplyr)
 library(data.table)
 
 args = commandArgs(trailingOnly=TRUE)
-if (length(args)!=4) {
-  stop("Four argument must be supplied", call.=FALSE)
+if (length(args)!=6) {
+  stop("Six argument must be supplied", call.=FALSE)
 }
 dataset_path = args[1]
 miRNA_norm_path = args[2]
 circRNA_norm_path = args[3]
 filtered_bindsites_path = args[4]
+sample_percentage = args[5] # default=0.2 means keep only circRNAs/miRNAs expressed in at least 20% samples
+read_threshold = args[6] # default=5
 
-expression_cutoff = 0.2 # keep only circRNAs/miRNAs expressed in at least 20% samples
 
 dataset <- read.table(dataset_path, sep = "\t", header=T, stringsAsFactors = F)
 samples <- dataset$sample
@@ -25,31 +26,32 @@ bindSites <- raw_bindSites[,c(1,2)]
 
 pairBindSites <- data.table(dplyr::count(bindSites, Target, miRNA, name="freq"))
 
+if(length(samples) < 5){
+  stop("Cannot perform correlation on less than 5 samples")
+}
 
-max_low_counts_samples <- ceiling(expression_cutoff*nrow(dataset))
+max_low_counts_samples <- ceiling(sample_percentage*length(samples))
 
 miRNA_expression_raw <- read.table(miRNA_norm_path, header = T, stringsAsFactors = F, check.names = F)
-miRNA_expression <- miRNA_expression_raw[rowSums(miRNA_expression_raw[,-c(1)] >= 5) >= max_low_counts_samples , ]
+miRNA_expression <- miRNA_expression_raw[rowSums(miRNA_expression_raw[,-c(1)] >= read_threshold) >= max_low_counts_samples , ]
 
 circRNA_expression_raw <- read.table(circRNA_norm_path,header = T, stringsAsFactors = F, check.names = F)
-circRNA_expression <- circRNA_expression_raw[rowSums(circRNA_expression_raw[,-c(1,2,3,4)] >= 5) >= max_low_counts_samples , ]
+circRNA_expression <- circRNA_expression_raw[rowSums(circRNA_expression_raw[,-c(1,2,3,4)] >= read_threshold) >= max_low_counts_samples , ]
 
 header <- "circRNA\tmiRNA\tcircRNA_miRNA_ratio\tmiRNA_binding_sites\tpearson_R\tcorr_pval\tRSS_norm\tintercept\tintercept_pval\tslope\tslope_pval\tadj_r_squared"
 #write(header, file=paste0("filtered_circRNA_miRNA_correlation_libSizeEstNorm_directwritten.tsv"), append = F)
-
 
 miRNA_for_row <- function(miRNA_expr_line, circRNA, circRNA_counts){
   #miRNA <- as.character(miRNA_expr_line[1])
   mirna <- as.character(miRNA_expr_line[1])
 
-  
   # get sample counts for current miRNA
   miRNA_counts <- miRNA_expr_line[-1]
   
   miRNA_counts <- data.frame(sample = as.character(names(miRNA_counts)), "miRNA_counts" = as.numeric(unname(miRNA_counts)))
   # compute circRNA expression vs. miRNA expression
   joined_counts <- merge(miRNA_counts, circRNA_counts, by="sample")
-  
+    
   # analyse circRNA/miRNA ratio
   mean_circRNA_counts <- mean(joined_counts$circRNA_counts)
   mean_miRNA_counts <- mean(joined_counts$miRNA_counts)

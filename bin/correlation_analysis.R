@@ -7,33 +7,34 @@ suppressMessages(library(ggrepel))
 
 # read input parameters
 args = commandArgs(trailingOnly=TRUE)
-if (length(args)!=5) {
-  stop("Five argument must be supplied", call.=FALSE)
+if (length(args)!=8) {
+  stop("Eight argument must be supplied", call.=FALSE)
 }
 dataset_path = args[1]
 miRNA_norm_path = args[2]
 circRNA_norm_path = args[3]
 correlations_path = args[4]
 out_dir = args[5]
+sample_percentage = args[6] # default=0.2 means keep only circRNAs/miRNAs expressed in at least 20% samples
+read_threshold = args[7] # default 5
+sample_path = args[8]
 
 # compute paths
 statistics_file <- paste0("sponging_statistics.txt")
 plot_folder <- paste0("plots/")
 dir.create(file.path(plot_folder))
 
-
 # get dataset structure, samples, miRNA expression and circRNA expression
 dataset <- read.table(dataset_path, sep = "\t", header=T, stringsAsFactors = F)
 samples <- dataset$sample
 
-expression_cutoff = 0.2 # keep only circRNAs/miRNAs expressed in at least 20% samples
-max_low_counts_samples <- ceiling(expression_cutoff*nrow(dataset))
+max_low_counts_samples <- ceiling(sample_percentage*nrow(dataset))
 
 miRNA_expression_raw <- read.table(miRNA_norm_path, header = T, stringsAsFactors = F, check.names = F)
-miRNA_expression <- miRNA_expression_raw[rowSums(miRNA_expression_raw[,-c(1)] >= 5) >= max_low_counts_samples , ]
+miRNA_expression <- miRNA_expression_raw[rowSums(miRNA_expression_raw[,-c(1)] >= read_threshold) >= max_low_counts_samples , ]
 
 circRNA_expression_raw <- read.table(circRNA_norm_path,header = T, stringsAsFactors = F, check.names = F)
-circRNA_expression <- circRNA_expression_raw[rowSums(circRNA_expression_raw[,-c(1,2,3,4)] >= 5) >= max_low_counts_samples , ]
+circRNA_expression <- circRNA_expression_raw[rowSums(circRNA_expression_raw[,-c(1,2,3,4)] >= read_threshold) >= max_low_counts_samples , ]
 
 # write starting statistics to file
 file.create(statistics_file)
@@ -140,8 +141,8 @@ plotCorrelationForPair <- function(circRNA, miRNA, circRNA_expression_df, miRNA_
   ggsave(filename = paste0(plot_folder, plot_name,"_labeled.png"), plot = p_labeled,
   width = 6, height = 4)
 
-if (args[6] != "null") {
-	sample_path = args[6]
+if (sample_path != "null") {
+	
 	sample_structure <- read.table(sample_path, sep = "\t", header=T, stringsAsFactors = F)
 	joined_counts <- merge(joined_counts, sample_structure, by="sample")
 
@@ -161,7 +162,7 @@ p_colored <- ggplot(joined_counts, aes(x=circRNA_counts, y=miRNA_counts)) +
 
 }
 
-  
+
 }
 
 

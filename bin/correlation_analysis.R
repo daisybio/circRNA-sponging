@@ -3,6 +3,7 @@ suppressMessages(library(plyr))
 suppressMessages(library(dplyr))
 suppressMessages(library(data.table))
 suppressMessages(library(ggplot2))
+suppressMessages(library(ggrepel))
 
 # read input parameters
 args = commandArgs(trailingOnly=TRUE)
@@ -138,6 +139,28 @@ plotCorrelationForPair <- function(circRNA, miRNA, circRNA_expression_df, miRNA_
   width = 6, height = 4)
   ggsave(filename = paste0(plot_folder, plot_name,"_labeled.png"), plot = p_labeled,
   width = 6, height = 4)
+
+if (args[6] != "null") {
+	sample_path = args[6]
+	sample_structure <- read.table(sample_path, sep = "\t", header=T, stringsAsFactors = F)
+	joined_counts <- merge(joined_counts, sample_structure, by="sample")
+
+p_colored <- ggplot(joined_counts, aes(x=circRNA_counts, y=miRNA_counts)) + 
+    geom_point(size = 2, aes(col = group))+
+    geom_smooth(method = "lm", formula = y ~ x) +
+    labs(title=paste(chr, ":", start,"-", end ," VS. ", miRNA, sep=""), 
+       x ="circRNA counts", 
+       y = "miRNA counts", 
+       subtitle=paste0("R=",round(R_value, digits = 2),
+		       ", bind-sites=", bind_sites,
+                       ", p-adj=",round(adjusted_p_value, digits = 8)))
+
+  ggsave(filename = paste0(plot_folder, plot_name,"_groups.png"), plot = p_colored,
+  width = 6, height = 4)
+
+
+}
+
   
 }
 

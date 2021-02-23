@@ -511,7 +511,7 @@ process correlation_analysis{
     script:
     """
     mkdir -p "${params.out_dir}/results/sponging/plots/"
-    Rscript "${projectDir}"/bin/correlation_analysis.R $params.dataset $miRNA_counts_norm $circRNA_counts_norm $correlations $params.out_dir
+    Rscript "${projectDir}"/bin/correlation_analysis.R $params.dataset $miRNA_counts_norm $circRNA_counts_norm $correlations $params.out_dir $params.sample_group
     """
 }
 

@@ -12,6 +12,7 @@ dependencies:
   - conda-forge::r-plyr=1.8.6
   - conda-forge::r-ggplot2=3.3.3
   - conda-forge::r-data.table=1.13.2
+  - conda-forge::r-ggrepel=0.9.1
   # bioconda packages
   - bioconda::star=2.7.6a
   - bioconda::circexplorer2=2.3.6

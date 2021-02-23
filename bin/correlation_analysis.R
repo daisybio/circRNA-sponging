@@ -121,7 +121,7 @@ plotCorrelationForPair <- function(circRNA, miRNA, circRNA_expression_df, miRNA_
   # compute circRNA expression vs. miRNA expression
   joined_counts <- merge(circRNA_counts, miRNA_counts, by="sample")
     
-  ggplot(joined_counts, aes(x=circRNA_counts, y=miRNA_counts)) + 
+  p <- ggplot(joined_counts, aes(x=circRNA_counts, y=miRNA_counts)) + 
     geom_point(size = 2)+
     geom_smooth(method = "lm", formula = y ~ x) +
     labs(title=paste(chr, ":", start,"-", end ," VS. ", miRNA, sep=""), 
@@ -131,8 +131,14 @@ plotCorrelationForPair <- function(circRNA, miRNA, circRNA_expression_df, miRNA_
 		       ", bind-sites=", bind_sites,
                        ", p-adj=",round(adjusted_p_value, digits = 8)))
 
-
-  ggsave(paste0(plot_folder, plot_name,".png"), width = 6, height = 4)
+  p_labeled <- p + geom_label_repel(data = joined_counts, aes(label=sample), box.padding = 0.35, 
+                       point.padding = 0.5, segment.color = 'black', size = 2, 
+                       segment.size = 0.2, force = 100)
+  ggsave(filename = paste0(plot_folder, plot_name,".png"), plot = p,
+  width = 6, height = 4)
+  ggsave(filename = paste0(plot_folder, plot_name,"_labeled.png"), plot = p_labeled,
+  width = 6, height = 4)
+  
 }
 
 

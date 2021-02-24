@@ -391,7 +391,7 @@ ch_bowtie_index.view()
         tuple val(sampleID), file(reads_collapsed_fa), file(reads_vs_ref_arf) from ch_miRNA_mapping_output
 
         output:
-        tuple val(sampleID), file("miRNAs_expressed*") into ch_miRNA_expression_files
+        file("miRNAs_expressed*") into ch_miRNA_expression_files
 
         script:
         """
@@ -408,7 +408,7 @@ ch_bowtie_index.view()
         publishDir "${params.out_dir}/results/miRNA/", mode: params.publish_dir_mode
     
         input:
-        tuple val(sampleID), file(miRNAs_expressed) from ch_miRNA_expression_files.collect()
+        file(miRNAs_expressed) from ch_miRNA_expression_files.collect()
 
         output:
         file("miRNA_counts_raw.tsv") into ch_miRNA_counts_raw

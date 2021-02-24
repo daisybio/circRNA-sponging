@@ -223,7 +223,7 @@ process filter_circRNAs{
     file(circRNA_counts_norm) from ch_circRNA_counts_norm_filter
 
     output:
-    file("circRNA_count_filtered.tsv") into ch_circRNA_counts_filtered
+    file("circRNA_counts_filtered.tsv") into ch_circRNA_counts_filtered
 
     script:
     """
@@ -441,7 +441,27 @@ process normalize_miRNAs{
     """
 }
 
-ch_miRNA_counts_norm.into { ch_miRNA_counts_norm_sponging; ch_miRNA_counts_norm_analysis}
+ch_miRNA_counts_norm.into {ch_miRNA_counts_norm_filter; ch_miRNA_counts_norm_sponging; ch_miRNA_counts_norm_analysis}
+
+/*
+* FILTER circRNAs TO REDUCE LOW EXPRESSED ONES
+*/
+process filter_miRNAs{
+    label 'process_medium'
+
+    publishDir "${params.out_dir}/results/miRNA/", mode: params.publish_dir_mode
+    
+    input:
+    file(miRNA_counts_norm) from ch_miRNA_counts_norm_filter
+
+    output:
+    file("miRNA_counts_filtered.tsv") into ch_miRNA_counts_filtered
+
+    script:
+    """
+    Rscript "${projectDir}"/bin/miRNA_filtering.R $miRNA_counts_norm $params.out_dir $params.sample_percentage $params.read_threshold
+    """
+}
 
 
 /*
@@ -453,8 +473,8 @@ process compute_correlations{
     publishDir "${params.out_dir}/results/sponging/", mode: params.publish_dir_mode
     
     input:
-    file(miRNA_counts_norm) from ch_miRNA_counts_norm_sponging
-    file(circRNA_counts_norm) from ch_circRNA_counts_norm_sponging
+    file(miRNA_counts_filtered) from ch_miRNA_counts_filtered
+    file(circRNA_counts_filtered) from ch_circRNA_counts_filtered
     file(filtered_bindsites) from ch_bindsites_filtered
 
     output:
@@ -462,7 +482,7 @@ process compute_correlations{
 
     script:
     """
-    Rscript "${projectDir}"/bin/compute_correlations.R $params.samplesheet $miRNA_counts_norm $circRNA_counts_norm $filtered_bindsites $params.sample_percentage $params.read_threshold
+    Rscript "${projectDir}"/bin/compute_correlations.R $params.samplesheet $miRNA_counts_filtered $circRNA_counts_filtered $filtered_bindsites
     """
 }
 
@@ -477,8 +497,8 @@ process correlation_analysis{
     
     input:
     file(correlations) from ch_correlations
-    file(miRNA_counts_norm) from ch_miRNA_counts_norm_analysis
-    file(circRNA_counts_norm) from ch_circRNA_counts_norm_analysis
+    file(miRNA_counts_filtered) from ch_miRNA_counts_filtered
+    file(circRNA_counts_filtered) from ch_circRNA_counts_filtered
 
     output:
     file("sponging_statistics.txt") into ch_sponging_statistics
@@ -487,7 +507,7 @@ process correlation_analysis{
     script:
     """
     mkdir -p "${params.out_dir}/results/sponging/plots/"
-    Rscript "${projectDir}"/bin/correlation_analysis.R $params.samplesheet $miRNA_counts_norm $circRNA_counts_norm $correlations $params.out_dir $params.sample_percentage $params.read_threshold $params.sample_group
+    Rscript "${projectDir}"/bin/correlation_analysis.R $params.samplesheet $miRNA_counts_filtered $circRNA_counts_filtered $correlations $params.out_dir $params.sample_group
     """
 }
 

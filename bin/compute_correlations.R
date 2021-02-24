@@ -5,24 +5,19 @@ library(dplyr)
 library(data.table)
 
 args = commandArgs(trailingOnly=TRUE)
-if (length(args)!=6) {
-  stop("Six argument must be supplied", call.=FALSE)
+if (length(args)!=4) {
+  stop("Four argument must be supplied", call.=FALSE)
 }
 dataset_path = args[1]
-miRNA_norm_path = args[2]
-circRNA_norm_path = args[3]
+miRNA_filtered_path = args[2]
+circRNA_filtered_path = args[3]
 filtered_bindsites_path = args[4]
-sample_percentage = as.numeric(args[5]) # default=0.2 means keep only circRNAs/miRNAs expressed in at least 20% samples
-read_threshold = as.numeric(args[6]) # default=5
-
 
 dataset <- read.table(dataset_path, sep = "\t", header=T, stringsAsFactors = F)
 samples <- dataset$sample
 
 raw_bindSites <- read.table(filtered_bindsites_path, header = T, sep = "\t", stringsAsFactors = F)
 bindSites <- raw_bindSites[,c(1,2)]
-# allBindSites <- dplyr::count(bindSites, Target, miRNA, name="freq")
-# bindsitDT <- data.table(bindSites)
 
 pairBindSites <- data.table(dplyr::count(bindSites, Target, miRNA, name="freq"))
 
@@ -30,13 +25,9 @@ if(length(samples) < 5){
   stop("Cannot perform correlation on less than 5 samples")
 }
 
-max_low_counts_samples <- ceiling(sample_percentage*length(samples))
+miRNA_expression <- read.table(miRNA_filtered_path, header = T, stringsAsFactors = F, check.names = F)
 
-miRNA_expression_raw <- read.table(miRNA_norm_path, header = T, stringsAsFactors = F, check.names = F)
-miRNA_expression <- miRNA_expression_raw[rowSums(miRNA_expression_raw[,-c(1)] >= read_threshold) >= max_low_counts_samples , ]
-
-circRNA_expression_raw <- read.table(circRNA_norm_path,header = T, stringsAsFactors = F, check.names = F)
-circRNA_expression <- circRNA_expression_raw[rowSums(circRNA_expression_raw[,-c(1,2,3,4)] >= read_threshold) >= max_low_counts_samples , ]
+circRNA_expression <- read.table(circRNA_filtered_path,header = T, stringsAsFactors = F, check.names = F)
 
 header <- "circRNA\tmiRNA\tcircRNA_miRNA_ratio\tmiRNA_binding_sites\tpearson_R\tcorr_pval\tRSS_norm\tintercept\tintercept_pval\tslope\tslope_pval\tadj_r_squared"
 #write(header, file=paste0("filtered_circRNA_miRNA_correlation_libSizeEstNorm_directwritten.tsv"), append = F)

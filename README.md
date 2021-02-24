@@ -58,21 +58,19 @@ The following options are mandatory for executing the basic workflow of the pipe
 
 ```
 BASIC OPTIONS:
-  --samplesheet *path/to/sampleseet.tsv
-  --out_dir \textit{path/to/output_directory}
-  --species *species_in_3_letter_code* # hsa for human, mmu for mouse etc.
-  --miRNA_adapter *adapter_sequence* # miRNA adapter used for trimming
+  --samplesheet path/to/sampleseet.tsv
+  --out_dir path/to/output_directory
+  --species species_in_3_letter_code # hsa for human, mmu for mouse etc.
+  --miRNA_adapter adapter_sequence # miRNA adapter used for trimming
     
 REFERENCE FILES
-  --fasta *path/to/genome.fasta*
-  --gtf *path/to/gtf_file*
-  --gene_pred *path/to/gene_annotation*
-  --mature_fasta *path/to/mature_fasta*
-  --mature_other_fasta *path/to/mature_other_fasta*
-  --hairpin_fasta *path/to/hairpin_fasta*
-
+  --fasta path/to/genome.fasta
+  --gtf path/to/gtf_file
+  --gene_pred path/to/gene_annotation
+  --mature_fasta path/to/mature_fasta
+  --mature_other_fasta path/to/mature_other_fasta
+  --hairpin_fasta path/to/hairpin_fasta
 }
-
 ```
 
 ### Input Files
@@ -96,7 +94,7 @@ Instructions for generating the miRNA reference files can be found in the [`miRD
 The pipeline offers the option to skip the miRNA quantification step, if this has been done in advance and the raw read counts are available. In this case, the pipeline performs the read mapping and quantification only for circRNAs. It is recommended to use [`nf-core/smarnaseq`](https://github.com/nf-core/smrnaseq) pipeline for the quantification of miRNAs. The tabulated raw read counts can be passed directly to the pipeline using the following parameter:
 
 ```
-  --miRNA_raw_counts *path/to/miRNA_raw_counts.tsv*
+  --miRNA_raw_counts path/to/miRNA_raw_counts.tsv
 ```
 The file should be tab-separated and follow the structure shown below. The header should contain the same sample names as defined in the samplesheet. The last column called `smallRNA` in the samplesheet should have the value ’NA’ among all samples.  When running the pipeline in this scenario, the following parameters are no longer required:
 ```
@@ -133,7 +131,7 @@ In addition, the samplesheet should be adapted to match the following structure:
 #### Sample Grouping for Better Visualization
 This feature can be used if the samples can be partitioned into different conditions or groups. If the sample grouping is specified, the samples will be colored according to their grouping in the plots showing sponging candidates, facilitating a better visualization andresults interpretation. The file containing the sample grouping should be structured as shown below and specified using the parameter:
 ```
-  --sample_grouppath/to/sample.group.tsv
+  --sample_group path/to/sample.group.tsv
 ```
 ```
   sample | group   

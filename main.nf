@@ -208,9 +208,6 @@ process normalize_circRNAs{
     """
 }
 
-ch_circRNA_counts_norm.into { ch_circRNA_counts_norm_filter; ch_circRNA_counts_norm_sponging; ch_circRNA_counts_norm_analysis}
-
-
 /*
 * FILTER circRNAs TO REDUCE LOW EXPRESSED ONES
 */
@@ -220,7 +217,7 @@ process filter_circRNAs{
     publishDir "${params.out_dir}/results/circRNA/", mode: params.publish_dir_mode
     
     input:
-    file(circRNA_counts_norm) from ch_circRNA_counts_norm_filter
+    file(circRNA_counts_norm) from ch_circRNA_counts_norm
 
     output:
     file("circRNA_counts_filtered.tsv") into ch_circRNA_counts_filtered
@@ -441,8 +438,6 @@ process normalize_miRNAs{
     """
 }
 
-ch_miRNA_counts_norm.into {ch_miRNA_counts_norm_filter; ch_miRNA_counts_norm_sponging; ch_miRNA_counts_norm_analysis}
-
 /*
 * FILTER circRNAs TO REDUCE LOW EXPRESSED ONES
 */
@@ -452,7 +447,7 @@ process filter_miRNAs{
     publishDir "${params.out_dir}/results/miRNA/", mode: params.publish_dir_mode
     
     input:
-    file(miRNA_counts_norm) from ch_miRNA_counts_norm_filter
+    file(miRNA_counts_norm) from ch_miRNA_counts_norm
 
     output:
     file("miRNA_counts_filtered.tsv") into ch_miRNA_counts_filtered

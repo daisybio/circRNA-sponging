@@ -34,6 +34,6 @@ merged_data <- merge(circRNA_names, normalized_counts, by = "row.names")
 merged_data <- merged_data[order(merged_data$order), ]
 normalized_data <- subset(merged_data, select = -c(order, Row.names))
 
-write.table(normalized_data, paste0("circRNA_counts_libSizeEstNorm.tsv"), quote = F, sep = "\t", row.names = F)
+write.table(normalized_data, paste0("circRNA_counts_normalized.tsv"), quote = F, sep = "\t", row.names = F)
 
 

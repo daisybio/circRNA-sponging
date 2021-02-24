@@ -200,7 +200,7 @@ process normalize_circRNAs{
     file(circRNA_counts_raw) from ch_circRNA_counts_raw
 
     output:
-    file("circRNA_counts_libSizeEstNorm.tsv") into ch_circRNA_counts_norm
+    file("circRNA_counts_normalized.tsv") into ch_circRNA_counts_norm
 
     script:
     """
@@ -433,7 +433,7 @@ process normalize_miRNAs{
     file(miRNA_counts_raw) from ch_miRNA_counts_raw
 
     output:
-    file("miRNA_counts_all_samples_libSizeEstNorm.tsv") into ch_miRNA_counts_norm
+    file("miRNA_counts_normalized.tsv") into ch_miRNA_counts_norm
 
     script:
     """

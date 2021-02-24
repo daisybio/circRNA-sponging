@@ -36,6 +36,6 @@ merged_data <- merge(miRNA_names, normalized_counts, by.x = "miRNA", by.y = "row
 merged_data <- merged_data[order(merged_data$order), ]
 norm_data <- subset(merged_data, select = -c(order))
 
-write.table(norm_data, paste0("miRNA_counts_all_samples_libSizeEstNorm.tsv"), quote = F, sep = "\t", row.names = F)
+write.table(norm_data, paste0("miRNA_counts_normalized.tsv"), quote = F, sep = "\t", row.names = F)
 
 

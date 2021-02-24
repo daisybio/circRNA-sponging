@@ -68,34 +68,10 @@ if (params.help) {
     exit 0
 }
 
-if(params.test_container_mode){
-process test_correlation_analysis{
-    label 'process_high'
-
-    publishDir "/nfs/home/students/ciora/nf_circRNA_pipeline/human_data/nf-core_output/second_run/results/sponging", mode: params.publish_dir_mode
-    
-    input:
-    file(correlations) from Channel.value(file("/nfs/home/students/ciora/nf_circRNA_pipeline/human_data/nf-core_output/second_run/results/sponging/filtered_circRNA_miRNA_correlation.tsv"))
-    file(miRNA_counts_norm) from Channel.value(file("/nfs/home/students/ciora/nf_circRNA_pipeline/human_data/nf-core_output/second_run/results/miRNA/miRNA_counts_all_samples_libSizeEstNorm.tsv"))
-    file(circRNA_counts_norm) from Channel.value(file("/nfs/home/students/ciora/nf_circRNA_pipeline/human_data/nf-core_output/second_run/results/circRNA/circRNA_counts_libSizeEstNorm.tsv"))
-
-    output:
-    file("sponging_statistics.txt") into ch_sponging_statistics
-    file("plots/*.png") into ch_plots
-
-    script:
-    """
-    mkdir -p "${params.out_dir}/results/sponging/plots/"
-    Rscript "${projectDir}"/bin/correlation_analysis.R $params.dataset $miRNA_counts_norm $circRNA_counts_norm $correlations $params.out_dir
-    """
-}
-
-} else {
-
 /*
  * CREATE A CHANNEL FOR INPUT READ FILES
  */
-ch_totalRNA_reads=Channel.fromPath(params.dataset)
+ch_totalRNA_reads=Channel.fromPath(params.samplesheet)
    .splitCsv( header:true, sep:'\t')
    .map { get_circRNA_paths(it) }
 
@@ -208,7 +184,7 @@ process summarize_detected_circRNAs{
 
     script:
     """
-    Rscript "${projectDir}"/bin/circRNA_summarize_results.R $params.dataset $params.out_dir
+    Rscript "${projectDir}"/bin/circRNA_summarize_results.R $params.samplesheet $params.out_dir
     """
 }
 
@@ -352,7 +328,7 @@ if( params.miRNA_raw_counts != null ) {
      * CREATE INPUT CHANNEL
      */
 
-ch_smallRNA_reads=Channel.fromPath(params.dataset)
+ch_smallRNA_reads=Channel.fromPath(params.samplesheet)
    .splitCsv( header:true, sep:'\t')
    .map { get_miRNA_paths(it) }
 
@@ -439,7 +415,7 @@ ch_bowtie_index.view()
 
         script:
         """
-        Rscript "${projectDir}"/bin/miRNA_summarize_results.R $params.dataset $params.out_dir
+        Rscript "${projectDir}"/bin/miRNA_summarize_results.R $params.samplesheet $params.out_dir
         """
     }
 
@@ -486,7 +462,7 @@ process compute_correlations{
 
     script:
     """
-    Rscript "${projectDir}"/bin/compute_correlations.R $params.dataset $miRNA_counts_norm $circRNA_counts_norm $filtered_bindsites $params.sample_percentage $params.read_threshold
+    Rscript "${projectDir}"/bin/compute_correlations.R $params.samplesheet $miRNA_counts_norm $circRNA_counts_norm $filtered_bindsites $params.sample_percentage $params.read_threshold
     """
 }
 
@@ -511,12 +487,11 @@ process correlation_analysis{
     script:
     """
     mkdir -p "${params.out_dir}/results/sponging/plots/"
-    Rscript "${projectDir}"/bin/correlation_analysis.R $params.dataset $miRNA_counts_norm $circRNA_counts_norm $correlations $params.out_dir $params.sample_percentage $params.read_threshold $params.sample_group
+    Rscript "${projectDir}"/bin/correlation_analysis.R $params.samplesheet $miRNA_counts_norm $circRNA_counts_norm $correlations $params.out_dir $params.sample_percentage $params.read_threshold $params.sample_group
     """
 }
 
 
 
-}
 
 

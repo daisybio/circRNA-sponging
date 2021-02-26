@@ -47,7 +47,7 @@ By default, the pipeline currently performs the following:
 * Correlation analysis between circRNAs and miRNAs expression
 * Overall results summaries and plots
 
-![](images/workflow.pdf)
+![](images/workflow.PNG)
 
 ## Documentation
 <!--The nf-core/circrnasponging pipeline comes with documentation about the pipeline: [usage](https://nf-co.re/circrnasponging/usage) and [output](https://nf-co.re/circrnasponging/output). -->

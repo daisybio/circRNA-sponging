@@ -384,7 +384,8 @@ ch_bowtie_index = params.bowtie_index ? Channel.value(file(params.bowtie_index))
 
         script:
         """
-        mapper.pl $read_file -e -h -i -j -k $params.miRNA_adapter -l 18 -m -p ${fasta.baseName} -s "reads_collapsed.fa" -t "reads_vs_ref.arf" -v
+	gunzip < $read_file > "${sampleID}.fastq"
+        mapper.pl "${sampleID}.fastq" -e -h -i -j -k $params.miRNA_adapter -l 18 -m -p ${fasta.baseName} -s "reads_collapsed.fa" -t "reads_vs_ref.arf" -v
         """
     }
 

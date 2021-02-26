@@ -47,6 +47,8 @@ By default, the pipeline currently performs the following:
 * Correlation analysis between circRNAs and miRNAs expression
 * Overall results summaries and plots
 
+![](images/workflow.pdf)
+
 ## Documentation
 <!--The nf-core/circrnasponging pipeline comes with documentation about the pipeline: [usage](https://nf-co.re/circrnasponging/usage) and [output](https://nf-co.re/circrnasponging/output). -->
 This analysis is based on both totalRNA (or rRNA-depleted) and smRNA data coming from the same samples. It is recommended to run this analysis with a minimum of 5 samples. The exact input format and how to get the needed reference files is described below.

@@ -10,7 +10,7 @@
 [![Docker](https://img.shields.io/docker/automated/nfcore/circrnasponging.svg)](https://hub.docker.com/r/nfcore/circrnasponging)
 [![Get help on Slack](http://img.shields.io/badge/slack-nf--core%20%23circrnasponging-4A154B?logo=slack)](https://nfcore.slack.com/channels/circrnasponging)-->
 
-This pipeline was written by Octavia Ciora as part of her Advanced Lab Course Bioinformatics under the supervision of Dr. Markus List.
+This pipeline was implemented by Octavia Ciora as part of her Advanced Lab Course Bioinformatics under the supervision of Dr. Markus List.
 
 ## Table of Contents
 
@@ -58,24 +58,25 @@ The following options are mandatory for executing the basic workflow of the pipe
 
 ```
 BASIC OPTIONS:
-  --samplesheet path/to/sampleseet.tsv
-  --out_dir path/to/output_directory
-  --species species_in_3_letter_code # hsa for human, mmu for mouse etc.
-  --miRNA_adapter adapter_sequence # miRNA adapter used for trimming
+  --samplesheet [path/to/sampleseet.tsv]
+  --out_dir [path/to/output_directory]
+  --species [species_in_3_letter_code] # hsa for human, mmu for mouse etc.
+  --miRNA_adapter [adapter_sequence] # miRNA adapter used for trimming
+  -profile [configuration_profile] # Available: docker, singularity
     
 REFERENCE FILES
-  --fasta path/to/genome.fasta
-  --gtf path/to/gtf_file
-  --gene_pred path/to/gene_annotation
-  --mature_fasta path/to/mature_fasta
-  --mature_other_fasta path/to/mature_other_fasta
-  --hairpin_fasta path/to/hairpin_fasta
+  --fasta [path/to/genome.fasta]
+  --gtf [path/to/gtf_file]
+  --gene_pred [path/to/gene_annotation]
+  --mature_fasta [path/to/mature_fasta]
+  --mature_other_fasta [path/to/mature_other_fasta]
+  --hairpin_fasta [path/to/hairpin_fasta]
 }
 ```
 
 ### Input Files
 #### Samplesheet
-The pipeline requires a tab-separated samplesheet file containing the sample names and the paths to the corresponding read files in fastq.gz format. By default, the  totalRNA sequencing data is considered to be paired-end. If the total RNA data is single-end, the instructions below should be followed. The samplesheet should be a tab-separated file following the structure:
+The pipeline requires a tab-separated samplesheet file containing the sample names and the paths to the corresponding read files in fastq.gz format. By default, the totalRNA sequencing data is considered to be paired-end. If the total RNA data is single-end, the instructions below should be followed. The samplesheet should be a tab-separated file following the structure:
 
 ```
    sample  |                totalRNA1               |               totalRNA2               |             smallRNA
@@ -87,21 +88,19 @@ The pipeline requires a tab-separated samplesheet file containing the sample nam
 ```
 
 #### Reference Files
-Instructions for generating the miRNA reference files can be found in the [`miRDeep2 tutorial`](https://drmirdeep.github.io/mirdeep2_tutorial.html). Required are the mature and hairpin miRNA sequences for the organism used in the analysis, e.g. mouse(mmu). Additionally, mature miRNA sequences from related species are needed, e.g. rat(rno) and human (hsa).
+Besides the genome fasta, gtf and annotation files, some miRNA references are required:mature and hairpin miRNA sequences for the organism used in the analysis, e.g.  mouseand mature miRNA sequences from related species, e.g.  rat and human.  Instructions forgenerating the miRNA reference files can be found in the [`miRDeep2 tutorial`](https://drmirdeep.github.io/mirdeep2_tutorial.html).
 
 ### Additional Features and Advanced Options
 #### Skip miRNA Quantification
 The pipeline offers the option to skip the miRNA quantification step, if this has been done in advance and the raw read counts are available. In this case, the pipeline performs the read mapping and quantification only for circRNAs. It is recommended to use [`nf-core/smarnaseq`](https://github.com/nf-core/smrnaseq) pipeline for the quantification of miRNAs. The tabulated raw read counts can be passed directly to the pipeline using the following parameter:
 
 ```
-  --miRNA_raw_counts path/to/miRNA_raw_counts.tsv
+  --miRNA_raw_counts [path/to/miRNA_raw_counts.tsv]
 ```
 The file should be tab-separated and follow the structure shown below. The header should contain the same sample names as defined in the samplesheet. The last column called `smallRNA` in the samplesheet should have the value ’NA’ among all samples.  When running the pipeline in this scenario, the following parameters are no longer required:
 ```
   --species, --miRNA_adapter, --mature_other_fasta, --hairpin_fasta
 ```
-This additional feature gives the user the freedom to choose the miRNA quantificationprocedure of his preference, while also saving time, in case the quantified data is alreadyavailable.
-
 ```
      miRNA    |sample1|sample2|   ...
 --------------|-------|-------|---------
@@ -109,8 +108,9 @@ mmu-let-7a-5p |   53  |   0   |   ...
 mmu-let-7b-3p |   37  |   93  |   ...
       ...     |  ...  |  ...  |   ...
 ```
+
 #### Single-end total RNA data
-By default, the pipeline works with paired-end total RNA sequencing data.  Nevertheless,it also supports single-end data, in which case the following additional parameter shouldbe used:
+In case the total RNA sequencing data is single-end, the following additional parameter should be used:
 
 ```
   --single_end 
@@ -129,9 +129,9 @@ In addition, the samplesheet should be adapted to match the following structure:
 ```
 
 #### Sample Grouping for Better Visualization
-This feature can be used if the samples can be partitioned into different conditions or groups. If the sample grouping is specified, the samples will be colored according to their grouping in the plots showing sponging candidates, facilitating a better visualization andresults interpretation. The file containing the sample grouping should be structured as shown below and specified using the parameter:
+This feature should be used if the samples belong to different groups. If a grouping is specified, the samples will be colored accordingly in the plots showing sponging candidates, facilitating a better visualization and results interpretation. The file containing the sample grouping should be structured as shown below and specified using the parameter:
 ```
-  --sample_group path/to/sample.group.tsv
+  --sample_group [path/to/sample.group.tsv]
 ```
 ```
   sample | group   
@@ -143,17 +143,17 @@ This feature can be used if the samples can be partitioned into different condit
    ...   |  ...  
 ```
 #### Advanced Filtering
-After normalizing the raw read counts for both circRNAs and miRNAs, the pipelinefilters out entries which have a low expression level. By default, only entries having at least 5 reads in at least 20% of samples are used in the downstream analysis. Stricter filtering conditions might lead to better identification of sponging candidates, as long as the parameters are not too high, in which case interesting candidates might be missed. The parameter values can be changed with the options:
+After normalizing the raw read counts for both circRNAs and miRNAs, the pipeline filters out entries which have a low expression level. By default, only entries having at least 5 reads in at least 20% of samples are used in the downstream analysis. The parameter values can be changed with the options:
 ```
   --read_threshold
       default: 5
 	real >= 0    read counts under this threshold are considered to be low expressed
   --sample_percentage
       default: 0.2
-        0<= real <=1    minimum percentage of samples that should haveno low expression
+        0<= real <=1    minimum percentage of samples that should have no low expression
 ```
 ### Output
-The output folder is structured as shown below. The circRNA/miRNA results for each sample are stored in folder `samples`. The tabulated circRNA and miRNA counts summarized over all samples are `results/circRNA` and `results/miRNA`. The results of the sponging analysis are stored in the subfolder `results/sponging`. 
+The output folder is structured as shown below. The circRNA/miRNA results for each sample are stored in the `samples` folder. The tabulated circRNA and miRNA counts summarized over all samples located in `results/circRNA` and `results/miRNA`, respectively. The results and plots of the sponging analysis are stored in the subfolder `results/sponging`. 
 
 ```
 ├─── output_folder

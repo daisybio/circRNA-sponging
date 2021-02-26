@@ -7,8 +7,8 @@ suppressMessages(library(ggrepel))
 
 # read input parameters
 args = commandArgs(trailingOnly=TRUE)
-if (length(args)!=6) {
-  stop("Six argument must be supplied", call.=FALSE)
+if (length(args)!=8) {
+  stop("Eight argument must be supplied", call.=FALSE)
 }
 dataset_path = args[1]
 miRNA_filtered_path = args[2]
@@ -16,6 +16,9 @@ circRNA_filtered_path = args[3]
 correlations_path = args[4]
 out_dir = args[5]
 sample_path = args[6]
+miRNA_raw_path = args[7]
+circRNA_raw_path = args[8]
+
 
 # compute paths
 statistics_file <- paste0("sponging_statistics.txt")
@@ -26,10 +29,11 @@ dir.create(file.path(plot_folder))
 dataset <- read.table(dataset_path, sep = "\t", header=T, stringsAsFactors = F)
 samples <- dataset$sample
 
+miRNA_expression_raw <- read.table(miRNA_raw_path, header = T, stringsAsFactors = F, check.names = F)
+circRNA_expression_raw <- read.table(circRNA_raw_path,header = T, stringsAsFactors = F, check.names = F)
 
 miRNA_expression <- read.table(miRNA_filtered_path, header = T, stringsAsFactors = F, check.names = F)
-
-circRNA_expression_raw <- read.table(circRNA_filtered_path,header = T, stringsAsFactors = F, check.names = F)
+circRNA_expression <- read.table(circRNA_filtered_path,header = T, stringsAsFactors = F, check.names = F)
 
 # write starting statistics to file
 file.create(statistics_file)

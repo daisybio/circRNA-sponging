@@ -17,22 +17,30 @@ def helpMessage() {
 
     The typical command for running the pipeline is as follows:
 
-    nextflow run nf-core/circrnasponging --input '*_R{1,2}.fastq.gz' -profile docker
+    nextflow run nf-core/circrnasponging 
 
     Mandatory arguments:
-      --input [file]                  Path to input data (must be surrounded with quotes)
-      -profile [str]                  Configuration profile to use. Can use multiple (comma separated)
-                                      Available: conda, docker, singularity, test, awsbatch, <institute> and more
+      --samplesheet [file]		Path to samplesheet (must be surrounded with quotes)
+      --out_dir [file]			The output directory where the results will be saved
+      --species [str]			Species name in 3 letter code (hsa for human, mmu for mouse)
+      --miRNA_adapter [str] 		miRNA adapter used for trimming
+      -profile [str]           	 	Configuration profile to use. Can use multiple (comma separated)
+                                      	Available: conda, docker, singularity, test, awsbatch, <institute> and more
+
+      --fasta [file] 			Path to genome fasta (must be surrounded with quotes)
+      --gtf [file]			Path to gtf file (must be surrounded with quotes)
+      --gene_pred [file]		Path to gene annotation (must be surrounded with quotes)
+      --mature_fasta [file]		Path to mature miRNA fasta (must be surrounded with quotes)
+      --mature_other_fasta [file]	Path to mature miRNA fasta of related species (must be surrounded with quotes)
+      --hairpin_fasta [file]		Path to miRNA hairpin fasta (must be surrounded with quotes)
+    
     Options:
-      --genome [str]                  Name of iGenomes reference
-      --single_end [bool]             Specifies that the input is single-end reads
-
-    References                        If not specified in the configuration file or you wish to overwrite any of the references
-      --fasta [file]                  Path to fasta reference
-
-    Other options:
-      --outdir [file]                 The output directory where the results will be saved
-    """.stripIndent() 
+      --miRNA_raw_counts [file]		Path to tabulated raw miRNA counts (must be surrounded with quotes)
+      --single_end [bool]            	Specifies that the total RNA input is single-end reads
+      --sample_group	[file]		File specifying partitioning of samples into groups (must be surrounded with quotes)
+      --read_threshold [real]		Positive. Read counts under this threshold are considered to be low expressed
+      --sample_percentage [real]	Between 0 and 1. Minimum percentage of samples that should have no low expression    
+   """.stripIndent() 
 }
 
 def get_circRNA_paths(LinkedHashMap row) {
@@ -75,6 +83,9 @@ ch_totalRNA_reads=Channel.fromPath(params.samplesheet)
    .splitCsv( header:true, sep:'\t')
    .map { get_circRNA_paths(it) }
 
+ch_fasta = Channel.value(file(params.fasta))
+ch_gtf = Channel.value(file(params.gtf))
+
 /*
 * GENERATE STAR INDEX IN CASE IT IS NOT ALREADY PROVIDED
 */
@@ -83,8 +94,8 @@ process generate_star_index{
     publishDir "${params.out_dir}/", mode: params.publish_dir_mode
 
     input:
-    file(fasta) from Channel.value(file(params.fasta))
-    file(gtf) from Channel.value(file(params.gtf))            
+    file(fasta) from ch_fasta
+    file(gtf) from ch_gtf            
     
     output:
     file("star_index") into generated_star_index
@@ -106,7 +117,6 @@ process generate_star_index{
 }
 
 ch_star_index = params.STAR_index ? Channel.value(file(params.STAR_index)) : generated_star_index
-ch_star_index.view()
 
 /*
 * PERFORM READ MAPPING OF totalRNA SAMPLES USING STAR
@@ -158,13 +168,14 @@ process circExplorer2_Annotate {
     
     input:
     tuple val(sampleID), file(backspliced_junction_bed) from backspliced_junction_bed_files
+    file(fasta) from ch_fasta
 
     output:
     file("${sampleID}_circularRNA_known.txt") into ch_circRNA_known_files
 
     script:
     """
-    CIRCexplorer2 annotate -r $params.gene_pred -g $params.fasta -b $backspliced_junction_bed -o "${sampleID}_circularRNA_known.txt"
+    CIRCexplorer2 annotate -r $params.gene_pred -g $fasta -b $backspliced_junction_bed -o "${sampleID}_circularRNA_known.txt"
     """
 }
 
@@ -237,13 +248,14 @@ process extract_circRNA_sequences {
     
     input:
     file(circRNAs_filtered) from ch_circRNA_counts_filtered
+    file(fasta) from ch_fasta
 
     output:
     file("circRNAs.fa") into circRNAs_fasta
 
     script:
     """
-	bash "${projectDir}"/bin/get_circRNA_sequences.sh $params.fasta $circRNAs_filtered "circRNAs.fa"
+	bash "${projectDir}"/bin/get_circRNA_sequences.sh $fasta $circRNAs_filtered "circRNAs.fa"
     """
 }
 
@@ -337,7 +349,7 @@ process generate_bowtie_index{
     publishDir "${params.out_dir}/bowtie_index/", mode: params.publish_dir_mode
 
     input:
-    file(fasta) from Channel.value(file(params.fasta))
+    file(fasta) from ch_fasta
     
     output:
     file("${fasta.baseName}*") into ch_generated_bowtie_index
@@ -352,7 +364,6 @@ process generate_bowtie_index{
 }
 
 ch_bowtie_index = params.bowtie_index ? Channel.value(file(params.bowtie_index)) : ch_generated_bowtie_index
-ch_bowtie_index.view()
 
 
 
@@ -366,7 +377,7 @@ ch_bowtie_index.view()
         input:
         tuple val(sampleID), file(read_file) from ch_smallRNA_reads
         file(index) from ch_bowtie_index.collect()
-        file(fasta) from Channel.value(file(params.fasta))
+        file(fasta) from ch_fasta
 
         output: 
         tuple val(sampleID), file("reads_collapsed.fa"), file("reads_vs_ref.arf") into ch_miRNA_mapping_output
@@ -386,13 +397,14 @@ ch_bowtie_index.view()
  
         input:
         tuple val(sampleID), file(reads_collapsed_fa), file(reads_vs_ref_arf) from ch_miRNA_mapping_output
+    	file(fasta) from ch_fasta
 
         output:
         file("miRNAs_expressed*") into ch_miRNA_expression_files
 
         script:
         """
-        miRDeep2.pl $reads_collapsed_fa $params.fasta $reads_vs_ref_arf $params.mature_fasta $params.mature_other_fasta $params.hairpin_fasta -t $params.species -d -v 
+        miRDeep2.pl $reads_collapsed_fa $fasta $reads_vs_ref_arf $params.mature_fasta $params.mature_other_fasta $params.hairpin_fasta -t $params.species -d -v 
         """
     }
 
@@ -494,6 +506,9 @@ process correlation_analysis{
     file(correlations) from ch_correlations
     file(miRNA_counts_filtered) from ch_miRNA_counts_filtered
     file(circRNA_counts_filtered) from ch_circRNA_counts_filtered
+    file(miRNA_counts_norm) from ch_miRNA_counts_norm
+    file(circRNA_counts_norm) from ch_circRNA_counts_norm
+
 
     output:
     file("sponging_statistics.txt") into ch_sponging_statistics
@@ -502,7 +517,7 @@ process correlation_analysis{
     script:
     """
     mkdir -p "${params.out_dir}/results/sponging/plots/"
-    Rscript "${projectDir}"/bin/correlation_analysis.R $params.samplesheet $miRNA_counts_filtered $circRNA_counts_filtered $correlations $params.out_dir $params.sample_group
+    Rscript "${projectDir}"/bin/correlation_analysis.R $params.samplesheet $miRNA_counts_filtered $circRNA_counts_filtered $correlations $params.out_dir $params.sample_group $miRNA_counts_norm $circRNA_counts_norm
     """
 }
 

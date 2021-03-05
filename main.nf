@@ -211,7 +211,7 @@ process normalize_circRNAs{
     file(circRNA_counts_raw) from ch_circRNA_counts_raw
 
     output:
-    file("circRNA_counts_normalized.tsv") into ch_circRNA_counts_norm
+    file("circRNA_counts_normalized.tsv") into (ch_circRNA_counts_norm1, ch_circRNA_counts_norm2)
 
     script:
     """
@@ -228,10 +228,10 @@ process filter_circRNAs{
     publishDir "${params.out_dir}/results/circRNA/", mode: params.publish_dir_mode
     
     input:
-    file(circRNA_counts_norm) from ch_circRNA_counts_norm
+    file(circRNA_counts_norm) from ch_circRNA_counts_norm1
 
     output:
-    file("circRNA_counts_filtered.tsv") into ch_circRNA_counts_filtered
+    file("circRNA_counts_filtered.tsv") into (ch_circRNA_counts_filtered1, ch_circRNA_counts_filtered2, ch_circRNA_counts_filtered3)
 
     script:
     """
@@ -247,7 +247,7 @@ process extract_circRNA_sequences {
     publishDir "${params.out_dir}/results/binding_sites/input/", mode: params.publish_dir_mode
     
     input:
-    file(circRNAs_filtered) from ch_circRNA_counts_filtered
+    file(circRNAs_filtered) from ch_circRNA_counts_filtered1
     file(fasta) from ch_fasta
 
     output:
@@ -443,7 +443,7 @@ process normalize_miRNAs{
     file(miRNA_counts_raw) from ch_miRNA_counts_raw
 
     output:
-    file("miRNA_counts_normalized.tsv") into ch_miRNA_counts_norm
+    file("miRNA_counts_normalized.tsv") into (ch_miRNA_counts_norm1, ch_miRNA_counts_norm2)
 
     script:
     """
@@ -460,10 +460,10 @@ process filter_miRNAs{
     publishDir "${params.out_dir}/results/miRNA/", mode: params.publish_dir_mode
     
     input:
-    file(miRNA_counts_norm) from ch_miRNA_counts_norm
+    file(miRNA_counts_norm) from ch_miRNA_counts_norm1
 
     output:
-    file("miRNA_counts_filtered.tsv") into ch_miRNA_counts_filtered
+    file("miRNA_counts_filtered.tsv") into (ch_miRNA_counts_filtered1, ch_miRNA_counts_filtered2)
 
     script:
     """
@@ -481,8 +481,8 @@ process compute_correlations{
     publishDir "${params.out_dir}/results/sponging/", mode: params.publish_dir_mode
     
     input:
-    file(miRNA_counts_filtered) from ch_miRNA_counts_filtered
-    file(circRNA_counts_filtered) from ch_circRNA_counts_filtered
+    file(miRNA_counts_filtered) from ch_miRNA_counts_filtered1
+    file(circRNA_counts_filtered) from ch_circRNA_counts_filtered2
     file(filtered_bindsites) from ch_bindsites_filtered
 
     output:
@@ -505,10 +505,10 @@ process correlation_analysis{
     
     input:
     file(correlations) from ch_correlations
-    file(miRNA_counts_filtered) from ch_miRNA_counts_filtered
-    file(circRNA_counts_filtered) from ch_circRNA_counts_filtered
-    file(miRNA_counts_norm) from ch_miRNA_counts_norm
-    file(circRNA_counts_norm) from ch_circRNA_counts_norm
+    file(miRNA_counts_filtered) from ch_miRNA_counts_filtered2
+    file(circRNA_counts_filtered) from ch_circRNA_counts_filtered3
+    file(miRNA_counts_norm) from ch_miRNA_counts_norm2
+    file(circRNA_counts_norm) from ch_circRNA_counts_norm2
 
 
     output:

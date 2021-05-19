@@ -39,7 +39,8 @@ def helpMessage() {
       --single_end [bool]            	Specifies that the total RNA input is single-end reads
       --sample_group	[file]		File specifying partitioning of samples into groups (must be surrounded with quotes)
       --read_threshold [real]		Positive. Read counts under this threshold are considered to be low expressed
-      --sample_percentage [real]	Between 0 and 1. Minimum percentage of samples that should have no low expression    
+      --sample_percentage [real]	Between 0 and 1. Minimum percentage of samples that should have no low expression
+      --circRNA.only [bool]  		Run only circRNA analysis, don't run miRNA analysis
    """.stripIndent() 
 }
 
@@ -319,7 +320,11 @@ process binding_sites_filtering {
 
 }
 
+/*
+ * RUN miRNA part only if circRNA_only==false
+ */
 
+if (!circRNA.only) {
 /*
  * GET miRNA RAW COUNTS
  */
@@ -521,6 +526,10 @@ process correlation_analysis{
     Rscript "${projectDir}"/bin/correlation_analysis.R $params.samplesheet $miRNA_counts_filtered $circRNA_counts_filtered $correlations $params.out_dir $params.sample_group $miRNA_counts_norm $circRNA_counts_norm
     """
 }
+
+}
+
+
 
 
 

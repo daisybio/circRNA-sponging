@@ -40,7 +40,7 @@ def helpMessage() {
       --sample_group	[file]		File specifying partitioning of samples into groups (must be surrounded with quotes)
       --read_threshold [real]		Positive. Read counts under this threshold are considered to be low expressed
       --sample_percentage [real]	Between 0 and 1. Minimum percentage of samples that should have no low expression
-      --circRNA.only [bool]  		Run only circRNA analysis, don't run miRNA analysis
+      --circRNA_only [bool]  		Run only circRNA analysis, don't run miRNA analysis
    """.stripIndent() 
 }
 
@@ -324,7 +324,7 @@ process binding_sites_filtering {
  * RUN miRNA part only if circRNA_only==false
  */
 
-if (!circRNA.only) {
+if (!params.circRNA_only) {
 /*
  * GET miRNA RAW COUNTS
  */

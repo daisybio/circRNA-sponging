@@ -23,6 +23,7 @@ def helpMessage() {
       --samplesheet [file]		Path to samplesheet (must be surrounded with quotes)
       --out_dir [file]			The output directory where the results will be saved
       --species [str]			Species name in 3 letter code (hsa for human, mmu for mouse)
+      --genome_version [str]    Genome version that will be used for mapping e.g. for human hg19 or hg38
       --miRNA_adapter [str] 		miRNA adapter used for trimming
       -profile [str]           	 	Configuration profile to use. Can use multiple (comma separated)
                                       	Available: conda, docker, singularity, test, awsbatch, <institute> and more
@@ -41,6 +42,7 @@ def helpMessage() {
       --read_threshold [real]		Positive. Read counts under this threshold are considered to be low expressed
       --sample_percentage [real]	Between 0 and 1. Minimum percentage of samples that should have no low expression
       --circRNA_only [bool]  		Run only circRNA analysis, don't run miRNA analysis
+      --offline_circ_db [file]      File containing downloaded circBase entries for offline access to the database
    """.stripIndent() 
 }
 
@@ -131,7 +133,7 @@ process STAR {
     file star_index from ch_star_index
 
     output:
-    tuple val(sampleID), file("Chimeric.out.junction") into chimeric_junction_files
+    tuple val(sampleID), file("Chimeric.out.junction"), file("Aligned.out.sam") into chimeric_junction_files, alignment_sam_file
 
     script:
     """
@@ -232,13 +234,50 @@ process filter_circRNAs{
     file(circRNA_counts_norm) from ch_circRNA_counts_norm1
 
     output:
-    file("circRNA_counts_filtered.tsv") into (ch_circRNA_counts_filtered1, ch_circRNA_counts_filtered2, ch_circRNA_counts_filtered3)
+    file("circRNA_counts_filtered.tsv") into (ch_circRNA_counts_filtered1, ch_circRNA_counts_filtered2, ch_circRNA_counts_filtered3, ch_circRNA_counts_filtered4)
 
     script:
     """
     Rscript "${projectDir}"/bin/circRNA_filtering.R $circRNA_counts_norm $params.out_dir $params.sample_percentage $params.read_threshold
     """
 }
+
+/*
+* DIFFERENTIAL EXPRESSION ANALYSES OF CIRCRNA USING DESeq2
+*/
+process differential_expression {
+    label = 'process_medium'
+    publishDir "${params.out_dir}/results/differential_expression/", mode: params.publish_dir_mode
+
+    input:
+
+}
+
+/*
+* DATABASE ANNOTATION USING LIFTOVER FOR GENOMIC COORDINATE CONVERSION AND CIRCBASE
+*/
+process database_annotation{
+    label 'process_medium'
+
+    publishDir "${params.out_dir}/results/circRNA/", mode: params.publish_dir_mode
+
+    input:
+    file(circRNAs_filtered) from ch_circRNA_counts_filtered1
+
+    output:
+    file("circRNAs_annotated.tsv") into circRNAs_annotated
+
+    script:
+    if( params.offline_circ_db == null )
+        """
+        python3 "${projectDir}"/bin/circRNA_db_annotation.py -o $params.species -gv $params.genome_version -d $circRNAs_filtered -out "circRNAs_annotated.tsv"
+        """
+    
+    else
+        """
+        python3 "${projectDir}"/bin/circRNA_db_annotation.py -o $params.species -gv $params.genome_version -d $circRNAs_filtered -out "circRNAs_annotated.tsv" -off $params.offline_circ_db
+        """
+}^
 
 /*
 * FOR THE PREVIOUSLY DETECTED circRNAs EXTRACT FASTA SEQUENCES
@@ -248,7 +287,7 @@ process extract_circRNA_sequences {
     publishDir "${params.out_dir}/results/binding_sites/input/", mode: params.publish_dir_mode
     
     input:
-    file(circRNAs_filtered) from ch_circRNA_counts_filtered1
+    file(circRNAs_filtered) from ch_circRNA_counts_filtered2
     file(fasta) from ch_fasta
 
     output:
@@ -487,7 +526,7 @@ process compute_correlations{
     
     input:
     file(miRNA_counts_filtered) from ch_miRNA_counts_filtered1
-    file(circRNA_counts_filtered) from ch_circRNA_counts_filtered2
+    file(circRNA_counts_filtered) from ch_circRNA_counts_filtered3
     file(filtered_bindsites) from ch_bindsites_filtered
 
     output:
@@ -511,7 +550,7 @@ process correlation_analysis{
     input:
     file(correlations) from ch_correlations
     file(miRNA_counts_filtered) from ch_miRNA_counts_filtered2
-    file(circRNA_counts_filtered) from ch_circRNA_counts_filtered3
+    file(circRNA_counts_filtered) from ch_circRNA_counts_filtered4
     file(miRNA_counts_norm) from ch_miRNA_counts_norm2
     file(circRNA_counts_norm) from ch_circRNA_counts_norm2
 
@@ -528,10 +567,3 @@ process correlation_analysis{
 }
 
 }
-
-
-
-
-
-
-

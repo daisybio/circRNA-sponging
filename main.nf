@@ -142,6 +142,25 @@ process STAR {
 }
 
 /*
+* DIFFERENTIAL EXPRESSION ANALYSES OF CIRCRNA USING DESeq2
+*/
+process differential_expression {
+    label = 'process_medium'
+    publishDir "${params.out_dir}/results/differential_expression/", mode: params.publish_dir_mode
+
+    input:
+    file(alignment_sam_file) from alignment_sam_file
+
+    output:
+    tuple val(sampleID)
+
+    script:
+    """
+    echo Rscript 
+    """
+}
+
+/*
 * PARSE STAR OUTPUT INTO CIRCExplorer2 FORMAT
 */
 process circExplorer2_Parse {
@@ -240,17 +259,6 @@ process filter_circRNAs{
     """
     Rscript "${projectDir}"/bin/circRNA_filtering.R $circRNA_counts_norm $params.out_dir $params.sample_percentage $params.read_threshold
     """
-}
-
-/*
-* DIFFERENTIAL EXPRESSION ANALYSES OF CIRCRNA USING DESeq2
-*/
-process differential_expression {
-    label = 'process_medium'
-    publishDir "${params.out_dir}/results/differential_expression/", mode: params.publish_dir_mode
-
-    input:
-
 }
 
 /*

@@ -1,4 +1,4 @@
-beautifulsoup4==4.10.0
-Markdown==3.3.4
-pyliftover==0.4
-selenium==4.0.0
+beautifulsoup4>=4.10.0
+Markdown>=3.3.4
+pyliftover>=0.4
+selenium>=4.0.0

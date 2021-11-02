@@ -267,7 +267,7 @@ process database_annotation{
         """
 }
 
-files_string = alignment_sam_files.toList().join(",")
+files_string = alignment_sam_files.join(",")
 
 /*
 * DIFFERENTIAL EXPRESSION ANALYSIS

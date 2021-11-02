@@ -267,6 +267,8 @@ process database_annotation{
         """
 }
 
+files_string = alignment_sam_files.toList().join(",")
+
 /*
 * DIFFERENTIAL EXPRESSION ANALYSIS
 */
@@ -276,7 +278,7 @@ process differential_expression {
 
     input:
     file(gtf) from ch_gtf
-    var(files_string) from alignment_sam_files.toList().join(",")
+    val(files_string)
 
     output:
     file("results.tsv") into deseq_results

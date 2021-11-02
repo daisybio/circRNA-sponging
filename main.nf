@@ -71,8 +71,6 @@ def get_miRNA_paths(LinkedHashMap row) {
     return array
 }
 
-
-
 // Show help message
 if (params.help) {
     helpMessage()
@@ -267,7 +265,32 @@ process database_annotation{
         """
         python3 "${projectDir}"/bin/circRNA_db_annotation.py -o $params.species -gv $params.genome_version -d $circRNAs_filtered -out "circRNAs_annotated.tsv" -off $params.offline_circ_db
         """
-}^
+}
+
+/*
+* DIFFERENTIAL EXPRESSION ANALYSIS
+*/
+process differential_expression {
+    label 'process_medium'
+    publishDir "${params.out_dir}/results/differential_expression/", mode: params.publish_dir_mode
+
+    input:
+    file(gtf) from ch_gtf
+    files_string from alignment_sam_files.toList().join(",")
+
+    output:
+    file("results.tsv") into deseq_results
+
+    script:
+    if( params.single_end )
+        """
+        Rscript "${projectDir}"/bin/generateCountsFile.R $files_string $params.genome_version $gtf TRUE
+        """
+    else
+        """
+        Rscript "${projectDir}"/bin/generateCountsFile.R $files_string $params.genome_version $gtf FALSE
+        """
+}
 
 /*
 * FOR THE PREVIOUSLY DETECTED circRNAs EXTRACT FASTA SEQUENCES

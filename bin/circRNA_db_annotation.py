@@ -206,6 +206,7 @@ def online_access(upload_file, converted_circ_data, output_loc):
     # create Chrome driver and navigate to circBase list search
     chrome_options = Options()
     chrome_options.add_argument("--headless")
+    chrome_options.add_argument("")
     driver = webdriver.Chrome("../assets/chromedriver", chrome_options=chrome_options)
     driver.get(url=url)
     # select according organism

@@ -8,12 +8,13 @@ BiocManager::install(c("DESeq2", "Rsubread"))
 library("Rsubread", "DESeq2")
 
 args = commandArgs(trailingOnly = TRUE)
-args <- c("/Users/leonschwartz/Desktop/Bioinformatik/local_data/fastqs/test.sam,/Users/leonschwartz/Desktop/Bioinformatik/local_data/fastqs/end.sam",
+args <- c("/Users/leonschwartz/Desktop/Bioinformatik/local_data/fastqs",
           "hg38",
           "/Users/leonschwartz/Desktop/Bioinformatik/local_data/references/gencode.v35.primary_assembly.annotation.gtf",
           "TRUE")
 # read sam file(s)
-sam_files <- strsplit(args[1], ",")[[1]]
+sam_files <- list.files(args[1], pattern = "\\.sam$", full.names = TRUE)
+
 # metadata
 metaData <- read.table(file = args[2], sep = "\t", header = TRUE)
 # genome version

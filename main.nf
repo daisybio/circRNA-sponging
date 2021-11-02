@@ -267,8 +267,6 @@ process database_annotation{
         """
 }
 
-files_string = alignment_sam_files.join(",")
-
 /*
 * DIFFERENTIAL EXPRESSION ANALYSIS
 */
@@ -278,7 +276,6 @@ process differential_expression {
 
     input:
     file(gtf) from ch_gtf
-    val(files_string)
 
     output:
     file("results.tsv") into deseq_results
@@ -286,11 +283,11 @@ process differential_expression {
     script:
     if( params.single_end )
         """
-        Rscript "${projectDir}"/bin/generateCountsFile.R $files_string $params.genome_version $gtf TRUE
+        Rscript "${projectDir}"/bin/generateCountsFile.R "${params.out_dir}/samples/" $params.samplesheet $params.genome_version $gtf TRUE
         """
     else
         """
-        Rscript "${projectDir}"/bin/generateCountsFile.R $files_string $params.genome_version $gtf FALSE
+        Rscript "${projectDir}"/bin/generateCountsFile.R "${params.out_dir}/samples/" $params.samplesheet $params.genome_version $gtf FALSE
         """
 }
 

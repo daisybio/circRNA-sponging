@@ -276,7 +276,7 @@ process differential_expression {
 
     input:
     file(gtf) from ch_gtf
-    files_string from alignment_sam_files.toList().join(",")
+    var(files_string) from alignment_sam_files.toList().join(",")
 
     output:
     file("results.tsv") into deseq_results

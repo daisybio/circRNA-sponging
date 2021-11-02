@@ -133,7 +133,8 @@ process STAR {
     file star_index from ch_star_index
 
     output:
-    tuple val(sampleID), file("Chimeric.out.junction"), file("Aligned.out.sam") into chimeric_junction_files, alignment_sam_file
+    tuple val(sampleID), file("Chimeric.out.junction") into chimeric_junction_files
+    tuple val(sampleID), file("Aligned.out.sam") into alignment_sam_files
 
     script:
     """
@@ -142,22 +143,28 @@ process STAR {
 }
 
 /*
-* DIFFERENTIAL EXPRESSION ANALYSES OF CIRCRNA USING DESeq2
+* CONVERT SAM FILE TO COUNTS MATRIX FOR DOWNSTREAM DIFFERENTIAL EXPRESSION
 */
-process differential_expression {
+process create_counts_file {
     label = 'process_medium'
-    publishDir "${params.out_dir}/results/differential_expression/", mode: params.publish_dir_mode
+    publishDir "${params.out_dir}/samples/${sampleID}/circRNA_detection/", mode: params.publish_dir_mode
 
     input:
-    file(alignment_sam_file) from alignment_sam_file
+    tuple val(sampleID), file(alignment_sam_file) from alignment_sam_files
+    file(gtf) from ch_gtf
 
     output:
-    tuple val(sampleID)
+    tuple val(sampleID), file("countsFile.tsv") into counts_files
 
     script:
-    """
-    echo Rscript 
-    """
+    if (params.single_end)
+        """
+        Rscript generateCountsFile.R $alignment_sam_file $params.genome_version $gtf FALSE
+        """
+    else
+        """
+        Rscript generateCountsFile.R $alignment_sam_file $params.genome_version $gtf TRUE
+        """
 }
 
 /*

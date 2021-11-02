@@ -143,31 +143,6 @@ process STAR {
 }
 
 /*
-* CONVERT SAM FILE TO COUNTS MATRIX FOR DOWNSTREAM DIFFERENTIAL EXPRESSION
-*/
-process create_counts_file {
-    label = 'process_medium'
-    publishDir "${params.out_dir}/samples/${sampleID}/circRNA_detection/", mode: params.publish_dir_mode
-
-    input:
-    tuple val(sampleID), file(alignment_sam_file) from alignment_sam_files
-    file(gtf) from ch_gtf
-
-    output:
-    tuple val(sampleID), file("countsFile.tsv") into counts_files
-
-    script:
-    if (params.single_end)
-        """
-        Rscript generateCountsFile.R $alignment_sam_file $params.genome_version $gtf FALSE
-        """
-    else
-        """
-        Rscript generateCountsFile.R $alignment_sam_file $params.genome_version $gtf TRUE
-        """
-}
-
-/*
 * PARSE STAR OUTPUT INTO CIRCExplorer2 FORMAT
 */
 process circExplorer2_Parse {

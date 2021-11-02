@@ -3,10 +3,8 @@ import argparse
 import bs4
 from pyliftover import LiftOver
 import os.path
-import requests
 from bs4 import BeautifulSoup as bs
 from selenium import webdriver
-import pandas as pd
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.chrome.options import Options
 
@@ -145,7 +143,7 @@ def read_db(db_loc):
 
 # write annotated output circ rna
 def write_mapping_file(matched_dict, db_dict, output_loc, separator):
-    header = matched_dict["header"]
+    header = matched_dict["header"][:4]
     matched_dict.pop("header")
     db_header = db_dict["header"]
     db_dict.pop("header")
@@ -160,9 +158,10 @@ def write_mapping_file(matched_dict, db_dict, output_loc, separator):
         # annotate matches and save in mapping file: gen.pos of or. genome -> circ_base_id
         for k, v in matched_dict.items():
             db_info = db_dict[k]
-            v.append(k)
-            v.extend(db_info)
-            output.write(str(separator).join(v) + "\n")
+            data = v[:4]
+            data.append(k)
+            data.extend(db_info[3:])
+            output.write(str(separator).join(data) + "\n")
 
 
 # LAUNCH OFFLINE MODE
@@ -194,10 +193,10 @@ def read_html(response):
 
 
 # handle html response from database
-def process_db_response(response, converted_circ_data):
+def process_db_response(response, converted_circ_data, output_loc):
     db_dict = read_html(response)
     direct_matches = {x: converted_circ_data[x] for x in set(converted_circ_data.keys()).intersection(set(db_dict.keys()))}
-    print(len(direct_matches))
+    write_mapping_file(direct_matches, db_dict, output_loc, "\t")
 
 
 # make request using selenium
@@ -218,7 +217,7 @@ def online_access(upload_file, converted_circ_data, output_loc):
     # submit form and retrieve data
     driver.find_element_by_id("submit").click()
     # process response
-    process_db_response(driver.page_source, converted_circ_data)
+    process_db_response(driver.page_source, converted_circ_data, output_loc)
 
 
 def main():

@@ -276,6 +276,7 @@ process differential_expression {
 
     input:
     file(gtf) from ch_gtf
+    tuple val(sampleID), file("Aligned.out.sam") from alignment_sam_files
 
     output:
     file("results.tsv") into deseq_results
@@ -283,11 +284,11 @@ process differential_expression {
     script:
     if( params.single_end )
         """
-        Rscript "${projectDir}"/bin/generateCountsFile.R "${params.out_dir}/samples/" $params.samplesheet $params.genome_version $gtf TRUE
+        Rscript "${projectDir}"/bin/differentialExpression.R "${params.out_dir}/samples/" $params.samplesheet $params.genome_version $gtf TRUE
         """
     else
         """
-        Rscript "${projectDir}"/bin/generateCountsFile.R "${params.out_dir}/samples/" $params.samplesheet $params.genome_version $gtf FALSE
+        Rscript "${projectDir}"/bin/differentialExpression.R "${params.out_dir}/samples/" $params.samplesheet $params.genome_version $gtf FALSE
         """
 }
 

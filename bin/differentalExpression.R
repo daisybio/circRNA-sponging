@@ -8,12 +8,13 @@ BiocManager::install(c("DESeq2", "Rsubread"))
 library("Rsubread", "DESeq2")
 
 args = commandArgs(trailingOnly = TRUE)
-args <- c("/Users/leonschwartz/Desktop/Bioinformatik/local_data/fastqs",
+args <- c("/Users/leonschwartz/Desktop/Bioinformatik/local_data/pipeline_expample_output/output/samples/",
+          "/Users/leonschwartz/Desktop/Bioinformatik/local_data/pipeline_expample_output/subset.tsv",
           "hg38",
           "/Users/leonschwartz/Desktop/Bioinformatik/local_data/references/gencode.v35.primary_assembly.annotation.gtf",
-          "TRUE")
+          "FALSE")
 # read sam file(s)
-sam_files <- list.files(args[1], pattern = "\\.sam$", full.names = TRUE)
+sam_files <- list.files(args[1], pattern = "\\.sam$", full.names = TRUE, recursive = TRUE)
 
 # metadata
 metaData <- read.table(file = args[2], sep = "\t", header = TRUE)
@@ -38,7 +39,7 @@ countsObject <- Rsubread::featureCounts(sam_files, annot.inbuilt = genome_versio
 countsData <- countsObject[["counts"]]
 
 # write output file
-write.table(countsData, file = "countsFile.tsv", quote = FALSE, sep = "\t", col.names = NA)
+# write.table(countsData, file = "countsFile.tsv", quote = FALSE, sep = "\t", col.names = NA)
 
 # dds object
 dds <- DESeq2::DESeqDataSetFromMatrix(countData = countsData,

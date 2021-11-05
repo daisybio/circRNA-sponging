@@ -2,18 +2,21 @@ import argparse
 
 import bs4
 from pyliftover import LiftOver
-import os.path
+import os
 from bs4 import BeautifulSoup as bs
+import pandas as pd
 from selenium import webdriver
+from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.chrome.options import Options
+import mygene
 
 parser = argparse.ArgumentParser()
 
 parser.add_argument("-o", "--organism", help="Organism on three letter code (hsa for human)", required=True)
 parser.add_argument("-gv", "--genome_version", help="Used genome version", required=True)
 parser.add_argument("-d", "--data_loc", help="Location of data to be converted", required=True)
-parser.add_argument("-out", "--output", default="circRNAs_annotated.tsv", help="Output file location")
+parser.add_argument("-out", "--output", help="Output file location", required=True)
 parser.add_argument("-s", "--separator", help="Separator of file", default="\t")
 parser.add_argument("-chrC", "--chromosome", help="Column of chromosome", default=0)
 parser.add_argument("-startC", "--start", help="Column of start of position", default=1)
@@ -31,6 +34,11 @@ end_c = args.end
 strand_c = args.strand
 organism = args.organism
 
+# set working dir
+abspath = os.path.abspath(__file__)
+dname = os.path.dirname(abspath)
+os.chdir(dname)
+
 
 class DbOrganism:
     def __init__(self, name, version):
@@ -41,10 +49,6 @@ class DbOrganism:
     def get_db_name(self):
         return self.name + " (" + self.version + ")"
 
-
-org_tlc_to_name = {
-    "hsa": "Human (hg19)"
-}
 
 db_genome_versions = {
     "hsa": DbOrganism("Human", "hg19"),
@@ -141,8 +145,19 @@ def read_db(db_loc):
     return d
 
 
+# get ensemble id for gene symbol
+def get_ens_id(query, gene_symbol):
+    try:
+        ens_id = query.T[str(gene_symbol)].iat[2, 0]
+    except (KeyError, IndexError, TypeError) as e:
+        ens_id = "None"
+    return ens_id
+
+
 # write annotated output circ rna
 def write_mapping_file(matched_dict, db_dict, output_loc, separator):
+    # build gene symbol converter
+    mg = mygene.MyGeneInfo()
     header = matched_dict["header"][:4]
     matched_dict.pop("header")
     db_header = db_dict["header"]
@@ -152,16 +167,28 @@ def write_mapping_file(matched_dict, db_dict, output_loc, separator):
     header.append(converted_genome + "_converted_pos")
     # extend rest of db data without already present information
     header.extend(db_header[3:])
+    # ensembl gene id
+    header.append("Ensembl_gene_ID")
     with open(output_loc, "w") as output:
         if header is not None:
             output.write(str(separator).join(header) + "\n")
         # annotate matches and save in mapping file: gen.pos of or. genome -> circ_base_id
+        file_data = []
+        symbols = []
+        # filter output and merge annotations
         for k, v in matched_dict.items():
             db_info = db_dict[k]
             data = v[:4]
             data.append(k)
             data.extend(db_info[3:])
-            output.write(str(separator).join(data) + "\n")
+            file_data.append(data)
+            symbols.append(db_info[11])
+        # add ensembl ids
+        query = mg.querymany(symbols, scopes='symbol', fields='ensembl.gene', as_dataframe=True)
+        for line, symbol in zip(file_data, symbols):
+            ens_id = get_ens_id(query, symbol)
+            line.append(str(ens_id))
+            output.write(str(separator).join(line) + "\n")
 
 
 # LAUNCH OFFLINE MODE
@@ -176,7 +203,7 @@ def offline_access(converted_circ_data, output_loc, database_loc, separator):
 def read_db_data_to_dict(header, data):
     d = {}
     for split in data:
-        if len(split) == 0 or split[12] is "NA":
+        if len(split) == 0 or split[12] == "NA":
             continue
         key = str(split[1]) + "|" + str(split[2])
         d[key] = split
@@ -206,17 +233,16 @@ def online_access(upload_file, converted_circ_data, output_loc):
     # create Chrome driver and navigate to circBase list search
     chrome_options = Options()
     chrome_options.add_argument("--headless")
-    chrome_options.add_argument("")
-    driver = webdriver.Chrome("../assets/chromedriver", chrome_options=chrome_options)
+    driver = webdriver.Chrome("../assets/chromedriver", options=chrome_options)
     driver.get(url=url)
     # select according organism
-    organism_select = Select(driver.find_element_by_id("organism"))
+    organism_select = Select(driver.find_element(By.ID, "organism"))
     # select for current organism by DbOrganism class
     organism_select.select_by_value(organism.get_db_name())
     # upload tmp database file
-    driver.find_element_by_id("queryfile").send_keys(upload_file)
+    driver.find_element(By.ID, "queryfile").send_keys(upload_file)
     # submit form and retrieve data
-    driver.find_element_by_id("submit").click()
+    driver.find_element(By.ID, "submit").click()
     # process response
     process_db_response(driver.page_source, converted_circ_data, output_loc)
 

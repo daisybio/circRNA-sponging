@@ -59,16 +59,32 @@ def get_circRNA_paths(LinkedHashMap row) {
         }
         array = [ row.sample, [ file(row.totalRNA1), file(row.totalRNA2) ] ]
     }
+    if (params.differential_expression){
+        if (!row.containsKey("condition"))) {
+            exit 1, "Error: Condition marker missing!"
+        }
+    }
     return array
 }
 
 def get_miRNA_paths(LinkedHashMap row) {
     def array = []
     if (!file(row.smallRNA).exists()) {
-        exit 1, "ERROR:FastQ file does not exist!\n${row.smallRNA}"
+        exit 1, "Error: FastQ file does not exist!\n${row.smallRNA}"
     }
     array = [ row.sample, [ file(row.smallRNA) ] ]
     return array
+}
+
+def check_input(){
+    if (!params.genome_version) {
+        if (params.database_annotation){
+            exit 1, "Error: genome version not specified, which is mandatory for database annotation"
+        }
+        if (params.differential_expression){
+            exit 1, "Error: genome version not specified, which is mandatory for differential expression analysis"
+        }
+    }
 }
 
 // Show help message
@@ -86,6 +102,11 @@ ch_totalRNA_reads=Channel.fromPath(params.samplesheet)
 
 ch_fasta = Channel.value(file(params.fasta))
 ch_gtf = Channel.value(file(params.gtf))
+
+/*
+* CHECK INPUT OPTIONS
+*/
+check_input()
 
 /*
 * GENERATE STAR INDEX IN CASE IT IS NOT ALREADY PROVIDED
@@ -244,7 +265,8 @@ process filter_circRNAs{
 /*
 * DATABASE ANNOTATION USING LIFTOVER FOR GENOMIC COORDINATE CONVERSION AND CIRCBASE
 */
-process database_annotation{
+if (params.database_annotation){
+    process database_annotation{
     label 'process_medium'
 
     publishDir "${params.out_dir}/results/circRNA/", mode: params.publish_dir_mode
@@ -265,12 +287,14 @@ process database_annotation{
         """
         python3 "${projectDir}"/bin/circRNA_db_annotation.py -o $params.species -gv $params.genome_version -d $circRNAs_filtered -out "circRNAs_annotated.tsv" -off $params.offline_circ_db
         """
+    }
 }
 
 /*
 * DIFFERENTIAL EXPRESSION ANALYSIS
 */
-process differential_expression {
+if (params.differential_expression){
+    process differential_expression {
     label 'process_medium'
     publishDir "${params.out_dir}/results/differential_expression/", mode: params.publish_dir_mode
 
@@ -290,6 +314,7 @@ process differential_expression {
         """
         Rscript "${projectDir}"/bin/differentialExpression.R "${params.out_dir}/samples/" $params.samplesheet $params.genome_version $gtf FALSE
         """
+    }
 }
 
 /*

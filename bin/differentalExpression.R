@@ -44,13 +44,12 @@ countsData <- countsObject[["counts"]]
 # dds object
 dds <- DESeq2::DESeqDataSetFromMatrix(countData = countsData,
                                       colData = metaData,
-                                      design = ~condition,
-                                      tidy = TRUE)
+                                      design = ~condition)
 
 # differential expression analysis
-dds <- DESeq(dds)
+dds <- DESeq2::DESeq(dds)
 # results
-res <- results(dds)
+res <- DESeq2::results(dds)
 # sort by p-value
 res <- res[order(res$padj),]
 # write results to file

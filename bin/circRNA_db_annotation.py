@@ -34,10 +34,8 @@ end_c = args.end
 strand_c = args.strand
 organism = args.organism
 
-# set working dir
-abspath = os.path.abspath(__file__)
-dname = os.path.dirname(abspath)
-os.chdir(dname)
+# set pipeline home
+pipeline_home = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 class DbOrganism:
@@ -231,9 +229,10 @@ def online_access(upload_file, converted_circ_data, output_loc):
     # get circBase url
     url = dbs["circBase"]
     # create Chrome driver and navigate to circBase list search
-    chrome_options = Options()
-    chrome_options.add_argument("--headless")
-    driver = webdriver.Chrome("../assets/chromedriver", options=chrome_options)
+    options = Options()
+    options.add_argument("--headless")
+    print("chrome_path: ", os.path.join(pipeline_home, "assets/chromedriver"))
+    driver = webdriver.Chrome(os.path.join(pipeline_home, "assets/chromedriver"), options=options)
     driver.get(url=url)
     # select according organism
     organism_select = Select(driver.find_element(By.ID, "organism"))

@@ -42,7 +42,9 @@ def helpMessage() {
       --read_threshold [real]		Positive. Read counts under this threshold are considered to be low expressed
       --sample_percentage [real]	Between 0 and 1. Minimum percentage of samples that should have no low expression
       --circRNA_only [bool]  		Run only circRNA analysis, don't run miRNA analysis
-      --offline_circ_db [file]      File containing downloaded circBase entries for offline access to the database
+      --database_annotation [bool]  Annotate circRNA hits with circBase data
+        --offline_circ_db [file]      File containing downloaded circBase entries for offline access to the database
+      --differential_expression [bool]  Enable differential expression analysis using DESeq2 on all given RNA-seq data, if database annotation is enabled, additionally only on circRNA hits
    """.stripIndent() 
 }
 

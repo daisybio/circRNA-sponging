@@ -62,7 +62,7 @@ def get_circRNA_paths(LinkedHashMap row) {
         array = [ row.sample, [ file(row.totalRNA1), file(row.totalRNA2) ] ]
     }
     if (params.differential_expression){
-        if (!row.containsKey("condition"))) {
+        if (!row.containsKey("condition")) {
             exit 1, "Error: Condition marker missing!"
         }
     }

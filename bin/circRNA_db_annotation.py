@@ -71,7 +71,7 @@ annotated_columns = ['organism', 'circRNA_ID', 'genomic_length', 'spliced_length
 
 # generate key for specific circRNA
 def key_gen(c, x, y, s):
-    return str(c)+":"+str(x)+"-"+str(y)+"|"+str(s)
+    return str(c)+":"+str(x)+"-"+str(y)+"_"+str(s)
 
 
 # format for database
@@ -137,7 +137,7 @@ def read_db(db_loc):
                 d["header"] = split
                 c += 1
                 continue
-            pos = str(split[0]) + "|" + str(split[1])
+            pos = str(split[0]) + "_" + str(split[1])
             d[pos] = split[2:]
             c += 1
     return d
@@ -203,7 +203,7 @@ def read_db_data_to_dict(header, data):
     for split in data:
         if len(split) == 0 or split[12] == "NA":
             continue
-        key = str(split[1]) + "|" + str(split[2])
+        key = str(split[1]) + "_" + str(split[2])
         d[key] = split
     d["header"] = header
     return d

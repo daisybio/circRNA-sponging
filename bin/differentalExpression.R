@@ -4,6 +4,7 @@ if (!requireNamespace("BiocManager", quietly = TRUE))
   install.packages("BiocManager")
 
 BiocManager::install(c("DESeq2", "Rsubread"))
+
 # start script
 library("Rsubread", "DESeq2")
 
@@ -31,7 +32,7 @@ isPaired <- parse_boolean(args[5])
 # create ouptut data and plots
 create_outputs <- function(d, results, n, marker, file_name) {
   # write data to disk
-  write.table(results, file = paste(file_name, "tsv", sep = "."), quote = FALSE, sep = "\t", col.names = NA)
+  write.table(cbind(ENS_ID=rownames(results), results), file = paste(file_name, "tsv", sep = "."), quote = FALSE, sep = "\t", col.names = NA)
   # create normalized counts plots for top n genes
   if (length(results@rownames) >= n) {
     r_top = as.list(results@rownames)[1:n]
@@ -56,6 +57,8 @@ countsObject <- Rsubread::featureCounts(sam_files, annot.inbuilt = genome_versio
                             isGTFAnnotationFile = TRUE, isPairedEnd = isPaired)
 # prepare deseq2 counts data
 countsData <- countsObject[["counts"]]
+# save general gene expression of all samples
+write.table(countsData, file = paste("gene_expression", "tsv", sep = "."), quote = FALSE, sep = "\t", col.names = NA)
 # reformat ids
 new_names <- list()
 for (name in row.names(countsData)) {

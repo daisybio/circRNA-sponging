@@ -6,8 +6,8 @@ BiocManager::install("SPONGE")
 library("SPONGE")
 
 # gene expression
-gene_expr <- read.table(file = args[1], header = TRUE, sep = "\t")
+gene_expr <- t(read.table(file = args[1], header = TRUE, sep = "\t"))
 # miRNA expression
-mir_expr <- read.table(file = args[2], header = TRUE, sep = "\t")
+mir_expr <- t(read.table(file = args[2], header = TRUE, sep = "\t"))
 
 print(1)

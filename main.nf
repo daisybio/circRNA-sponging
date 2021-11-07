@@ -606,14 +606,6 @@ process correlation_analysis{
 }
 
 /*
-* SPONGE ANALYSIS (https://github.com/biomedbigdata/SPONGE)
+* TODO: SPONGE ANALYSIS (https://github.com/biomedbigdata/SPONGE)
 */
-process SPONGE {
-    label 'process_high'
-    publishDir "${params.out_dir}/results/sponging/SPONGE", mode: params.publish_dir_mode
-
-    input:
-    
-}
-
 }

@@ -8,12 +8,7 @@ BiocManager::install(c("DESeq2", "Rsubread"))
 library("Rsubread", "DESeq2")
 
 args = commandArgs(trailingOnly = TRUE)
-args <- c("/Users/leonschwartz/Desktop/Bioinformatik/local_data/pipeline_expample_output/output/samples/",
-          "/Users/leonschwartz/Desktop/Bioinformatik/local_data/pipeline_expample_output/subset.tsv",
-          "hg38",
-          "/Users/leonschwartz/Desktop/Bioinformatik/local_data/references/gencode.v35.primary_assembly.annotation.gtf",
-          "FALSE",
-          "/Users/leonschwartz/Desktop/Bioinformatik/Bachelor/data/circRNAs/circRNA_annotated.tsv")
+
 # read sam file(s)
 sam_files <- list.files(args[1], pattern = "\\.sam$", full.names = TRUE, recursive = TRUE)
 

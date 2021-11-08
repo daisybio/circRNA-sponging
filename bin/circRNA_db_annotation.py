@@ -3,7 +3,6 @@ import argparse
 from pyliftover import LiftOver
 import os
 from bs4 import BeautifulSoup as bs
-import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select

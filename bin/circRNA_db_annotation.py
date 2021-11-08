@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup as bs
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
-from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.firefox.options import Options
 import mygene
 
 parser = argparse.ArgumentParser()
@@ -228,7 +228,7 @@ def online_access(upload_file, converted_circ_data, output_loc):
     url = dbs["circBase"]
     # create Chrome driver and navigate to circBase list search
     options = Options()
-    options.add_argument("--headless")
+    options.set_headless()
     firefox_path = os.path.join(pipeline_home, "assets/geckodriver")
     driver = webdriver.Firefox(firefox_path, options=options)
     driver.get(url=url)

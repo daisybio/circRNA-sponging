@@ -296,26 +296,44 @@ if (params.database_annotation){
 * DIFFERENTIAL EXPRESSION ANALYSIS
 */
 if (params.differential_expression){
-    process differential_expression {
-    label 'process_medium'
-    publishDir "${params.out_dir}/results/differential_expression/", mode: params.publish_dir_mode
+    if (params.database_annotation){
+        // enable filtering for circRNAs only
+        process differential_expression {
+            label 'process_medium'
+            publishDir "${params.out_dir}/results/differential_expression/", mode: params.publish_dir_mode
 
-    input:
-    file(gtf) from ch_gtf
-    tuple val(sampleID), file("Aligned.out.sam") from alignment_sam_files
+            input:
+            file(gtf) from ch_gtf
+            tuple val(sampleID), file("Aligned.out.sam") from alignment_sam_files
+            file(circRNAs_annotated) from circRNAs_annotated
 
-    output:
-    file("results.tsv") into deseq_results
+            output:
+            file("*.tsv") into deseq_results
+            file("*.png") into plots
 
-    script:
-    if( params.single_end )
-        """
-        Rscript "${projectDir}"/bin/differentialExpression.R "${params.out_dir}/samples/" $params.samplesheet $params.genome_version $gtf TRUE
-        """
-    else
-        """
-        Rscript "${projectDir}"/bin/differentialExpression.R "${params.out_dir}/samples/" $params.samplesheet $params.genome_version $gtf FALSE
-        """
+            script:
+            """
+            Rscript "${projectDir}"/bin/differentialExpression.R "${params.out_dir}/samples/" $params.samplesheet $params.genome_version $gtf $params.single_end $circRNAs_annotated
+            """
+        }
+    } else {
+        process differential_expression {
+            label 'process_medium'
+            publishDir "${params.out_dir}/results/differential_expression/", mode: params.publish_dir_mode
+
+            input:
+            file(gtf) from ch_gtf
+            tuple val(sampleID), file("Aligned.out.sam") from alignment_sam_files
+
+            output:
+            file("*.tsv") into deseq_results
+            file("*.png") into plots
+
+            script:
+            """
+            Rscript "${projectDir}"/bin/differentialExpression.R "${params.out_dir}/samples/" $params.samplesheet $params.genome_version $gtf $params.single_end $circRNAs_annotated
+            """
+        }
     }
 }
 

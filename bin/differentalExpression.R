@@ -21,7 +21,7 @@ genome_version <- args[3]
 gtf_file <- args[4]
 # read mode
 parse_boolean <- function(isT) {
-  if (isT == "TRUE") {
+  if (isT == "true") {
     return (TRUE)
   } else {
     return (FALSE)

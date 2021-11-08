@@ -199,7 +199,7 @@ def offline_access(converted_circ_data, output_loc, database_loc, separator):
 def read_db_data_to_dict(header, data):
     d = {}
     for split in data:
-        if len(split) == 0 or split[12] == "NA":
+        if len(split) == 0:
             continue
         key = str(split[1]) + "_" + str(split[2])
         d[key] = split

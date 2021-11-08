@@ -230,8 +230,8 @@ def online_access(upload_file, converted_circ_data, output_loc):
     # create Chrome driver and navigate to circBase list search
     options = Options()
     options.add_argument("--headless")
-    print("chrome_path: ", os.path.join(pipeline_home, "assets/chromedriver"))
-    driver = webdriver.Chrome(os.path.join(pipeline_home, "assets/chromedriver"), options=options)
+    firefox_path = os.path.join(pipeline_home, "assets/geckodriver")
+    driver = webdriver.Firefox(firefox_path, options=options)
     driver.get(url=url)
     # select according organism
     organism_select = Select(driver.find_element(By.ID, "organism"))

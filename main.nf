@@ -298,7 +298,7 @@ if (params.database_annotation){
 if (params.differential_expression){
     if (params.database_annotation){
         // enable filtering for circRNAs only
-        process differential_expression {
+        process differential_expression_w_circ {
             label 'process_medium'
             publishDir "${params.out_dir}/results/differential_expression/", mode: params.publish_dir_mode
 

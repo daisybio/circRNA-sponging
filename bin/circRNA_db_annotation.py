@@ -4,6 +4,7 @@ from pyliftover import LiftOver
 import os
 from bs4 import BeautifulSoup as bs
 from selenium import webdriver
+import pandas as pd
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.firefox.options import Options

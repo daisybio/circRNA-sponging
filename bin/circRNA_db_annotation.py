@@ -230,7 +230,7 @@ def online_access(upload_file, converted_circ_data, output_loc):
     options = Options()
     options.set_headless()
     firefox_path = os.path.join(pipeline_home, "assets/geckodriver")
-    driver = webdriver.Firefox(firefox_path, options=options)
+    driver = webdriver.Firefox(executable_path = firefox_path, options = options)
     driver.get(url=url)
     # select according organism
     organism_select = Select(driver.find_element(By.ID, "organism"))

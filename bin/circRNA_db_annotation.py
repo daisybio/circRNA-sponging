@@ -1,6 +1,5 @@
 import argparse
 
-import bs4
 from pyliftover import LiftOver
 import os
 from bs4 import BeautifulSoup as bs

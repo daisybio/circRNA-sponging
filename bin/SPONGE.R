@@ -4,7 +4,7 @@ if (!requireNamespace("BiocManager", quietly = TRUE))
 BiocManager::install("SPONGE")
 # imports
 library("SPONGE")
-
+# read input and transpose data
 # gene expression
 gene_expr <- t(read.table(file = args[1], header = TRUE, sep = "\t"))
 # miRNA expression

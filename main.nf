@@ -372,7 +372,7 @@ process miranda {
 
     script:
     """
-        miranda $params.mature_fasta $circRNA_fasta -out "bind_sites_raw.out" -quiet
+    miranda $params.mature_fasta $circRNA_fasta -out "bind_sites_raw.out" -quiet
     """
 }
 
@@ -391,8 +391,8 @@ process binding_sites_processing {
 
     script:
     """
-        echo -e "miRNA\tTarget\tScore\tEnergy-Kcal/Mol\tQuery-Al(Start-End)\tSubject-Al(Start-End)\tAl-Len\tSubject-Identity\tQuery-Identity" > "bind_sites_processed.txt"
-        grep -A 1 "Scores for this hit:" $bind_sites_raw | sort | grep ">" | cut -c 2- >> "bind_sites_processed.txt"
+    echo -e "miRNA\tTarget\tScore\tEnergy-Kcal/Mol\tQuery-Al(Start-End)\tSubject-Al(Start-End)\tAl-Len\tSubject-Identity\tQuery-Identity" > "bind_sites_processed.txt"
+    grep -A 1 "Scores for this hit:" $bind_sites_raw | sort | grep ">" | cut -c 2- >> "bind_sites_processed.txt"
     """
 }
 
@@ -485,7 +485,7 @@ ch_bowtie_index = params.bowtie_index ? Channel.value(file(params.bowtie_index))
 
         script:
         """
-	gunzip < $read_file > "${sampleID}.fastq"
+	    gunzip < $read_file > "${sampleID}.fastq"
         mapper.pl "${sampleID}.fastq" -e -h -i -j -k $params.miRNA_adapter -l 18 -m -p ${fasta.baseName} -s "reads_collapsed.fa" -t "reads_vs_ref.arf" -v
         """
     }

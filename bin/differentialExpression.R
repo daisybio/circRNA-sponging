@@ -20,15 +20,15 @@ genome_version <- args[3]
 # gtf
 gtf_file <- args[4]
 # read mode
-parse_boolean <- function(isT) {
+is_single_end <- function(isT) {
   if (isT == "true") {
-    return (TRUE)
-  } else {
     return (FALSE)
+  } else {
+    return (TRUE)
   }
 }
 # check for paired reads
-isPaired <- parse_boolean(args[5])
+isPaired <- is_single_end(args[5])
 # create ouptut data and plots
 create_outputs <- function(d, results, n, marker, file_name) {
   # write data to disk

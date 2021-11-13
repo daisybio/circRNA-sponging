@@ -293,7 +293,7 @@ if (params.database_annotation){
 }
 
 /*
-* DIFFERENTIAL EXPRESSION ANALYSIS
+* DIFFERENTIAL EXPRESSION ANALYSIS USING SAM FILES FROM STAR
 */
 if (params.differential_expression){
     if (params.database_annotation){
@@ -304,7 +304,6 @@ if (params.differential_expression){
 
             input:
             file(gtf) from ch_gtf
-            tuple val(sampleID), file("Aligned.out.sam") from alignment_sam_files
             file(circRNAs_annotated) from circRNAs_annotated
 
             output:
@@ -323,7 +322,6 @@ if (params.differential_expression){
 
             input:
             file(gtf) from ch_gtf
-            tuple val(sampleID), file("Aligned.out.sam") from alignment_sam_files
 
             output:
             file("*.tsv") into deseq_results

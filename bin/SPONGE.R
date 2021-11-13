@@ -9,5 +9,7 @@ library("SPONGE")
 gene_expr <- t(read.table(file = args[1], header = TRUE, sep = "\t"))
 # miRNA expression
 mir_expr <- t(read.table(file = args[2], header = TRUE, sep = "\t"))
+# miRNA targets
+target_scan_symbol <- read.table(file = args[3], header = TRUE, sep = "\t")
 
 print(1)

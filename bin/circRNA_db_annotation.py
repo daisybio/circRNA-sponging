@@ -270,6 +270,11 @@ def main():
     else:
         offline_access(converted_circ_data=converted_data, output_loc=out_loc, database_loc=db_data, separator=separator)
 
+    # clean tmp file
+    if os.path.exists(tmp_db_file):
+        os.remove(tmp_db_file)
+    else:
+        print("TMP file not found: " + str(tmp_db_file))
 
 if __name__ == "__main__":
     main()

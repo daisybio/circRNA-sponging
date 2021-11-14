@@ -278,5 +278,6 @@ def main():
     else:
         print("TMP file not found: " + str(tmp_db_file))
 
+
 if __name__ == "__main__":
     main()

@@ -322,6 +322,7 @@ if (params.differential_expression){
 
             input:
             file(gtf) from ch_gtf
+            file(alignment_sam_files) from alignment_sam_files.collect()
 
             output:
             file("*.tsv") into deseq_results

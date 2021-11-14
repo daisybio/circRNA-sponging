@@ -243,6 +243,8 @@ def online_access(upload_file, converted_circ_data, output_loc):
     driver.find_element(By.ID, "submit").click()
     # process response
     process_db_response(driver.page_source, converted_circ_data, output_loc)
+    # close driver
+    driver.quit()
 
 
 def main():

@@ -7,6 +7,7 @@ BiocManager::install(c("DESeq2", "Rsubread"))
 
 # start script
 library("Rsubread", "DESeq2")
+# ARGS: path_to_samples[file] path_to_metadata[file] genome_version[str] gtf[file] is_single_end[boolean][true/false], OPT: path_to_circRNAs[file]
 
 args = commandArgs(trailingOnly = TRUE)
 
@@ -87,7 +88,7 @@ create_outputs(d = dds, results = res, n = 5, marker = "condition", file_name = 
 # only circRNA, if file loc is given
 if (length(args) == 6) {
   circ_RNAs <- read.table(file = args[6], sep = "\t", header = TRUE)
-  ens_ids <- c_RNAs$Ensembl_gene_ID
+  ens_ids <- circ_RNAs$Ensembl_gene_ID
   # circ rnas only
   filtered_res <- res[row.names(res) %in% ens_ids,]
   create_outputs(d = dds, results = filtered_res, n = 5, marker = "condition", file_name = "circ_rna_only")

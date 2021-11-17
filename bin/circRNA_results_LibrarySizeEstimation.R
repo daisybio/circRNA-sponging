@@ -4,6 +4,7 @@ args = commandArgs(trailingOnly=TRUE)
 if (length(args)!=2) {
   stop("Two argument must be supplied", call.=FALSE)
 }
+
 expression_raw_path = args[1]
 output_dir = args[2]
 
@@ -34,6 +35,6 @@ merged_data <- merge(circRNA_names, normalized_counts, by = "row.names")
 merged_data <- merged_data[order(merged_data$order), ]
 normalized_data <- subset(merged_data, select = -c(order, Row.names))
 
-write.table(normalized_data, paste0("circRNA_counts_normalized.tsv"), quote = F, sep = "\t", row.names = F)
+write.table(normalized_data, paste0(output_dir, "circRNA_counts_normalized.tsv", sep = "/"), quote = F, sep = "\t", row.names = F)
 
 

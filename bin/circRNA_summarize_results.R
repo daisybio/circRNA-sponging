@@ -23,14 +23,14 @@ for (i in 1:length(samples)){
   names(N_of_circRNAs_raw)[i] <- sample
   
   expression_raw <- CIRCexplorer2_output[,c(1,2,3,6,13,15,16)]
-  colnames(expression_raw) <- c("chr", "start", "stop", "strand", "counts", "gene_symbol", paste("isoform_", "sample", sep = ""))
+  colnames(expression_raw) <- c("chr", "start", "stop", "strand", "counts", "gene_symbol", paste("isoform_", sample, sep = ""))
   expression_raw <- expression_raw[,c(1,2,3,4,5,6)]
   
   # compact and remove duplicates, in case of duplicates, take max counts
   compact_raw <- data.table(circRNA=paste0(strsplit(expression_raw$chr, "_")[[1]][1], ":", expression_raw$start, "-", expression_raw$stop,"_", expression_raw$strand),  gene_symbol = expression_raw$gene_symbol, counts = expression_raw$counts)
-  compact_raw_no_dup <- compact_raw[, max(counts), by=circRNA]
-  compact_raw <- merge(compact_raw, compact_raw_no_dup, by = "circRNA", all=T)
-  
+  compact_raw_no_dup <- data.table(compact_raw[, max(counts), by=circRNA])
+  compact_raw <- merge(compact_raw, compact_raw_no_dup, by = "circRNA", all=FALSE)
+
   compact_raw$chr <- sapply(strsplit(as.character(compact_raw$circRNA),':'), "[", 1)
   compact_raw$start <- as.numeric(sapply(strsplit(sapply(strsplit(as.character(compact_raw$circRNA),':'), "[", 2),'-'), "[", 1))
   compact_raw$stop <- as.numeric(sapply(strsplit(sapply(strsplit(as.character(compact_raw$circRNA),'-'), "[", 2),'_'), "[", 1))

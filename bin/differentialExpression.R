@@ -6,7 +6,7 @@ if (!requireNamespace("BiocManager", quietly = TRUE))
 BiocManager::install(c("DESeq2", "Rsubread"))
 
 # start script
-library("Rsubread", "DESeq2")
+library("Rsubread", "DESeq2", "reshape2", "ggplot")
 # ARGS: path_to_samples[file] path_to_metadata[file] genome_version[str] gtf[file] is_single_end[boolean][true/false], OPT: path_to_circRNAs[file]
 
 args = commandArgs(trailingOnly = TRUE)
@@ -31,26 +31,42 @@ is_single_end <- function(isT) {
 # check for paired reads
 isPaired <- is_single_end(args[5])
 # create ouptut data and plots
-create_outputs <- function(d, results, n, marker, file_name) {
+create_outputs <- function(d, results, marker, file_name) {
   # write data to disk
   write.table(cbind(ENS_ID=rownames(results), results), file = paste(file_name, "tsv", sep = "."), quote = FALSE, sep = "\t", col.names = NA)
-  # create normalized counts plots for top n genes
-  if (length(results@rownames) >= n) {
-    r_top = as.list(results@rownames)[1:n]
-    for (gene in r_top) {
-      pl = DESeq2::plotCounts(d, gene = gene, intgroup = marker)
-      gene_name = paste(file_name, gene, sep = "_")
-      png(filename = paste(gene_name, "png", sep = "."))
-      plot(pl)
-      dev.off
-    }
-  }
   # PCA
   vsdata <- DESeq2::vst(d, blind = FALSE)
   PCA_plot <- DESeq2::plotPCA(vsdata, intgroup = marker)
-  plot_name <- paste(file_name, "pca", sep = "_")
-  png(filename = paste(plot_name, "png", sep = "."))
+  pca_name <- paste(file_name, "pca", sep = "_")
+  png(filename = paste(pca_name, "png", sep = "."))
   plot(PCA_plot)
+  # MA
+  ma_plot <- DESeq2::plotMA(res)
+  ma_name <- paste(file_name, "MA", sep = "_")
+  png(filename = paste(ma_name, "png", sep = "."))
+  plot(ma_plot)
+  # HEAT MAP
+  # variance stabilizing transformation
+  deseq_vst <- DESeq2::vst(d)
+  # convert to data frame
+  deseq_vst <- assay(deseq_vst)
+  deseq_vst <- as.data.frame(deseq_vst)
+  deseq_vst$Gene <- rownames(deseq_vst)
+  # filter for significantly differntiated genes log2FolChnage > 3
+  deseq_res_df <- as.data.frame(results)
+  signif_genes <- rownames(deseq_res_df[deseq_res_df$padj <= .05 &
+  abs(deseq_res_df$log2FoldChange) > 3,])
+  deseq_vst <- deseq_vst[deseq_vst$Gene %in% signif_genes,]
+  # make heatmap
+  heatmap <- ggplot(deseq2VST, aes(x=variable, y=Gene, fill=value)) + 
+  geom_raster() + scale_fill_viridis(trans="sqrt") + 
+  theme(axis.text.x=element_text(angle=65, hjust=1), 
+  axis.text.y=element_blank(), axis.ticks.y=element_blank())
+  # set output file loc
+  heatmap_name <- paste(file_name, "HMAP", sep = "_")
+  png(filename = paste(heatmap_name, "png", sep = "."))
+  plot(heatmap)
+  # close device
   dev.off
 }
 # convert sam to countsObject
@@ -84,12 +100,12 @@ DESeq2::summary(res)
 
 # WRITE OUTPUTS
 # total_RNA
-create_outputs(d = dds, results = res, n = 5, marker = "condition", file_name = "total_rna")
+create_outputs(d = dds, results = res, marker = "condition", file_name = "total_rna")
 # only circRNA, if file loc is given
 if (length(args) == 6) {
   circ_RNAs <- read.table(file = args[6], sep = "\t", header = TRUE)
   ens_ids <- circ_RNAs$Ensembl_gene_ID
   # circ rnas only
   filtered_res <- res[row.names(res) %in% ens_ids,]
-  create_outputs(d = dds, results = filtered_res, n = 5, marker = "condition", file_name = "circ_rna_only")
+  create_outputs(d = dds, results = filtered_res, marker = "condition", file_name = "circ_rna_only")
 }

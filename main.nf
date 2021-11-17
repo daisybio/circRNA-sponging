@@ -307,7 +307,9 @@ if (params.differential_expression){
             file(circRNAs_annotated) from circRNAs_annotated
 
             output:
-            file("*.tsv") into deseq_results
+            file("gene_expression.tsv") into gene_expression
+            file("total_rna.tsv") into deseq_total_rna
+            file("circ_rna_only.tsv") into deseq_circ_only
             file("*.png") into plots
 
             script:
@@ -325,7 +327,8 @@ if (params.differential_expression){
             file(alignment_sam_files) from alignment_sam_files.collect()
 
             output:
-            file("*.tsv") into deseq_results
+            file("gene_expression.tsv") into gene_expression
+            file("total_rna.tsv") into deseq_total_rna
             file("*.png") into plots
 
             script:

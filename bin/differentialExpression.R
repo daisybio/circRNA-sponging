@@ -100,7 +100,8 @@ DESeq2::summary(res)
 
 # WRITE OUTPUTS
 # total_RNA
-create_outputs(d = dds, results = res, marker = "condition", file_name = "total_rna")
+output_loc <- "/nfs/home/students/l.schwartz/test/total_rna"
+create_outputs(d = dds, results = res, marker = "condition", file_name = output_loc)
 # only circRNA, if file loc is given
 if (length(args) == 6) {
   circ_RNAs <- read.table(file = args[6], sep = "\t", header = TRUE)

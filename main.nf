@@ -256,7 +256,7 @@ process filter_circRNAs{
     file(circRNA_counts_norm) from ch_circRNA_counts_norm1
 
     output:
-    file("circRNA_counts_filtered.tsv") into (ch_circRNA_counts_filtered1, ch_circRNA_counts_filtered2, ch_circRNA_counts_filtered3, ch_circRNA_counts_filtered4)
+    file("circRNA_counts_filtered.tsv") into (ch_circRNA_counts_filtered1, ch_circRNA_counts_filtered2, ch_circRNA_counts_filtered3, ch_circRNA_counts_filtered4, ch_circRNA_counts_filtered5)
 
     script:
     """

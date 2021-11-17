@@ -12,7 +12,7 @@ read_cutoff = as.numeric(args[4]) # default 5, minimum number of reads, a circRN
 
 expression_norm <- read.table(expression_norm_path, sep = "\t", header=T, stringsAsFactors = F, check.names = F)
 
-samples <- colnames(expression_norm)[-c(1:4)]
+samples <- colnames(expression_norm)[-c(1:5)]
 
 # filter data: counts > 5 in at least 20% of samples
 if(length(samples) < 5){
@@ -23,7 +23,7 @@ sample_nr_cutoff <- ceiling(samples_percentage *length(samples))
 rows_to_keep <- c()
 for (i in 1:nrow(expression_norm)){
   number_of_samples_containing_this_circRNA <- 0
-  for (j in 5:ncol(expression_norm)){
+  for (j in 6:ncol(expression_norm)){
     if(expression_norm[i,j] >= read_cutoff){
       number_of_samples_containing_this_circRNA <- number_of_samples_containing_this_circRNA + 1
     }
@@ -31,7 +31,6 @@ for (i in 1:nrow(expression_norm)){
   if(number_of_samples_containing_this_circRNA >= sample_nr_cutoff){
     rows_to_keep <- append(rows_to_keep, i)
   }
-  
 }
 filtered_data <- expression_norm[rows_to_keep,]
 write.table(filtered_data, paste0("circRNA_counts_filtered.tsv"), quote = F, sep = "\t", row.names = F)

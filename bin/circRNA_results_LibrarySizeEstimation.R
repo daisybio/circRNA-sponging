@@ -12,11 +12,11 @@ library(DESeq2)
 library(data.table)
 
 expression_raw <- read.table(expression_raw_path, sep = "\t", header=T, stringsAsFactors = F, check.names = F)
-samples <- colnames(expression_raw)[-c(1:4)]
-row.names(expression_raw) <- paste0(expression_raw$chr, ":", expression_raw$start, "-", expression_raw$stop,"_", expression_raw$strand)
-circRNA_names <- expression_raw[,c(1,2,3,4)]
+samples <- colnames(expression_raw)[-c(1:5)]
+row.names(expression_raw) <- paste0(expression_raw$chr, ":", expression_raw$start, "-", expression_raw$stop,"_", expression_raw$strand, "!", expression_raw$gene_symbol)
+circRNA_names <- expression_raw[,c(1,2,3,4,5)]
 circRNA_names$order <- 1:nrow(circRNA_names)
-expression_raw <- expression_raw[,-c(1,2,3,4)]
+expression_raw <- expression_raw[,-c(1,2,3,4,5)]
 
 # normalize using DeSeq2, Library Size Estimation
 meta <- data.frame(samples)

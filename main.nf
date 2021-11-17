@@ -296,46 +296,24 @@ if (params.database_annotation){
 * DIFFERENTIAL EXPRESSION ANALYSIS USING SAM FILES FROM STAR
 */
 if (params.differential_expression){
-    if (params.database_annotation){
-        // enable filtering for circRNAs only
-        process differential_expression_w_circ {
-            label 'process_medium'
-            publishDir "${params.out_dir}/results/differential_expression/", mode: params.publish_dir_mode
+    process differential_expression {
+        label 'process_medium'
+        publishDir "${params.out_dir}/results/differential_expression/", mode: params.publish_dir_mode
 
-            input:
-            file(gtf) from ch_gtf
-            file(circRNAs_annotated) from circRNAs_annotated
+        input:
+        file(gtf) from ch_gtf
+        file(circRNAs_filtered) from ch_circRNA_counts_filtered2
+        file(alignment_sam_files) from alignment_sam_files.collect()
 
-            output:
-            file("gene_expression.tsv") into gene_expression
-            file("total_rna.tsv") into deseq_total_rna
-            file("circ_rna_only.tsv") into deseq_circ_only
-            file("*.png") into plots
+        output:
+        file("gene_expression.tsv") into gene_expression
+        file("total_rna.tsv") into deseq_total_rna
+        file("*.png") into plots
 
-            script:
-            """
-            Rscript "${projectDir}"/bin/differentialExpression.R "${params.out_dir}/samples/" $params.samplesheet $params.genome_version $gtf $params.single_end $circRNAs_annotated
-            """
-        }
-    } else {
-        process differential_expression {
-            label 'process_medium'
-            publishDir "${params.out_dir}/results/differential_expression/", mode: params.publish_dir_mode
-
-            input:
-            file(gtf) from ch_gtf
-            file(alignment_sam_files) from alignment_sam_files.collect()
-
-            output:
-            file("gene_expression.tsv") into gene_expression
-            file("total_rna.tsv") into deseq_total_rna
-            file("*.png") into plots
-
-            script:
-            """
-            Rscript "${projectDir}"/bin/differentialExpression.R "${params.out_dir}/samples/" $params.samplesheet $params.genome_version $gtf $params.single_end
-            """
-        }
+        script:
+        """
+        Rscript "${projectDir}"/bin/differentialExpression.R "${params.out_dir}/samples/" $params.samplesheet $params.genome_version $gtf $params.single_end
+        """
     }
 }
 
@@ -347,7 +325,7 @@ process extract_circRNA_sequences {
     publishDir "${params.out_dir}/results/binding_sites/input/", mode: params.publish_dir_mode
     
     input:
-    file(circRNAs_filtered) from ch_circRNA_counts_filtered2
+    file(circRNAs_filtered) from ch_circRNA_counts_filtered3
     file(fasta) from ch_fasta
 
     output:
@@ -585,7 +563,7 @@ process compute_correlations{
     
     input:
     file(miRNA_counts_filtered) from ch_miRNA_counts_filtered1
-    file(circRNA_counts_filtered) from ch_circRNA_counts_filtered3
+    file(circRNA_counts_filtered) from ch_circRNA_counts_filtered4
     file(filtered_bindsites) from ch_bindsites_filtered
 
     output:
@@ -609,7 +587,7 @@ process correlation_analysis{
     input:
     file(correlations) from ch_correlations
     file(miRNA_counts_filtered) from ch_miRNA_counts_filtered2
-    file(circRNA_counts_filtered) from ch_circRNA_counts_filtered4
+    file(circRNA_counts_filtered) from ch_circRNA_counts_filtered5
     file(miRNA_counts_norm) from ch_miRNA_counts_norm2
     file(circRNA_counts_norm) from ch_circRNA_counts_norm2
 

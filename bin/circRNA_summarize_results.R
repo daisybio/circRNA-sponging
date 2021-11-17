@@ -28,20 +28,22 @@ for (i in 1:length(samples)){
   
   # compact and remove duplicates, in case of duplicates, take max counts
   compact_raw <- data.table(circRNA=paste0(strsplit(expression_raw$chr, "_")[[1]][1], ":", expression_raw$start, "-", expression_raw$stop,"_", expression_raw$strand),  gene_symbol = expression_raw$gene_symbol, counts = expression_raw$counts)
-  compact_raw <- compact_raw[compact_raw[, max(counts), by=circRNA]$V1]
+  compact_raw_no_dup <- compact_raw[, max(counts), by=circRNA]
+  compact_raw <- merge(compact_raw, compact_raw_no_dup, by = "circRNA", all=T)
+  compact_raw$V1 <- NULL
   
   compact_raw$chr <- sapply(strsplit(as.character(compact_raw$circRNA),':'), "[", 1)
   compact_raw$start <- as.numeric(sapply(strsplit(sapply(strsplit(as.character(compact_raw$circRNA),':'), "[", 2),'-'), "[", 1))
   compact_raw$stop <- as.numeric(sapply(strsplit(sapply(strsplit(as.character(compact_raw$circRNA),'-'), "[", 2),'_'), "[", 1))
   compact_raw$strand <- sapply(strsplit(as.character(compact_raw$circRNA),'_'), "[", 2)
 
-  expression <- compact_raw[,c("chr", "start", "stop", "strand", "gene_symbol")]
-  colnames(expression)[5] <- sample
+  expression <- compact_raw[,c("chr", "start", "stop", "strand", "gene_symbol", "counts")]
+  colnames(expression)[6] <- sample
   
   if(is.null(finaldata)){
     finaldata <- expression
   } else {
-    finaldata <- merge(finaldata, expression, by = c("chr", "start", "stop", "strand"), all = T)
+    finaldata <- merge(finaldata, expression, by = c("chr", "start", "stop", "strand", "gene_symbol"), all = T)
     }
 }
 finaldata[is.na(finaldata)] <- 0

@@ -2,9 +2,8 @@
 # if (!requireNamespace("BiocManager", quietly = TRUE))
 #   install.packages("BiocManager")
 # BiocManager::install("SPONGE")
-args = commandArgs(trailingOnly = TRUE)
-# library("SPONGE")
-library(biomaRt, argparser, data.table)
+
+library(SPONGE, biomaRt, argparser, data.table, ggplot2)
 
 # TODO: add transpose argument or check if it is necessary
 parser <- arg_parser("Argument parser for SPONGE analysis", name = "SPONGE_parser")
@@ -12,6 +11,7 @@ parser <- add_argument(parser, "--gene_expr", help = "Gene expression file in ts
 parser <- add_argument(parser, "--mirna_expr", help = "miRNA expression file in tsv format")
 parser <- add_argument(parser, "--organism", help = "Organism given in three letter code")
 parser <- add_argument(parser, "--target_scan_symbols", help = "Matrix of target scan symbols provided as tsv")
+parser <- add_argument(parser, "--fdr", help = "FDR rate for ceRNA networks")
 # add all target scan symbol options to be included -> will generate final target scan symbols
 parser <- add_argument(parser, "--miRTarBase_loc", help = "MiRTarBase data location in csv format")
 parser <- add_argument(parser, "--miranda_data", help = "Miranda output data location in tsv format")
@@ -165,10 +165,37 @@ colidx <- grep("hgnc_symbol", names(gene_expr))
 gene_expr <- gene_expr[, c(colidx, (1:ncol(gene_expr))[-colidx])]
 gene_expr <- t(gene_expr)
 gene_expr[complete.cases(gene_expr), ]
-# extract all unique miRNAs
-miRNAs <- target_scan_symbols$miRNA
-miRNAs <- miRNAs[!duplicated(miRNAs)]
 
-# INIT SPONGE
+# ----------------------------- SPONGE -----------------------------
+# (A) gene-miRNA interactions
+genes_miRNA_candidates <- SPONGE::sponge_gene_miRNA_interaction_filter(
+  gene_expr = gene_expr,
+  mir_expr = mi_rna_expr,
+  mir_predicted_targets = target_scan_symbols_counts)
+# (B) ceRNA interactions
+ceRNA_interactions <- SPONGE::sponge(gene_expr = gene_expr,
+                             mir_expr = mi_rna_expr,
+                             mir_interactions = genes_miRNA_candidates)
+# (C) Null-model-based p-value computation
+mscor_null_model <- sponge_build_null_model(number_of_datasets = 100, number_of_samples = nrow(gene_expr))
+# simulation plot
+sim_plot <- sponge_plot_simulation_results(mscor_null_model)
+# ceRNA interaction signs
+ceRNA_interactions_sign <- sponge_compute_p_values(sponge_result = ceRNA_interactions, 
+                                                   null_model = mscor_null_model)
+# (D) ceRNA interaction network
+fdr <- as.double(argv$fdr)
+ceRNA_interactions_fdr <- ceRNA_interactions_sign[which(ceRNA_interactions_sign$p.adj < fdr),]
+ceRNA_network_plot <- sponge_plot_network(ceRNA_interactions_fdr, genes_miRNA_candidates)
+# NETWORK ANALYSIS
+network_centralities <- sponge_node_centralities(ceRNA_interactions_fdr)
+# different weights for ceRNA interactions
+ceRNA_interactions_fdr_weight <- ceRNA_interactions_fdr
+ceRNA_interactions_fdr_weight$weight <- -log10(ceRNA_interactions_fdr$p.adj)
+weighted_network_centralities <- sponge_node_centralities(ceRNA_interactions_fdr)
+# plot top n samples
+n = 3
+top_network_plot <- sponge_plot_network_centralities(weighted_network_centralities, top = n)
+
 
 

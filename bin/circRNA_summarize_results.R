@@ -45,7 +45,6 @@ for (i in 1:length(samples)){
   expression <- compact_raw[,c("chr", "start", "stop", "strand", "V1")]
   colnames(expression)[5] <- sample
   print(expression)
-  stop("stop")
   
   if(is.null(finaldata)){
     finaldata <- expression

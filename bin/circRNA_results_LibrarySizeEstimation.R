@@ -2,6 +2,9 @@
 
 args = commandArgs(trailingOnly=TRUE)
 
+args = c("/Users/leonschwartz/Desktop/Bioinformatik/local_data/pipeline_expample_output/circRNA/circRNA_counts_raw.tsv",
+         "/Users/leonschwartz/Desktop/Bioinformatik/local_data/pipeline_expample_output/circRNA")
+
 if (length(args)!=2) {
   stop("Two argument must be supplied", call.=FALSE)
 }
@@ -9,8 +12,7 @@ if (length(args)!=2) {
 expression_raw_path = args[1]
 output_dir = args[2]
 
-library(DESeq2)
-library(data.table)
+suppressWarnings(library(DESeq2, data.table))
 
 expression_raw <- read.table(expression_raw_path, sep = "\t", header=T, stringsAsFactors = F, check.names = F)
 samples <- colnames(expression_raw)[-c(1:5)]
@@ -28,7 +30,7 @@ all(colnames(data) == rownames(meta))
 
 dds <- DESeq2::DESeqDataSetFromMatrix(countData = data + 1, colData = meta, design = ~ 1)
 dds <- DESeq2::estimateSizeFactors(dds)
-sizeFactors(dds)
+
 normalized_counts <- DESeq2::counts(dds, normalized=TRUE)
 
 # add circRNA position back to counts table
@@ -36,6 +38,4 @@ merged_data <- merge(circRNA_names, normalized_counts, by = "row.names")
 merged_data <- merged_data[order(merged_data$order), ]
 normalized_data <- subset(merged_data, select = -c(order, Row.names))
 
-write.table(normalized_data, paste(output_dir, "circRNA_counts_normalized.tsv", sep = "/"), quote = F, sep = "\t", row.names = F)
-
-
+write.table(normalized_data, paste0("circRNA_counts_normalized.tsv"), quote = F, sep = "\t", row.names = F)

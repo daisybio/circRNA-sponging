@@ -1,6 +1,10 @@
 #!/usr/bin/env Rscript
 
 args = commandArgs(trailingOnly=TRUE)
+
+args = c("/Users/leonschwartz/Desktop/Bioinformatik/local_data/pipeline_expample_output/circRNA/circRNA_counts_raw.tsv",
+         "/Users/leonschwartz/Desktop/Bioinformatik/local_data/pipeline_expample_output/circRNA/circRNA_counts_normalized.tsv")
+
 if (length(args)!=2) {
   stop("Two argument must be supplied", call.=FALSE)
 }

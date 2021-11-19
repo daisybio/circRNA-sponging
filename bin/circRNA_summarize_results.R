@@ -35,8 +35,6 @@ for (i in 1:length(samples)){
   
   # compact and remove duplicates, in case of duplicates, take max counts
   compact_raw <- data.table(circRNA=paste0(gsub("_", "", expression_raw$chr), ":", expression_raw$start, "-", expression_raw$stop,"_", expression_raw$strand),  counts = expression_raw$counts)
-  print(compact_raw)
-  stop("stop")
   compact_raw <- compact_raw[, max(counts), by=circRNA]
   
   compact_raw$chr <- sapply(strsplit(as.character(compact_raw$circRNA),':'), "[", 1)
@@ -46,6 +44,8 @@ for (i in 1:length(samples)){
   
   expression <- compact_raw[,c("chr", "start", "stop", "strand", "V1")]
   colnames(expression)[5] <- sample
+  print(expression)
+  stop("stop")
   
   if(is.null(finaldata)){
     finaldata <- expression

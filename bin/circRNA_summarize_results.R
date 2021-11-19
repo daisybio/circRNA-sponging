@@ -52,4 +52,4 @@ for (i in 1:length(samples)){
   }
 }
 finaldata[is.na(finaldata)] <- 0
-write.table(finaldata, paste0(output_dir, "circRNA_counts_raw.tsv", sep = "/"), quote = F, sep = "\t", row.names = F)
+write.table(finaldata, paste(output_dir, "circRNA_counts_raw.tsv", sep = "/"), quote = F, sep = "\t", row.names = F)

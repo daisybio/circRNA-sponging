@@ -29,7 +29,7 @@ data <- expression_raw
 all(colnames(data) %in% rownames(meta))
 all(colnames(data) == rownames(meta))
 
-dds <- DESeq2::DESeqDataSetFromMatrix(countData = data, colData = meta, design = ~ 1)
+dds <- DESeq2::DESeqDataSetFromMatrix(countData = data + 1, colData = meta, design = ~ 1)
 dds <- DESeq2::estimateSizeFactors(dds)
 sizeFactors(dds)
 normalized_counts <- DESeq2::counts(dds, normalized=TRUE)

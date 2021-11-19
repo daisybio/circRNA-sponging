@@ -312,7 +312,7 @@ if (params.differential_expression){
 
         script:
         """
-        Rscript "${projectDir}"/bin/differentialExpression.R "${params.out_dir}/samples/" $params.samplesheet $params.genome_version $gtf $params.single_end
+        Rscript "${projectDir}"/bin/differentialExpression.R "${params.out_dir}/samples/" $params.samplesheet $params.genome_version $gtf $params.single_end $circRNAs_filtered
         """
     }
 }

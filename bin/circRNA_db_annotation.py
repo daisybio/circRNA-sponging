@@ -4,11 +4,10 @@ from pyliftover import LiftOver
 import os
 from bs4 import BeautifulSoup as bs
 from selenium import webdriver
-import pandas as pd
+import pandas
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.firefox.options import Options
-import mygene
 
 parser = argparse.ArgumentParser()
 
@@ -142,19 +141,9 @@ def read_db(db_loc):
     return d
 
 
-# get ensemble id for gene symbol
-def get_ens_id(query, gene_symbol):
-    try:
-        ens_id = query.T[str(gene_symbol)].iat[2, 0]
-    except (KeyError, IndexError, TypeError) as e:
-        ens_id = "None"
-    return ens_id
-
-
 # write annotated output circ rna
 def write_mapping_file(matched_dict, db_dict, output_loc, separator):
     # build gene symbol converter
-    mg = mygene.MyGeneInfo()
     header = matched_dict["header"][:4]
     matched_dict.pop("header")
     db_header = db_dict["header"]
@@ -180,12 +169,6 @@ def write_mapping_file(matched_dict, db_dict, output_loc, separator):
             data.extend(db_info[3:])
             file_data.append(data)
             symbols.append(db_info[11])
-        # add ensembl ids
-        query = mg.querymany(symbols, scopes='symbol', fields='ensembl.gene', as_dataframe=True)
-        for line, symbol in zip(file_data, symbols):
-            ens_id = get_ens_id(query, symbol)
-            line.append(str(ens_id))
-            output.write(str(separator).join(line) + "\n")
 
 
 # LAUNCH OFFLINE MODE

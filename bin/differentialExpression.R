@@ -102,11 +102,8 @@ DESeq2::summary(res)
 # total_RNA
 output_loc <- "/nfs/home/students/l.schwartz/test/total_rna"
 create_outputs(d = dds, results = res, marker = "condition", file_name = output_loc)
-# only circRNA, if file loc is given
-if (length(args) == 6) {
-  circ_RNAs <- read.table(file = args[6], sep = "\t", header = TRUE)
-  ens_ids <- circ_RNAs$Ensembl_gene_ID
-  # circ rnas only
-  filtered_res <- res[row.names(res) %in% ens_ids,]
-  create_outputs(d = dds, results = filtered_res, marker = "condition", file_name = "circ_rna_only")
-}
+# circRNA only
+circ_RNAs <- read.table(file = args[6], sep = "\t", header = TRUE)
+ens_ids <- circ_RNAs$ensembl_gene_ID
+filtered_res <- res[row.names(res) %in% ens_ids,]
+create_outputs(d = dds, results = filtered_res, marker = "condition", file_name = "circ_rna_only")

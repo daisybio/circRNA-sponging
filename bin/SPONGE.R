@@ -4,7 +4,7 @@
 # BiocManager::install("SPONGE")
 args = commandArgs(trailingOnly = TRUE)
 # library("SPONGE")
-library(biomaRt, argparser)
+library(biomaRt, argparser, data.table)
 
 # TODO: add transpose argument or check if it is necessary
 parser <- arg_parser("Argument parser for SPONGE analysis", name = "SPONGE_parser")
@@ -46,8 +46,15 @@ org_codes <- list("ebv" = c("Epstein Barr virus", ""),
 det_strand <- function(x) {
   if (x == "+") {
     return("1")
-  } else {
+  }
+  if (x == "-") {
     return("-1")
+  }
+  if (x == "1") {
+    return("+")
+  }
+  if (x == "-1") {
+    return("-")
   }
 }
 
@@ -71,10 +78,6 @@ annotate_miranda <- function(miRTarBase_loc, ensembl_mart) {
   df = data.frame(read.table(miranda_loc, sep = "\t", header = T))
   targets = split_encoding(df$Target)
   
-  gene.Symbols <- getBM(attributes = c("hgnc_symbol", "mirbase_accession", "mirbase_id"),
-                        filters = c("chromosomal_region"),
-                        values=targets,
-                        mart=ensembl_mart)
   print("Start mapping miranda ouptut to gene symbols")
   for (i in seq_along(targets)) {
     gene.Symbol <- getBM(attributes = "hgnc_symbol",

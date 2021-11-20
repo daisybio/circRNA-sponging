@@ -3,7 +3,6 @@
 library(SPONGE, biomaRt, argparser, data.table, ggplot2)
 # create dirs in cwd
 dir.create("plots", showWarnings = FALSE)
-dir.create("rds", showWarnings = FALSE)
 
 # TODO: add transpose argument or check if it is necessary
 parser <- arg_parser("Argument parser for SPONGE analysis", name = "SPONGE_parser")
@@ -58,6 +57,14 @@ det_strand <- function(x) {
   }
 }
 
+notset <- function(x) {
+  if (x == "null" || (x)) {
+    return(TRUE)
+  } else {
+    return(FALSE)
+  }
+}
+
 split_encoding <- function(coded_vector) {
   d <- c()
   for (i in seq_along(coded_vector)) {
@@ -94,7 +101,7 @@ annotate_miranda <- function(miRTarBase_loc, ensembl_mart) {
 create_target_scan_symbols <- function(miRTarBase, miranda, TargetScan, org_name, ensembl_mart) {
   # process miRTarBase
   targets <- 0
-  if (!is.na(miRTarBase)) {
+  if (!notset(miRTarBase)) {
     miRTarBase_targets <- data.frame(read.csv(miRTarBase, header = T))
     # filter by organism
     miRTarBase_targets <- miRTarBase_targets[miRTarBase_targets$Species..miRNA. == org_name,]
@@ -102,7 +109,7 @@ create_target_scan_symbols <- function(miRTarBase, miranda, TargetScan, org_name
     targets <- miRTarBase_targets[, c("miRNA", "Target.Gene")]
   }
   # process targets from miranda
-  if (!is.na(miranda)) {
+  if (!notset(miranda)) {
     miranda_file <- data.frame(read.table(args[5], header = T, sep = "\t"))
     annotate_miranda(miranda_file, ensembl_mart = mart)
     miranda_data <- miranda_file[, c("miRNA", "gene_symbol")]
@@ -114,7 +121,7 @@ create_target_scan_symbols <- function(miRTarBase, miranda, TargetScan, org_name
     }
   }
   # TODO: process TargetScan data
-  if (!is.na(TargetScan)) {
+  if (!notset(TargetScan)) {
     target_scan_file <- data.frame(read.table(TargetScan, header = T, sep = "\t"))
   }
   # remove NA rows
@@ -124,7 +131,7 @@ create_target_scan_symbols <- function(miRTarBase, miranda, TargetScan, org_name
 }
 
 # check required inputs
-if (is.na(argv$gene_expr) || is.na(argv$mirna_expr) || is.na(argv$organism)) {
+if (notset(argv$gene_expr) || notset(argv$mirna_expr) || notset(argv$organism)) {
   stop("One or more mandatory arguments are not given")
 }
 # choose organism
@@ -134,11 +141,11 @@ mart <- useDataset(org_data[2], useMart("ensembl"))
 # SET TARGET SCAN SYMBOLS
 target_scan_symbols_counts <- 0
 # use given target scan symbols for SPONGE
-if (!is.na(argv$target_scan_symbols)) {
+if (!notset(argv$target_scan_symbols)) {
   target_scan_symbols_counts <- data.frame(read.table(file = argv$target_scan_symbols, sep = "\t", header = T))
 } else {
   # check for at least one given data set
-  if (is.na(argv$miRTarBase_loc) && is.na(argv$miranda_data) && is.na(argv$TargetScan_data)) {
+  if (notset(argv$miRTarBase_loc) && notset(argv$miranda_data) && notset(argv$TargetScan_data)) {
     stop("At least one target scan data source has to be provided")
   }
   # use data from pipeline and build target scan symbols
@@ -207,4 +214,4 @@ top_network_plot <- sponge_plot_network_centralities(weighted_network_centraliti
 png("plots/top_ceRNA_network.png")
 plot(top_network_plot)
 # save R objects
-save.image(file = "rds/sponge.RData")
+save.image(file = "sponge.RData")

@@ -36,7 +36,7 @@ def helpMessage() {
       --hairpin_fasta [file]		Path to miRNA hairpin fasta (must be surrounded with quotes)
       SPONGE:
       Apply target scan symbols directly:
-        --targetScanSymbols [file]    Path to target scan symbols for SPONGE analysis
+        --target_scan_symbols [file]    Path to target scan symbols for SPONGE analysis
       Give one of the following options to create target scan symbols also using miranda/tarpmir
         --miRTarBaseData [file]     Path to miRTarBase dataset
         --TargetScanData [file]     Path to TargetScan dataset
@@ -657,6 +657,24 @@ process SPONGE{
 
     input:
     file(gene_expression) from gene_expression_all
-    file(miranda_data) from ch_miRNA_counts_filtered4
+    file(mirna_expression) from ch_miRNA_counts_filtered4
+    file(miranda_bind_sites) from ch_bindsites_filtered
+
+    output:
+    file("sponge.RData") into Rimage
+    file("plots/*.png") into ch_sponge_plots
+
+    script:
+    """
+    Rscript SPONGE.R \\
+    --gene_expr $gene_expression \\
+    --mirna_expr $mirna_expression \\
+    --organism $params.organism \\
+    --target_scan_symbols $params.target_scan_symbols \\
+    --fdr 0.2 \\
+    --miRTarBase_loc $params.miRTarBaseData \\
+    --miranda_data $miranda_bind_sites \\
+    --TargetScan_data $TargetScanData
+    """
 }
 }

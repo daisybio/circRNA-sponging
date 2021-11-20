@@ -1,9 +1,9 @@
-# install necessary packages
-# if (!requireNamespace("BiocManager", quietly = TRUE))
-#   install.packages("BiocManager")
-# BiocManager::install("SPONGE")
+#!/usr/bin/env Rscript
 
 library(SPONGE, biomaRt, argparser, data.table, ggplot2)
+# create dirs in cwd
+dir.create("plots", showWarnings = FALSE)
+dir.create("rds", showWarnings = FALSE)
 
 # TODO: add transpose argument or check if it is necessary
 parser <- arg_parser("Argument parser for SPONGE analysis", name = "SPONGE_parser")
@@ -107,7 +107,11 @@ create_target_scan_symbols <- function(miRTarBase, miranda, TargetScan, org_name
     annotate_miranda(miranda_file, ensembl_mart = mart)
     miranda_data <- miranda_file[, c("miRNA", "gene_symbol")]
     colnames(miranda_data) <- c("miRNA", "Target.Gene")
-    targets <- merge(target_scan_data, miranda_data, by = c("miRNA", "Target.Gene"), all = T)
+    if (targets == 0) {
+      targets <- miranda_data
+    } else {
+      targets <- merge(targets, miranda_data, by = c("miRNA", "Target.Gene"), all = T)
+    }
   }
   # TODO: process TargetScan data
   if (!is.na(TargetScan)) {
@@ -180,6 +184,8 @@ ceRNA_interactions <- SPONGE::sponge(gene_expr = gene_expr,
 mscor_null_model <- sponge_build_null_model(number_of_datasets = 100, number_of_samples = nrow(gene_expr))
 # simulation plot
 sim_plot <- sponge_plot_simulation_results(mscor_null_model)
+png("plots/simulation.png")
+plot(sim_plot)
 # ceRNA interaction signs
 ceRNA_interactions_sign <- sponge_compute_p_values(sponge_result = ceRNA_interactions, 
                                                    null_model = mscor_null_model)
@@ -187,6 +193,8 @@ ceRNA_interactions_sign <- sponge_compute_p_values(sponge_result = ceRNA_interac
 fdr <- as.double(argv$fdr)
 ceRNA_interactions_fdr <- ceRNA_interactions_sign[which(ceRNA_interactions_sign$p.adj < fdr),]
 ceRNA_network_plot <- sponge_plot_network(ceRNA_interactions_fdr, genes_miRNA_candidates)
+png("plots/ceRNA_network.png")
+plot(ceRNA_network_plot)
 # NETWORK ANALYSIS
 network_centralities <- sponge_node_centralities(ceRNA_interactions_fdr)
 # different weights for ceRNA interactions
@@ -196,6 +204,7 @@ weighted_network_centralities <- sponge_node_centralities(ceRNA_interactions_fdr
 # plot top n samples
 n = 3
 top_network_plot <- sponge_plot_network_centralities(weighted_network_centralities, top = n)
-
-
-
+png("plots/top_ceRNA_network.png")
+plot(top_network_plot)
+# save R objects
+save.image(file = "rds/sponge.RData")

@@ -1,35 +1,15 @@
 #!/usr/bin/env Rscript
-# install required packages if they do not already exist
-if (!requireNamespace("BiocManager", quietly = TRUE))
-  install.packages("BiocManager")
 
-BiocManager::install(c("DESeq2", "Rsubread"))
-
-# start script
 library("Rsubread", "DESeq2", "reshape2", "ggplot")
-# ARGS: path_to_samples[file] path_to_metadata[file] genome_version[str] gtf[file] is_single_end[boolean][true/false], OPT: path_to_circRNAs[file]
 
 args = commandArgs(trailingOnly = TRUE)
 
-# read sam file(s)
-sam_files <- list.files(args[1], pattern = "\\.sam$", full.names = TRUE, recursive = TRUE)
+# read gene expression counts
+countsData <- data.frame(read.table(file = args[1], header = T, sep = "\t"))
 
 # metadata
 metaData <- read.table(file = args[2], sep = "\t", header = TRUE)
-# genome version
-genome_version <- args[3]
-# gtf
-gtf_file <- args[4]
-# read mode
-is_single_end <- function(isT) {
-  if (isT == "true") {
-    return (FALSE)
-  } else {
-    return (TRUE)
-  }
-}
-# check for paired reads
-isPaired <- is_single_end(args[5])
+
 # create ouptut data and plots
 create_outputs <- function(d, results, marker, file_name) {
   # write data to disk
@@ -69,20 +49,6 @@ create_outputs <- function(d, results, marker, file_name) {
   # close device
   dev.off
 }
-# convert sam to countsObject
-countsObject <- Rsubread::featureCounts(sam_files, annot.inbuilt = genome_version, annot.ext = gtf_file,
-                            isGTFAnnotationFile = TRUE, isPairedEnd = isPaired)
-# prepare deseq2 counts data
-countsData <- countsObject[["counts"]]
-# save general gene expression of all samples
-write.table(countsData, file = paste("gene_expression", "tsv", sep = "."), quote = FALSE, sep = "\t", col.names = NA)
-# reformat ids
-new_names <- list()
-for (name in row.names(countsData)) {
-  general_name <- strsplit(name, "\\.")[[1]][1]
-  new_names <- c(new_names, general_name)
-}
-row.names(countsData) <- new_names
 
 # dds object
 dds <- DESeq2::DESeqDataSetFromMatrix(countData = countsData,
@@ -103,7 +69,7 @@ DESeq2::summary(res)
 output_loc <- "/nfs/home/students/l.schwartz/test/total_rna"
 create_outputs(d = dds, results = res, marker = "condition", file_name = output_loc)
 # circRNA only
-circ_RNAs <- read.table(file = args[6], sep = "\t", header = TRUE)
+circ_RNAs <- read.table(file = args[3], sep = "\t", header = TRUE)
 ens_ids <- circ_RNAs$ensembl_gene_ID
 filtered_res <- res[row.names(res) %in% ens_ids,]
 create_outputs(d = dds, results = filtered_res, marker = "condition", file_name = "circ_rna_only")

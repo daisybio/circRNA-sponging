@@ -34,7 +34,13 @@ def helpMessage() {
       --mature_fasta [file]		Path to mature miRNA fasta (must be surrounded with quotes)
       --mature_other_fasta [file]	Path to mature miRNA fasta of related species (must be surrounded with quotes)
       --hairpin_fasta [file]		Path to miRNA hairpin fasta (must be surrounded with quotes)
-    
+      SPONGE:
+      Apply target scan symbols directly:
+        --targetScanSymbols [file]    Path to target scan symbols for SPONGE analysis
+      Give one of the following options to create target scan symbols also using miranda/tarpmir
+        --miRTarBaseData [file]     Path to miRTarBase dataset
+        --TargetScanData [file]     Path to TargetScan dataset
+
     Options:
       --miRNA_raw_counts [file]		Path to tabulated raw miRNA counts (must be surrounded with quotes)
       --single_end [bool]            	Specifies that the total RNA input is single-end reads
@@ -44,7 +50,7 @@ def helpMessage() {
       --circRNA_only [bool]  		Run only circRNA analysis, don't run miRNA analysis
       --database_annotation [bool]  Annotate circRNA hits with circBase data
         --offline_circ_db [file]      File containing downloaded circBase entries for offline access to the database
-      --differential_expression [bool]  Enable differential expression analysis using DESeq2 on all given RNA-seq data, if database annotation is enabled, additionally only on circRNA hits
+      --differential_expression [bool]  Enable differential expression analysis using DESeq2 on all given RNA-seq data and circRNA only
    """.stripIndent() 
 }
 
@@ -160,6 +166,46 @@ process STAR {
     script:
     """
     STAR --chimSegmentMin 10 --runThreadN 10 --genomeDir $star_index --readFilesCommand zcat --readFilesIn $reads
+    """
+}
+
+/*
+* GENERATE EXPRESSION COUNT FILE FROM ALIGNMENT
+*/
+process gene_expression {
+    label 'process_low'
+    publishDir "${params.out_dir}/samples/${sampleID}/circRNA_detection/", mode: params.publish_dir_mode
+
+    input:
+    file(gtf) from ch_gtf
+    set val(sampleID), file(alignment_sam_file) from alignment_sam_files
+
+    output:
+    set val(sampleID), file("gene_expression.tsv") into gene_expression_files
+
+    script:
+    """
+    mv $alignment_sam_file "${alignment_file%.*}"_${sampleID}.sam
+    Rscript gene_expression.R "${alignment_file%.*}".${sampleID}.sam $params.genome_version $gtf $params.single_end
+    """
+}
+
+/*
+* COMBINE EXPRESSION COUNT FILES
+*/
+process combine_expressions {
+    label 'process_low'
+    publishDir "${params.out_dir}/results/gene_expression", mode: params.publish_dir_mode
+
+    input:
+    file(gene_expression) from from gene_expression_files.collect()
+
+    output:
+    file("gene_expression_all.tsv") into gene_expression_all
+
+    script:
+    """
+    Rscript merge_tables.R "${params.out_dir}/samples/" gene_expression_all.tsv
     """
 }
 
@@ -301,18 +347,16 @@ if (params.differential_expression){
         publishDir "${params.out_dir}/results/differential_expression/", mode: params.publish_dir_mode
 
         input:
-        file(gtf) from ch_gtf
         file(circRNAs_filtered) from ch_circRNA_counts_filtered2
-        file(alignment_sam_files) from alignment_sam_files.collect()
+        file(gene_expression_all) from gene_expression_all
 
         output:
-        file("gene_expression.tsv") into gene_expression
         file("total_rna.tsv") into deseq_total_rna
         file("*.png") into plots
 
         script:
         """
-        Rscript "${projectDir}"/bin/differentialExpression.R "${params.out_dir}/samples/" $params.samplesheet $params.genome_version $gtf $params.single_end $circRNAs_filtered
+        Rscript "${projectDir}"/bin/differentialExpression.R "${params.out_dir}/samples/" $gene_expression_all $params.samplesheet $circRNAs_filtered
         """
     }
 }
@@ -544,7 +588,7 @@ process filter_miRNAs{
     file(miRNA_counts_norm) from ch_miRNA_counts_norm1
 
     output:
-    file("miRNA_counts_filtered.tsv") into (ch_miRNA_counts_filtered1, ch_miRNA_counts_filtered2, ch_miRNA_counts_filtered3)
+    file("miRNA_counts_filtered.tsv") into (ch_miRNA_counts_filtered1, ch_miRNA_counts_filtered2, ch_miRNA_counts_filtered3, ch_miRNA_counts_filtered4)
 
     script:
     """
@@ -606,4 +650,13 @@ process correlation_analysis{
 /*
 * TODO: SPONGE ANALYSIS (https://github.com/biomedbigdata/SPONGE)
 */
+process SPONGE{
+    label 'process_high'
+
+    publishDir "${params.out_dir}/results/SPONGE", mode: params.publish_dir_mode
+
+    input:
+    file(gene_expression) from gene_expression_all
+    file(miranda_data) from ch_miRNA_counts_filtered4
+}
 }

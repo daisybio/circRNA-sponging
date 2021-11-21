@@ -153,8 +153,6 @@ def write_mapping_file(matched_dict, db_dict, output_loc, separator):
     header.append(converted_genome + "_converted_pos")
     # extend rest of db data without already present information
     header.extend(db_header[3:])
-    # ensembl gene id
-    header.append("Ensembl_gene_ID")
     with open(output_loc, "w") as output:
         if header is not None:
             output.write(str(separator).join(header) + "\n")

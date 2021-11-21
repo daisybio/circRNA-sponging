@@ -76,5 +76,4 @@ gene.ens.all <- gene.ens.all[!duplicated(gene.ens.all$hgnc_symbol),]
 # append data
 filtered_data <- merge(filtered_data, gene.ens.all, by.x = "gene_symbol", by.y = "hgnc_symbol", all.x = T)
 # write final output
-write.table(filtered_data, paste(output_dir, "circRNA_counts_filtered.tsv", sep = "/"), quote = F, sep = "\t", row.names = F)
-
+write.table(filtered_data, file = "circRNA_counts_filtered.tsv", quote = F, sep = "\t", row.names = F)

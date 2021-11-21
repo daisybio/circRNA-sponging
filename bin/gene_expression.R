@@ -39,4 +39,4 @@ countsData$ensembl_gene_id <- NULL
 colnames(countsData) <- id
 
 # save general gene expression of all samples
-write.table(countsData, file = paste("gene_expression", "tsv", sep = "."), quote = FALSE, sep = "\t", col.names = NA)
+write.table(countsData, file = paste(id, "gene_expression.tsv", sep = "_"), quote = FALSE, sep = "\t", col.names = NA)

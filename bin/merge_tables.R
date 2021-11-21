@@ -2,7 +2,7 @@
 
 args = commandArgs(trailingOnly = TRUE)
 
-sample_files <- list.files(path = args[1], full.names = T, pattern = "gene_expression\\.tsv$")
+sample_files <- list.files(path = args[1], full.names = T, pattern = "gene_expression\\.tsv$", recursive = T)
 out_file <- args[2]
 
 print(sample_files)

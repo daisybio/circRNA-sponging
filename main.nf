@@ -181,7 +181,7 @@ process gene_expression_counts {
     set val(sampleID), file(alignment_sam_file) from alignment_sam_files
 
     output:
-    set val(sampleID), file("gene_expression.tsv") into gene_expression_files
+    set val(sampleID), file("*_gene_expression.tsv") into gene_expression_files
 
     script:
     """

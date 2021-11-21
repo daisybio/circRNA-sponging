@@ -193,7 +193,7 @@ process gene_expression_counts {
 * COMBINE EXPRESSION COUNT FILES
 */
 process combine_expressions {
-    label 'process_low'
+    label 'process_medium'
     publishDir "${params.out_dir}/results/gene_expression", mode: params.publish_dir_mode
 
     input:

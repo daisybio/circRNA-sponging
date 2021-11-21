@@ -5,6 +5,7 @@ args = commandArgs(trailingOnly=TRUE)
 if (length(args)!=5) {
   stop("Five arguments must be supplied", call.=FALSE)
 }
+
 expression_norm_path = args[1]
 output_dir = args[2]
 samples_percentage = as.numeric(args[3]) # default 0.2, minimum percentage of samples, a circRNA has to be expressed in is to pass filtering

@@ -173,7 +173,7 @@ process STAR {
 * GENERATE EXPRESSION COUNT FILE FROM ALIGNMENT
 */
 process gene_expression_counts {
-    label 'process_low'
+    label 'process_medium'
     publishDir "${params.out_dir}/samples/${sampleID}/circRNA_detection/", mode: params.publish_dir_mode
 
     input:

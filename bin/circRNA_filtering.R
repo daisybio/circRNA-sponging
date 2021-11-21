@@ -1,5 +1,5 @@
 #!/usr/bin/env Rscript
-library(ggplot2, biomaRt)
+library(biomaRt)
 
 args = commandArgs(trailingOnly=TRUE)
 if (length(args)!=5) {

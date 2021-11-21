@@ -186,7 +186,7 @@ process gene_expression_counts {
     script:
     """
     mv $alignment_sam_file "${sampleID}.sam"
-    Rscript gene_expression.R "${sampleID}.sam" $params.genome_version $gtf $params.single_end
+    Rscript "${projectDir}"/bin/gene_expression.R "${sampleID}.sam" $params.genome_version $gtf $params.single_end
     """
 }
 
@@ -205,7 +205,7 @@ process combine_expressions {
 
     script:
     """
-    Rscript merge_tables.R "${params.out_dir}/samples/" gene_expression_all.tsv
+    Rscript "${projectDir}"/bin/merge_tables.R "${params.out_dir}/samples/" gene_expression_all.tsv
     """
 }
 

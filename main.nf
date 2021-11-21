@@ -198,7 +198,7 @@ process combine_expressions {
     publishDir "${params.out_dir}/results/gene_expression", mode: params.publish_dir_mode
 
     input:
-    file(gene_expression) from from gene_expression_files.collect()
+    file(gene_expression) from gene_expression_files.collect()
 
     output:
     file("gene_expression_all.tsv") into gene_expression_all

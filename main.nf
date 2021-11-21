@@ -186,7 +186,7 @@ process gene_expression_counts {
     script:
     """
     mv $alignment_sam_file "${sampleID}.sam"
-    Rscript gene_expression.R "${alignment_sam_file%.*}.${sampleID}.sam" $params.genome_version $gtf $params.single_end
+    Rscript gene_expression.R "${sampleID}.sam" $params.genome_version $gtf $params.single_end
     """
 }
 

@@ -64,9 +64,9 @@ filtered_data <- expression_norm[rows_to_keep,]
 targets <- filtered_data$gene_symbol
 targets <- targets[!duplicated(targets)]
 # init mart
-mart <- useDataset(org_data[2], useMart("ensembl"))
+mart <- biomaRt::useDataset(org_data[2], useMart("ensembl"))
 # annotate data: gene symbol + ENSG
-gene.ens.all <- getBM(attributes = c("ensembl_gene_id", "hgnc_symbol"),
+gene.ens.all <- biomaRt::getBM(attributes = c("ensembl_gene_id", "hgnc_symbol"),
                       filters = "hgnc_symbol",
                       values=targets,
                       mart=mart,

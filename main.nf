@@ -183,9 +183,9 @@ process gene_expression_counts {
     output:
     set val(sampleID), file("gene_expression.tsv") into gene_expression_files
 
-    bash:
+    script:
     """
-    mv $alignment_sam_file "${alignment_sam_file%.*}_${sampleID}.sam"
+    mv $alignment_sam_file "${sampleID}.sam"
     Rscript gene_expression.R "${alignment_sam_file%.*}.${sampleID}.sam" $params.genome_version $gtf $params.single_end
     """
 }

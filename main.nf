@@ -172,7 +172,7 @@ process STAR {
 /*
 * GENERATE EXPRESSION COUNT FILE FROM ALIGNMENT
 */
-process gene_expression {
+process gene_expression_counts {
     label 'process_low'
     publishDir "${params.out_dir}/samples/${sampleID}/circRNA_detection/", mode: params.publish_dir_mode
 
@@ -185,8 +185,8 @@ process gene_expression {
 
     script:
     """
-    mv $alignment_sam_file "${alignment_file%.*}"_${sampleID}.sam
-    Rscript gene_expression.R "${alignment_file%.*}".${sampleID}.sam $params.genome_version $gtf $params.single_end
+    mv $alignment_sam_file "${alignment_file%.*}_${sampleID}.sam"
+    Rscript gene_expression.R "${alignment_file%.*}.${sampleID}.sam" $params.genome_version $gtf $params.single_end
     """
 }
 

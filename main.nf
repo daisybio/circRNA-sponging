@@ -107,6 +107,7 @@ if (params.help) {
 ch_totalRNA_reads=Channel.fromPath(params.samplesheet)
    .splitCsv( header:true, sep:'\t')
    .map { get_circRNA_paths(it) }
+ch_totalRNA_reads.into{ch_totalRNA_reads1, ch_totalRNA_reads2}
 
 ch_fasta = Channel.value(file(params.fasta))
 ch_gtf = Channel.value(file(params.gtf))
@@ -176,7 +177,7 @@ process STAR {
     publishDir "${params.out_dir}/samples/${sampleID}/circRNA_detection/", mode: params.publish_dir_mode
     
     input:
-    set val(sampleID), file(reads) from ch_totalRNA_reads
+    set val(sampleID), file(reads) from ch_totalRNA_reads1
     file star_index from ch_star_index
 
     output:
@@ -196,7 +197,7 @@ process salmon_quant {
     publishDir "${params.out_dir}/samples/${sampleID}/salmon", mode: params.publish_dir_mode
 
     input:
-    tuple val(sampleID), file(reads) from ch_totalRNA_reads
+    tuple val(sampleID), file(reads) from ch_totalRNA_reads2
     file(salmon_index) from ch_salmon_index
 
     output:

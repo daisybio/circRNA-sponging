@@ -61,9 +61,11 @@ for (i in 1:nrow(expression_norm)){
   }
 }
 filtered_data <- expression_norm[rows_to_keep,]
+filtered_data$gene_symbol <- sapply(strsplit(filtered_data$gene_symbol, ".", 1), "[", 1)
 # annotate filtered data
 targets <- filtered_data$gene_symbol
 targets <- targets[!duplicated(targets)]
+targets <- sapply(strsplit(targets, ".", 1), "[", 1)
 # init mart
 mart <- biomaRt::useDataset(org_data[2], useMart("ensembl"))
 # annotate data: gene symbol + ENSG
@@ -75,5 +77,7 @@ gene.ens.all <- biomaRt::getBM(attributes = c("ensembl_gene_id", "hgnc_symbol"),
 gene.ens.all <- gene.ens.all[!duplicated(gene.ens.all$hgnc_symbol),]
 # append data
 filtered_data <- merge(filtered_data, gene.ens.all, by.x = "gene_symbol", by.y = "hgnc_symbol", all.x = T)
+# rearrange columns
+filtered_data <- filtered_data[, c(2,3,4,5,1,ncol(filtered_data),7:ncol(filtered_data)-1)]
 # write final output
 write.table(filtered_data, file = "circRNA_counts_filtered.tsv", quote = F, sep = "\t", row.names = F)

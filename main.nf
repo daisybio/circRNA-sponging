@@ -104,10 +104,12 @@ if (params.help) {
 /*
  * CREATE A CHANNEL FOR INPUT READ FILES
  */
-ch_totalRNA_reads=Channel.fromPath(params.samplesheet)
+ch_totalRNA_reads1=Channel.fromPath(params.samplesheet)
    .splitCsv( header:true, sep:'\t')
    .map { get_circRNA_paths(it) }
-ch_totalRNA_reads.into{ch_totalRNA_reads1, ch_totalRNA_reads2}
+ch_totalRNA_reads2=Channel.fromPath(params.samplesheet)
+   .splitCsv( header:true, sep:'\t')
+   .map { get_circRNA_paths(it) }
 
 ch_fasta = Channel.value(file(params.fasta))
 ch_gtf = Channel.value(file(params.gtf))

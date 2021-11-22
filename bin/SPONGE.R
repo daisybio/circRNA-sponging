@@ -137,7 +137,23 @@ if (notset(argv$gene_expr) || notset(argv$mirna_expr) || notset(argv$organism)) 
 # choose organism
 org_data <- org_codes[argv$organism][[1]]
 # set up mart
-mart <- useDataset(org_data[2], useMart("ensembl"))
+mart <- 0
+not_done=TRUE
+while(not_done)
+{
+  tryCatch({
+    mart <- useDataset(org_data[2], useMart("ensembl"))
+    not_done=FALSE
+  }, warning = function(w) {
+    print("WARNING SECTION")
+    print(w)
+  }, error = function(e) {
+    print("ERROR SECTION")
+    print(e)
+  }, finally = {
+  })
+}
+
 # SET TARGET SCAN SYMBOLS
 target_scan_symbols_counts <- 0
 # use given target scan symbols for SPONGE

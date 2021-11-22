@@ -360,6 +360,7 @@ if (params.differential_expression){
         file(quant_files) from quant_files.collect()
 
         output:
+        file("gene_expression.tsv") into gene_expression_all
         file("total_rna.tsv") into deseq_total_rna
         file("plots/*.png") into plots
 

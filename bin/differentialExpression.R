@@ -1,23 +1,14 @@
 #!/usr/bin/env Rscript
 
-library("Rsubread", "DESeq2", "reshape2", "ggplot", "tximport")
+library("reshape2", "ggplot")
+# HUMAN ONLY
+if (!requireNamespace("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+
+suppressWarnings(BiocManager::install(c("DESeq2", "ensembldb", "tximport")))
+library(DESeq2, ensembldb, tximport)
 
 args = commandArgs(trailingOnly = TRUE)
-
-# read gene expression counts
-samples_loc <- args[1]
-
-# metadata
-samplesheet <- read.table(file = args[2], sep = "\t", header = TRUE)
-
-# get quant files
-quant.files <- file.path(samples_loc, samplesheet$sample, "salmon", "quant.sf")
-names(quant.files) <- samplesheet$sample
-
-# tx2gene
-tx2gene <- read.table(args[3], header = F, sep = "\t")
-# txi object
-txi <- tximport::tximport(quant.files, type="salmon", tx2gene=tx2gene)
 
 # create ouptut data and plots
 create_outputs <- function(d, results, marker, out) {
@@ -46,13 +37,13 @@ create_outputs <- function(d, results, marker, out) {
   # filter for significantly differntiated genes log2FolChnage > 3
   deseq_res_df <- as.data.frame(results)
   signif_genes <- rownames(deseq_res_df[deseq_res_df$padj <= .05 &
-  abs(deseq_res_df$log2FoldChange) > 3,])
+                                          abs(deseq_res_df$log2FoldChange) > 3,])
   deseq_vst <- deseq_vst[deseq_vst$Gene %in% signif_genes,]
   # make heatmap
   heatmap <- ggplot(deseq2VST, aes(x=variable, y=Gene, fill=value)) + 
-  geom_raster() + scale_fill_viridis(trans="sqrt") + 
-  theme(axis.text.x=element_text(angle=65, hjust=1), 
-  axis.text.y=element_blank(), axis.ticks.y=element_blank())
+    geom_raster() + scale_fill_viridis(trans="sqrt") + 
+    theme(axis.text.x=element_text(angle=65, hjust=1), 
+          axis.text.y=element_blank(), axis.ticks.y=element_blank())
   # set output file loc
   heatmap_name <- paste(out, "HMAP", sep = "_")
   png(filename = paste(heatmap_name, "png", sep = "."))
@@ -61,6 +52,27 @@ create_outputs <- function(d, results, marker, out) {
   dev.off
 }
 
+# read gene expression counts
+samples_loc <- args[1]
+
+# metadata
+samplesheet <- read.table(file = args[2], sep = "\t", header = TRUE)
+
+# get quant files
+quant.files <- file.path(samples_loc, samplesheet$sample, "salmon", "quant.sf")
+names(quant.files) <- samplesheet$sample
+
+# read input gtf
+txdb <- ensembldb::ensDbFromGtf(args[3])
+tx <- ensembldb::EnsDb(txdb)
+tx2gene <- transcripts(tx, return.type="DataFrame")
+tx2gene <- tx2gene[, c("tx_name", "gene_id")]
+# txi object
+txi <- tximport::tximport(quant.files, type="salmon", tx2gene=tx2gene, ignoreTxVersion = T)
+# write total gene expression over samples to file
+counts <- txi$counts
+colnames(counts) <- samplesheet$sample
+write.table(counts, file = file.path(output_dir, "gene_expression.tsv"), sep = "\t")
 # dds object
 dds <- DESeqDataSetFromTximport(txi,
                                 colData = samplesheet,

@@ -1,28 +1,39 @@
 #!/usr/bin/env Rscript
 
-library("Rsubread", "DESeq2", "reshape2", "ggplot")
+library("Rsubread", "DESeq2", "reshape2", "ggplot", "tximport")
 
 args = commandArgs(trailingOnly = TRUE)
 
 # read gene expression counts
-countsData <- data.frame(read.table(file = args[1], header = T, sep = "\t"))
+samples_loc <- args[1]
 
 # metadata
-metaData <- read.table(file = args[2], sep = "\t", header = TRUE)
+samplesheet <- read.table(file = args[2], sep = "\t", header = TRUE)
+
+# get quant files
+quant.files <- file.path(samples_loc, samplesheet$sample, "salmon", "quant.sf")
+names(quant.files) <- samplesheet$sample
+
+# tx2gene
+tx2gene <- read.table(args[3], header = F, sep = "\t")
+# txi object
+txi <- tximport::tximport(quant.files, type="salmon", tx2gene=tx2gene)
 
 # create ouptut data and plots
-create_outputs <- function(d, results, marker, file_name) {
+create_outputs <- function(d, results, marker, out) {
+  # create dirs in cwd
+  dir.create(out, showWarnings = FALSE)
   # write data to disk
-  write.table(cbind(ENS_ID=rownames(results), results), file = paste(file_name, "tsv", sep = "."), quote = FALSE, sep = "\t", col.names = NA)
+  write.table(cbind(ENS_ID=rownames(results), results), file = paste(out, "tsv", sep = "."), quote = FALSE, sep = "\t", col.names = NA)
   # PCA
   vsdata <- DESeq2::vst(d, blind = FALSE)
   PCA_plot <- DESeq2::plotPCA(vsdata, intgroup = marker)
-  pca_name <- paste(file_name, "pca", sep = "_")
+  pca_name <- paste(out, "pca", sep = "_")
   png(filename = paste(pca_name, "png", sep = "."))
   plot(PCA_plot)
   # MA
   ma_plot <- DESeq2::plotMA(res)
-  ma_name <- paste(file_name, "MA", sep = "_")
+  ma_name <- paste(out, "MA", sep = "_")
   png(filename = paste(ma_name, "png", sep = "."))
   plot(ma_plot)
   # HEAT MAP
@@ -43,7 +54,7 @@ create_outputs <- function(d, results, marker, file_name) {
   theme(axis.text.x=element_text(angle=65, hjust=1), 
   axis.text.y=element_blank(), axis.ticks.y=element_blank())
   # set output file loc
-  heatmap_name <- paste(file_name, "HMAP", sep = "_")
+  heatmap_name <- paste(out, "HMAP", sep = "_")
   png(filename = paste(heatmap_name, "png", sep = "."))
   plot(heatmap)
   # close device
@@ -51,9 +62,9 @@ create_outputs <- function(d, results, marker, file_name) {
 }
 
 # dds object
-dds <- DESeq2::DESeqDataSetFromMatrix(countData = countsData,
-                                      colData = metaData,
-                                      design = ~condition)
+dds <- DESeqDataSetFromTximport(txi,
+                                colData = samplesheet,
+                                design = ~ condition)
 
 # differential expression analysis
 dds <- DESeq2::DESeq(dds)
@@ -66,10 +77,10 @@ DESeq2::summary(res)
 
 # WRITE OUTPUTS
 # total_RNA
-output_loc <- "/nfs/home/students/l.schwartz/test/total_rna"
-create_outputs(d = dds, results = res, marker = "condition", file_name = output_loc)
+output_loc <- args[5]
+create_outputs(d = dds, results = res, marker = "condition", out = paste("total_rna", output_loc, sep = "/"))
 # circRNA only
-circ_RNAs <- read.table(file = args[3], sep = "\t", header = TRUE)
+circ_RNAs <- read.table(file = args[4], sep = "\t", header = TRUE)
 ens_ids <- circ_RNAs$ensembl_gene_ID
 filtered_res <- res[row.names(res) %in% ens_ids,]
-create_outputs(d = dds, results = filtered_res, marker = "condition", file_name = "circ_rna_only")
+create_outputs(d = dds, results = filtered_res, marker = "condition", out = paste("circ_rna", output_loc, sep = "/"))

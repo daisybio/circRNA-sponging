@@ -146,7 +146,27 @@ process generate_star_index{
     """
 }
 
+/*
+* GENERATE SALMON INDEX FOR GIVEN ORGANISM
+*/
+process generate_salmon_index {
+    label 'process_high'
+    publishDir "${params.out_dir}/", mode: params.publish_dir_mode
+
+    output:
+    file("salmon_index") into generated_salmon_index
+
+    when: (params.SALMON_index == null && params.transcriptome != null)
+
+    script:
+    """
+    salmon index -t $params.transcriptome -i salmon_index
+    """
+}
+
 ch_star_index = params.STAR_index ? Channel.value(file(params.STAR_index)) : generated_star_index
+
+ch_salmon_index = params.SALMON_index ? Channel.value(file(params.SALMON_index)) : generated_salmon_index
 
 /*
 * PERFORM READ MAPPING OF totalRNA SAMPLES USING STAR
@@ -161,7 +181,6 @@ process STAR {
 
     output:
     tuple val(sampleID), file("Chimeric.out.junction") into chimeric_junction_files
-    tuple val(sampleID), file("Aligned.out.sam") into alignment_sam_files
 
     script:
     """
@@ -170,42 +189,29 @@ process STAR {
 }
 
 /*
-* GENERATE EXPRESSION COUNT FILE FROM ALIGNMENT
+* USE SALMON FOR QUANTIFICATION
 */
-process gene_expression_counts {
+process salmon_quant {
     label 'process_medium'
-    publishDir "${params.out_dir}/samples/${sampleID}/circRNA_detection/", mode: params.publish_dir_mode
+    publishDir "${params.out_dir}/samples/${sampleID}/salmon", mode: params.publish_dir_mode
 
     input:
-    file(gtf) from ch_gtf
-    set val(sampleID), file(alignment_sam_file) from alignment_sam_files
+    tuple val(sampleID), file(reads) from ch_totalRNA_reads
+    file(salmon_index) from ch_salmon_index
 
     output:
-    set val(sampleID), file("*_gene_expression.tsv") into gene_expression_files
+    tuple val(sampleID), file("quant.sf") into quant_files
 
     script:
-    """
-    Rscript "${projectDir}"/bin/gene_expression.R $alignment_sam_file $sampleID $params.genome_version $gtf $params.single_end
-    """
-}
-
-/*
-* COMBINE EXPRESSION COUNT FILES
-*/
-process combine_expressions {
-    label 'process_medium'
-    publishDir "${params.out_dir}/results/gene_expression", mode: params.publish_dir_mode
-
-    input:
-    file(gene_expression) from gene_expression_files.collect()
-
-    output:
-    file("gene_expression_all.tsv") into gene_expression_all
-
-    script:
-    """
-    Rscript "${projectDir}"/bin/merge_tables.R "${params.out_dir}/samples/" gene_expression_all.tsv
-    """
+    if (params.single_end){
+        """
+        salmon quant -i $salmon_index -l A -r $reads --validateMappings -o "${params.out_dir}/samples/${sampleID}/salmon"
+        """
+    } else {
+        """
+        salmon quant -i $salmon_index -l A -1 $reads[0] -2 $reads[1] --validateMappings -o "${params.out_dir}/samples/${sampleID}/salmon"
+        """
+    }
 }
 
 /*
@@ -347,15 +353,16 @@ if (params.differential_expression){
 
         input:
         file(circRNAs_filtered) from ch_circRNA_counts_filtered2
-        file(gene_expression_all) from gene_expression_all
+        file(gtf) from ch_gtf
+        file(quant_files) from quant_files.collect()
 
         output:
         file("total_rna.tsv") into deseq_total_rna
-        file("*.png") into plots
+        file("plots/*.png") into plots
 
         script:
         """
-        Rscript "${projectDir}"/bin/differentialExpression.R "${params.out_dir}/samples/" $gene_expression_all $params.samplesheet $circRNAs_filtered
+        Rscript "${projectDir}"/bin/differentialExpression.R "${params.out_dir}/samples/" $params.samplesheet $gtf $circRNAs_filtered "${params.out_dir}/results/differential_expression/"
         """
     }
 }

@@ -66,10 +66,10 @@ tx2gene <- tx2gene[, c("tx_name", "gene_id")]
 # txi object
 txi <- tximport::tximport(quant.files, type="salmon", tx2gene=tx2gene, ignoreTxVersion = T)
 # write total gene expression over samples to file
-output_loc <- args[5]
+dir.create(output_loc, showWarnings = F)
 counts <- txi$counts
 colnames(counts) <- samplesheet$sample
-write.table(counts, file = file.path(output_loc, "gene_expression.tsv"), sep = "\t")
+write.table(counts, file = "gene_expression.tsv")
 # dds object
 dds <- DESeqDataSetFromTximport(txi,
                                 colData = samplesheet,
@@ -86,9 +86,9 @@ DESeq2::summary(res)
 
 # WRITE OUTPUTS
 # total_RNA
-create_outputs(d = dds, results = res, marker = "condition", out = paste("total_rna", output_loc, sep = "/"))
+create_outputs(d = dds, results = res, marker = "condition", out = "total_rna")
 # circRNA only
 circ_RNAs <- read.table(file = args[4], sep = "\t", header = TRUE)
 ens_ids <- circ_RNAs$ensembl_gene_ID
 filtered_res <- res[row.names(res) %in% ens_ids,]
-create_outputs(d = dds, results = filtered_res, marker = "condition", out = paste("circ_rna", output_loc, sep = "/"))
+create_outputs(d = dds, results = filtered_res, marker = "condition", out = "circ_rna")

@@ -26,8 +26,11 @@ for (i in 1:length(samples)){
   colnames(expression_raw) <- c("chr", "start", "stop", "strand", "counts", "gene_symbol", paste("isoform_", sample, sep = ""))
   expression_raw <- expression_raw[,c(1,2,3,4,5,6)]
   
+  # REMOVE SCAFFOLDS/ CONTIG CHROMOSME ENTRIES
+  expression_raw <- expression_raw[!grepl("_", expression_raw$chr, fixed = T),]
+  
   # compact and remove duplicates
-  compact_raw <- data.table(circRNA=paste0(strsplit(expression_raw$chr, "_")[[1]][1], ":", expression_raw$start, "-", expression_raw$stop,"_", expression_raw$strand, "!", expression_raw$gene_symbol), counts = expression_raw$counts)
+  compact_raw <- data.table(circRNA=paste0(expression_raw$chr, ":", expression_raw$start, "-", expression_raw$stop,"_", expression_raw$strand, "!", expression_raw$gene_symbol), counts = expression_raw$counts)
   compact_raw <- compact_raw[, max(counts), by=circRNA]
   
   compact_raw$chr <- sapply(strsplit(as.character(compact_raw$circRNA),':'), "[", 1)

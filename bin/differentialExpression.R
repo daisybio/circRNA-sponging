@@ -11,17 +11,17 @@ create_outputs <- function(d, results, marker, out) {
   # create dirs in cwd
   dir.create(out, showWarnings = FALSE)
   # write data to disk
-  write.table(cbind(ENS_ID=rownames(results), results), file = paste(out, "tsv", sep = "."), quote = FALSE, sep = "\t", col.names = NA)
+  write.table(cbind(ENS_ID=rownames(results), results), file = file.path(out, paste(out, "tsv", sep = ".")), quote = FALSE, sep = "\t", col.names = NA)
   # PCA
   vsdata <- DESeq2::vst(d, blind = FALSE)
   PCA_plot <- DESeq2::plotPCA(vsdata, intgroup = marker)
   pca_name <- paste(out, "pca", sep = "_")
-  png(filename = paste(pca_name, "png", sep = "."))
+  png(filename = file.path(out, paste(pca_name, "png", sep = ".")))
   plot(PCA_plot)
   # MA
   ma_plot <- DESeq2::plotMA(res)
   ma_name <- paste(out, "MA", sep = "_")
-  png(filename = paste(ma_name, "png", sep = "."))
+  png(filename = file.path(out, paste(ma_name, "png", sep = ".")))
   plot(ma_plot)
   # HEAT MAP
   # variance stabilizing transformation
@@ -42,7 +42,7 @@ create_outputs <- function(d, results, marker, out) {
           axis.text.y=element_blank(), axis.ticks.y=element_blank())
   # set output file loc
   heatmap_name <- paste(out, "HMAP", sep = "_")
-  png(filename = paste(heatmap_name, "png", sep = "."))
+  png(filename = file.path(out, paste(heatmap_name, "png", sep = ".")))
   plot(heatmap)
   # close device
   dev.off

@@ -362,8 +362,10 @@ if (params.differential_expression){
 
         output:
         file("gene_expression.tsv") into gene_expression_all
-        file("total_rna.tsv") into deseq_total_rna
-        file("plots/*.png") into plots
+        file("total_rna/total_rna.tsv") into deseq_total_rna
+        file("circ_rna/circ_rna.tsv") into deseq_circ_rna
+        file("total_rna/*.png") into total_plots
+        file("circ_rna/*.png") into circ_plots
 
         script:
         """

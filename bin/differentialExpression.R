@@ -1,11 +1,7 @@
 #!/usr/bin/env Rscript
 
 library("reshape2", "ggplot")
-# HUMAN ONLY
-if (!requireNamespace("BiocManager", quietly = TRUE))
-  install.packages("BiocManager")
 
-suppressWarnings(BiocManager::install(c("DESeq2", "ensembldb", "tximport")))
 library(DESeq2, ensembldb, "tximport")
 
 args = commandArgs(trailingOnly = TRUE)
@@ -70,9 +66,10 @@ tx2gene <- tx2gene[, c("tx_name", "gene_id")]
 # txi object
 txi <- tximport::tximport(quant.files, type="salmon", tx2gene=tx2gene, ignoreTxVersion = T)
 # write total gene expression over samples to file
+output_loc <- args[5]
 counts <- txi$counts
 colnames(counts) <- samplesheet$sample
-write.table(counts, file = file.path(output_dir, "gene_expression.tsv"), sep = "\t")
+write.table(counts, file = file.path(output_loc, "gene_expression.tsv"), sep = "\t")
 # dds object
 dds <- DESeqDataSetFromTximport(txi,
                                 colData = samplesheet,
@@ -89,7 +86,6 @@ DESeq2::summary(res)
 
 # WRITE OUTPUTS
 # total_RNA
-output_loc <- args[5]
 create_outputs(d = dds, results = res, marker = "condition", out = paste("total_rna", output_loc, sep = "/"))
 # circRNA only
 circ_RNAs <- read.table(file = args[4], sep = "\t", header = TRUE)

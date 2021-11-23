@@ -81,7 +81,7 @@ def db_format(c, x, y, s):
 def convert(c, x, y, s, converter):
     first = converter.convert_coordinate(c, int(x), s)
     second = converter.convert_coordinate(c, int(y), s)
-    if len(first) == 0:
+    if len(first) == 0 or len(second) == 0:
         return None, None
     return str(first[0][1]), str(second[0][1])
 

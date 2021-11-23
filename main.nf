@@ -203,16 +203,16 @@ process salmon_quant {
     file(salmon_index) from ch_salmon_index
 
     output:
-    tuple val(sampleID), file("${sampleID}_quant.sf") into quant_files
+    val(sampleID) into samples
 
     script:
     if (params.single_end){
         """
-        salmon quant -i $salmon_index -l A -r $reads --validateMappings -o ${sampleID}_quant.sf
+        salmon quant -i $salmon_index -l A -r $reads --validateMappings -o quant.sf
         """
     } else {
         """
-        salmon quant -i $salmon_index -l A -1 $reads[0] -2 $reads[1] --validateMappings -o ${sampleID}_quant.sf
+        salmon quant -i $salmon_index -l A -1 $reads[0] -2 $reads[1] --validateMappings -o quant.sf
         """
     }
 }
@@ -357,7 +357,7 @@ if (params.differential_expression){
         input:
         file(circRNAs_filtered) from ch_circRNA_counts_filtered2
         file(gtf) from ch_gtf
-        file(quant_files) from quant_files.collect()
+        val(samples_all) from samples.collect()
 
         output:
         file("gene_expression.tsv") into gene_expression_all

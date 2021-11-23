@@ -204,16 +204,16 @@ process salmon_quant {
 
     output:
     val(sampleID) into samples
-    file("${params.out_dir}/samples/${sampleID}/salmon/quant.sf") into quant_files
+    file("quant.sf") into quant_files
 
     script:
     if (params.single_end){
         """
-        salmon quant -i $salmon_index -l A -r $reads --validateMappings -o "${params.out_dir}/samples/${sampleID}/salmon"
+        salmon quant -i $salmon_index -l A -r $reads --validateMappings -o ./
         """
     } else {
         """
-        salmon quant -i $salmon_index -l A -1 $reads[0] -2 $reads[1] --validateMappings -o "${params.out_dir}/samples/${sampleID}/salmon"
+        salmon quant -i $salmon_index -l A -1 $reads[0] -2 $reads[1] --validateMappings -o ./
         """
     }
 }

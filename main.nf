@@ -212,7 +212,7 @@ process salmon_quant {
         """
     } else {
         """
-        salmon quant -i $salmon_index -l A -1 $reads[0] -2 $reads[1] --validateMappings -o "${params.out_dir}/samples/${sampleID}/salmon"
+        salmon quant -i $salmon_index -l A -1 $reads[0] -2 $reads[1] --validateMappings -o quant.sf
         """
     }
 }

@@ -208,7 +208,7 @@ process salmon_quant {
     script:
     if (params.single_end){
         """
-        salmon quant -i $salmon_index -l A -r $reads --validateMappings -o "${params.out_dir}/samples/${sampleID}/salmon"
+        salmon quant -i $salmon_index -l A -r $reads --validateMappings -o quant.sf
         """
     } else {
         """

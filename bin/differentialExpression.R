@@ -6,7 +6,7 @@ if (!requireNamespace("BiocManager", quietly = TRUE))
   install.packages("BiocManager")
 
 suppressWarnings(BiocManager::install(c("DESeq2", "ensembldb", "tximport")))
-library(DESeq2, ensembldb, tximport)
+library(DESeq2, ensembldb, "tximport")
 
 args = commandArgs(trailingOnly = TRUE)
 

@@ -204,7 +204,7 @@ process salmon_quant {
 
     output:
     val(sampleID) into samples
-    file("quant.sf") into quant_files
+    file("${params.out_dir}/samples/${sampleID}/salmon/quant.sf") into quant_files
 
     script:
     if (params.single_end){

@@ -65,7 +65,7 @@ names(quant.files) <- samplesheet$sample
 # read input gtf
 txdb <- ensembldb::ensDbFromGtf(args[3])
 tx <- ensembldb::EnsDb(txdb)
-tx2gene <- transcripts(tx, return.type="DataFrame")
+tx2gene <- ensembldb::transcripts(tx, return.type="DataFrame")
 tx2gene <- tx2gene[, c("tx_name", "gene_id")]
 # txi object
 txi <- tximport::tximport(quant.files, type="salmon", tx2gene=tx2gene, ignoreTxVersion = T)

@@ -66,8 +66,23 @@ filtered_data$gene_symbol <- sapply(strsplit(filtered_data$gene_symbol, ".", 1),
 targets <- filtered_data$gene_symbol
 targets <- targets[!duplicated(targets)]
 targets <- sapply(strsplit(targets, ".", 1), "[", 1)
-# init mart
-mart <- biomaRt::useDataset(org_data[2], useMart("ensembl"))
+# set up mart
+mart <- 0
+not_done=TRUE
+while(not_done)
+{
+  tryCatch({
+    mart <- useDataset(org_data[2], useMart("ensembl"))
+    not_done=FALSE
+  }, warning = function(w) {
+    print("WARNING SECTION")
+    print(w)
+  }, error = function(e) {
+    print("ERROR SECTION")
+    print(e)
+  }, finally = {
+  })
+}
 # annotate data: gene symbol + ENSG
 gene.ens.all <- biomaRt::getBM(attributes = c("ensembl_gene_id", "hgnc_symbol"),
                       filters = "hgnc_symbol",

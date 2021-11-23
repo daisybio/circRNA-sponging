@@ -203,7 +203,7 @@ process salmon_quant {
     file(salmon_index) from ch_salmon_index
 
     output:
-    tuple val(sampleID), file("quant.sf") into quant_files
+    tuple val(sampleID), file("${sampleID}_quant.sf") into quant_files
 
     script:
     if (params.single_end){

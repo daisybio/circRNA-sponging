@@ -50,7 +50,7 @@ db_genome_versions = {
     "hsa": DbOrganism("Human", "hg19"),
     "mmu": DbOrganism("Mouse", "mm9"),
     "cel": DbOrganism("C.elegans", "ce6"),
-    "clc": DbOrganism("L.chalumnae","latCha1")
+    "clc": DbOrganism("L.chalumnae", "latCha1")
 }
 
 # species, original and converted genome
@@ -59,12 +59,8 @@ converted_genome = organism.version
 original_genome = str(args.genome_version)
 
 dbs = {
-    "circBase": "http://www.circbase.org/cgi-bin/listsearch.cgi",
+    "circBase": "https://www.circbase.org/cgi-bin/listsearch.cgi",
 }
-
-# columns to be annotated from circBase
-annotated_columns = ['organism', 'circRNA_ID', 'genomic_length', 'spliced_length',
-                     'samples', 'scores', 'repeats', 'annotation', 'best_transcript', 'gene_symbol', 'circRNA_study']
 
 
 # generate key for specific circRNA
@@ -156,17 +152,14 @@ def write_mapping_file(matched_dict, db_dict, output_loc, separator):
     with open(output_loc, "w") as output:
         if header is not None:
             output.write(str(separator).join(header) + "\n")
-        # annotate matches and save in mapping file: gen.pos of or. genome -> circ_base_id
-        file_data = []
-        symbols = []
         # filter output and merge annotations
         for k, v in matched_dict.items():
             db_info = db_dict[k]
             data = v[:4]
+            # add converted position
             data.append(k)
             data.extend(db_info[3:])
-            file_data.append(data)
-            symbols.append(db_info[11])
+            output.write(separator.join(data) + "\n")
 
 
 # LAUNCH OFFLINE MODE
@@ -210,9 +203,10 @@ def online_access(upload_file, converted_circ_data, output_loc):
     url = dbs["circBase"]
     # create Chrome driver and navigate to circBase list search
     options = Options()
-    options.set_headless()
+    # set headless
+    options.headless = True
     firefox_path = os.path.join(pipeline_home, "assets/geckodriver")
-    driver = webdriver.Firefox(executable_path = firefox_path, options = options)
+    driver = webdriver.Firefox(executable_path=firefox_path, options=options)
     driver.get(url=url)
     # select according organism
     organism_select = Select(driver.find_element(By.ID, "organism"))
@@ -249,9 +243,14 @@ def main():
 
     # DATABASE ACCESS
     if db_data == "None":
-        online_access(upload_file=tmp_db_file, converted_circ_data=converted_data, output_loc=out_loc)
+        online_access(upload_file=tmp_db_file,
+                      converted_circ_data=converted_data,
+                      output_loc=out_loc)
     else:
-        offline_access(converted_circ_data=converted_data, output_loc=out_loc, database_loc=db_data, separator=separator)
+        offline_access(converted_circ_data=converted_data,
+                       output_loc=out_loc,
+                       database_loc=db_data,
+                       separator=separator)
 
     # clean tmp file
     if os.path.exists(tmp_db_file):

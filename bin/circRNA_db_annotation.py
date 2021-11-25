@@ -59,7 +59,7 @@ converted_genome = organism.version
 original_genome = str(args.genome_version)
 
 dbs = {
-    "circBase": "https://www.circbase.org/cgi-bin/listsearch.cgi",
+    "circBase": "http://www.circbase.org/cgi-bin/listsearch.cgi",
 }
 
 

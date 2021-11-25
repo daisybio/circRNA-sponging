@@ -339,7 +339,6 @@ if (params.database_annotation){
         """
         python3 "${projectDir}"/bin/circRNA_db_annotation.py -o $params.species -gv $params.genome_version -d $circRNAs_filtered -out "circRNAs_annotated.tsv"
         """
-    
     else
         """
         python3 "${projectDir}"/bin/circRNA_db_annotation.py -o $params.species -gv $params.genome_version -d $circRNAs_filtered -out "circRNAs_annotated.tsv" -off $params.offline_circ_db

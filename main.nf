@@ -662,7 +662,7 @@ process correlation_analysis{
 
 /*
 * TODO: SPONGE ANALYSIS (https://github.com/biomedbigdata/SPONGE)
-*/
+
 process SPONGE{
     label 'process_high'
 
@@ -690,4 +690,5 @@ process SPONGE{
     --TargetScan_data $TargetScanData
     """
 }
+*/
 }

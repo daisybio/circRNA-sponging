@@ -332,16 +332,16 @@ if (params.database_annotation){
     file(circRNAs_filtered) from ch_circRNA_counts_filtered1
 
     output:
-    file("circRNAs_annotated.tsv") into circRNAs_annotated
+    file("circRNA_annotated.tsv") into circRNAs_annotated
 
     script:
     if( params.offline_circ_db == null )
         """
-        python3 "${projectDir}"/bin/circRNA_db_annotation.py -o $params.species -gv $params.genome_version -d $circRNAs_filtered -out "circRNAs_annotated.tsv"
+        python3 "${projectDir}"/bin/circRNA_db_annotation.py -o $params.species -gv $params.genome_version -d $circRNAs_filtered -out "circRNA_annotated.tsv"
         """
     else
         """
-        python3 "${projectDir}"/bin/circRNA_db_annotation.py -o $params.species -gv $params.genome_version -d $circRNAs_filtered -out "circRNAs_annotated.tsv" -off $params.offline_circ_db
+        python3 "${projectDir}"/bin/circRNA_db_annotation.py -o $params.species -gv $params.genome_version -d $circRNAs_filtered -out "circRNA_annotated.tsv" -off $params.offline_circ_db
         """
     }
 }

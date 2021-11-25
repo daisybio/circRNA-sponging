@@ -365,6 +365,7 @@ if (params.differential_expression){
         file("circ_rna/circ_rna.tsv") into deseq_circ_rna
         file("total_rna/*.png") into total_plots
         file("circ_rna/*.png") into circ_plots
+        file("DESeq2.RData") into deseq2_rdata
 
         script:
         """

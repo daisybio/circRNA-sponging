@@ -13,37 +13,25 @@ create_outputs <- function(d, results, marker, out) {
   # write data to disk
   write.table(cbind(ENS_ID=rownames(results), results), file = file.path(out, paste(out, "tsv", sep = ".")), quote = FALSE, sep = "\t", col.names = NA)
   # PCA
-  vsdata <- DESeq2::vst(d, blind = FALSE)
-  PCA_plot <- DESeq2::plotPCA(vsdata, intgroup = marker)
+  # variance stabilizing transformation
+  deseq_vst <- DESeq2::vst(d, blind = FALSE)
+  PCA_plot <- DESeq2::plotPCA(deseq_vst, intgroup = marker)
   pca_name <- paste(out, "pca", sep = "_")
   png(filename = file.path(out, paste(pca_name, "png", sep = ".")))
   plot(PCA_plot)
-  # MA
-  ma_plot <- DESeq2::plotMA(res)
-  ma_name <- paste(out, "MA", sep = "_")
-  png(filename = file.path(out, paste(ma_name, "png", sep = ".")))
-  plot(ma_plot)
   # HEAT MAP
-  # variance stabilizing transformation
-  deseq_vst <- DESeq2::vst(d)
-  # convert to data frame
-  deseq_vst <- assay(deseq_vst)
-  deseq_vst <- as.data.frame(deseq_vst)
-  deseq_vst$Gene <- rownames(deseq_vst)
-  # filter for significantly differntiated genes log2FolChnage > 3
-  deseq_res_df <- as.data.frame(results)
-  signif_genes <- rownames(deseq_res_df[deseq_res_df$padj <= .05 &
-                                          abs(deseq_res_df$log2FoldChange) > 3,])
-  deseq_vst <- deseq_vst[deseq_vst$Gene %in% signif_genes,]
-  # make heatmap
-  heatmap <- ggplot(deseq2VST, aes(x=variable, y=Gene, fill=value)) + 
-    geom_raster() + scale_fill_viridis(trans="sqrt") + 
-    theme(axis.text.x=element_text(angle=65, hjust=1), 
-          axis.text.y=element_blank(), axis.ticks.y=element_blank())
+  # filter
+  ntd <- normTransform(d)
+  select <- order(rowMeans(counts(d,normalized=TRUE)),
+                  decreasing=TRUE)[1:20]
+  df <- as.data.frame(colData(d)[,c("condition", "smallRNA")])
   # set output file loc
   heatmap_name <- paste(out, "HMAP", sep = "_")
-  png(filename = file.path(out, paste(heatmap_name, "png", sep = ".")))
-  plot(heatmap)
+  # plot heatmap
+  pheatmap(assay(ntd)[select,], cluster_rows=FALSE, show_rownames=TRUE,
+           cluster_cols=FALSE, annotation_col=df, 
+           filename = file.path("total_rna", paste(heatmap_name, "png", sep = ".")),
+           height = 25, width = 25)
   # close device
   dev.off
 }
@@ -85,7 +73,7 @@ DESeq2::summary(res)
 
 # WRITE OUTPUTS
 # total_RNA
-# create_outputs(d = dds, results = res, marker = "condition", out = "total_rna")
+create_outputs(d = dds, results = res, marker = "condition", out = "total_rna")
 # circRNA only
 circ_RNAs <- read.table(file = args[4], sep = "\t", header = TRUE)
 ens_ids <- circ_RNAs$ensembl_gene_ID

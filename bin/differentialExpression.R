@@ -2,7 +2,7 @@
 
 library("reshape2", "ggplot")
 
-library(DESeq2, ensembldb, "tximport")
+library(DESeq2, ensembldb, tximport, pheatmap)
 
 args = commandArgs(trailingOnly = TRUE)
 

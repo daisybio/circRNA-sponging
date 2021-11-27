@@ -56,7 +56,7 @@ txi <- tximport::tximport(quant.files, type="salmon", tx2gene=tx2gene, ignoreTxV
 # write total gene expression over samples to file
 counts <- txi$counts
 colnames(counts) <- samplesheet$sample
-write.table(counts, file = "gene_expression.tsv")
+write.table(counts, file = "gene_expression.tsv", sep = "\t")
 # dds object
 dds <- DESeqDataSetFromTximport(txi,
                                 colData = samplesheet,

@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 
-library(SPONGE, biomaRt, argparser, data.table, ggplot2)
+library(SPONGE, biomaRt, argparser, data.table, ggplot2, dplyr)
 # create dirs in cwd
 dir.create("plots", showWarnings = FALSE)
 
@@ -16,6 +16,9 @@ parser <- add_argument(parser, "--fdr", help = "FDR rate for ceRNA networks")
 parser <- add_argument(parser, "--miRTarBase_loc", help = "MiRTarBase data location in csv format")
 parser <- add_argument(parser, "--miranda_data", help = "Miranda output data location in tsv format")
 parser <- add_argument(parser, "--TargetScan_data", help = "TargetScan data location")
+parser <- add_argument(parser, "--lncBase_data", help = "LncBase data location")
+# FLAGS
+parser <- add_argument(parser, "-circ_annotated", help = "CircRNA file is annotated with circBaseId or default CircExplorer output", flag = T)
 
 argv <- parse_args(parser)
 
@@ -111,7 +114,7 @@ create_target_scan_symbols <- function(miRTarBase, miranda, TargetScan, org_name
   }
   # process targets from miranda
   if (!notset(miranda)) {
-    miranda_file <- data.frame(read.table(args[5], header = T, sep = "\t"))
+    miranda_file <- data.frame(read.table(argv$miranda_data, header = T, sep = "\t"))
     annotate_miranda(miranda_file, ensembl_mart = mart)
     miranda_data <- miranda_file[, c("miRNA", "gene_symbol")]
     colnames(miranda_data) <- c("miRNA", "Target.Gene")
@@ -123,7 +126,8 @@ create_target_scan_symbols <- function(miRTarBase, miranda, TargetScan, org_name
   }
   # TODO: process TargetScan data
   if (!notset(TargetScan)) {
-    target_scan_file <- data.frame(read.table(TargetScan, header = T, sep = "\t"))
+    target_scan_file <- data.frame(read.table(argv$TargetScan_data, header = T, sep = "\t"))
+    # make gene names simple
   }
   # remove NA rows
   targets[complete.cases(targets), ]
@@ -169,13 +173,28 @@ if (!notset(argv$target_scan_symbols)) {
   target_scan_symbols_counts <- create_target_scan_symbols(miRTarBase = argv$miRTarBase_loc,
                                                            miranda = argv$miranda_data,
                                                            TargetScan = argv$TargetScan_data,
+                                                           lncBase = argv$TlncBase_data,
                                                            org_name = org_data[1],
                                                            ensembl_mart = mart)
 }
 # SET GENE EXPRESSION
-gene_expr <- as.data.frame(read.table(file = args[1], header = TRUE, sep = "\t"))
+gene_expr <- t(as.data.frame(read.table(file = argv$gene_expr, header = TRUE, sep = "\t")))
+# READ CIRC_RNA EXPRESSION AND COMBINE THEM
+circ_rna_expression <- as.data.frame(read.table(file = argv$circ_rna, header = T, sep = "\t"))
+circ_rna_table <- 0
+# use db_annotation
+if (argv$circ_annotated) {
+  circ_filtered <- circ_rna_expression[, c("circRNA.ID", "ensembl_gene_id")]
+  circ_filtered <- circ_filtered[complete.cases(circ_filtered),]
+  circ_rna_table <- as.data.frame.matrix(table(circ_filtered))
+} else {
+  compact_raw <- data.table(circRNA.ID=paste0(circ_rna_expression$chr, ":", circ_rna_expression$start, "-", circ_rna_expression$stop,"_", circ_rna_expression$strand), ensembl_gene_id = circ_rna_expression$ensembl_gene_id)
+  circ_rna_table <- as.data.frame.matrix(table(compact_raw))
+}
+# combine expressions
+gene_expr <- bind_rows(gene_expr, circ_rna_table)
 # SET MIRNA EXPRESSION
-mi_rna_expr <- t(as.data.frame(read.table(file = args[2], header = TRUE, sep = "\t")))
+mi_rna_expr <- t(as.data.frame(read.table(file = argv$mirna_expr, header = TRUE, sep = "\t")))
 # Make genes simple -> ENSG0000001.1 -> ENSG00000001
 genes <- gene_expr$X
 simple_genes <- c()

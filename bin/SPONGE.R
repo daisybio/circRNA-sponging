@@ -7,6 +7,7 @@ dir.create("plots", showWarnings = FALSE)
 # TODO: add transpose argument or check if it is necessary
 parser <- arg_parser("Argument parser for SPONGE analysis", name = "SPONGE_parser")
 parser <- add_argument(parser, "--gene_expr", help = "Gene expression file in tsv format as given by DeSeq2")
+parser <- add_argument(parser, "--circ_rna", help = "Path to circ_rna detection results containing gene ids in tsv")
 parser <- add_argument(parser, "--mirna_expr", help = "miRNA expression file in tsv format")
 parser <- add_argument(parser, "--organism", help = "Organism given in three letter code")
 parser <- add_argument(parser, "--target_scan_symbols", help = "Matrix of target scan symbols provided as tsv")

@@ -157,6 +157,8 @@ def write_mapping_file(matched_dict, db_dict, output_loc, separator):
         for k, v in matched_dict.items():
             db_info = db_dict[k]
             data = v[:4]
+            # include ensgid
+            data.append(v[5])
             # add converted position
             data.append(k)
             data.extend(db_info[3:])

@@ -28,7 +28,7 @@ create_outputs <- function(d, results, marker, out) {
   # set output file loc
   heatmap_name <- paste(out, "HMAP", sep = "_")
   # plot heatmap
-  pheatmap(assay(ntd)[select,], cluster_rows=FALSE, show_rownames=TRUE,
+  pheatmap::pheatmap(assay(ntd)[select,], cluster_rows=FALSE, show_rownames=TRUE,
            cluster_cols=FALSE, annotation_col=df, 
            filename = file.path(out, paste(heatmap_name, "png", sep = ".")),
            height = 25, width = 25)

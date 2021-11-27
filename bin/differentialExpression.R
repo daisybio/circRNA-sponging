@@ -59,7 +59,7 @@ counts <- as.data.frame(txi$counts)
 colnames(counts) <- samplesheet$sample
 write.table(counts, file = "gene_expression.tsv", sep = "\t")
 # dds object
-dds <- DESeqDataSetFromTximport(txi,
+dds <- DESeq2::DESeqDataSetFromTximport(txi,
                                 colData = samplesheet,
                                 design = ~ condition)
 

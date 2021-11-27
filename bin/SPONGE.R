@@ -178,21 +178,18 @@ if (!notset(argv$target_scan_symbols)) {
                                                            ensembl_mart = mart)
 }
 # SET GENE EXPRESSION
-gene_expr <- t(as.data.frame(read.table(file = argv$gene_expr, header = TRUE, sep = "\t")))
+gene_expr <- as.data.frame(read.table(file = argv$gene_expr, header = TRUE, sep = "\t"))
 # READ CIRC_RNA EXPRESSION AND COMBINE THEM
 circ_rna_expression <- as.data.frame(read.table(file = argv$circ_rna, header = T, sep = "\t"))
-circ_rna_table <- 0
+circ_filtered <- 0
 # use db_annotation
 if (argv$circ_annotated) {
   circ_filtered <- circ_rna_expression[, c("circRNA.ID", "ensembl_gene_id")]
-  circ_filtered <- circ_filtered[complete.cases(circ_filtered),]
-  circ_rna_table <- as.data.frame.matrix(table(circ_filtered))
 } else {
-  compact_raw <- data.table(circRNA.ID=paste0(circ_rna_expression$chr, ":", circ_rna_expression$start, "-", circ_rna_expression$stop,"_", circ_rna_expression$strand), ensembl_gene_id = circ_rna_expression$ensembl_gene_id)
-  circ_rna_table <- as.data.frame.matrix(table(compact_raw))
+  circ_filtered <- data.table(circRNA.ID=paste0(circ_rna_expression$chr, ":", circ_rna_expression$start, "-", circ_rna_expression$stop,"_", circ_rna_expression$strand), ensembl_gene_id = circ_rna_expression$ensembl_gene_id)
 }
-# combine expressions
-gene_expr <- bind_rows(gene_expr, circ_rna_table)
+circ_filtered <- circ_filtered[complete.cases(circ_filtered),]
+circ_rna_table <- as.data.frame.matrix(circ_filtered)
 # SET MIRNA EXPRESSION
 mi_rna_expr <- t(as.data.frame(read.table(file = argv$mirna_expr, header = TRUE, sep = "\t")))
 # Make genes simple -> ENSG0000001.1 -> ENSG00000001
@@ -211,7 +208,7 @@ gene_expr$X <- NULL
 colidx <- grep("hgnc_symbol", names(gene_expr))
 gene_expr <- gene_expr[, c(colidx, (1:ncol(gene_expr))[-colidx])]
 gene_expr <- t(gene_expr)
-gene_expr[complete.cases(gene_expr), ]
+gene_expr[complete.cases(gene_expr),]
 
 # ----------------------------- SPONGE -----------------------------
 # (A) gene-miRNA interactions

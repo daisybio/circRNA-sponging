@@ -141,6 +141,7 @@ def read_db(db_loc):
 def write_mapping_file(matched_dict, db_dict, output_loc, separator):
     # build gene symbol converter
     header = matched_dict["header"][:4]
+    header.append(matched_dict["header"][5])
     matched_dict.pop("header")
     db_header = db_dict["header"]
     db_dict.pop("header")

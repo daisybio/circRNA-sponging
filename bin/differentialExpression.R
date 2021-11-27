@@ -30,7 +30,7 @@ create_outputs <- function(d, results, marker, out) {
   # plot heatmap
   pheatmap(assay(ntd)[select,], cluster_rows=FALSE, show_rownames=TRUE,
            cluster_cols=FALSE, annotation_col=df, 
-           filename = file.path("total_rna", paste(heatmap_name, "png", sep = ".")),
+           filename = file.path(out, paste(heatmap_name, "png", sep = ".")),
            height = 25, width = 25)
   # close device
   dev.off
@@ -78,6 +78,6 @@ create_outputs(d = dds, results = res, marker = "condition", out = "total_rna")
 circ_RNAs <- read.table(file = args[4], sep = "\t", header = TRUE)
 ens_ids <- circ_RNAs$ensembl_gene_ID
 filtered_res <- res[row.names(res) %in% ens_ids,]
-# create_outputs(d = dds, results = filtered_res, marker = "condition", out = "circ_rna")
+create_outputs(d = dds, results = filtered_res, marker = "condition", out = "circ_rna")
 # save R image
 save.image(file = "DESeq2.RData")

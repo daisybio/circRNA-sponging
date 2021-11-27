@@ -54,7 +54,7 @@ tx2gene <- tx2gene[, c("tx_name", "gene_id")]
 # txi object
 txi <- tximport::tximport(quant.files, type="salmon", tx2gene=tx2gene, ignoreTxVersion = T)
 # write total gene expression over samples to file
-counts <- txi$counts
+counts <- as.data.frame(txi$counts)
 colnames(counts) <- samplesheet$sample
 write.table(counts, file = "gene_expression.tsv", sep = "\t")
 # dds object

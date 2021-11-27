@@ -1,8 +1,9 @@
 #!/usr/bin/env Rscript
 
-library("reshape2", "ggplot")
-
-library("DESeq2", "ensembldb", "tximport", "pheatmap")
+library(ggplot2)
+library(ensembldb)
+library(tximport)
+library(pheatmap)
 
 args = commandArgs(trailingOnly = TRUE)
 

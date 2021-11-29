@@ -22,20 +22,26 @@ create_outputs <- function(d, results, marker, out) {
   png(filename = file.path(out, paste(pca_name, "png", sep = ".")))
   plot(PCA_plot)
   # HEAT MAP
-  # filter
+  # group
+  df <- as.data.frame(colData(d))
+  df <- df[order(as.character(df$condition)),]
+  d@colData@listData <- as.list(df)
+  d@colData@rownames <- rownames(df)
+  df <- df[,c("sample", "condition")]
+  # normalization
   ntd <- DESeq2::normTransform(d)
   select <- order(rowMeans(counts(d,normalized=TRUE)),
                   decreasing=TRUE)[1:20]
-  df <- as.data.frame(colData(d)[,c("condition", "smallRNA")])
+  # filter
+  top_genes <- head(order(rowVars(assay(deseq_vst)), decreasing = T), 20)
+  match <- assay(deseq_vst)[top_genes,]
   # set output file loc
   heatmap_name <- paste(out, "HMAP", sep = "_")
   # plot heatmap
-  pheatmap::pheatmap(assay(ntd)[select,], cluster_rows=FALSE, show_rownames=TRUE,
-           cluster_cols=FALSE, annotation_col=df, 
+  pheatmap::pheatmap(match, cluster_rows=F, show_rownames=T,
+           cluster_cols=T, annotation_col=df,
            filename = file.path(out, paste(heatmap_name, "png", sep = ".")),
-           height = 25, width = 25)
-  # close device
-  dev.off
+           height = 25, width = 25, legend = F)
 }
 
 # read gene expression counts
@@ -75,7 +81,7 @@ DESeq2::summary(res)
 
 # WRITE OUTPUTS
 # total_RNA
-create_outputs(d = dds, results = res, marker = "condition", out = "total_rna")
+create_outputs(d = dds, filter_rows = 0, results = res, marker = "condition", out = "total_rna")
 # circRNA only
 circ_RNAs <- read.table(file = args[4], sep = "\t", header = TRUE)
 ens_ids <- circ_RNAs$ensembl_gene_ID

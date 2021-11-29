@@ -242,21 +242,18 @@ print("reading miRNA expression...")
 mi_rna_expr <- as.data.frame(t(read.table(file = argv$mirna_expr, header = TRUE, sep = "\t")))
 # SET GENE EXPRESSION
 print("reading gene expression...")
-gene_expr <- as.data.frame(read.table(file = argv$gene_expr, header = TRUE, sep = "\t"))
+gene_expr <- as.data.frame(read.table(file = argv$gene_expr, header = T, sep = "\t"))
 # Make genes simple -> ENSG0000001.1 -> ENSG00000001
 rownames(gene_expr) <- remove_ext(rownames(gene_expr))
 # get gene names for ENS ids
 print("converting...")
 gene_names <- getBM(filters = "ensembl_gene_id", attributes = c("ensembl_gene_id", "hgnc_symbol"), values = rownames(gene_expr), mart = mart)
+# keep unconverted ids
+conversion_failures <- rownames(gene_names[gene_names$hgnc_symbol == "",])
+gene_names[conversion_failures, "hgnc_symbol"] <- gene_names[conversion_failures, "ensembl_gene_id"]
 # converting gene ids and reformatting file
 gene_expr <- merge(gene_expr, gene_names, by.x = 0, by.y = "ensembl_gene_id")
-# move column to front
-colidx <- grep("hgnc_symbol", names(gene_expr))
-gene_expr <- gene_expr[, c(colidx, (1:ncol(gene_expr))[-colidx])]
-l.v1 <- length(gene_expr[[1]])
-gene_expr <- gene_expr[gene_expr$hgnc_symbol != "",]
-l.v2 <- length(gene_expr[[1]])
-cat(eval(l.v1-l.v2), "gene expression cases removed due to conversion failure", "\n")
+cat(length(conversion_failures), "genes were not converted due to conversion failure", "\n")
 gene_expr$Row.names <- NULL
 # remove duplicates
 gene_expr <- aggregate(gene_expr[,-1], list(hgnc_symbol=gene_expr$hgnc_symbol), FUN = sum)
@@ -296,9 +293,9 @@ mi_rna_expr <- as.matrix(mi_rna_expr)
 mi_rna_expr[is.na(mi_rna_expr)] <- 0
 # filter for matching samples
 print("gene_expr samples:")
-rownames(gene_expr)
+nrows(gene_expr)
 print("miRNA expr samples:")
-rownames(mi_rna_expr)
+nrows(mi_rna_expr)
 gene_expr <- gene_expr[rownames(mi_rna_expr),]
 target_scan_symbols_counts <- as.matrix(target_scan_symbols_counts)
 

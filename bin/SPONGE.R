@@ -212,6 +212,7 @@ if (notset(argv$gene_expr) || notset(argv$mirna_expr) || notset(argv$organism)) 
 org_data <- org_codes[argv$organism][[1]]
 # set up mart
 mart <- 0
+print("SETTING UP ENSEMBL MART")
 not_done=TRUE
 while(not_done)
 {
@@ -237,12 +238,15 @@ target_scan_symbols_counts <- create_target_scan_symbols(merged_data = argv$targ
                                                         org_name = org_data[1],
                                                         ensembl_mart = mart)
 # SET MIRNA EXPRESSION
+print("reading miRNA expression...")
 mi_rna_expr <- as.data.frame(t(read.table(file = argv$mirna_expr, header = TRUE, sep = "\t")))
 # SET GENE EXPRESSION
+print("reading gene expression...")
 gene_expr <- as.data.frame(read.table(file = argv$gene_expr, header = TRUE, sep = "\t"))
 # Make genes simple -> ENSG0000001.1 -> ENSG00000001
 rownames(gene_expr) <- remove_ext(rownames(gene_expr))
 # get gene names for ENS ids
+print("converting...")
 gene_names <- getBM(filters = "ensembl_gene_id", attributes = c("ensembl_gene_id", "hgnc_symbol"), values = rownames(gene_expr), mart = mart)
 # converting gene ids and reformatting file
 gene_expr <- merge(gene_expr, gene_names, by.x = 0, by.y = "ensembl_gene_id")
@@ -260,16 +264,18 @@ rownames(gene_expr) <- gene_expr$hgnc_symbol
 gene_expr$hgnc_symbol <- NULL
 
 # READ CIRC_RNA EXPRESSION AND COMBINE THEM
+print("adding circRNA expression...")
 circ_rna_expression <- as.data.frame(read.table(file = argv$circ_rna, header = T, sep = "\t"))
 circ_filtered <- 0
 # use db_annotation
 if (file.exists(argv$circ_annotation)) {
+  print("using circBase IDs")
   circ_rna_annotation <- as.data.frame(read.table(file = argv$circ_annotation, header = T, sep = "\t"))
   # use circBase ID
   circ_annotation <- circ_rna_annotation[, c("chr", "start", "stop", "strand", "circRNA.ID")]
   circ_filtered <- merge(circ_rna_expression, circ_annotation, by = c("chr", "start", "stop", "strand"), all = T)
 } else {
-  # use circRNA data as key
+  print("using circRNA position as ID")
   circ_filtered <- data.table(circRNA.ID=paste0(circ_rna_expression$chr, ":", circ_rna_expression$start, "-", circ_rna_expression$stop,"_", circ_rna_expression$strand))
   circ_rna_expression$circRNA.ID <- circ_filtered$circRNA.ID
   circ_filtered <- circ_rna_expression
@@ -286,7 +292,6 @@ gene_expr[is.na(gene_expr)] <- 0
 
 # transform for sponge
 gene_expr <- as.matrix(gene_expr)
-colnames(mi_rna_expr) <- mi_rna_expr[1,]
 mi_rna_expr <- as.matrix(mi_rna_expr)
 mi_rna_expr[is.na(mi_rna_expr)] <- 0
 # filter for matvching samples

@@ -322,6 +322,7 @@ process filter_circRNAs{
 /*
 * DATABASE ANNOTATION USING LIFTOVER FOR GENOMIC COORDINATE CONVERSION AND CIRCBASE
 */
+circRNAs_annotated = Channel.create()
 if (params.database_annotation){
     process database_annotation{
     label 'process_medium'
@@ -444,7 +445,7 @@ process binding_sites_filtering {
     file(bind_sites_proc) from bind_sites_processed
     
     output:
-    file("bindsites_25%_filtered.tsv") into ch_bindsites_filtered
+    file("bindsites_25%_filtered.tsv") into (ch_bindsites_filtered1, ch_bindsites_filtered2)
 
     script:
     """
@@ -621,7 +622,7 @@ process compute_correlations{
     input:
     file(miRNA_counts_filtered) from ch_miRNA_counts_filtered1
     file(circRNA_counts_filtered) from ch_circRNA_counts_filtered4
-    file(filtered_bindsites) from ch_bindsites_filtered
+    file(filtered_bindsites) from ch_bindsites_filtered1
 
     output:
     file("filtered_circRNA_miRNA_correlation.tsv") into ch_correlations
@@ -662,7 +663,7 @@ process correlation_analysis{
 
 /*
 * TODO: SPONGE ANALYSIS (https://github.com/biomedbigdata/SPONGE)
-
+*/
 process SPONGE{
     label 'process_high'
 
@@ -671,7 +672,7 @@ process SPONGE{
     input:
     file(gene_expression) from gene_expression_all
     file(mirna_expression) from ch_miRNA_counts_filtered4
-    file(miranda_bind_sites) from ch_bindsites_filtered
+    file(miranda_bind_sites) from ch_bindsites_filtered2
 
     output:
     file("sponge.RData") into Rimage
@@ -683,12 +684,12 @@ process SPONGE{
     --gene_expr $gene_expression \\
     --mirna_expr $mirna_expression \\
     --organism $params.organism \\
+    --fdr $params.fdr \\
     --target_scan_symbols $params.target_scan_symbols \\
-    --fdr 0.2 \\
     --miRTarBase_loc $params.miRTarBaseData \\
     --miranda_data $miranda_bind_sites \\
-    --TargetScan_data $TargetScanData
+    --TargetScan_data $params.TargetScanData \\
+    --lncBase_data $params.lncBaseData
     """
 }
-*/
 }

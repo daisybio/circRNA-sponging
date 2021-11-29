@@ -7,6 +7,7 @@ library(data.table)
 library(ggplot2)
 # create dirs in cwd
 dir.create("plots", showWarnings = FALSE)
+args = commandArgs(trailingOnly = TRUE)
 
 parser <- arg_parser("Argument parser for SPONGE analysis", name = "SPONGE_parser")
 parser <- add_argument(parser, "--gene_expr", help = "Gene expression file in tsv format as given by DeSeq2")
@@ -22,7 +23,7 @@ parser <- add_argument(parser, "--TargetScan_data", help = "TargetScan data loca
 parser <- add_argument(parser, "--lncBase_data", help = "LncBase data location")
 parser <- add_argument(parser, "--circ_annotation", help = "Path to circRNA annotation file containing circBaseIDs and genomic position of circRNAs")
 
-argv <- parse_args(parser)
+argv <- parse_args(parser, argv = args)
 
 # define organism three letter codes
 org_codes <- list("ebv" = c("Epstein Barr virus", ""),
@@ -120,7 +121,7 @@ create_target_scan_symbols <- function(merged_data, miRTarBase, miranda, TargetS
   run <- T
   idx <- 1
   while (run && idx <= length(data)) {
-    if (!is.na(data[[idx]])) {
+    if (file.exists(data[[idx]])) {
       start_file <- data[[idx]]
       run <- F
     }
@@ -132,7 +133,7 @@ create_target_scan_symbols <- function(merged_data, miRTarBase, miranda, TargetS
   
   # process given targets
   merged_data_targets <- NULL
-  if (!is.na(merged_data)) {
+  if (file.exists(merged_data)) {
     print("using given targets")
     merged_data_targets <- data.frame(read.table(merged_data, header = T, sep = "\t"))
     merged_data_targets$Gene <- rownames(merged_data_targets)
@@ -141,7 +142,7 @@ create_target_scan_symbols <- function(merged_data, miRTarBase, miranda, TargetS
   }
   # process miRTarBase
   miRTarBase_targets <- NULL
-  if (!is.na(miRTarBase)) {
+  if (file.exists(miRTarBase)) {
     print("processing miRTarBase targets")
     miRTarBase_targets <- data.frame(read.csv(miRTarBase, header = T))
     # filter by organism
@@ -154,7 +155,7 @@ create_target_scan_symbols <- function(merged_data, miRTarBase, miranda, TargetS
   }
   # process targets from miranda
   miranda_targets <- NULL
-  if (!is.na(miranda)) {
+  if (file.exists(miranda)) {
     print("processing miranda targets")
     miranda_data <- annotate_miranda(miranda_file, ensembl_mart = ensembl_mart)
     miranda_targets <- as.data.frame.matrix(table(miranda_data$miRNA, miranda_data$gene_symbol))
@@ -164,7 +165,7 @@ create_target_scan_symbols <- function(merged_data, miRTarBase, miranda, TargetS
   }
   # process TargetScan data
   target_scan_targets <- NULL
-  if (!is.na(TargetScan)) {
+  if (file.exists(TargetScan)) {
     print("processing TargetScan data")
     target_scan_data <- data.frame(read.table(TargetScan, header = T, sep = "\t"))
     target_scan_targets <- as.data.frame.matrix(table(target_scan_data$miR.Family, target_scan_data$Gene.Symbol))
@@ -174,7 +175,7 @@ create_target_scan_symbols <- function(merged_data, miRTarBase, miranda, TargetS
   }
   # process lncBase data
   lncBase_targets <- NULL
-  if (!is.na(lncBase)) {
+  if (file.exists(lncBase)) {
     print("processing lncBase data")
     lncBase_targets <- as.data.frame(t(data.frame(read.table(lncBase, sep = "\t", header = T))))
     lncBase_targets$Gene <- rownames(lncBase_targets)
@@ -262,7 +263,7 @@ gene_expr$hgnc_symbol <- NULL
 circ_rna_expression <- as.data.frame(read.table(file = argv$circ_rna, header = T, sep = "\t"))
 circ_filtered <- 0
 # use db_annotation
-if (!is.na(argv$circ_annotation)) {
+if (file.exists(argv$circ_annotation)) {
   circ_rna_annotation <- as.data.frame(read.table(file = argv$circ_annotation, header = T, sep = "\t"))
   # use circBase ID
   circ_annotation <- circ_rna_annotation[, c("chr", "start", "stop", "strand", "circRNA.ID")]
@@ -288,6 +289,8 @@ gene_expr <- as.matrix(gene_expr)
 colnames(mi_rna_expr) <- mi_rna_expr[1,]
 mi_rna_expr <- as.matrix(mi_rna_expr)
 mi_rna_expr[is.na(mi_rna_expr)] <- 0
+# filter for matvching samples
+gene_expr <- gene_expr[rownames(mi_rna_expr),]
 target_scan_symbols_counts <- as.matrix(target_scan_symbols_counts)
 
 # ----------------------------- SPONGE -----------------------------

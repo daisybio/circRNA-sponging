@@ -8,7 +8,6 @@ library(ggplot2)
 # create dirs in cwd
 dir.create("plots", showWarnings = FALSE)
 
-# TODO: add transpose argument or check if it is necessary
 parser <- arg_parser("Argument parser for SPONGE analysis", name = "SPONGE_parser")
 parser <- add_argument(parser, "--gene_expr", help = "Gene expression file in tsv format as given by DeSeq2")
 parser <- add_argument(parser, "--circ_rna", help = "Path to circ_rna detection results containing gene ids in tsv")
@@ -21,8 +20,7 @@ parser <- add_argument(parser, "--miRTarBase_loc", help = "MiRTarBase data locat
 parser <- add_argument(parser, "--miranda_data", help = "Miranda output data location in tsv format")
 parser <- add_argument(parser, "--TargetScan_data", help = "TargetScan data location")
 parser <- add_argument(parser, "--lncBase_data", help = "LncBase data location")
-# FLAGS
-parser <- add_argument(parser, "-circ_annotated", help = "CircRNA file is annotated with circBaseId or default CircExplorer output", flag = T)
+parser <- add_argument(parser, "--circ_annotation", help = "Path to circRNA annotation file containing circBaseIDs and genomic position of circRNAs")
 
 argv <- parse_args(parser)
 
@@ -49,6 +47,14 @@ org_codes <- list("ebv" = c("Epstein Barr virus", ""),
                   "bta" = c("Bos taurus", "btaurus_gene_ensembl"),
                   "ath" = c("Arabidopsis thaliana", ""),
                   "xtr" = c("Xenopus tropicalis", ""))
+
+remove_ext <- function(g) {
+  simple_genes <- c()
+  for (i in seq_along(g)) {
+    simple_genes[i] = sub("\\..*", "", g[i])
+  }
+  return(simple_genes)
+}
 
 det_strand <- function(x) {
   if (x == "+") {
@@ -106,37 +112,95 @@ annotate_miranda <- function(miRTarBase_loc, ensembl_mart) {
 }
 
 # use pipeline outputs to create target scan symbols
-create_target_scan_symbols <- function(miRTarBase, miranda, TargetScan, org_name, ensembl_mart) {
+create_target_scan_symbols <- function(merged_data, miRTarBase, miranda, TargetScan, lncBase, org_name, ensembl_mart) {
+  print("CREATING TARGET SCAN SYMBOLS")
+  # check targets
+  start_file <- 0
+  data <- list(merged_data, miRTarBase, miranda, TargetScan, lncBase)
+  run <- T
+  idx <- 1
+  while (run && idx <= length(data)) {
+    if (!is.na(data[[idx]])) {
+      start_file <- data[[idx]]
+      run <- F
+    }
+    idx = idx + 1
+  }
+  if (start_file == 0) {
+    stop("At least one target scan file has to be provided")
+  }
+  
+  # process given targets
+  merged_data_targets <- NULL
+  if (!is.na(merged_data)) {
+    print("using given targets")
+    merged_data_targets <- data.frame(read.table(merged_data, header = T, sep = "\t"))
+    merged_data_targets$Gene <- rownames(merged_data_targets)
+    colidx <- grep("Gene", names(merged_data_targets))
+    merged_data_targets <- merged_data_targets[, c(colidx, (1:ncol(merged_data_targets))[-colidx])]
+  }
   # process miRTarBase
-  targets <- 0
-  if (!notset(miRTarBase)) {
+  miRTarBase_targets <- NULL
+  if (!is.na(miRTarBase)) {
+    print("processing miRTarBase targets")
     miRTarBase_targets <- data.frame(read.csv(miRTarBase, header = T))
     # filter by organism
     miRTarBase_targets <- miRTarBase_targets[miRTarBase_targets$Species..miRNA. == org_name,]
     # create target scan counts matrix
-    targets <- miRTarBase_targets[, c("miRNA", "Target.Gene")]
+    miRTarBase_targets <- as.data.frame.matrix(table(miRTarBase_targets$miRNA, miRTarBase_targets$Target.Gene))
+    miRTarBase_targets$Gene <- rownames(miRTarBase_targets)
+    colidx <- grep("Gene", names(miRTarBase_targets))
+    miRTarBase_targets <- miRTarBase_targets[, c(colidx, (1:ncol(miRTarBase_targets))[-colidx])]
   }
   # process targets from miranda
-  if (!notset(miranda)) {
-    miranda_file <- data.frame(read.table(argv$miranda_data, header = T, sep = "\t"))
-    annotate_miranda(miranda_file, ensembl_mart = mart)
-    miranda_data <- miranda_file[, c("miRNA", "gene_symbol")]
-    colnames(miranda_data) <- c("miRNA", "Target.Gene")
-    if (targets == 0) {
-      targets <- miranda_data
-    } else {
-      targets <- merge(targets, miranda_data, by = c("miRNA", "Target.Gene"), all = T)
+  miranda_targets <- NULL
+  if (!is.na(miranda)) {
+    print("processing miranda targets")
+    miranda_data <- annotate_miranda(miranda_file, ensembl_mart = ensembl_mart)
+    miranda_targets <- as.data.frame.matrix(table(miranda_data$miRNA, miranda_data$gene_symbol))
+    miranda_targets$Gene <- rownames(miranda_targets)
+    colidx <- grep("Gene", names(miranda_targets))
+    miranda_targets <- miranda_targets[, c(colidx, (1:ncol(miranda_targets))[-colidx])]
+  }
+  # process TargetScan data
+  target_scan_targets <- NULL
+  if (!is.na(TargetScan)) {
+    print("processing TargetScan data")
+    target_scan_data <- data.frame(read.table(TargetScan, header = T, sep = "\t"))
+    target_scan_targets <- as.data.frame.matrix(table(target_scan_data$miR.Family, target_scan_data$Gene.Symbol))
+    target_scan_targets$Gene <- rownames(target_scan_targets)
+    colidx <- grep("Gene", names(target_scan_targets))
+    target_scan_targets <- target_scan_targets[, c(colidx, (1:ncol(target_scan_targets))[-colidx])]
+  }
+  # process lncBase data
+  lncBase_targets <- NULL
+  if (!is.na(lncBase)) {
+    print("processing lncBase data")
+    lncBase_targets <- as.data.frame(t(data.frame(read.table(lncBase, sep = "\t", header = T))))
+    lncBase_targets$Gene <- rownames(lncBase_targets)
+    colidx <- grep("Gene", names(lncBase_targets))
+    lncBase_targets <- lncBase_targets[, c(colidx, (1:ncol(lncBase_targets))[-colidx])]
+  }
+  
+  # MERGE DATA
+  merged.targets <- NULL
+  targets_data <- list(merged_data_targets, miRTarBase_targets, miranda_targets, target_scan_targets, lncBase_targets)
+  for (target in targets_data) {
+    # append data if present
+    if (!is.null(target)) {
+      # first data set
+      if (is.null(merged.targets)) {
+        merged.targets <- target
+      } else {
+        merged.targets <- merge(merged.targets, target, all = T)
+      }
     }
   }
-  # TODO: process TargetScan data
-  if (!notset(TargetScan)) {
-    target_scan_file <- data.frame(read.table(argv$TargetScan_data, header = T, sep = "\t"))
-    # make gene names simple
-  }
-  # remove NA rows
-  targets[complete.cases(targets), ]
+  merged.targets[is.na(merged.targets)] <- 0
+  rownames(merged.targets) <- merged.targets$Gene
+  merged.targets$Gene <- NULL
   # return contingency table
-  return(as.data.frame.matrix(table(target_scan_symbols$miRNA, target_scan_symbols$Target.Gene)))
+  return(merged.targets)
 }
 
 # check required inputs
@@ -164,61 +228,71 @@ while(not_done)
 }
 
 # SET TARGET SCAN SYMBOLS
-target_scan_symbols_counts <- 0
-# use given target scan symbols for SPONGE
-if (!notset(argv$target_scan_symbols)) {
-  target_scan_symbols_counts <- data.frame(read.table(file = argv$target_scan_symbols, sep = "\t", header = T))
-} else {
-  # check for at least one given data set
-  if (notset(argv$miRTarBase_loc) && notset(argv$miranda_data) && notset(argv$TargetScan_data)) {
-    stop("At least one target scan data source has to be provided")
-  }
-  # use data from pipeline and build target scan symbols
-  target_scan_symbols_counts <- create_target_scan_symbols(miRTarBase = argv$miRTarBase_loc,
-                                                           miranda = argv$miranda_data,
-                                                           TargetScan = argv$TargetScan_data,
-                                                           lncBase = argv$TlncBase_data,
-                                                           org_name = org_data[1],
-                                                           ensembl_mart = mart)
-}
+target_scan_symbols_counts <- create_target_scan_symbols(merged_data = argv$target_scan_symbols,
+                                                        miRTarBase = argv$miRTarBase_loc,
+                                                        miranda = argv$miranda_data,
+                                                        TargetScan = argv$TargetScan_data,
+                                                        lncBase = argv$lncBase_data,
+                                                        org_name = org_data[1],
+                                                        ensembl_mart = mart)
 # SET MIRNA EXPRESSION
-mi_rna_expr <- t(as.data.frame(read.table(file = argv$mirna_expr, header = TRUE, sep = "\t")))
+mi_rna_expr <- as.data.frame(t(read.table(file = argv$mirna_expr, header = TRUE, sep = "\t")))
 # SET GENE EXPRESSION
 gene_expr <- as.data.frame(read.table(file = argv$gene_expr, header = TRUE, sep = "\t"))
 # Make genes simple -> ENSG0000001.1 -> ENSG00000001
-genes <- gene_expr$X
-simple_genes <- c()
-for (i in seq_along(genes)) {
-  simple_genes[i] = sub("\\..*", "", genes[i])
-}
-gene_expr$X <- simple_genes
-genes <- simple_genes
+rownames(gene_expr) <- remove_ext(rownames(gene_expr))
 # get gene names for ENS ids
-gene_names <- getBM(filters = "ensembl_gene_id", attributes = c("ensembl_gene_id", "hgnc_symbol"), values = genes, mart = mart)
+gene_names <- getBM(filters = "ensembl_gene_id", attributes = c("ensembl_gene_id", "hgnc_symbol"), values = rownames(gene_expr), mart = mart)
 # converting gene ids and reformatting file
-gene_expr <- merge(gene_expr, gene_names, by.x = "X", by.y = "ensembl_gene_id")
-gene_expr$X <- NULL
+gene_expr <- merge(gene_expr, gene_names, by.x = 0, by.y = "ensembl_gene_id")
+# move column to front
 colidx <- grep("hgnc_symbol", names(gene_expr))
 gene_expr <- gene_expr[, c(colidx, (1:ncol(gene_expr))[-colidx])]
-gene_expr[complete.cases(gene_expr),]
+l.v1 <- length(gene_expr[[1]])
+gene_expr <- gene_expr[gene_expr$hgnc_symbol != "",]
+l.v2 <- length(gene_expr[[1]])
+cat(eval(l.v1-l.v2), "gene expression cases removed due to convertion failure")
+gene_expr$Row.names <- NULL
+# remove duplicates
+gene_expr <- aggregate(gene_expr[,-1], list(hgnc_symbol=gene_expr$hgnc_symbol), FUN = sum)
+rownames(gene_expr) <- gene_expr$hgnc_symbol
+gene_expr$hgnc_symbol <- NULL
 
 # READ CIRC_RNA EXPRESSION AND COMBINE THEM
 circ_rna_expression <- as.data.frame(read.table(file = argv$circ_rna, header = T, sep = "\t"))
 circ_filtered <- 0
 # use db_annotation
-if (argv$circ_annotated) {
-  circ_rna_expression$gene.symbol
-  circ_filtered <- circ_rna_expression[, c("circRNA.ID", "gene.symbol")]
+if (!is.na(argv$circ_annotation)) {
+  circ_rna_annotation <- as.data.frame(read.table(file = argv$circ_annotation, header = T, sep = "\t"))
+  # use circBase ID
+  circ_annotation <- circ_rna_annotation[, c("chr", "start", "stop", "strand", "circRNA.ID")]
+  circ_filtered <- merge(circ_rna_expression, circ_annotation, by = c("chr", "start", "stop", "strand"), all = T)
 } else {
-  circ_filtered <- data.table(circRNA.ID=paste0(circ_rna_expression$chr, ":", circ_rna_expression$start, "-", circ_rna_expression$stop,"_", circ_rna_expression$strand), gene.symbol = circ_rna_expression$gene_symbol)
+  # use circRNA data as key
+  circ_filtered <- data.table(circRNA.ID=paste0(circ_rna_expression$chr, ":", circ_rna_expression$start, "-", circ_rna_expression$stop,"_", circ_rna_expression$strand))
+  circ_rna_expression$circRNA.ID <- circ_filtered$circRNA.ID
+  circ_filtered <- circ_rna_expression
 }
+circ_filtered <- circ_filtered[, 7:length(circ_filtered)]
 circ_filtered <- circ_filtered[complete.cases(circ_filtered),]
-circ_rna_table <- data.frame(t(as.data.frame.matrix(table(circ_filtered))))
-gene_expr$gene <- rownames(gene_expr)
-circ_rna_table$gene <- rownames(circ_rna_table)
-gene_expr <- data.frame(merge(gene_expr, circ_rna_table, by = "gene"))
-gene_expr$gene <- NULL
-gene_expr <- t(gene_expr)
+rownames(circ_filtered) <- circ_filtered$circRNA.ID
+circ_filtered$circRNA.ID <- NULL
+# add ids
+circ_filtered$ID <- rownames(circ_filtered)
+gene_expr$ID <- rownames(gene_expr)
+gene_expr <- data.frame(merge(gene_expr, circ_filtered, all = T))
+rownames(gene_expr) <- gene_expr$ID
+gene_expr$ID <- NULL
+gene_expr <- data.frame(t(gene_expr))
+gene_expr[is.na(gene_expr)] <- 0
+
+# transform for sponge
+gene_expr <- as.matrix(gene_expr)
+colnames(mi_rna_expr) <- mi_rna_expr[1,]
+mi_rna_expr <- mi_rna_expr[-1,]
+mi_rna_expr <- as.matrix(mi_rna_expr)
+mi_rna_expr[is.na(mi_rna_expr)] <- 0
+target_scan_symbols_counts <- as.matrix(target_scan_symbols_counts)
 
 # ----------------------------- SPONGE -----------------------------
 # (A) gene-miRNA interactions

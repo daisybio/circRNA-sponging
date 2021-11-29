@@ -24,7 +24,7 @@ parser <- add_argument(parser, "--lncBase_data", help = "LncBase data location",
 parser <- add_argument(parser, "--circ_annotation", help = "Path to circRNA annotation file containing circBaseIDs and genomic position of circRNAs", default = "null")
 
 argv <- parse_args(parser, argv = args)
-print("success")
+
 # define organism three letter codes
 org_codes <- list("ebv" = c("Epstein Barr virus", ""),
                   "oar" = c("Ovis aries", ""),
@@ -73,7 +73,7 @@ det_strand <- function(x) {
 }
 
 notset <- function(x) {
-  if (x == "null" || (x)) {
+  if (x == "null" || is.na(x)) {
     return(TRUE)
   } else {
     return(FALSE)

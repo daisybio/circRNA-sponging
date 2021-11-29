@@ -4,6 +4,7 @@ library(ggplot2)
 library(ensembldb)
 library(tximport)
 library(pheatmap)
+library(DESeq2)
 
 args = commandArgs(trailingOnly = TRUE)
 

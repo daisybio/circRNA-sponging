@@ -22,7 +22,7 @@ create_outputs <- function(d, results, marker, out) {
   plot(PCA_plot)
   # HEAT MAP
   # filter
-  ntd <- normTransform(d)
+  ntd <- DESeq2::normTransform(d)
   select <- order(rowMeans(counts(d,normalized=TRUE)),
                   decreasing=TRUE)[1:20]
   df <- as.data.frame(colData(d)[,c("condition", "smallRNA")])

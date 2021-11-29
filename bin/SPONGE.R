@@ -277,19 +277,15 @@ circ_filtered <- circ_filtered[, 7:length(circ_filtered)]
 circ_filtered <- circ_filtered[complete.cases(circ_filtered),]
 rownames(circ_filtered) <- circ_filtered$circRNA.ID
 circ_filtered$circRNA.ID <- NULL
-# add ids
-circ_filtered$ID <- rownames(circ_filtered)
-gene_expr$ID <- rownames(gene_expr)
-gene_expr <- data.frame(merge(gene_expr, circ_filtered, all = T))
-rownames(gene_expr) <- gene_expr$ID
-gene_expr$ID <- NULL
+
+gene_expr_test <- rbind(gene_expr, circ_filtered)
+
 gene_expr <- data.frame(t(gene_expr))
 gene_expr[is.na(gene_expr)] <- 0
 
 # transform for sponge
 gene_expr <- as.matrix(gene_expr)
 colnames(mi_rna_expr) <- mi_rna_expr[1,]
-mi_rna_expr <- mi_rna_expr[-1,]
 mi_rna_expr <- as.matrix(mi_rna_expr)
 mi_rna_expr[is.na(mi_rna_expr)] <- 0
 target_scan_symbols_counts <- as.matrix(target_scan_symbols_counts)

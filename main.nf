@@ -322,7 +322,6 @@ process filter_circRNAs{
 /*
 * DATABASE ANNOTATION USING LIFTOVER FOR GENOMIC COORDINATE CONVERSION AND CIRCBASE
 */
-circRNAs_annotated = Channel.create()
 if (params.database_annotation){
     process database_annotation{
     label 'process_medium'
@@ -662,34 +661,67 @@ process correlation_analysis{
 }
 
 /*
-* TODO: SPONGE ANALYSIS (https://github.com/biomedbigdata/SPONGE)
+* SPONGE ANALYSIS (https://github.com/biomedbigdata/SPONGE)
 */
-process SPONGE{
-    label 'process_high'
+if (params.database_annotation) {
+    process SPONGE_db_annotation{
+        label 'process_high'
 
-    publishDir "${params.out_dir}/results/SPONGE", mode: params.publish_dir_mode
+        publishDir "${params.out_dir}/results/SPONGE", mode: params.publish_dir_mode
 
-    input:
-    file(gene_expression) from gene_expression_all
-    file(mirna_expression) from ch_miRNA_counts_filtered4
-    file(miranda_bind_sites) from ch_bindsites_filtered2
+        input:
+        file(gene_expression) from gene_expression_all
+        file(circRNA_annotated) from circRNA_annotated
+        file(mirna_expression) from ch_miRNA_counts_filtered4
+        file(miranda_bind_sites) from ch_bindsites_filtered2
 
-    output:
-    file("sponge.RData") into Rimage
-    file("plots/*.png") into ch_sponge_plots
+        output:
+        file("sponge.RData") into Rimage
+        file("plots/*.png") into ch_sponge_plots
 
-    script:
-    """
-    Rscript "${projectDir}"/bin/SPONGE.R \\
-    --gene_expr $gene_expression \\
-    --mirna_expr $mirna_expression \\
-    --organism $params.organism \\
-    --fdr $params.fdr \\
-    --target_scan_symbols $params.target_scan_symbols \\
-    --miRTarBase_loc $params.miRTarBaseData \\
-    --miranda_data $miranda_bind_sites \\
-    --TargetScan_data $params.TargetScanData \\
-    --lncBase_data $params.lncBaseData
-    """
+        script:
+        """
+        Rscript "${projectDir}"/bin/SPONGE.R \\
+        --gene_expr $gene_expression \\
+        --circ_annotated $circRNA_annotated \\
+        --mirna_expr $mirna_expression \\
+        --organism $params.organism \\
+        --fdr $params.fdr \\
+        --target_scan_symbols $params.target_scan_symbols \\
+        --miRTarBase_loc $params.miRTarBaseData \\
+        --miranda_data $miranda_bind_sites \\
+        --TargetScan_data $params.TargetScanData \\
+        --lncBase_data $params.lncBaseData
+        """
+    }
+} else {
+    process SPONGE{
+        label 'process_high'
+
+        publishDir "${params.out_dir}/results/SPONGE", mode: params.publish_dir_mode
+
+        input:
+        file(gene_expression) from gene_expression_all
+        file(mirna_expression) from ch_miRNA_counts_filtered4
+        file(miranda_bind_sites) from ch_bindsites_filtered2
+
+        output:
+        file("sponge.RData") into Rimage
+        file("plots/*.png") into ch_sponge_plots
+
+        script:
+        """
+        Rscript "${projectDir}"/bin/SPONGE.R \\
+        --gene_expr $gene_expression \\
+        --mirna_expr $mirna_expression \\
+        --organism $params.organism \\
+        --fdr $params.fdr \\
+        --target_scan_symbols $params.target_scan_symbols \\
+        --miRTarBase_loc $params.miRTarBaseData \\
+        --miranda_data $miranda_bind_sites \\
+        --TargetScan_data $params.TargetScanData \\
+        --lncBase_data $params.lncBaseData
+        """
+    }
 }
 }

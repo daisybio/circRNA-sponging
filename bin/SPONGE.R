@@ -22,9 +22,9 @@ parser <- add_argument(parser, "--miranda_data", help = "Miranda output data loc
 parser <- add_argument(parser, "--TargetScan_data", help = "TargetScan data location", default = "null")
 parser <- add_argument(parser, "--lncBase_data", help = "LncBase data location", default = "null")
 parser <- add_argument(parser, "--circ_annotation", help = "Path to circRNA annotation file containing circBaseIDs and genomic position of circRNAs", default = "null")
-print("parsed")
-argv <- parse_args(parser, argv = args)
 
+argv <- parse_args(parser, argv = args)
+print("success")
 # define organism three letter codes
 org_codes <- list("ebv" = c("Epstein Barr virus", ""),
                   "oar" = c("Ovis aries", ""),

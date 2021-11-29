@@ -256,7 +256,7 @@ gene_expr <- gene_expr[, c(colidx, (1:ncol(gene_expr))[-colidx])]
 l.v1 <- length(gene_expr[[1]])
 gene_expr <- gene_expr[gene_expr$hgnc_symbol != "",]
 l.v2 <- length(gene_expr[[1]])
-cat(eval(l.v1-l.v2), "gene expression cases removed due to convertion failure")
+cat(eval(l.v1-l.v2), "gene expression cases removed due to conversion failure", "\n")
 gene_expr$Row.names <- NULL
 # remove duplicates
 gene_expr <- aggregate(gene_expr[,-1], list(hgnc_symbol=gene_expr$hgnc_symbol), FUN = sum)
@@ -294,7 +294,11 @@ gene_expr[is.na(gene_expr)] <- 0
 gene_expr <- as.matrix(gene_expr)
 mi_rna_expr <- as.matrix(mi_rna_expr)
 mi_rna_expr[is.na(mi_rna_expr)] <- 0
-# filter for matvching samples
+# filter for matching samples
+print("gene_expr samples:")
+rownames(gene_expr)
+print("miRNA expr samples:")
+rownames(mi_rna_expr)
 gene_expr <- gene_expr[rownames(mi_rna_expr),]
 target_scan_symbols_counts <- as.matrix(target_scan_symbols_counts)
 

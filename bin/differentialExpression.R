@@ -38,10 +38,10 @@ create_outputs <- function(d, results, marker, out) {
   # set output file loc
   heatmap_name <- paste(out, "HMAP", sep = "_")
   # plot heatmap
-  pheatmap::pheatmap(match, cluster_rows=F, show_rownames=T,
+  pheatmap::pheatmap(match, cluster_rows=T, show_rownames=T,
            cluster_cols=T, annotation_col=df,
            filename = file.path(out, paste(heatmap_name, "png", sep = ".")),
-           height = 25, width = 25, legend = F)
+           height = 15, width = 25, legend = F)
 }
 
 # read gene expression counts

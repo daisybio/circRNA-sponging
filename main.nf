@@ -311,7 +311,7 @@ process filter_circRNAs{
     file(circRNA_counts_norm) from ch_circRNA_counts_norm1
 
     output:
-    file("circRNA_counts_filtered.tsv") into (ch_circRNA_counts_filtered1, ch_circRNA_counts_filtered2, ch_circRNA_counts_filtered3, ch_circRNA_counts_filtered4, ch_circRNA_counts_filtered5)
+    file("circRNA_counts_filtered.tsv") into (ch_circRNA_counts_filtered1, ch_circRNA_counts_filtered2, ch_circRNA_counts_filtered3, ch_circRNA_counts_filtered4, ch_circRNA_counts_filtered5, ch_circRNA_counts_filtered6)
 
     script:
     """
@@ -671,6 +671,7 @@ if (params.database_annotation) {
 
         input:
         file(gene_expression) from gene_expression_all
+        file(circRNA_counts_filtered) from ch_circRNA_counts_filtered6
         file(circRNA_annotated) from circRNA_annotated
         file(mirna_expression) from ch_miRNA_counts_filtered4
         file(miranda_bind_sites) from ch_bindsites_filtered2
@@ -683,6 +684,7 @@ if (params.database_annotation) {
         """
         Rscript "${projectDir}"/bin/SPONGE.R \\
         --gene_expr $gene_expression \\
+        --circ_rna $circRNA_counts_filtered \\
         --circ_annotated $circRNA_annotated \\
         --mirna_expr $mirna_expression \\
         --organism $params.organism \\
@@ -702,6 +704,7 @@ if (params.database_annotation) {
 
         input:
         file(gene_expression) from gene_expression_all
+        file(circRNA_counts_filtered) from ch_circRNA_counts_filtered6
         file(mirna_expression) from ch_miRNA_counts_filtered4
         file(miranda_bind_sites) from ch_bindsites_filtered2
 
@@ -713,6 +716,7 @@ if (params.database_annotation) {
         """
         Rscript "${projectDir}"/bin/SPONGE.R \\
         --gene_expr $gene_expression \\
+        --circ_rna $circRNA_counts_filtered \\
         --mirna_expr $mirna_expression \\
         --organism $params.organism \\
         --fdr $params.fdr \\

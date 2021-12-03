@@ -693,7 +693,8 @@ if (params.database_annotation) {
         --miRTarBase_loc $params.miRTarBaseData \\
         --miranda_data $miranda_bind_sites \\
         --TargetScan_data $params.TargetScanData \\
-        --lncBase_data $params.lncBaseData
+        --lncBase_data $params.lncBaseData \\
+        --miRDB_data $params.miRDB_data
         """
     }
 } else {
@@ -724,7 +725,8 @@ if (params.database_annotation) {
         --miRTarBase_loc $params.miRTarBaseData \\
         --miranda_data $miranda_bind_sites \\
         --TargetScan_data $params.TargetScanData \\
-        --lncBase_data $params.lncBaseData
+        --lncBase_data $params.lncBaseData \\
+        --miRDB_data $params.miRDB_data
         """
     }
 }

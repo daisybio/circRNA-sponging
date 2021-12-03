@@ -4,7 +4,7 @@ library(SPONGE)
 library(biomaRt)
 library(argparser)
 library(data.table)
-library(ggplot2)
+# library(ggplot2)
 # create dirs in cwd
 dir.create("plots", showWarnings = FALSE)
 args = commandArgs(trailingOnly = TRUE)
@@ -21,6 +21,8 @@ parser <- add_argument(parser, "--miRTarBase_loc", help = "MiRTarBase data locat
 parser <- add_argument(parser, "--miranda_data", help = "Miranda output data location in tsv format", default = "null")
 parser <- add_argument(parser, "--TargetScan_data", help = "TargetScan data location", default = "null")
 parser <- add_argument(parser, "--lncBase_data", help = "LncBase data location", default = "null")
+parser <- add_argument(parser, "--miRDB_data", help = "miRDB data location", default = "null")
+parser <- add_argument(parser, "--gz_targets", help = "Target scan symbols file is compressed", default = F, flag = T)
 parser <- add_argument(parser, "--circ_annotation", help = "Path to circRNA annotation file containing circBaseIDs and genomic position of circRNAs", default = "null")
 
 argv <- parse_args(parser, argv = args)
@@ -113,11 +115,11 @@ annotate_miranda <- function(miRTarBase_loc, ensembl_mart) {
 }
 
 # use pipeline outputs to create target scan symbols
-create_target_scan_symbols <- function(merged_data, miRTarBase, miranda, TargetScan, lncBase, org_name, ensembl_mart) {
+create_target_scan_symbols <- function(merged_data, miRTarBase, miranda, TargetScan, lncBase, miRDB, org_name, ensembl_mart) {
   print("CREATING TARGET SCAN SYMBOLS")
   # check targets
   start_file <- 0
-  data <- list(merged_data, miRTarBase, miranda, TargetScan, lncBase)
+  data <- list(merged_data, miRTarBase, miranda, TargetScan, lncBase, miRDB)
   run <- T
   idx <- 1
   while (run && idx <= length(data)) {
@@ -135,6 +137,13 @@ create_target_scan_symbols <- function(merged_data, miRTarBase, miranda, TargetS
   merged_data_targets <- NULL
   if (file.exists(merged_data)) {
     print("using given targets")
+    # unzip given file if it is
+    if (argv$gz_targets) {
+      untar(merged_data)
+      merged_data <- paste0(strsplit(merged_data, "\\.")[[1]][1], ".tsv")
+      split = strsplit(merged_data, "/")[[1]]
+      merged_data = split[length(split)]
+    }
     merged_data_targets <- data.frame(read.table(merged_data, header = T, sep = "\t"))
   }
   # process miRTarBase
@@ -231,6 +240,7 @@ target_scan_symbols_counts <- create_target_scan_symbols(merged_data = argv$targ
                                                         miranda = argv$miranda_data,
                                                         TargetScan = argv$TargetScan_data,
                                                         lncBase = argv$lncBase_data,
+                                                        miRDB = arv$miRDB_data,
                                                         org_name = org_data[1],
                                                         ensembl_mart = mart)
 # SET MIRNA EXPRESSION

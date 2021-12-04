@@ -57,8 +57,10 @@ names(quant.files) <- samplesheet$sample
 # read input gtf
 txdb <- ensembldb::ensDbFromGtf(args[3])
 tx <- ensembldb::EnsDb(txdb)
-tx2gene <- ensembldb::transcripts(tx, return.type="DataFrame")
-tx2gene <- tx2gene[, c("tx_name", "gene_id")]
+tx2gene <- ensembldb::transcripts(tx, return.type = "data.frame", columns = c("gene_name", "gene_id"))
+failures <- rownames(tx2gene[is.na(tx2gene$gene_name),])
+tx2gene[failures, "gene_name"] <- tx2gene[failures, "gene_id"]
+tx2gene <- tx2gene[, c("tx_id", "gene_name")]
 # txi object
 txi <- tximport::tximport(quant.files, type="salmon", tx2gene=tx2gene, ignoreTxVersion = T)
 # write total gene expression over samples to file

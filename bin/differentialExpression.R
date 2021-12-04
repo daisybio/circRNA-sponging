@@ -83,11 +83,18 @@ DESeq2::summary(res)
 
 # WRITE OUTPUTS
 # total_RNA
-create_outputs(d = dds, filter_rows = 0, results = res, marker = "condition", out = "total_rna")
+create_outputs(d = dds, results = res, marker = "condition", out = "total_rna")
 # circRNA only
 circ_RNAs <- read.table(file = args[4], sep = "\t", header = TRUE)
 ens_ids <- circ_RNAs$ensembl_gene_ID
+dds_filtered <- dds
+filtered_dds <- dds_filtered@assays@data@listData
+for(i in seq_along(filtered_dds)) { 
+  filtered <- filtered_dds[i][[1]]
+  filtered_dds[i][[1]] <- filtered[row.names(filtered) %in% ens_ids,]
+}
+dds_filtered@assays@data@listData <- filtered_dds
 filtered_res <- res[row.names(res) %in% ens_ids,]
-create_outputs(d = dds, results = filtered_res, marker = "condition", out = "circ_rna")
+create_outputs(d = dds_filtered, results = filtered_res, marker = "condition", out = "circ_rna")
 # save R image
 save.image(file = "DESeq2.RData")

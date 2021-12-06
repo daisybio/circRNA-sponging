@@ -249,14 +249,14 @@ target_scan_symbols_counts <- create_target_scan_symbols(merged_data = argv$targ
                                                         org_data = org_data)
 # SET MIRNA EXPRESSION
 print("reading miRNA expression...")
-mi_rna_expr <- as.data.frame(t(read.table(file = argv$mirna_expr, header = T, sep = "\t", quote = F)))
+mi_rna_expr <- as.data.frame(t(read.table(file = argv$mirna_expr, header = T, sep = "\t")))
 # SET GENE EXPRESSION
 print("reading gene expression...")
-gene_expr <- as.data.frame(t(read.table(file = argv$gene_expr, header = T, sep = "\t", quote = F)))
+gene_expr <- as.data.frame(t(read.table(file = argv$gene_expr, header = T, sep = "\t")))
 
 # READ CIRC_RNA EXPRESSION AND COMBINE THEM
 print("adding circRNA expression...")
-circ_rna_expression <- as.data.frame(read.table(file = argv$circ_rna, header = T, sep = "\t", quote = F))
+circ_rna_expression <- as.data.frame(read.table(file = argv$circ_rna, header = T, sep = "\t"))
 circ_filtered <- 0
 # use db_annotation
 if (file.exists(argv$circ_annotation)) {
@@ -287,11 +287,8 @@ nrow(mi_rna_expr)
 gene_expr <- gene_expr[rownames(mi_rna_expr),]
 
 # transform for sponge
-gene_expr <- as.matrix(gene_expr)
 gene_expr[is.na(gene_expr)] <- 0
-mi_rna_expr <- as.matrix(mi_rna_expr)
 mi_rna_expr[is.na(mi_rna_expr)] <- 0
-target_scan_symbols_counts <- as.matrix(target_scan_symbols_counts)
 
 save.image(file = file.path(out, "sponge.RData"))
 

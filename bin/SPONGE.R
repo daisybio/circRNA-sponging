@@ -166,7 +166,7 @@ create_target_scan_symbols <- function(merged_data, miRTarBase, miranda, TargetS
     print("using given targets")
     # unzip given file if it is
     if (argv$gz_targets) {
-      untar(merged_data, exdir = getw)
+      untar(merged_data, exdir = out)
       split = strsplit(merged_data, "/")[[1]]
       merged_data <- split[length(split)]
       merged_data <- paste0(strsplit(merged_data, "\\.")[[1]][1], ".tsv")

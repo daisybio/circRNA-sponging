@@ -26,6 +26,9 @@ parser <- add_argument(parser, "--circ_annotation", help = "Path to circRNA anno
 
 argv <- parse_args(parser, argv = args)
 
+print("-------------- PARAMETERS ----------------")
+print(argv)
+
 # change working dir if option was given
 if (!argv$output_dir == "null") {
   dir.create(argv$output_dir, showWarnings = F)

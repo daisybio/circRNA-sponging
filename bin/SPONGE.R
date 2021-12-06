@@ -58,6 +58,7 @@ org_codes <- list("ebv" = c("Epstein Barr virus", ""),
                   "ath" = c("Arabidopsis thaliana", ""),
                   "xtr" = c("Xenopus tropicalis", ""))
 
+# FUNCTIONS ----------------------------------------------------
 remove_ext <- function(g) {
   simple_genes <- c()
   for (i in seq_along(g)) {
@@ -237,6 +238,7 @@ create_target_scan_symbols <- function(merged_data, miRTarBase, miranda, TargetS
   return(merged.targets)
 }
 
+# PROCESS INPUTS ------------------------------------------------
 # check required inputs
 if (notset(argv$gene_expr) || notset(argv$mirna_expr) || notset(argv$organism)) {
   stop("One or more mandatory arguments are not given")

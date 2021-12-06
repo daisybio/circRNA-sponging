@@ -12,10 +12,10 @@ parser <- add_argument(parser, "--gene_expr", help = "Gene expression file in ts
 parser <- add_argument(parser, "--circ_rna", help = "Path to circ_rna detection results containing gene ids in tsv")
 parser <- add_argument(parser, "--mirna_expr", help = "miRNA expression file in tsv format")
 parser <- add_argument(parser, "--organism", help = "Organism given in three letter code")
-parser <- add_argument(parser, "--target_scan_symbols", help = "Matrix of target scan symbols provided as tsv")
-parser <- add_argument(parser, "--fdr", help = "FDR rate for ceRNA networks")
 # add all target scan symbol options to be included -> will generate final target scan symbols
 parser <- add_argument(parser, "--output_dir", help = "Output directory", default = "null")
+parser <- add_argument(parser, "--fdr", help = "FDR rate for ceRNA networks", default = 0.01)
+parser <- add_argument(parser, "--target_scan_symbols", help = "Matrix of target scan symbols provided as tsv", default = "null")
 parser <- add_argument(parser, "--miRTarBase_loc", help = "MiRTarBase data location in csv format", default = "null")
 parser <- add_argument(parser, "--miranda_data", help = "Miranda output data location in tsv format", default = "null")
 parser <- add_argument(parser, "--TargetScan_data", help = "TargetScan data location", default = "null")

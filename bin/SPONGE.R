@@ -249,14 +249,14 @@ target_scan_symbols_counts <- create_target_scan_symbols(merged_data = argv$targ
                                                         org_data = org_data)
 # SET MIRNA EXPRESSION
 print("reading miRNA expression...")
-mi_rna_expr <- as.data.frame(t(read.table(file = argv$mirna_expr, header = TRUE, sep = "\t")))
+mi_rna_expr <- as.data.frame(t(read.table(file = argv$mirna_expr, header = T, sep = "\t", quote = F)))
 # SET GENE EXPRESSION
 print("reading gene expression...")
-gene_expr <- as.data.frame(t(read.table(file = argv$gene_expr, header = T, sep = "\t")))
+gene_expr <- as.data.frame(t(read.table(file = argv$gene_expr, header = T, sep = "\t", quote = F)))
 
 # READ CIRC_RNA EXPRESSION AND COMBINE THEM
 print("adding circRNA expression...")
-circ_rna_expression <- as.data.frame(read.table(file = argv$circ_rna, header = T, sep = "\t"))
+circ_rna_expression <- as.data.frame(read.table(file = argv$circ_rna, header = T, sep = "\t", quote = F))
 circ_filtered <- 0
 # use db_annotation
 if (file.exists(argv$circ_annotation)) {
@@ -293,7 +293,7 @@ mi_rna_expr <- as.matrix(mi_rna_expr)
 mi_rna_expr[is.na(mi_rna_expr)] <- 0
 target_scan_symbols_counts <- as.matrix(target_scan_symbols_counts)
 
-save.image(file = file.path("sponge.RData"))
+save.image(file = file.path(out, "sponge.RData"))
 
 # ----------------------------- SPONGE -----------------------------
 # (A) gene-miRNA interactions
@@ -332,4 +332,4 @@ top_network_plot <- sponge_plot_network_centralities(weighted_network_centraliti
 png(file.path(out, "plots/top_ceRNA_network.png"))
 plot(top_network_plot)
 # save R objects
-save.image(file = file.path("sponge.RData"))
+save.image(file = file.path(out, "sponge.RData"))

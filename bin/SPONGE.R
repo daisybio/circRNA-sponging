@@ -13,7 +13,7 @@ parser <- add_argument(parser, "--circ_rna", help = "Path to circ_rna detection 
 parser <- add_argument(parser, "--mirna_expr", help = "miRNA expression file in tsv format")
 parser <- add_argument(parser, "--organism", help = "Organism given in three letter code")
 # add all target scan symbol options to be included -> will generate final target scan symbols
-parser <- add_argument(parser, "--output_dir", help = "Output directory", default = "null")
+parser <- add_argument(parser, "--output_dir", help = "Output directory", default = getwd())
 parser <- add_argument(parser, "--fdr", help = "FDR rate for ceRNA networks", default = 0.01)
 parser <- add_argument(parser, "--target_scan_symbols", help = "Matrix of target scan symbols provided as tsv", default = "null")
 parser <- add_argument(parser, "--miRTarBase_loc", help = "MiRTarBase data location in csv format", default = "null")
@@ -29,13 +29,10 @@ argv <- parse_args(parser, argv = args)
 print("-------------- PARAMETERS ----------------")
 print(argv)
 
-# change working dir if option was given
-if (!argv$output_dir == "null") {
-  dir.create(argv$output_dir, showWarnings = F)
-  setwd(argv$output_dir)
-}
+out <- argv$output_dir
+
 # create plots in cwd
-dir.create("plots", showWarnings = F)
+dir.create(file.path(out, "plots"), showWarnings = F)
 
 # define organism three letter codes
 org_codes <- list("ebv" = c("Epstein Barr virus", ""),
@@ -334,7 +331,7 @@ ceRNA_interactions <- SPONGE::sponge(gene_expr = gene_expr,
 mscor_null_model <- sponge_build_null_model(number_of_datasets = 100, number_of_samples = nrow(gene_expr))
 # simulation plot
 sim_plot <- sponge_plot_simulation_results(mscor_null_model)
-png("plots/simulation.png")
+png(file.path(out, "plots/simulation.png"))
 plot(sim_plot)
 # ceRNA interaction signs
 ceRNA_interactions_sign <- sponge_compute_p_values(sponge_result = ceRNA_interactions, 
@@ -343,7 +340,7 @@ ceRNA_interactions_sign <- sponge_compute_p_values(sponge_result = ceRNA_interac
 fdr <- as.double(argv$fdr)
 ceRNA_interactions_fdr <- ceRNA_interactions_sign[which(ceRNA_interactions_sign$p.adj < fdr),]
 ceRNA_network_plot <- sponge_plot_network(ceRNA_interactions_fdr, genes_miRNA_candidates)
-png("plots/ceRNA_network.png")
+png(file.path(out, "plots/ceRNA_network.png"))
 plot(ceRNA_network_plot)
 # NETWORK ANALYSIS
 network_centralities <- sponge_node_centralities(ceRNA_interactions_fdr)
@@ -354,7 +351,7 @@ weighted_network_centralities <- sponge_node_centralities(ceRNA_interactions_fdr
 # plot top n samples
 n = 3
 top_network_plot <- sponge_plot_network_centralities(weighted_network_centralities, top = n)
-png("plots/top_ceRNA_network.png")
+png(file.path(out, "plots/top_ceRNA_network.png"))
 plot(top_network_plot)
 # save R objects
-save.image(file = "sponge.RData")
+save.image(file = file.path("sponge.RData"))

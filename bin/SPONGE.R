@@ -98,8 +98,27 @@ split_encoding <- function(coded_vector) {
 }
 
 # get gene names for chromosomal regions in miranda output
-annotate_miranda <- function(miRTarBase_loc, ensembl_mart) {
-  df = data.frame(read.table(miRTarBase_loc, sep = "\t", header = T))
+annotate_miranda <- function(miranda_loc, org_data) {
+  # set up mart
+  mart <- 0
+  print("SETTING UP ENSEMBL MART")
+  not_done=TRUE
+  while(not_done)
+  {
+    tryCatch({
+      mart <- useDataset(org_data[2], useMart("ensembl"))
+      not_done=FALSE
+    }, warning = function(w) {
+      print("WARNING SECTION")
+      print(w)
+    }, error = function(e) {
+      print("ERROR SECTION")
+      print(e)
+    }, finally = {
+    })
+  }
+  
+  df = data.frame(read.table(miranda_loc, sep = "\t", header = T))
   targets = split_encoding(df$Target)
   
   print("Start mapping miranda ouptut to gene symbols")
@@ -115,7 +134,7 @@ annotate_miranda <- function(miRTarBase_loc, ensembl_mart) {
 }
 
 # use pipeline outputs to create target scan symbols
-create_target_scan_symbols <- function(merged_data, miRTarBase, miranda, TargetScan, lncBase, miRDB, org_name, ensembl_mart) {
+create_target_scan_symbols <- function(merged_data, miRTarBase, miranda, TargetScan, lncBase, miRDB, org_data) {
   print("CREATING TARGET SCAN SYMBOLS")
   # check targets
   start_file <- 0
@@ -139,10 +158,12 @@ create_target_scan_symbols <- function(merged_data, miRTarBase, miranda, TargetS
     print("using given targets")
     # unzip given file if it is
     if (argv$gz_targets) {
-      untar(merged_data)
-      merged_data <- paste0(strsplit(merged_data, "\\.")[[1]][1], ".tsv")
+      untar(merged_data, exdir = getw)
       split = strsplit(merged_data, "/")[[1]]
-      merged_data = split[length(split)]
+      merged_data <- split[length(split)]
+      merged_data <- paste0(strsplit(merged_data, "\\.")[[1]][1], ".tsv")
+      split[length(split)] <- merged_data
+      merged_data <- paste(split, collapse = "/")
     }
     merged_data_targets <- data.frame(read.table(merged_data, header = T, sep = "\t"))
   }
@@ -152,7 +173,7 @@ create_target_scan_symbols <- function(merged_data, miRTarBase, miranda, TargetS
     print("processing miRTarBase targets")
     miRTarBase_targets <- data.frame(read.csv(miRTarBase, header = T))
     # filter by organism
-    miRTarBase_targets <- miRTarBase_targets[miRTarBase_targets$Species..miRNA. == org_name,]
+    miRTarBase_targets <- miRTarBase_targets[miRTarBase_targets$Species..miRNA. == org_data[1],]
     # create target scan counts matrix
     miRTarBase_targets <- as.data.frame.matrix(table(miRTarBase_targets$miRNA, miRTarBase_targets$Target.Gene))
   }
@@ -160,7 +181,7 @@ create_target_scan_symbols <- function(merged_data, miRTarBase, miranda, TargetS
   miranda_targets <- NULL
   if (file.exists(miranda)) {
     print("processing miranda targets")
-    miranda_data <- data.frame(read.table(miranda, sep = "\t", header = T))
+    miranda_data <- annotate_miranda(miranda_loc = miranda_loc, org_data = org_data)
     miranda_targets <- as.data.frame.matrix(table(miranda_data$miRNA, miranda_data$gene_symbol))
   }
   # process TargetScan data
@@ -213,26 +234,9 @@ create_target_scan_symbols <- function(merged_data, miRTarBase, miranda, TargetS
 if (notset(argv$gene_expr) || notset(argv$mirna_expr) || notset(argv$organism)) {
   stop("One or more mandatory arguments are not given")
 }
+
 # choose organism
 org_data <- org_codes[argv$organism][[1]]
-# set up mart
-mart <- 0
-print("SETTING UP ENSEMBL MART")
-not_done=TRUE
-while(not_done)
-{
-  tryCatch({
-    mart <- useDataset(org_data[2], useMart("ensembl"))
-    not_done=FALSE
-  }, warning = function(w) {
-    print("WARNING SECTION")
-    print(w)
-  }, error = function(e) {
-    print("ERROR SECTION")
-    print(e)
-  }, finally = {
-  })
-}
 
 # SET TARGET SCAN SYMBOLS
 target_scan_symbols_counts <- create_target_scan_symbols(merged_data = argv$target_scan_symbols,
@@ -241,8 +245,7 @@ target_scan_symbols_counts <- create_target_scan_symbols(merged_data = argv$targ
                                                         TargetScan = argv$TargetScan_data,
                                                         lncBase = argv$lncBase_data,
                                                         miRDB = arv$miRDB_data,
-                                                        org_name = org_data[1],
-                                                        ensembl_mart = mart)
+                                                        org_data = org_data)
 # SET MIRNA EXPRESSION
 print("reading miRNA expression...")
 mi_rna_expr <- as.data.frame(t(read.table(file = argv$mirna_expr, header = TRUE, sep = "\t")))

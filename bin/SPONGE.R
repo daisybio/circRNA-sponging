@@ -293,6 +293,8 @@ mi_rna_expr <- as.matrix(mi_rna_expr)
 mi_rna_expr[is.na(mi_rna_expr)] <- 0
 target_scan_symbols_counts <- as.matrix(target_scan_symbols_counts)
 
+save.image(file = file.path("sponge.RData"))
+
 # ----------------------------- SPONGE -----------------------------
 # (A) gene-miRNA interactions
 genes_miRNA_candidates <- SPONGE::sponge_gene_miRNA_interaction_filter(

@@ -601,7 +601,7 @@ process filter_miRNAs{
     file(miRNA_counts_norm) from ch_miRNA_counts_norm1
 
     output:
-    file("miRNA_counts_filtered.tsv") into (ch_miRNA_counts_filtered1, ch_miRNA_counts_filtered2, ch_miRNA_counts_filtered3, ch_miRNA_counts_filtered4)
+    file("miRNA_counts_filtered.tsv") into (ch_miRNA_counts_filtered1, ch_miRNA_counts_filtered2, ch_miRNA_counts_filtered3)
 
     script:
     """
@@ -673,7 +673,7 @@ if (params.database_annotation) {
         file(gene_expression) from gene_expression_all
         file(circRNA_counts_filtered) from ch_circRNA_counts_filtered6
         file(circRNA_annotated) from circRNA_annotated
-        file(mirna_expression) from ch_miRNA_counts_filtered4
+        file(mirna_expression) from ch_miRNA_counts_filtered3
         file(miranda_bind_sites) from ch_bindsites_filtered2
 
         output:
@@ -706,7 +706,7 @@ if (params.database_annotation) {
         input:
         file(gene_expression) from gene_expression_all
         file(circRNA_counts_filtered) from ch_circRNA_counts_filtered6
-        file(mirna_expression) from ch_miRNA_counts_filtered4
+        file(mirna_expression) from ch_miRNA_counts_filtered3
         file(miranda_bind_sites) from ch_bindsites_filtered2
 
         output:

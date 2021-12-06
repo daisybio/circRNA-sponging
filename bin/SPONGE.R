@@ -5,8 +5,6 @@ library(biomaRt)
 library(argparser)
 library(data.table)
 # library(ggplot2)
-# create dirs in cwd
-dir.create("plots", showWarnings = FALSE)
 args = commandArgs(trailingOnly = TRUE)
 
 parser <- arg_parser("Argument parser for SPONGE analysis", name = "SPONGE_parser")
@@ -17,15 +15,24 @@ parser <- add_argument(parser, "--organism", help = "Organism given in three let
 parser <- add_argument(parser, "--target_scan_symbols", help = "Matrix of target scan symbols provided as tsv")
 parser <- add_argument(parser, "--fdr", help = "FDR rate for ceRNA networks")
 # add all target scan symbol options to be included -> will generate final target scan symbols
+parser <- add_argument(parser, "--output_dir", help = "Output directory", default = "null")
 parser <- add_argument(parser, "--miRTarBase_loc", help = "MiRTarBase data location in csv format", default = "null")
 parser <- add_argument(parser, "--miranda_data", help = "Miranda output data location in tsv format", default = "null")
 parser <- add_argument(parser, "--TargetScan_data", help = "TargetScan data location", default = "null")
 parser <- add_argument(parser, "--lncBase_data", help = "LncBase data location", default = "null")
 parser <- add_argument(parser, "--miRDB_data", help = "miRDB data location", default = "null")
-parser <- add_argument(parser, "--gz_targets", help = "Target scan symbols file is compressed", default = F, flag = T)
+parser <- add_argument(parser, "--gz_targets", help = "Target scan symbols file is compressed", flag = T)
 parser <- add_argument(parser, "--circ_annotation", help = "Path to circRNA annotation file containing circBaseIDs and genomic position of circRNAs", default = "null")
 
 argv <- parse_args(parser, argv = args)
+
+# change working dir if option was given
+if (!argv$output_dir == "null") {
+  dir.create(argv$output_dir, showWarnings = F)
+  setwd(argv$output_dir)
+}
+# create plots in cwd
+dir.create("plots", showWarnings = F)
 
 # define organism three letter codes
 org_codes <- list("ebv" = c("Epstein Barr virus", ""),

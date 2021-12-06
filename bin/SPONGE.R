@@ -286,9 +286,9 @@ mi_rna_expr <- as.matrix(mi_rna_expr)
 mi_rna_expr[is.na(mi_rna_expr)] <- 0
 # filter for matching samples
 print("gene_expr samples:")
-nrows(gene_expr)
+nrow(gene_expr)
 print("miRNA expr samples:")
-nrows(mi_rna_expr)
+nrow(mi_rna_expr)
 gene_expr <- gene_expr[rownames(mi_rna_expr),]
 target_scan_symbols_counts <- as.matrix(target_scan_symbols_counts)
 

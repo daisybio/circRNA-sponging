@@ -147,17 +147,10 @@ create_target_scan_symbols <- function(merged_data, miRTarBase, miranda, TargetS
   # check targets
   start_file <- 0
   data <- list(merged_data, miRTarBase, miranda, TargetScan, lncBase, miRDB)
-  run <- T
-  idx <- 1
-  while (run && idx <= length(data)) {
-    if (file.exists(data[[idx]])) {
-      start_file <- data[[idx]]
-      run <- F
-    }
-    idx = idx + 1
-  }
-  if (start_file == 0) {
-    stop("At least one target scan file has to be provided")
+  
+  # check files
+  if (length(Filter(file.exists, test)) == 0) {
+    stop("Error: At least one target symbol file has to be supplied")
   }
   
   # process given targets

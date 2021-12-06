@@ -252,23 +252,7 @@ print("reading miRNA expression...")
 mi_rna_expr <- as.data.frame(t(read.table(file = argv$mirna_expr, header = TRUE, sep = "\t")))
 # SET GENE EXPRESSION
 print("reading gene expression...")
-gene_expr <- as.data.frame(read.table(file = argv$gene_expr, header = T, sep = "\t"))
-# Make genes simple -> ENSG0000001.1 -> ENSG00000001
-rownames(gene_expr) <- remove_ext(rownames(gene_expr))
-# get gene names for ENS ids
-print("converting...")
-gene_names <- getBM(filters = "ensembl_gene_id", attributes = c("ensembl_gene_id", "hgnc_symbol"), values = rownames(gene_expr), mart = mart)
-# keep unconverted ids
-conversion_failures <- rownames(gene_names[gene_names$hgnc_symbol == "",])
-gene_names[conversion_failures, "hgnc_symbol"] <- gene_names[conversion_failures, "ensembl_gene_id"]
-# converting gene ids and reformatting file
-gene_expr <- merge(gene_expr, gene_names, by.x = 0, by.y = "ensembl_gene_id")
-cat(length(conversion_failures), "genes were not converted due to conversion failure", "\n")
-gene_expr$Row.names <- NULL
-# remove duplicates
-gene_expr <- aggregate(gene_expr[,-1], list(hgnc_symbol=gene_expr$hgnc_symbol), FUN = sum)
-rownames(gene_expr) <- gene_expr$hgnc_symbol
-gene_expr$hgnc_symbol <- NULL
+gene_expr <- as.data.frame(t(read.table(file = argv$gene_expr, header = T, sep = "\t")))
 
 # READ CIRC_RNA EXPRESSION AND COMBINE THEM
 print("adding circRNA expression...")

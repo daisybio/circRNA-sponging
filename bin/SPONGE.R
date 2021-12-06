@@ -213,9 +213,9 @@ create_target_scan_symbols <- function(merged_data, miRTarBase, miranda, TargetS
         # redo columns
         colnames(merged.targets) <- sapply(strsplit(colnames(merged.targets), "\\."), "[", 1)
         # reformat rows
-        rownames(merged.targets) <- merged.targets$Row
+        rownames(merged.targets) <- merged.targets[1]
         # drop Row
-        merged.targets$Row <- NULL
+        merged.targets[1] <- NULL
         # remove NAs
         merged.targets[is.na(merged.targets)] <- 0
         # combine tables
@@ -224,8 +224,6 @@ create_target_scan_symbols <- function(merged_data, miRTarBase, miranda, TargetS
     }
   }
   merged.targets[is.na(merged.targets)] <- 0
-  rownames(merged.targets) <- merged.targets$Gene
-  merged.targets$Gene <- NULL
   # return contingency table
   return(merged.targets)
 }
@@ -291,6 +289,7 @@ gene_expr[is.na(gene_expr)] <- 0
 gene_expr <- as.matrix(gene_expr)
 mi_rna_expr[is.na(mi_rna_expr)] <- 0
 mi_rna_expr <- as.matrix(mi_rna_expr)
+target_scan_symbols_counts <- as.matrix(t(target_scan_symbols_counts))
 
 # ----------------------------- SPONGE -----------------------------
 # (A) gene-miRNA interactions

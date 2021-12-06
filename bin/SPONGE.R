@@ -18,11 +18,11 @@ parser <- add_argument(parser, "--fdr", help = "FDR rate for ceRNA networks", de
 parser <- add_argument(parser, "--target_scan_symbols", help = "Matrix of target scan symbols provided as tsv", default = "null")
 parser <- add_argument(parser, "--miRTarBase_loc", help = "MiRTarBase data location in csv format", default = "null")
 parser <- add_argument(parser, "--miranda_data", help = "Miranda output data location in tsv format", default = "null")
-parser <- add_argument(parser, "--TargetScan_data", help = "TargetScan data location", default = "null")
-parser <- add_argument(parser, "--lncBase_data", help = "LncBase data location", default = "null")
-parser <- add_argument(parser, "--miRDB_data", help = "miRDB data location", default = "null")
+parser <- add_argument(parser, "--TargetScan_data", help = "TargetScan data location in tsv format", default = "null")
+parser <- add_argument(parser, "--lncBase_data", help = "LncBase data location in tsv format", default = "null")
+parser <- add_argument(parser, "--miRDB_data", help = "miRDB data location in tsv format", default = "null")
 parser <- add_argument(parser, "--gz_targets", help = "Target scan symbols file is compressed", flag = T)
-parser <- add_argument(parser, "--circ_annotation", help = "Path to circRNA annotation file containing circBaseIDs and genomic position of circRNAs", default = "null")
+parser <- add_argument(parser, "--circ_annotation", help = "Path to circRNA annotation file containing circBaseIDs and genomic position of circRNAs in tsv format", default = "null")
 
 argv <- parse_args(parser, argv = args)
 
@@ -253,7 +253,7 @@ target_scan_symbols_counts <- create_target_scan_symbols(merged_data = argv$targ
                                                         miranda = argv$miranda_data,
                                                         TargetScan = argv$TargetScan_data,
                                                         lncBase = argv$lncBase_data,
-                                                        miRDB = arv$miRDB_data,
+                                                        miRDB = argv$miRDB_data,
                                                         org_data = org_data)
 # SET MIRNA EXPRESSION
 print("reading miRNA expression...")

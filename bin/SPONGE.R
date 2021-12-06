@@ -163,8 +163,7 @@ create_target_scan_symbols <- function(merged_data, miRTarBase, miranda, TargetS
       split = strsplit(merged_data, "/")[[1]]
       merged_data <- split[length(split)]
       merged_data <- paste0(strsplit(merged_data, "\\.")[[1]][1], ".tsv")
-      split[length(split)] <- merged_data
-      merged_data <- paste(split, collapse = "/")
+      merged_data <- file.path(out, merged_data)
     }
     merged_data_targets <- data.frame(read.table(merged_data, header = T, sep = "\t"))
   }

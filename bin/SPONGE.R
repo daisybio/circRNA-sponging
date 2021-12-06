@@ -249,7 +249,7 @@ target_scan_symbols_counts <- create_target_scan_symbols(merged_data = argv$targ
                                                         org_data = org_data)
 # SET MIRNA EXPRESSION
 print("reading miRNA expression...")
-mi_rna_expr <- as.data.frame(t(read.table(file = argv$mirna_expr, header = T, sep = "\t")))
+mi_rna_expr <- t(data.frame(read.table(file = argv$mirna_expr, header = T, sep = "\t"), row.names = 1))
 # SET GENE EXPRESSION
 print("reading gene expression...")
 gene_expr <- as.data.frame(t(read.table(file = argv$gene_expr, header = T, sep = "\t")))
@@ -288,7 +288,9 @@ gene_expr <- gene_expr[rownames(mi_rna_expr),]
 
 # transform for sponge
 gene_expr[is.na(gene_expr)] <- 0
+gene_expr <- as.matrix(gene_expr)
 mi_rna_expr[is.na(mi_rna_expr)] <- 0
+mi_rna_expr <- as.matrix(mi_rna_expr)
 
 # ----------------------------- SPONGE -----------------------------
 # (A) gene-miRNA interactions

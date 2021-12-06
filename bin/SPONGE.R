@@ -275,10 +275,9 @@ circ_filtered <- circ_filtered[, 7:length(circ_filtered)]
 circ_filtered <- circ_filtered[complete.cases(circ_filtered),]
 rownames(circ_filtered) <- circ_filtered$circRNA.ID
 circ_filtered$circRNA.ID <- NULL
+circ_filtered <- as.data.frame(t(circ_filtered))
 
-gene_expr_test <- rbind(gene_expr, circ_filtered)
-
-gene_expr <- data.frame(t(gene_expr))
+gene_expr <- cbind(gene_expr, circ_filtered)
 gene_expr[is.na(gene_expr)] <- 0
 
 # transform for sponge

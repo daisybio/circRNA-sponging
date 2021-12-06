@@ -290,8 +290,6 @@ gene_expr <- gene_expr[rownames(mi_rna_expr),]
 gene_expr[is.na(gene_expr)] <- 0
 mi_rna_expr[is.na(mi_rna_expr)] <- 0
 
-save.image(file = file.path(out, "sponge.RData"))
-
 # ----------------------------- SPONGE -----------------------------
 # (A) gene-miRNA interactions
 genes_miRNA_candidates <- SPONGE::sponge_gene_miRNA_interaction_filter(

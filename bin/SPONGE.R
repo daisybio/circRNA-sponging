@@ -278,18 +278,19 @@ circ_filtered$circRNA.ID <- NULL
 circ_filtered <- as.data.frame(t(circ_filtered))
 
 gene_expr <- cbind(gene_expr, circ_filtered)
-gene_expr[is.na(gene_expr)] <- 0
 
-# transform for sponge
-gene_expr <- as.matrix(gene_expr)
-mi_rna_expr <- as.matrix(mi_rna_expr)
-mi_rna_expr[is.na(mi_rna_expr)] <- 0
 # filter for matching samples
 print("gene_expr samples:")
 nrow(gene_expr)
 print("miRNA expr samples:")
 nrow(mi_rna_expr)
 gene_expr <- gene_expr[rownames(mi_rna_expr),]
+
+# transform for sponge
+gene_expr <- as.matrix(gene_expr)
+gene_expr[is.na(gene_expr)] <- 0
+mi_rna_expr <- as.matrix(mi_rna_expr)
+mi_rna_expr[is.na(mi_rna_expr)] <- 0
 target_scan_symbols_counts <- as.matrix(target_scan_symbols_counts)
 
 # ----------------------------- SPONGE -----------------------------

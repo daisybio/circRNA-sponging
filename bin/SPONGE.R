@@ -291,6 +291,13 @@ mi_rna_expr[is.na(mi_rna_expr)] <- 0
 mi_rna_expr <- as.matrix(mi_rna_expr)
 target_scan_symbols_counts <- as.matrix(t(target_scan_symbols_counts))
 
+print("Gene expr:")
+print(gene_expr[1:5, 1:5])
+print("miRNA expr:")
+print(mi_rna_expr[1:5, 1:5])
+print("target scan symbols:")
+print(target_scan_symbols_counts[1:5, 1:5])
+
 # ----------------------------- SPONGE -----------------------------
 # SET UP CLUSTER
 library(doParallel)

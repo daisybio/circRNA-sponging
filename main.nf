@@ -218,6 +218,23 @@ process salmon_quant {
     }
 }
 
+process combine_expression {
+    label 'process_medium'
+    publishDir "${params.out_dir}/results/gene_expression", mode: params.publish_dir_mode
+
+    input:
+    val(sampleID) from samples.collect()
+
+    output:
+    file("gene_expression.tsv") into gene_expression
+    file("txi.RDS") into txiRDS
+
+    script:
+    """
+    Rscript combine_expression.R "${params.out_dir}/samples/" $params.samplesheet $gtf
+    """
+}
+
 /*
 * PARSE STAR OUTPUT INTO CIRCExplorer2 FORMAT
 */
@@ -352,15 +369,13 @@ if (params.database_annotation){
 if (params.differential_expression){
     process differential_expression {
         label 'process_medium'
-        publishDir "${params.out_dir}/results/differential_expression/", mode: params.publish_dir_mode
+        publishDir "${params.out_dir}/results/gene_expression/differential_expression", mode: params.publish_dir_mode
 
         input:
         file(circRNAs_filtered) from ch_circRNA_counts_filtered2
-        file(gtf) from ch_gtf
-        val(samples_all) from samples.collect()
+        file(txiRDS) from txiRDS
 
         output:
-        file("gene_expression.tsv") into gene_expression_all
         file("total_rna/total_rna.tsv") into deseq_total_rna
         file("circ_rna/circ_rna.tsv") into deseq_circ_rna
         file("total_rna/*.png") into total_plots
@@ -369,7 +384,7 @@ if (params.differential_expression){
 
         script:
         """
-        Rscript "${projectDir}"/bin/differentialExpression.R "${params.out_dir}/samples/" $params.samplesheet $gtf $circRNAs_filtered
+        Rscript "${projectDir}"/bin/differentialExpression.R $txiRDS $params.samplesheet $circRNAs_filtered
         """
     }
 }
@@ -670,7 +685,7 @@ if (params.database_annotation) {
         publishDir "${params.out_dir}/results/SPONGE", mode: params.publish_dir_mode
 
         input:
-        file(gene_expression) from gene_expression_all
+        file(gene_expression) from gene_expression
         file(circRNA_counts_filtered) from ch_circRNA_counts_filtered6
         file(circRNA_annotated) from circRNA_annotated
         file(mirna_expression) from ch_miRNA_counts_filtered3
@@ -704,7 +719,7 @@ if (params.database_annotation) {
         publishDir "${params.out_dir}/results/SPONGE", mode: params.publish_dir_mode
 
         input:
-        file(gene_expression) from gene_expression_all
+        file(gene_expression) from gene_expression
         file(circRNA_counts_filtered) from ch_circRNA_counts_filtered6
         file(mirna_expression) from ch_miRNA_counts_filtered3
         file(miranda_bind_sites) from ch_bindsites_filtered2

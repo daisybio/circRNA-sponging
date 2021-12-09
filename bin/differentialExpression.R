@@ -49,29 +49,11 @@ create_outputs <- function(d, results, marker, out, filteredRows) {
            height = 15, width = 25, legend = F)
 }
 
-# read gene expression counts
-samples_loc <- args[1]
+txi <- readRDS(args[1])
 
 # metadata
 samplesheet <- read.table(file = args[2], sep = "\t", header = TRUE)
 
-# get quant files
-quant.files <- file.path(samples_loc, samplesheet$sample, "salmon", "quant.sf")
-names(quant.files) <- samplesheet$sample
-
-# read input gtf
-txdb <- ensembldb::ensDbFromGtf(args[3])
-tx <- ensembldb::EnsDb(txdb)
-tx2gene <- ensembldb::transcripts(tx, return.type = "data.frame", columns = c("gene_name", "gene_id"))
-# failures <- rownames(tx2gene[is.na(tx2gene$gene_name),])
-# tx2gene[failures, "gene_name"] <- tx2gene[failures, "gene_id"]
-tx2gene <- tx2gene[, c("tx_id", "gene_id")]
-# txi object
-txi <- tximport::tximport(quant.files, type="salmon", tx2gene=tx2gene, ignoreTxVersion = T)
-# write total gene expression over samples to file
-counts <- as.data.frame(txi$counts)
-colnames(counts) <- samplesheet$sample
-write.table(counts, file = "gene_expression.tsv", sep = "\t")
 # dds object
 dds <- DESeq2::DESeqDataSetFromTximport(txi,
                                 colData = samplesheet,
@@ -90,7 +72,7 @@ DESeq2::summary(res)
 # total_RNA
 create_outputs(d = dds, results = res, marker = "condition", out = "total_rna", filteredRows = NULL)
 # circRNA only
-circ_RNAs <- read.table(file = args[4], sep = "\t", header = TRUE)
+circ_RNAs <- read.table(file = args[3], sep = "\t", header = TRUE)
 ens_ids <- circ_RNAs$ensembl_gene_ID
 dds_filtered <- dds
 filtered_res <- res[row.names(res) %in% ens_ids,]

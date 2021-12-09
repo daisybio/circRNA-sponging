@@ -28,22 +28,22 @@ create_outputs <- function(d, results, marker, out, filteredRows) {
   d@colData@listData <- as.list(df)
   d@colData@rownames <- rownames(df)
   df <- df[,c("sample", "condition")]
-  # normalization
-  ntd <- DESeq2::normTransform(d)
-  select <- order(rowMeans(counts(d,normalized=TRUE)),
-                  decreasing=TRUE)[1:20]
+  
   # filter
   if (is.null(filteredRows)) {
     top_genes <- head(order(rowVars(assay(deseq_vst)), decreasing = T), 20)
+    filtered <- assay(deseq_vst)[top_genes,]
   } else {
-    top_genes <- order(rowVars(assay(deseq_vst)), decreasing = T)
-    top_genes <- top_genes[filteredRows]
+    filtered <- assay(deseq_vst)
+    filtered <- filtered[row.names(filtered) %in% filteredRows,]
+    top_genes <- head(order(rowVars(filtered), decreasing = T), 20)
+    filtered <- filtered[top_genes,]
   }
-  match <- assay(deseq_vst)[top_genes,]
+
   # set output file loc
   heatmap_name <- paste(out, "HMAP", sep = "_")
   # plot heatmap
-  pheatmap::pheatmap(match, cluster_rows=T, show_rownames=T,
+  pheatmap::pheatmap(filtered, cluster_rows=T, show_rownames=T,
            cluster_cols=T, annotation_col=df,
            filename = file.path(out, paste(heatmap_name, "png", sep = ".")),
            height = 15, width = 25, legend = F)

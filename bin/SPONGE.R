@@ -292,6 +292,18 @@ mi_rna_expr <- as.matrix(mi_rna_expr)
 target_scan_symbols_counts <- as.matrix(t(target_scan_symbols_counts))
 
 # ----------------------------- SPONGE -----------------------------
+# SET UP CLUSTER
+library(doParallel)
+library(foreach)
+
+logging.file <- ".sponge.log"
+
+num.of.cores <- 15
+
+cl <- makeCluster(num.of.cores, outfile=logging.file) 
+registerDoParallel(cl)
+
+
 # (A) gene-miRNA interactions
 genes_miRNA_candidates <- SPONGE::sponge_gene_miRNA_interaction_filter(
   gene_expr = gene_expr,
@@ -301,6 +313,9 @@ genes_miRNA_candidates <- SPONGE::sponge_gene_miRNA_interaction_filter(
 ceRNA_interactions <- SPONGE::sponge(gene_expr = gene_expr,
                              mir_expr = mi_rna_expr,
                              mir_interactions = genes_miRNA_candidates)
+
+stopCluster(cl) # stop cluster
+
 # (C) Null-model-based p-value computation
 mscor_null_model <- sponge_build_null_model(number_of_datasets = 100, number_of_samples = nrow(gene_expr))
 # simulation plot

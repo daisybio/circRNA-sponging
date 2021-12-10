@@ -218,6 +218,9 @@ process salmon_quant {
     }
 }
 
+/*
+* COMBINE SALMON TRANSCRIPT EXPRESSIONS INTO ONE AND CONVERT TO GENES
+*/
 process combine_expression {
     label 'process_medium'
     publishDir "${params.out_dir}/results/gene_expression", mode: params.publish_dir_mode

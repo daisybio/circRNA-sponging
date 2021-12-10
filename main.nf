@@ -235,7 +235,7 @@ process combine_expression {
 
     script:
     """
-    Rscript combine_expression.R "${params.out_dir}/samples/" $params.samplesheet $gtf
+    Rscript "${projectDir}"/bin/combine_expression.R "${params.out_dir}/samples/" $params.samplesheet $gtf
     """
 }
 

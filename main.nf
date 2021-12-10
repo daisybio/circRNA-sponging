@@ -226,6 +226,7 @@ process combine_expression {
     publishDir "${params.out_dir}/results/gene_expression", mode: params.publish_dir_mode
 
     input:
+    file(gtf) from ch_gtf
     val(sampleID) from samples.collect()
 
     output:

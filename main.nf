@@ -690,7 +690,7 @@ if (params.database_annotation) {
         input:
         file(gene_expression) from gene_expression
         file(circRNA_counts_filtered) from ch_circRNA_counts_filtered6
-        file(circRNA_annotated) from circRNA_annotated
+        file(circRNA_annotated) from circRNAs_annotated
         file(mirna_expression) from ch_miRNA_counts_filtered3
         file(miranda_bind_sites) from ch_bindsites_filtered2
 

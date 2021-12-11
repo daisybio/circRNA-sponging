@@ -90,18 +90,14 @@ notset <- function(x) {
 }
 
 split_encoding <- function(coded_vector) {
-  d <- c()
-  for (i in seq_along(coded_vector)) {
-    split1 <- strsplit(coded_vector[i], "_")
-    strand <- det_strand(split1[[1]][2])
-    split2 <- strsplit(split1[[1]][1], ":")
-    chr <- substr(split2[[1]][1], 4, 5)
-    split3 <- strsplit(split2[[1]][2], "-")
-    start <- split3[[1]][1]
-    end <- split3[[1]][2]
-    d <- c(d, paste(c(chr, start, end, strand), collapse = ":"))
-  }
-  return(d)
+  split1 <- strsplit(coded_vector, "_")
+  strand <- det_strand(split1[[1]][2])
+  split2 <- strsplit(split1[[1]][1], ":")
+  chr <- substr(split2[[1]][1], 4, 5)
+  split3 <- strsplit(split2[[1]][2], "-")
+  start <- split3[[1]][1]
+  end <- split3[[1]][2]
+  return(paste(c(chr, start, end, strand), collapse = ":"))
 }
 
 # get gene names for chromosomal regions in miranda output
@@ -126,15 +122,18 @@ annotate_miranda <- function(miranda_loc, org_data) {
   }
   
   df = data.frame(read.table(miranda_loc, sep = "\t", header = T))
-  targets = split_encoding(df$Target)
+  targets <- df$Target
+  targets <- targets[!duplicated(targets)]
+  n = length(targets)
   
-  print("Start mapping miranda ouptut to gene symbols")
+  print("Start mapping miranda output coordinates to gene symbols")
   for (i in seq_along(targets)) {
     gene.Symbol <- getBM(attributes = "hgnc_symbol",
                          filters = c("chromosomal_region"),
-                         values=targets[i],
+                         values=split_encoding(targets[i]),
                          mart=ensembl_mart)
     df[i, "gene_symbol"] <- gene.Symbol
+    cat("...", eval(i/n))
   }
   print("Finished mapping miranda ouptut")
   return(df)
@@ -166,27 +165,27 @@ create_target_scan_symbols <- function(merged_data, miRTarBase, miranda, TargetS
     # filter by organism
     miRTarBase_targets <- miRTarBase_targets[miRTarBase_targets$Species..miRNA. == org_data[1],]
     # create target scan counts matrix
-    miRTarBase_targets <- as.data.frame.matrix(table(miRTarBase_targets$miRNA, miRTarBase_targets$Target.Gene))
+    miRTarBase_targets <- as.data.frame.matrix(table(miRTarBase_targets$Target.Gene, miRTarBase_targets$miRNA))
   }
   # process targets from miranda
   miranda_targets <- NULL
   if (file.exists(miranda)) {
     print("processing miranda targets")
     miranda_data <- annotate_miranda(miranda_loc = miranda_loc, org_data = org_data)
-    miranda_targets <- as.data.frame.matrix(table(miranda_data$miRNA, miranda_data$gene_symbol))
+    miranda_targets <- as.data.frame.matrix(table(miranda_data$gene_symbol, miranda_data$miRNA))
   }
   # process TargetScan data
   target_scan_targets <- NULL
   if (file.exists(TargetScan)) {
     print("processing TargetScan data")
     target_scan_data <- data.frame(read.table(TargetScan, header = T, sep = "\t"))
-    target_scan_targets <- as.data.frame.matrix(table(target_scan_data$miR.Family, target_scan_data$Gene.Symbol))
+    target_scan_targets <- as.data.frame.matrix(table(target_scan_data$Gene.Symbol, target_scan_data$miR.Family))
   }
   # process lncBase data
   lncBase_targets <- NULL
   if (file.exists(lncBase)) {
     print("processing lncBase data")
-    lncBase_targets <- as.data.frame(t(data.frame(read.table(lncBase, sep = "\t", header = T))))
+    lncBase_targets <- as.data.frame(data.frame(read.table(lncBase, sep = "\t", header = T)))
   }
   
   # MERGE DATA

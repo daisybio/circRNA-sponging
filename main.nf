@@ -704,7 +704,7 @@ if (params.database_annotation) {
         Rscript "${projectDir}"/bin/SPONGE.R \\
         --gene_expr $gene_expression \\
         --circ_rna $circRNA_counts_filtered \\
-        --circ_annotated $circRNA_annotated \\
+        --circ_annotated $circRNA_annotation \\
         --mirna_expr $mirna_expression \\
         --organism $params.organism \\
         --fdr $params.fdr \\

@@ -6,7 +6,9 @@ from bs4 import BeautifulSoup as bs
 from selenium import webdriver
 import pandas
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import Select
+from selenium.webdriver.support.ui import Select, WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.firefox.options import Options
 
 parser = argparse.ArgumentParser()
@@ -194,13 +196,6 @@ def read_html(response):
     return read_db_data_to_dict(header, data)
 
 
-# handle html response from database
-def process_db_response(response, converted_circ_data, output_loc):
-    db_dict = read_html(response)
-    direct_matches = {x: converted_circ_data[x] for x in set(converted_circ_data.keys()).intersection(set(db_dict.keys()))}
-    write_mapping_file(direct_matches, db_dict, output_loc, "\t")
-
-
 # make request using selenium
 def online_access(upload_file, converted_circ_data, output_loc):
     # get circBase url
@@ -220,8 +215,16 @@ def online_access(upload_file, converted_circ_data, output_loc):
     driver.find_element(By.ID, "queryfile").send_keys(upload_file)
     # submit form and retrieve data
     driver.find_element(By.ID, "submit").click()
+    delay = 10  # seconds
+    try:
+        WebDriverWait(driver, delay).until(EC.presence_of_element_located((By.ID, 'tablesorter')))
+        print("Results have appeared")
+    except TimeoutException:
+        print("Loading took too much time")
     # process response
-    process_db_response(driver.page_source, converted_circ_data, output_loc)
+    db_dict = read_html(driver.page_source)
+    direct_matches = {x: converted_circ_data[x] for x in set(converted_circ_data.keys()).intersection(set(db_dict.keys()))}
+    write_mapping_file(direct_matches, db_dict, output_loc, "\t")
     # close driver
     driver.quit()
 

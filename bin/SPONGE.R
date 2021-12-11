@@ -4,7 +4,7 @@ library(SPONGE)
 library(biomaRt)
 library(argparser)
 library(data.table)
-# library(ggplot2)
+
 args = commandArgs(trailingOnly = TRUE)
 
 parser <- arg_parser("Argument parser for SPONGE analysis", name = "SPONGE_parser")
@@ -21,7 +21,6 @@ parser <- add_argument(parser, "--miranda_data", help = "Miranda output data loc
 parser <- add_argument(parser, "--TargetScan_data", help = "TargetScan data location in tsv format", default = "null")
 parser <- add_argument(parser, "--lncBase_data", help = "LncBase data location in tsv format", default = "null")
 parser <- add_argument(parser, "--miRDB_data", help = "miRDB data location in tsv format", default = "null")
-parser <- add_argument(parser, "--gz_targets", help = "Target scan symbols file is compressed", flag = T)
 parser <- add_argument(parser, "--circ_annotation", help = "Path to circRNA annotation file containing circBaseIDs and genomic position of circRNAs in tsv format", default = "null")
 
 argv <- parse_args(parser, argv = args)
@@ -157,14 +156,6 @@ create_target_scan_symbols <- function(merged_data, miRTarBase, miranda, TargetS
   merged_data_targets <- NULL
   if (file.exists(merged_data)) {
     print("using given targets")
-    # unzip given file if it is
-    if (argv$gz_targets) {
-      untar(merged_data, exdir = out)
-      split = strsplit(merged_data, "/")[[1]]
-      merged_data <- split[length(split)]
-      merged_data <- paste0(strsplit(merged_data, "\\.")[[1]][1], ".tsv")
-      merged_data <- file.path(out, merged_data)
-    }
     merged_data_targets <- data.frame(read.table(merged_data, header = T, sep = "\t"))
   }
   # process miRTarBase

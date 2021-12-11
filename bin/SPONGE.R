@@ -1,9 +1,9 @@
 #!/usr/bin/env Rscript
 
 library(SPONGE)
-library(biomaRt)
 library(argparser)
 library(data.table)
+require(svMisc)
 
 args = commandArgs(trailingOnly = TRUE)
 
@@ -17,7 +17,7 @@ parser <- add_argument(parser, "--output_dir", help = "Output directory", defaul
 parser <- add_argument(parser, "--fdr", help = "FDR rate for ceRNA networks", default = 0.01)
 parser <- add_argument(parser, "--target_scan_symbols", help = "Matrix of target scan symbols provided as tsv", default = "null")
 parser <- add_argument(parser, "--miRTarBase_loc", help = "MiRTarBase data location in csv format", default = "null")
-parser <- add_argument(parser, "--miranda_data", help = "Miranda output data location in tsv format", default = "null")
+parser <- add_argument(parser, "--miranda_data", help = "Annotated miranda contigency table", default = "null")
 parser <- add_argument(parser, "--TargetScan_data", help = "TargetScan data location in tsv format", default = "null")
 parser <- add_argument(parser, "--lncBase_data", help = "LncBase data location in tsv format", default = "null")
 parser <- add_argument(parser, "--miRDB_data", help = "miRDB data location in tsv format", default = "null")
@@ -73,10 +73,10 @@ det_strand <- function(x) {
   if (x == "-") {
     return("-1")
   }
-  if (x == "1") {
+  if (x == 1) {
     return("+")
   }
-  if (x == "-1") {
+  if (x == -1) {
     return("-")
   }
 }
@@ -98,45 +98,6 @@ split_encoding <- function(coded_vector) {
   start <- split3[[1]][1]
   end <- split3[[1]][2]
   return(paste(c(chr, start, end, strand), collapse = ":"))
-}
-
-# get gene names for chromosomal regions in miranda output
-annotate_miranda <- function(miranda_loc, org_data) {
-  # set up mart
-  mart <- 0
-  print("SETTING UP ENSEMBL MART")
-  not_done=TRUE
-  while(not_done)
-  {
-    tryCatch({
-      mart <- useDataset(org_data[2], useMart("ensembl"))
-      not_done=FALSE
-    }, warning = function(w) {
-      print("WARNING SECTION")
-      print(w)
-    }, error = function(e) {
-      print("ERROR SECTION")
-      print(e)
-    }, finally = {
-    })
-  }
-  
-  df = data.frame(read.table(miranda_loc, sep = "\t", header = T))
-  targets <- df$Target
-  targets <- targets[!duplicated(targets)]
-  n = length(targets)
-  
-  print("Start mapping miranda output coordinates to gene symbols")
-  for (i in seq_along(targets)) {
-    gene.Symbol <- getBM(attributes = "hgnc_symbol",
-                         filters = c("chromosomal_region"),
-                         values=split_encoding(targets[i]),
-                         mart=ensembl_mart)
-    df[i, "gene_symbol"] <- gene.Symbol
-    cat("...", eval(i/n))
-  }
-  print("Finished mapping miranda ouptut")
-  return(df)
 }
 
 # use pipeline outputs to create target scan symbols
@@ -171,8 +132,7 @@ create_target_scan_symbols <- function(merged_data, miRTarBase, miranda, TargetS
   miranda_targets <- NULL
   if (file.exists(miranda)) {
     print("processing miranda targets")
-    miranda_data <- annotate_miranda(miranda_loc = miranda_loc, org_data = org_data)
-    miranda_targets <- as.data.frame.matrix(table(miranda_data$gene_symbol, miranda_data$miRNA))
+    miranda_targets <- data.frame(read.table(miranda, header = T, sep = "\t"))
   }
   # process TargetScan data
   target_scan_targets <- NULL
@@ -279,7 +239,7 @@ gene_expr[is.na(gene_expr)] <- 0
 gene_expr <- as.matrix(gene_expr)
 mi_rna_expr[is.na(mi_rna_expr)] <- 0
 mi_rna_expr <- as.matrix(mi_rna_expr)
-target_scan_symbols_counts <- as.matrix(t(target_scan_symbols_counts))
+target_scan_symbols_counts <- as.matrix(target_scan_symbols_counts)
 
 print("Gene expr:")
 print(gene_expr[1:5, 1:5])

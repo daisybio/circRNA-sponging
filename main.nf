@@ -112,7 +112,7 @@ ch_totalRNA_reads2=Channel.fromPath(params.samplesheet)
    .map { get_circRNA_paths(it) }
 
 ch_fasta = Channel.value(file(params.fasta))
-ch_gtf = Channel.value(file(params.gtf))
+Channel.value(file(params.gtf)).into(ch_gtf1, ch_gtf2, ch_gtf3)
 
 /*
 * CHECK INPUT OPTIONS
@@ -128,7 +128,7 @@ process generate_star_index{
 
     input:
     file(fasta) from ch_fasta
-    file(gtf) from ch_gtf            
+    file(gtf) from ch_gtf1            
     
     output:
     file("star_index") into generated_star_index
@@ -226,12 +226,13 @@ process combine_expression {
     publishDir "${params.out_dir}/results/gene_expression", mode: params.publish_dir_mode
 
     input:
-    file(gtf) from ch_gtf
+    file(gtf) from ch_gtf2
     val(sampleID) from samples.collect()
 
     output:
     file("gene_expression.tsv") into gene_expression
     file("txi.RDS") into txiRDS
+    file("*.sqlite") into gtf_sqlite
 
     script:
     """
@@ -473,6 +474,26 @@ process binding_sites_filtering {
 }
 
 /*
+* ANNOTATE MIRANDA OUTPUT WITH GENE IDS AND PREPARE COUNT MATRIX FOR SPONGE
+*/
+process prepare_miranda {
+    label 'process_medium'
+    publishDir "${params.out_dir}/results/binding_sites/output/", mode: params.publish_dir_mode
+
+    input:
+    file(bindsites) from ch_bindsites_filtered2
+    file(gtf) from ch_gtf2
+
+    output:
+    file("miranda_counts_sponge.tsv") into miranda_counts_sponge
+
+    script:
+    """
+    Rscript "${projectDir}"/bin/process_miranda_bindings.R $ch_bindsites_filtered2 $gtf
+    """
+}
+
+/*
  * RUN miRNA part only if circRNA_only==false
  */
 
@@ -693,7 +714,7 @@ if (params.database_annotation) {
         file(circRNA_counts_filtered) from ch_circRNA_counts_filtered6
         file(circRNA_annotated) from circRNAs_annotated
         file(mirna_expression) from ch_miRNA_counts_filtered3
-        file(miranda_bind_sites) from ch_bindsites_filtered2
+        file(miranda_bind_sites) from miranda_counts_sponge
 
         output:
         file("sponge.RData") into Rimage
@@ -726,7 +747,7 @@ if (params.database_annotation) {
         file(gene_expression) from gene_expression
         file(circRNA_counts_filtered) from ch_circRNA_counts_filtered6
         file(mirna_expression) from ch_miRNA_counts_filtered3
-        file(miranda_bind_sites) from ch_bindsites_filtered2
+        file(miranda_bind_sites) from miranda_counts_sponge
 
         output:
         file("sponge.RData") into Rimage

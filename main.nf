@@ -112,7 +112,7 @@ ch_totalRNA_reads2=Channel.fromPath(params.samplesheet)
    .map { get_circRNA_paths(it) }
 
 ch_fasta = Channel.value(file(params.fasta))
-Channel.value(file(params.gtf)).into(ch_gtf1, ch_gtf2, ch_gtf3)
+ch_gtf = Channel.value(file(params.gtf))
 
 /*
 * CHECK INPUT OPTIONS
@@ -128,7 +128,7 @@ process generate_star_index{
 
     input:
     file(fasta) from ch_fasta
-    file(gtf) from ch_gtf1            
+    file(gtf) from ch_gtf           
     
     output:
     file("star_index") into generated_star_index
@@ -226,7 +226,7 @@ process combine_expression {
     publishDir "${params.out_dir}/results/gene_expression", mode: params.publish_dir_mode
 
     input:
-    file(gtf) from ch_gtf2
+    file(gtf) from ch_gtf
     val(sampleID) from samples.collect()
 
     output:

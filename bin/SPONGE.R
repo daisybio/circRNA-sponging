@@ -3,7 +3,6 @@
 library(SPONGE)
 library(argparser)
 library(data.table)
-require(svMisc)
 
 args = commandArgs(trailingOnly = TRUE)
 
@@ -154,6 +153,7 @@ create_target_scan_symbols <- function(merged_data, miRTarBase, miranda, TargetS
   for (target in targets_data) {
     # append data if present
     if (!is.null(target)) {
+      colnames(target) <- sapply(gsub("\\.", "-", colnames(target)), "[", 1)
       # first data set
       if (is.null(merged.targets)) {
         merged.targets <- target
@@ -163,16 +163,15 @@ create_target_scan_symbols <- function(merged_data, miRTarBase, miranda, TargetS
         # redo columns
         colnames(merged.targets) <- sapply(strsplit(colnames(merged.targets), "\\."), "[", 1)
         # reformat rows
-        rownames(merged.targets) <- merged.targets[1]
+        rownames(merged.targets) <- merged.targets$Row
         # drop Row
-        merged.targets[1] <- NULL
-        # remove NAs
-        merged.targets[is.na(merged.targets)] <- 0
+        merged.targets$Row <- NULL
         # combine tables
         merged.targets <- do.call(cbind,lapply(split(seq_len(ncol(merged.targets)),names(merged.targets)),function(x) rowSums(merged.targets[x])))
       }
     }
   }
+  # remove NAs
   merged.targets[is.na(merged.targets)] <- 0
   # return contingency table
   return(merged.targets)

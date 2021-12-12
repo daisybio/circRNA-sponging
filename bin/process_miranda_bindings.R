@@ -34,6 +34,14 @@ split_encoding <- function(coded_vector) {
 # INPUT DATA
 miranda_data <- data.frame(read.table(args[1], sep = "\t", header = T))
 gtf_db <- ensembldb::EnsDb(args[2])
+ids <- 0
+if (args[3] == "SYMBOL") {
+  ids <- F
+} else if (args[3] == "ENSG") {
+  ids <- T
+} else {
+  stop("Supply either key 'name' or 'id' as third argument")
+}
 
 # MAKE GENOMIC RANGES
 targets <- miranda_data$Target
@@ -61,7 +69,13 @@ targets_df <- data.table(Target = paste0("chr", targets_df$seqnames, ":", target
                          gene_id = targets_df$gene_id, gene_name = targets_df$gene_symbol)
 # ANNOTATE DATA WITH ENSEMBL AND GENE NAME
 annotated_pos <- match(miranda_data$Target, targets_df$Target)
-miranda_data$gene_id <- targets_df[annotated_pos,]$gene_id
 miranda_data$gene_symbol <- targets_df[annotated_pos,]$gene_name
+miranda_data$gene_id <- targets_df[annotated_pos,]$gene_id
+# CHOOSE ANNOTATION FOR COUNT MATRIX
+if (ids) {
+  miranda_data <- as.data.frame.matrix(table(miranda_data$gene_id, miranda_data$miRNA))
+} else {
+  miranda_data <- as.data.frame.matrix(table(miranda_data$gene_name, miranda_data$miRNA))
+}
 # create contigency table
-write.table(as.data.frame.matrix(table(miranda_data$gene_id, miranda_data$miRNA)), file = "miranda_counts_sponge.tsv", sep = "\t")
+write.table(miranda_data, file = "miranda_counts_sponge.tsv", sep = "\t")

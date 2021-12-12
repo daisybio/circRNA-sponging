@@ -482,14 +482,14 @@ process prepare_miranda {
 
     input:
     file(bindsites) from ch_bindsites_filtered2
-    file(gtf) from ch_gtf2
+    file(gtf_db) from gtf_sqlite
 
     output:
     file("miranda_counts_sponge.tsv") into miranda_counts_sponge
 
     script:
     """
-    Rscript "${projectDir}"/bin/process_miranda_bindings.R $ch_bindsites_filtered2 $gtf
+    Rscript "${projectDir}"/bin/process_miranda_bindings.R $ch_bindsites_filtered2 $gtf_db $params.gene_annotation
     """
 }
 

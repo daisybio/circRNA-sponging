@@ -228,9 +228,11 @@ gene_expr <- cbind(gene_expr, circ_filtered)
 
 # filter for matching samples
 print("gene_expr samples:")
-nrow(gene_expr)
+dim(gene_expr)
 print("miRNA expr samples:")
-nrow(mi_rna_expr)
+dim(mi_rna_expr)
+print("target scan symbols samples:")
+dim(target_scan_symbols_counts)
 gene_expr <- gene_expr[rownames(mi_rna_expr),]
 
 # transform for sponge
@@ -240,11 +242,11 @@ mi_rna_expr[is.na(mi_rna_expr)] <- 0
 mi_rna_expr <- as.matrix(mi_rna_expr)
 target_scan_symbols_counts <- as.matrix(target_scan_symbols_counts)
 
-cat("Gene expression samples:", nrow(gene_expr))
+print("Gene expression:")
 print(gene_expr[1:5, 1:5])
-cat("miRNA expression samples:", nrow(mi_rna_expr))
+print("miRNA expression:")
 print(mi_rna_expr[1:5, 1:5])
-cat("target scan symbols:", nrow(target_scan_symbols_counts))
+print("target scan symbols:")
 print(target_scan_symbols_counts[1:5, 1:5])
 
 # ----------------------------- SPONGE -----------------------------

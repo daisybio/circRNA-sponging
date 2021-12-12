@@ -242,9 +242,9 @@ target_scan_symbols_counts <- as.matrix(target_scan_symbols_counts)
 
 cat("Gene expression samples:", nrow(gene_expr))
 print(gene_expr[1:5, 1:5])
-print("miRNA expression samples:", nrow(mi_rna_expr))
+cat("miRNA expression samples:", nrow(mi_rna_expr))
 print(mi_rna_expr[1:5, 1:5])
-print("target scan symbols:", nrow(target_scan_symbols_counts))
+cat("target scan symbols:", nrow(target_scan_symbols_counts))
 print(target_scan_symbols_counts[1:5, 1:5])
 
 # ----------------------------- SPONGE -----------------------------

@@ -215,7 +215,7 @@ def online_access(upload_file, converted_circ_data, output_loc):
     driver.find_element(By.ID, "queryfile").send_keys(upload_file)
     # submit form and retrieve data
     driver.find_element(By.ID, "submit").click()
-    delay = 100  # seconds
+    delay = 300  # seconds
     try:
         WebDriverWait(driver, delay).until(EC.presence_of_element_located((By.ID, 'tablesorter')))
         print("Results have appeared")

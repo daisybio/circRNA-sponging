@@ -489,7 +489,7 @@ process prepare_miranda {
 
     script:
     """
-    Rscript "${projectDir}"/bin/process_miranda_bindings.R $ch_bindsites_filtered2 $gtf_db $params.gene_annotation
+    Rscript "${projectDir}"/bin/process_miranda_bindings.R $bindsites $gtf_db $params.gene_annotation
     """
 }
 

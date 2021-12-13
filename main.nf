@@ -51,7 +51,7 @@ def helpMessage() {
       --database_annotation [bool]  Annotate circRNA hits with circBase data
         --offline_circ_db [file]      File containing downloaded circBase entries for offline access to the database
       --differential_expression [bool]  Enable differential expression analysis using DESeq2 on all given RNA-seq data and circRNA only
-   """.stripIndent() 
+   """.stripIndent()
 }
 
 def get_circRNA_paths(LinkedHashMap row) {
@@ -85,13 +85,8 @@ def get_miRNA_paths(LinkedHashMap row) {
 }
 
 def check_input(){
-    if (!params.genome_version) {
-        if (params.database_annotation){
-            exit 1, "Error: genome version not specified, which is mandatory for database annotation"
-        }
-        if (params.differential_expression){
-            exit 1, "Error: genome version not specified, which is mandatory for differential expression analysis"
-        }
+    if (!params.genome_version && params.database_annotation) {
+        exit 1, "Error: genome version not specified, which is mandatory for database annotation"
     }
 }
 
@@ -498,276 +493,273 @@ process prepare_miranda {
  */
 
 if (!params.circRNA_only) {
-/*
- * GET miRNA RAW COUNTS
- */
-if( params.miRNA_raw_counts != null ) {
-
     /*
-     * IF RAW miRNA COUNTS ARE ALREADY SPECIFIED IN A FILE
-     */
-    ch_miRNA_counts_raw = Channel.fromPath(params.miRNA_raw_counts) 
+    * GET miRNA RAW COUNTS
+    */
+    if( params.miRNA_raw_counts != null ) {
 
-} else {
-   
-    /*
-     * PERFORM miRNA DETECTION USING miRDeep2 FROM SPECIFIED READ FILES
-     * CREATE INPUT CHANNEL
-     */
+        /*
+        * IF RAW miRNA COUNTS ARE ALREADY SPECIFIED IN A FILE
+        */
+        ch_miRNA_counts_raw = Channel.fromPath(params.miRNA_raw_counts) 
 
-ch_smallRNA_reads=Channel.fromPath(params.samplesheet)
-   .splitCsv( header:true, sep:'\t')
-   .map { get_miRNA_paths(it) }
-
-/*
-* GENERATE BOWTIE INDEX IN CASE IT IS NOT ALREADY PROVIDED
-*/
-process generate_bowtie_index{
-    label 'process_high'
-    publishDir "${params.out_dir}/bowtie_index/", mode: params.publish_dir_mode
-
-    input:
-    file(fasta) from ch_fasta
+    } else {
     
-    output:
-    file("${fasta.baseName}*") into ch_generated_bowtie_index
-                      
-    when: (params.bowtie_index == null)
+        /*
+        * PERFORM miRNA DETECTION USING miRDeep2 FROM SPECIFIED READ FILES
+        * CREATE INPUT CHANNEL
+        */
 
-    script:
-    """
-    echo "bowtie index is in ${fasta.baseName}"
-    bowtie-build $fasta ${fasta.baseName}
-    """
-}
+        ch_smallRNA_reads=Channel.fromPath(params.samplesheet)
+        .splitCsv( header:true, sep:'\t')
+        .map { get_miRNA_paths(it) }
 
-ch_bowtie_index = params.bowtie_index ? Channel.value(file(params.bowtie_index)) : ch_generated_bowtie_index
+        /*
+        * GENERATE BOWTIE INDEX IN CASE IT IS NOT ALREADY PROVIDED
+        */
+        process generate_bowtie_index{
+            label 'process_high'
+            publishDir "${params.out_dir}/bowtie_index/", mode: params.publish_dir_mode
 
+            input:
+            file(fasta) from ch_fasta
+            
+            output:
+            file("${fasta.baseName}*") into ch_generated_bowtie_index
+                            
+            when: (params.bowtie_index == null)
 
+            script:
+            """
+            echo "bowtie index is in ${fasta.baseName}"
+            bowtie-build $fasta ${fasta.baseName}
+            """
+        }
 
-    /*
-     * PERFORM miRNA READ MAPPING USING miRDeep2
-     */
-    process miRDeep2_mapping {
-        label 'process_high'
-        publishDir "${params.out_dir}/samples/${sampleID}/miRNA_detection/", mode: params.publish_dir_mode
+        ch_bowtie_index = params.bowtie_index ? Channel.value(file(params.bowtie_index)) : ch_generated_bowtie_index
 
-        input:
-        tuple val(sampleID), file(read_file) from ch_smallRNA_reads
-        file(index) from ch_bowtie_index.collect()
-        file(fasta) from ch_fasta
+        /*
+        * PERFORM miRNA READ MAPPING USING miRDeep2
+        */
+        process miRDeep2_mapping {
+            label 'process_high'
+            publishDir "${params.out_dir}/samples/${sampleID}/miRNA_detection/", mode: params.publish_dir_mode
 
-        output: 
-        tuple val(sampleID), file("reads_collapsed.fa"), file("reads_vs_ref.arf") into ch_miRNA_mapping_output
+            input:
+            tuple val(sampleID), file(read_file) from ch_smallRNA_reads
+            file(index) from ch_bowtie_index.collect()
+            file(fasta) from ch_fasta
 
-        script:
-        """
-	    gunzip < $read_file > "${sampleID}.fastq"
-        mapper.pl "${sampleID}.fastq" -e -h -i -j -k $params.miRNA_adapter -l 18 -m -p ${fasta.baseName} -s "reads_collapsed.fa" -t "reads_vs_ref.arf" -v
-        """
+            output: 
+            tuple val(sampleID), file("reads_collapsed.fa"), file("reads_vs_ref.arf") into ch_miRNA_mapping_output
+
+            script:
+            """
+            gunzip < $read_file > "${sampleID}.fastq"
+            mapper.pl "${sampleID}.fastq" -e -h -i -j -k $params.miRNA_adapter -l 18 -m -p ${fasta.baseName} -s "reads_collapsed.fa" -t "reads_vs_ref.arf" -v
+            """
+        }
+
+        /*
+        * PERFORM miRNA QUANTIFICATION USING miRDeep2
+        */
+        process miRDeep2_quantification {
+            label 'process_high'
+            publishDir "${params.out_dir}/samples/${sampleID}/miRNA_detection/", mode: params.publish_dir_mode
+    
+            input:
+            tuple val(sampleID), file(reads_collapsed_fa), file(reads_vs_ref_arf) from ch_miRNA_mapping_output
+            file(fasta) from ch_fasta
+
+            output:
+            file("miRNAs_expressed*") into ch_miRNA_expression_files
+
+            script:
+            """
+            miRDeep2.pl $reads_collapsed_fa $fasta $reads_vs_ref_arf $params.mature_fasta $params.mature_other_fasta $params.hairpin_fasta -t $params.species -d -v 
+            """
+        }
+
+        /*
+        * MERGE RAW miRNA RESULTS INTO ONE TABLE SUMMARIZING ALL SAMPLES
+        */
+        process summarize_detected_miRNAs{
+            label 'process_medium'
+
+            publishDir "${params.out_dir}/results/miRNA/", mode: params.publish_dir_mode
+        
+            input:
+            file(miRNAs_expressed) from ch_miRNA_expression_files.collect()
+
+            output:
+            file("miRNA_counts_raw.tsv") into ch_miRNA_counts_raw
+
+            script:
+            """
+            Rscript "${projectDir}"/bin/miRNA_summarize_results.R $params.samplesheet $params.out_dir
+            """
+        }
     }
 
     /*
-     * PERFORM miRNA QUANTIFICATION USING miRDeep2
-     */
-    process miRDeep2_quantification {
-        label 'process_high'
-        publishDir "${params.out_dir}/samples/${sampleID}/miRNA_detection/", mode: params.publish_dir_mode
- 
+    * NORMALIZE RAW miRNA COUNT USING LIBRARY SIZE ESTIMATION
+    */
+    process normalize_miRNAs{
+        label 'process_low'
+
+        publishDir "${params.out_dir}/results/miRNA/", mode: params.publish_dir_mode
+        
         input:
-        tuple val(sampleID), file(reads_collapsed_fa), file(reads_vs_ref_arf) from ch_miRNA_mapping_output
-    	file(fasta) from ch_fasta
+        file(miRNA_counts_raw) from ch_miRNA_counts_raw
 
         output:
-        file("miRNAs_expressed*") into ch_miRNA_expression_files
+        file("miRNA_counts_normalized.tsv") into (ch_miRNA_counts_norm1, ch_miRNA_counts_norm2)
 
         script:
         """
-        miRDeep2.pl $reads_collapsed_fa $fasta $reads_vs_ref_arf $params.mature_fasta $params.mature_other_fasta $params.hairpin_fasta -t $params.species -d -v 
+        Rscript "${projectDir}"/bin/miRNA_results_LibrarySizeEstimation.R $miRNA_counts_raw $params.out_dir
         """
     }
 
     /*
-     * MERGE RAW miRNA RESULTS INTO ONE TABLE SUMMARIZING ALL SAMPLES
-     */
-    process summarize_detected_miRNAs{
+    * FILTER miRNAs TO REDUCE LOW EXPRESSED ONES
+    */
+    process filter_miRNAs{
         label 'process_medium'
 
         publishDir "${params.out_dir}/results/miRNA/", mode: params.publish_dir_mode
-    
+        
         input:
-        file(miRNAs_expressed) from ch_miRNA_expression_files.collect()
+        file(miRNA_counts_norm) from ch_miRNA_counts_norm1
 
         output:
-        file("miRNA_counts_raw.tsv") into ch_miRNA_counts_raw
+        file("miRNA_counts_filtered.tsv") into (ch_miRNA_counts_filtered1, ch_miRNA_counts_filtered2, ch_miRNA_counts_filtered3)
 
         script:
         """
-        Rscript "${projectDir}"/bin/miRNA_summarize_results.R $params.samplesheet $params.out_dir
+        Rscript "${projectDir}"/bin/miRNA_filtering.R $miRNA_counts_norm $params.out_dir $params.sample_percentage $params.read_threshold
         """
     }
 
-}
 
-/*
-* NORMALIZE RAW miRNA COUNT USING LIBRARY SIZE ESTIMATION
-*/
-process normalize_miRNAs{
-    label 'process_low'
+    /*
+    * FOR ALL POSSIBLE circRNA-miRNA PAIRS COMPUTE PEARSON CORRELATION
+    */
+    process compute_correlations{
+        label 'process_medium'
 
-    publishDir "${params.out_dir}/results/miRNA/", mode: params.publish_dir_mode
-    
-    input:
-    file(miRNA_counts_raw) from ch_miRNA_counts_raw
+        publishDir "${params.out_dir}/results/sponging/", mode: params.publish_dir_mode
+        
+        input:
+        file(miRNA_counts_filtered) from ch_miRNA_counts_filtered1
+        file(circRNA_counts_filtered) from ch_circRNA_counts_filtered4
+        file(filtered_bindsites) from ch_bindsites_filtered1
 
-    output:
-    file("miRNA_counts_normalized.tsv") into (ch_miRNA_counts_norm1, ch_miRNA_counts_norm2)
+        output:
+        file("filtered_circRNA_miRNA_correlation.tsv") into ch_correlations
 
-    script:
-    """
-    Rscript "${projectDir}"/bin/miRNA_results_LibrarySizeEstimation.R $miRNA_counts_raw $params.out_dir
-    """
-}
+        script:
+        """
+        Rscript "${projectDir}"/bin/compute_correlations.R $params.samplesheet $miRNA_counts_filtered $circRNA_counts_filtered $filtered_bindsites
+        """
+    }
 
-/*
-* FILTER miRNAs TO REDUCE LOW EXPRESSED ONES
-*/
-process filter_miRNAs{
-    label 'process_medium'
-
-    publishDir "${params.out_dir}/results/miRNA/", mode: params.publish_dir_mode
-    
-    input:
-    file(miRNA_counts_norm) from ch_miRNA_counts_norm1
-
-    output:
-    file("miRNA_counts_filtered.tsv") into (ch_miRNA_counts_filtered1, ch_miRNA_counts_filtered2, ch_miRNA_counts_filtered3)
-
-    script:
-    """
-    Rscript "${projectDir}"/bin/miRNA_filtering.R $miRNA_counts_norm $params.out_dir $params.sample_percentage $params.read_threshold
-    """
-}
-
-
-/*
-* FOR ALL POSSIBLE circRNA-miRNA PAIRS COMPUTE PEARSON CORRELATION
-*/
-process compute_correlations{
-    label 'process_medium'
-
-    publishDir "${params.out_dir}/results/sponging/", mode: params.publish_dir_mode
-    
-    input:
-    file(miRNA_counts_filtered) from ch_miRNA_counts_filtered1
-    file(circRNA_counts_filtered) from ch_circRNA_counts_filtered4
-    file(filtered_bindsites) from ch_bindsites_filtered1
-
-    output:
-    file("filtered_circRNA_miRNA_correlation.tsv") into ch_correlations
-
-    script:
-    """
-    Rscript "${projectDir}"/bin/compute_correlations.R $params.samplesheet $miRNA_counts_filtered $circRNA_counts_filtered $filtered_bindsites
-    """
-}
-
-/*
-* ANALYZE THE CORRELATION OF ALL PAIRS AND DETERMINE OVERALL DISTRIBUTION
-* USING BINDING SITES INFORMATION. COMPUTE STATISTICS AND PLOTS
-*/
-process correlation_analysis{
-    label 'process_high'
-
-    publishDir "${params.out_dir}/results/sponging/", mode: params.publish_dir_mode
-    
-    input:
-    file(correlations) from ch_correlations
-    file(miRNA_counts_filtered) from ch_miRNA_counts_filtered2
-    file(circRNA_counts_filtered) from ch_circRNA_counts_filtered5
-    file(miRNA_counts_norm) from ch_miRNA_counts_norm2
-    file(circRNA_counts_norm) from ch_circRNA_counts_norm2
-
-
-    output:
-    file("sponging_statistics.txt") into ch_sponging_statistics
-    file("plots/*.png") into ch_plots
-
-    script:
-    """
-    mkdir -p "${params.out_dir}/results/sponging/plots/"
-    Rscript "${projectDir}"/bin/correlation_analysis.R $params.samplesheet $miRNA_counts_filtered $circRNA_counts_filtered $correlations $params.out_dir $params.sample_group $miRNA_counts_norm $circRNA_counts_norm
-    """
-}
-
-/*
-* SPONGE ANALYSIS (https://github.com/biomedbigdata/SPONGE)
-*/
-if (params.database_annotation) {
-    process SPONGE_db_annotation{
+    /*
+    * ANALYZE THE CORRELATION OF ALL PAIRS AND DETERMINE OVERALL DISTRIBUTION
+    * USING BINDING SITES INFORMATION. COMPUTE STATISTICS AND PLOTS
+    */
+    process correlation_analysis{
         label 'process_high'
 
-        publishDir "${params.out_dir}/results/sponging/SPONGE", mode: params.publish_dir_mode
-
+        publishDir "${params.out_dir}/results/sponging/", mode: params.publish_dir_mode
+        
         input:
-        file(gene_expression) from gene_expression
-        file(circRNA_counts_filtered) from ch_circRNA_counts_filtered6
-        file(circRNA_annotated) from circRNAs_annotated
-        file(mirna_expression) from ch_miRNA_counts_filtered3
-        file(miranda_bind_sites) from miranda_counts_sponge
+        file(correlations) from ch_correlations
+        file(miRNA_counts_filtered) from ch_miRNA_counts_filtered2
+        file(circRNA_counts_filtered) from ch_circRNA_counts_filtered5
+        file(miRNA_counts_norm) from ch_miRNA_counts_norm2
+        file(circRNA_counts_norm) from ch_circRNA_counts_norm2
+
 
         output:
-        file("sponge.RData") into Rimage
-        file("plots/*.png") into ch_sponge_plots
+        file("sponging_statistics.txt") into ch_sponging_statistics
+        file("plots/*.png") into ch_plots
 
         script:
         """
-        Rscript "${projectDir}"/bin/SPONGE.R \\
-        --gene_expr $gene_expression \\
-        --circ_rna $circRNA_counts_filtered \\
-        --circ_annotated $circRNA_annotation \\
-        --mirna_expr $mirna_expression \\
-        --organism $params.organism \\
-        --fdr $params.fdr \\
-        --target_scan_symbols $params.target_scan_symbols \\
-        --miRTarBase_loc $params.miRTarBaseData \\
-        --miranda_data $miranda_bind_sites \\
-        --TargetScan_data $params.TargetScanData \\
-        --lncBase_data $params.lncBaseData \\
-        --miRDB_data $params.miRDB_data
+        mkdir -p "${params.out_dir}/results/sponging/plots/"
+        Rscript "${projectDir}"/bin/correlation_analysis.R $params.samplesheet $miRNA_counts_filtered $circRNA_counts_filtered $correlations $params.out_dir $params.sample_group $miRNA_counts_norm $circRNA_counts_norm
         """
     }
-} else {
-    process SPONGE{
-        label 'process_high'
 
-        publishDir "${params.out_dir}/results/sponging/SPONGE", mode: params.publish_dir_mode
+    /*
+    * SPONGE ANALYSIS (https://github.com/biomedbigdata/SPONGE)
+    */
+    if (params.database_annotation) {
+        process SPONGE_db_annotation{
+            label 'process_high'
 
-        input:
-        file(gene_expression) from gene_expression
-        file(circRNA_counts_filtered) from ch_circRNA_counts_filtered6
-        file(mirna_expression) from ch_miRNA_counts_filtered3
-        file(miranda_bind_sites) from miranda_counts_sponge
+            publishDir "${params.out_dir}/results/sponging/SPONGE", mode: params.publish_dir_mode
 
-        output:
-        file("sponge.RData") into Rimage
-        file("plots/*.png") into ch_sponge_plots
+            input:
+            file(gene_expression) from gene_expression
+            file(circRNA_counts_filtered) from ch_circRNA_counts_filtered6
+            file(circRNA_annotated) from circRNAs_annotated
+            file(mirna_expression) from ch_miRNA_counts_filtered3
+            file(miranda_bind_sites) from miranda_counts_sponge
 
-        script:
-        """
-        Rscript "${projectDir}"/bin/SPONGE.R \\
-        --gene_expr $gene_expression \\
-        --circ_rna $circRNA_counts_filtered \\
-        --mirna_expr $mirna_expression \\
-        --organism $params.organism \\
-        --fdr $params.fdr \\
-        --target_scan_symbols $params.target_scan_symbols \\
-        --miRTarBase_loc $params.miRTarBaseData \\
-        --miranda_data $miranda_bind_sites \\
-        --TargetScan_data $params.TargetScanData \\
-        --lncBase_data $params.lncBaseData \\
-        --miRDB_data $params.miRDB_data
-        """
+            output:
+            file("sponge.RData") into Rimage
+            file("plots/*.png") into ch_sponge_plots
+
+            script:
+            """
+            Rscript "${projectDir}"/bin/SPONGE.R \\
+            --gene_expr $gene_expression \\
+            --circ_rna $circRNA_counts_filtered \\
+            --circ_annotated $circRNA_annotation \\
+            --mirna_expr $mirna_expression \\
+            --organism $params.organism \\
+            --fdr $params.fdr \\
+            --target_scan_symbols $params.target_scan_symbols \\
+            --miRTarBase_loc $params.miRTarBaseData \\
+            --miranda_data $miranda_bind_sites \\
+            --TargetScan_data $params.TargetScanData \\
+            --lncBase_data $params.lncBaseData \\
+            --miRDB_data $params.miRDB_data
+            """
+        }
+    } else {
+        process SPONGE{
+            label 'process_high'
+
+            publishDir "${params.out_dir}/results/sponging/SPONGE", mode: params.publish_dir_mode
+
+            input:
+            file(gene_expression) from gene_expression
+            file(circRNA_counts_filtered) from ch_circRNA_counts_filtered6
+            file(mirna_expression) from ch_miRNA_counts_filtered3
+            file(miranda_bind_sites) from miranda_counts_sponge
+
+            output:
+            file("sponge.RData") into Rimage
+            file("plots/*.png") into ch_sponge_plots
+
+            script:
+            """
+            Rscript "${projectDir}"/bin/SPONGE.R \\
+            --gene_expr $gene_expression \\
+            --circ_rna $circRNA_counts_filtered \\
+            --mirna_expr $mirna_expression \\
+            --organism $params.organism \\
+            --fdr $params.fdr \\
+            --target_scan_symbols $params.target_scan_symbols \\
+            --miRTarBase_loc $params.miRTarBaseData \\
+            --miranda_data $miranda_bind_sites \\
+            --TargetScan_data $params.TargetScanData \\
+            --lncBase_data $params.lncBaseData \\
+            --miRDB_data $params.miRDB_data
+            """
+        }
     }
-}
 }

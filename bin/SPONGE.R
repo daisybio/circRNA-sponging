@@ -261,19 +261,20 @@ num.of.cores <- 15
 cl <- makeCluster(num.of.cores, outfile=logging.file) 
 registerDoParallel(cl)
 
-
+print("calculating gene-miRNA interactions...")
 # (A) gene-miRNA interactions
 genes_miRNA_candidates <- SPONGE::sponge_gene_miRNA_interaction_filter(
   gene_expr = gene_expr,
   mir_expr = mi_rna_expr,
   mir_predicted_targets = target_scan_symbols_counts)
+print("calculating ceRNA interactions...")
 # (B) ceRNA interactions
 ceRNA_interactions <- SPONGE::sponge(gene_expr = gene_expr,
                              mir_expr = mi_rna_expr,
                              mir_interactions = genes_miRNA_candidates)
 
 stopCluster(cl) # stop cluster
-
+print("building null model...")
 # (C) Null-model-based p-value computation
 mscor_null_model <- sponge_build_null_model(number_of_datasets = 100, number_of_samples = nrow(gene_expr))
 # simulation plot
@@ -283,6 +284,7 @@ plot(sim_plot)
 # ceRNA interaction signs
 ceRNA_interactions_sign <- sponge_compute_p_values(sponge_result = ceRNA_interactions, 
                                                    null_model = mscor_null_model)
+print("building ceRNA network...")
 # (D) ceRNA interaction network
 fdr <- as.double(argv$fdr)
 ceRNA_interactions_fdr <- ceRNA_interactions_sign[which(ceRNA_interactions_sign$p.adj < fdr),]

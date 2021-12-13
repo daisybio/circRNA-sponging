@@ -5,18 +5,19 @@ library(ensembldb)
 library(tximport)
 library(pheatmap)
 library(DESeq2)
+library(data.table)
 
 args = commandArgs(trailingOnly = TRUE)
 
 # create ouptut data and plots
-create_outputs <- function(d, results, marker, out, filteredRows) {
+create_outputs <- function(d, results, marker, out, filteredRows, nsub=1000) {
   # create dirs in cwd
   dir.create(out, showWarnings = FALSE)
   # write data to disk
   write.table(cbind(ENS_ID=rownames(results), results), file = file.path(out, paste(out, "tsv", sep = ".")), quote = FALSE, sep = "\t", col.names = NA)
   # PCA
   # variance stabilizing transformation
-  deseq_vst <- DESeq2::vst(d, blind = FALSE)
+  deseq_vst <- DESeq2::vst(d, blind = FALSE, nsub = nsub)
   PCA_plot <- DESeq2::plotPCA(deseq_vst, intgroup = marker)
   pca_name <- paste(out, "pca", sep = "_")
   png(filename = file.path(out, paste(pca_name, "png", sep = ".")))
@@ -68,14 +69,46 @@ res <- res[order(res$padj),]
 # create summary
 DESeq2::summary(res)
 
-# WRITE OUTPUTS
+# WRITE OUTPUTS GENE EXPRESSION
 # total_RNA
 create_outputs(d = dds, results = res, marker = "condition", out = "total_rna", filteredRows = NULL)
-# circRNA only
+# circRNA gene expression
 circ_RNAs <- read.table(file = args[3], sep = "\t", header = TRUE)
 ens_ids <- circ_RNAs$ensembl_gene_ID
 dds_filtered <- dds
 filtered_res <- res[row.names(res) %in% ens_ids,]
 create_outputs(d = dds_filtered, results = filtered_res, marker = "condition", out = "circ_rna", filteredRows = ens_ids)
+
+# circRNA differential expression
+circ_RNA_annotation <- 0
+# use annotation if possible
+if (length(args)==4) {
+  circ_RNA_annotation <- data.frame(read.table(args[4], sep = "\t", header = T))
+  circ_RNA_annotation <- data.table(pos=paste0(circ_RNA_annotation$chr, ":", circ_RNA_annotation$start, ":", circ_RNA_annotation$stop, ":", circ_RNA_annotation$strand),
+                                    circRNA.ID=circ_RNA_annotation$circRNA.ID)
+  tmp <- data.table(pos=paste0(circ_RNAs$chr, ":", circ_RNAs$start, ":", circ_RNAs$stop, ":", circ_RNAs$strand))
+  circ_RNAs <- circ_RNAs[rownames(merge(tmp, circ_RNA_annotation, by = "pos")),]
+} else {
+  circ_RNA_annotation <- data.table(circRNA.ID=paste0(circ_RNAs$chr, ":", circ_RNAs$start, ":", circ_RNAs$stop, ":", circ_RNAs$strand))
+}
+circ_RNAs$circRNA.ID <- circ_RNA_annotation$circRNA.ID
+circ_expr <- circ_RNAs[,-c(1:6)]
+rownames(circ_expr) <- circ_expr$circRNA.ID
+circ_expr$circRNA.ID <- NULL
+colnames(circ_expr) <- sapply(gsub("\\.", "-", colnames(circ_expr)), "[", 1)
+circ_expr <- as.matrix(circ_expr)
+
+dds.circ <- DESeq2::DESeqDataSetFromMatrix(countData = round(circ_expr),
+                                           colData = samplesheet,
+                                           design = ~ condition)
+dds.circ <- DESeq2::DESeq(dds.circ)
+res.circ <- DESeq2::results(dds.circ)
+# sort by p-value
+res.circ <- res.circ[order(res.circ$padj),]
+# create summary
+DESeq2::summary(res.circ)
+
+create_outputs(dds.circ, res.circ, marker = "condition", out = "circ_RNA_DE", filteredRows = NULL, nsub = 100)
+
 # save R image
 save.image(file = "DESeq2.RData")

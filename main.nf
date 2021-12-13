@@ -707,7 +707,7 @@ if (params.database_annotation) {
     process SPONGE_db_annotation{
         label 'process_high'
 
-        publishDir "${params.out_dir}/results/SPONGE", mode: params.publish_dir_mode
+        publishDir "${params.out_dir}/results/sponging/SPONGE", mode: params.publish_dir_mode
 
         input:
         file(gene_expression) from gene_expression
@@ -741,7 +741,7 @@ if (params.database_annotation) {
     process SPONGE{
         label 'process_high'
 
-        publishDir "${params.out_dir}/results/SPONGE", mode: params.publish_dir_mode
+        publishDir "${params.out_dir}/results/sponging/SPONGE", mode: params.publish_dir_mode
 
         input:
         file(gene_expression) from gene_expression

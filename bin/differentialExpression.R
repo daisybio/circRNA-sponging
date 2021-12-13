@@ -15,6 +15,10 @@ create_outputs <- function(d, results, marker, out, filteredRows, nsub=1000) {
   dir.create(out, showWarnings = FALSE)
   # write data to disk
   write.table(cbind(ENS_ID=rownames(results), results), file = file.path(out, paste(out, "tsv", sep = ".")), quote = FALSE, sep = "\t", col.names = NA)
+  # group
+  df <- as.data.frame(colData(d))
+  df <- df[,c("sample", "condition")]
+  df <- df[order(df$condition, decreasing = T),]
   # PCA
   # variance stabilizing transformation
   deseq_vst <- DESeq2::vst(d, blind = FALSE, nsub = nsub)
@@ -23,12 +27,6 @@ create_outputs <- function(d, results, marker, out, filteredRows, nsub=1000) {
   png(filename = file.path(out, paste(pca_name, "png", sep = ".")))
   plot(PCA_plot)
   # HEAT MAP
-  # group
-  df <- as.data.frame(colData(d))
-  df <- df[order(as.character(df$condition)),]
-  d@colData@listData <- as.list(df)
-  d@colData@rownames <- rownames(df)
-  df <- df[,c("sample", "condition")]
   
   # filter
   if (is.null(filteredRows)) {
@@ -40,14 +38,22 @@ create_outputs <- function(d, results, marker, out, filteredRows, nsub=1000) {
     top_genes <- head(order(rowVars(filtered), decreasing = T), 20)
     filtered <- filtered[top_genes,]
   }
+  # filter for significant differential expression
+  signif.hits <- results[!is.na(results$padj) &
+                      results$padj<0.10 &
+                      abs(results$log2FoldChange)>=1,]
+  
+  selected <- rownames(signif.hits);selected
+  filtered <- as.data.frame(log2(counts(d,normalized=TRUE)[rownames(d) %in% selected,]))
+  filtered <- filtered[, df$sample]
 
   # set output file loc
   heatmap_name <- paste(out, "HMAP", sep = "_")
   # plot heatmap
   pheatmap::pheatmap(filtered, cluster_rows=T, show_rownames=T,
-           cluster_cols=T, annotation_col=df,
+           cluster_cols=F, annotation_col=df,
            filename = file.path(out, paste(heatmap_name, "png", sep = ".")),
-           height = 15, width = 25, legend = F)
+           height = 15, width = 25, legend = T)
 }
 
 txi <- readRDS(args[1])
@@ -108,7 +114,7 @@ res.circ <- res.circ[order(res.circ$padj),]
 # create summary
 DESeq2::summary(res.circ)
 
-create_outputs(dds.circ, res.circ, marker = "condition", out = "circ_RNA_DE", filteredRows = NULL, nsub = 100)
+create_outputs(dds.circ, res.circ, marker = "condition", out = "circ_rna_DE", filteredRows = NULL, nsub = 100)
 
 # save R image
 save.image(file = "DESeq2.RData")

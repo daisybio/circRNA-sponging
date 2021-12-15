@@ -274,9 +274,8 @@ ceRNA_interactions <- SPONGE::sponge(gene_expr = gene_expr,
                              mir_expr = mi_rna_expr,
                              mir_interactions = genes_miRNA_candidates)
 
-stopCluster(cl) # stop cluster
 save.image(file = file.path(out, "sponge.RData"))
-stop(0, "testing")
+
 print("building null model...")
 # (C) Null-model-based p-value computation
 mscor_null_model <- sponge_build_null_model(number_of_datasets = 100, number_of_samples = nrow(gene_expr))
@@ -305,5 +304,7 @@ n = 3
 top_network_plot <- sponge_plot_network_centralities(weighted_network_centralities, top = n)
 png(file.path(out, "plots/top_ceRNA_network.png"))
 plot(top_network_plot)
+
+stopCluster(cl) # stop cluster
 # save R objects
 save.image(file = file.path(out, "sponge.RData"))

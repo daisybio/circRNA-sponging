@@ -3,6 +3,7 @@
 library(SPONGE)
 library(argparser)
 library(data.table)
+library(ggplot2)
 
 args = commandArgs(trailingOnly = TRUE)
 
@@ -256,7 +257,7 @@ library(foreach)
 
 logging.file <- ".sponge.log"
 
-num.of.cores <- 15
+num.of.cores <- 20
 
 cl <- makeCluster(num.of.cores, outfile=logging.file) 
 registerDoParallel(cl)
@@ -274,6 +275,8 @@ ceRNA_interactions <- SPONGE::sponge(gene_expr = gene_expr,
                              mir_interactions = genes_miRNA_candidates)
 
 stopCluster(cl) # stop cluster
+save.image(file = file.path(out, "sponge.RData"))
+stop(0, "testing")
 print("building null model...")
 # (C) Null-model-based p-value computation
 mscor_null_model <- sponge_build_null_model(number_of_datasets = 100, number_of_samples = nrow(gene_expr))

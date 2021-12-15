@@ -291,8 +291,8 @@ print("building ceRNA network...")
 fdr <- as.double(argv$fdr)
 ceRNA_interactions_fdr <- ceRNA_interactions_sign[which(ceRNA_interactions_sign$p.adj < fdr),]
 ceRNA_network_plot <- sponge_plot_network(ceRNA_interactions_fdr, genes_miRNA_candidates)
-png(file.path(out, "plots/ceRNA_network.png"))
-plot(ceRNA_network_plot)
+visNetwork::visSave(ceRNA_network_plot, file = "plots/network.html")
+
 # NETWORK ANALYSIS
 network_centralities <- sponge_node_centralities(ceRNA_interactions_fdr)
 # different weights for ceRNA interactions
@@ -302,8 +302,7 @@ weighted_network_centralities <- sponge_node_centralities(ceRNA_interactions_fdr
 # plot top n samples
 n = 3
 top_network_plot <- sponge_plot_network_centralities(weighted_network_centralities, top = n)
-png(file.path(out, "plots/top_ceRNA_network.png"))
-plot(top_network_plot)
+visNetwork::visSave(ceRNA_network_plot, file = "plots/top_network.html")
 
 stopCluster(cl) # stop cluster
 # save R objects

@@ -349,7 +349,7 @@ if (params.database_annotation){
     file(circRNAs_filtered) from ch_circRNA_counts_filtered1
 
     output:
-    file("circRNA_annotated.tsv") into circRNAs_annotated
+    file("circRNA_annotated.tsv") into (circRNAs_annotated1, circRNAs_annotated2)
 
     script:
     if( params.offline_circ_db == null )
@@ -471,21 +471,39 @@ process binding_sites_filtering {
 /*
 * ANNOTATE MIRANDA OUTPUT WITH GENE IDS AND PREPARE COUNT MATRIX FOR SPONGE
 */
-process prepare_miranda {
-    label 'process_medium'
-    publishDir "${params.out_dir}/results/binding_sites/output/", mode: params.publish_dir_mode
+if (params.database_annotation){
+    process prepare_miranda_db {
+        label 'process_medium'
+        publishDir "${params.out_dir}/results/binding_sites/output/", mode: params.publish_dir_mode
 
-    input:
-    file(bindsites) from ch_bindsites_filtered2
-    file(gtf_db) from gtf_sqlite
+        input:
+        file(bindsites) from ch_bindsites_filtered2
+        file(circ_annotated) from circRNAs_annotated1
 
-    output:
-    file("miranda_counts_sponge.tsv") into miranda_counts_sponge
+        output:
+        file("miranda_counts_sponge.tsv") into miranda_counts_sponge
 
-    script:
-    """
-    Rscript "${projectDir}"/bin/process_miranda_bindings.R $bindsites $gtf_db $params.gene_annotation
-    """
+        script:
+        """
+        Rscript "${projectDir}"/bin/process_miranda_bindings.R $bindsites $circ_annotated
+        """
+    }
+} else { 
+    process prepare_miranda {
+        label 'process_medium'
+        publishDir "${params.out_dir}/results/binding_sites/output/", mode: params.publish_dir_mode
+
+        input:
+        file(bindsites) from ch_bindsites_filtered2
+
+        output:
+        file("miranda_counts_sponge.tsv") into miranda_counts_sponge
+
+        script:
+        """
+        Rscript "${projectDir}"/bin/process_miranda_bindings.R $bindsites
+        """
+    }
 }
 
 /*
@@ -705,7 +723,7 @@ if (!params.circRNA_only) {
                 input:
                 file(gene_expression) from gene_expression
                 file(circRNA_counts_filtered) from ch_circRNA_counts_filtered6
-                file(circRNA_annotated) from circRNAs_annotated
+                file(circRNA_annotated) from circRNAs_annotated2
                 file(mirna_expression) from ch_miRNA_counts_filtered3
                 file(miranda_bind_sites) from miranda_counts_sponge
 

@@ -17,6 +17,7 @@ parser.add_argument("-o", "--organism", help="Organism on three letter code (hsa
 parser.add_argument("-gv", "--genome_version", help="Used genome version", required=True)
 parser.add_argument("-d", "--data_loc", help="Location of data to be converted", required=True)
 parser.add_argument("-out", "--output", help="Output file location", required=True)
+# optional
 parser.add_argument("-s", "--separator", help="Separator of file", default="\t")
 parser.add_argument("-chrC", "--chromosome", help="Column of chromosome", default=0)
 parser.add_argument("-startC", "--start", help="Column of start of position", default=1)

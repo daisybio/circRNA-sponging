@@ -257,7 +257,7 @@ library(foreach)
 
 logging.file <- ".sponge.log"
 
-num.of.cores <- 20
+num.of.cores <- 15
 
 cl <- makeCluster(num.of.cores, outfile=logging.file) 
 registerDoParallel(cl)

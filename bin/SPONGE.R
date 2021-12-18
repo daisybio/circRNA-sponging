@@ -235,7 +235,8 @@ dim(mi_rna_expr)
 print("target scan symbols samples:")
 dim(target_scan_symbols_counts)
 gene_expr <- gene_expr[rownames(mi_rna_expr),]
-
+print("using gene_expr samples:")
+dim(gene_expr)
 # transform for sponge
 gene_expr[is.na(gene_expr)] <- 0
 gene_expr <- as.matrix(gene_expr)
@@ -257,7 +258,7 @@ library(foreach)
 
 logging.file <- ".sponge.log"
 
-num.of.cores <- 15
+num.of.cores <- 20
 
 cl <- makeCluster(num.of.cores, outfile=logging.file) 
 registerDoParallel(cl)

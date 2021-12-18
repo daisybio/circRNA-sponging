@@ -10,8 +10,7 @@ if (length(args)==2) {
   circ.annotation.map <- data.table(Target=paste0(circ.annotation$chr, ":", circ.annotation$start, "-", circ.annotation$stop, "_", circ.annotation$strand),
                                     ID=circ.annotation$circRNA.ID)
   miranda.bp$ID <- circ.annotation.map$ID[match(miranda.bp$Target, circ.annotation.map$Target)]
-  f <- is.na(miranda.bp$ID)
-  miranda.bp$ID[f] <- miranda.bp$Target[f]
+  miranda.bp <- miranda.bp[complete.cases(miranda.bp),]
   miranda.bp$Target <- miranda.bp$ID
   miranda.bp$ID <- NULL
 }

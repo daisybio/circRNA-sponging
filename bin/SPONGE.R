@@ -167,13 +167,13 @@ create_target_scan_symbols <- function(merged_data, miRTarBase, miranda, TargetS
         rownames(merged.targets) <- merged.targets$Row
         # drop Row
         merged.targets$Row <- NULL
+        # remove NAs
+        merged.targets[is.na(merged.targets)] <- 0
         # combine tables
         merged.targets <- do.call(cbind,lapply(split(seq_len(ncol(merged.targets)),names(merged.targets)),function(x) rowSums(merged.targets[x])))
       }
     }
   }
-  # remove NAs
-  merged.targets[is.na(merged.targets)] <- 0
   # return contingency table
   return(merged.targets)
 }
@@ -275,8 +275,6 @@ ceRNA_interactions <- SPONGE::sponge(gene_expr = gene_expr,
                              mir_expr = mi_rna_expr,
                              mir_interactions = genes_miRNA_candidates)
 
-stopCluster(cl) # stop cluster
-
 save.image(file = file.path(out, "sponge.RData"))
 
 print("building null model...")
@@ -307,5 +305,6 @@ n = 3
 top_network_plot <- sponge_plot_network_centralities(weighted_network_centralities, top = n)
 visNetwork::visSave(ceRNA_network_plot, file = "plots/top_network.html")
 
+stopCluster(cl) # stop cluster
 # save R objects
 save.image(file = file.path(out, "sponge.RData"))

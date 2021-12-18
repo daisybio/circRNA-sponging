@@ -227,7 +227,6 @@ process combine_expression {
     output:
     file("gene_expression.tsv") into gene_expression
     file("txi.RDS") into txiRDS
-    file("*.sqlite") into gtf_sqlite
 
     script:
     """

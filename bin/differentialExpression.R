@@ -10,7 +10,7 @@ library(data.table)
 args = commandArgs(trailingOnly = TRUE)
 
 # create ouptut data and plots
-create_outputs <- function(d, results, marker, out, filteredRows, nsub=1000) {
+create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.1, log2FC = 1) {
   # create dirs in cwd
   dir.create(out, showWarnings = FALSE)
   # write data to disk
@@ -24,28 +24,27 @@ create_outputs <- function(d, results, marker, out, filteredRows, nsub=1000) {
   deseq_vst <- DESeq2::vst(d, blind = FALSE, nsub = nsub)
   PCA_plot <- DESeq2::plotPCA(deseq_vst, intgroup = marker)
   pca_name <- paste(out, "pca", sep = "_")
-  png(filename = file.path(out, paste(pca_name, "png", sep = ".")))
+  png(filename = file.path(out, paste(pca_name, "png", sep = ".")), res = 200, width = 1024, height = 800)
   plot(PCA_plot)
   # HEAT MAP
   
-  # filter
-  if (is.null(filteredRows)) {
-    top_genes <- head(order(rowVars(assay(deseq_vst)), decreasing = T), 20)
-    filtered <- assay(deseq_vst)[top_genes,]
-  } else {
-    filtered <- assay(deseq_vst)
-    filtered <- filtered[row.names(filtered) %in% filteredRows,]
-    top_genes <- head(order(rowVars(filtered), decreasing = T), 20)
-    filtered <- filtered[top_genes,]
-  }
   # filter for significant differential expression
   signif.hits <- results[!is.na(results$padj) &
-                      results$padj<0.10 &
-                      abs(results$log2FoldChange)>=1,]
+                      results$padj<as.double(padj) &
+                      abs(results$log2FoldChange)>=as.numeric(log2FC),]
   
-  selected <- rownames(signif.hits);selected
-  filtered <- as.data.frame(log2(counts(d,normalized=TRUE)[rownames(d) %in% selected,]))
+  signif.top <- head(signif.hits, n)
+  # select all
+  # PSEUDOCOUNTS
+  selected <- rownames(signif.hits)
+  counts <- counts(d,normalized=T)[rownames(d) %in% selected,]+1e-3
+  filtered <- as.data.frame(log2(counts))
   filtered <- filtered[, df$sample]
+  # select top n
+  selected.top <- rownames(signif.top)
+  counts.top <- counts(d,normalized=TRUE)[rownames(d) %in% selected.top,]+1e-6
+  filtered.top <- as.data.frame(log2(counts.top))
+  filtered.top <- filtered.top[, df$sample]
 
   # set output file loc
   heatmap_name <- paste(out, "HMAP", sep = "_")
@@ -54,6 +53,12 @@ create_outputs <- function(d, results, marker, out, filteredRows, nsub=1000) {
            cluster_cols=F, annotation_col=df,
            filename = file.path(out, paste(heatmap_name, "png", sep = ".")),
            height = 15, width = 25, legend = T)
+  # top n
+  heatmap_name_top <- paste(out, "HMAP_top", sep = "_")
+  pheatmap::pheatmap(filtered.top, cluster_rows=T, show_rownames=T,
+                     cluster_cols=F, annotation_col=df,
+                     filename = file.path(out, paste(heatmap_name_top, "png", sep = ".")),
+                     height = 15, width = 25, legend = T)
 }
 
 txi <- readRDS(args[1])
@@ -77,13 +82,13 @@ DESeq2::summary(res)
 
 # WRITE OUTPUTS GENE EXPRESSION
 # total_RNA
-create_outputs(d = dds, results = res, marker = "condition", out = "total_rna", filteredRows = NULL)
+create_outputs(d = dds, results = res, marker = "condition", out = "total_rna")
 # circRNA gene expression
 circ_RNAs <- read.table(file = args[3], sep = "\t", header = TRUE)
-ens_ids <- circ_RNAs$ensembl_gene_ID
+ens_ids <- circ_RNAs$ensembl_gene_id
 dds_filtered <- dds
-filtered_res <- res[row.names(res) %in% ens_ids,]
-create_outputs(d = dds_filtered, results = filtered_res, marker = "condition", out = "circ_rna", filteredRows = ens_ids)
+filtered_res <- res[rownames(res) %in% ens_ids,]
+create_outputs(d = dds_filtered, results = filtered_res, marker = "condition", out = "circ_rna")
 
 # circRNA differential expression
 circ_RNA_annotation <- 0
@@ -114,7 +119,7 @@ res.circ <- res.circ[order(res.circ$padj),]
 # create summary
 DESeq2::summary(res.circ)
 
-create_outputs(dds.circ, res.circ, marker = "condition", out = "circ_rna_DE", filteredRows = NULL, nsub = 100)
+create_outputs(dds.circ, res.circ, marker = "condition", out = "circ_rna_DE", nsub = 100)
 
 # save R image
 save.image(file = "DESeq2.RData")

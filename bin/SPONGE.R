@@ -89,6 +89,14 @@ notset <- function(x) {
   }
 }
 
+adj_fdr <- function(interactions, x){
+  tmp = interactions
+  while (nrow(tmp) > 10000 && x < 1){
+    tmp = interactions[which(interactions$p.adj < x),]
+    x = x+0.1
+  }
+}
+
 split_encoding <- function(coded_vector) {
   split1 <- strsplit(coded_vector, "_")
   strand <- det_strand(split1[[1]][2])
@@ -268,12 +276,14 @@ print("calculating gene-miRNA interactions...")
 genes_miRNA_candidates <- SPONGE::sponge_gene_miRNA_interaction_filter(
   gene_expr = gene_expr,
   mir_expr = mi_rna_expr,
-  mir_predicted_targets = target_scan_symbols_counts)
+  mir_predicted_targets = target_scan_symbols_counts,
+  log.level = "INFO")
 print("calculating ceRNA interactions...")
 # (B) ceRNA interactions
 ceRNA_interactions <- SPONGE::sponge(gene_expr = gene_expr,
                              mir_expr = mi_rna_expr,
-                             mir_interactions = genes_miRNA_candidates)
+                             mir_interactions = genes_miRNA_candidates,
+                             log.level = "INFO")
 
 save.image(file = file.path(out, "sponge.RData"))
 
@@ -291,20 +301,52 @@ print("building ceRNA network...")
 # (D) ceRNA interaction network
 fdr <- as.double(argv$fdr)
 ceRNA_interactions_fdr <- ceRNA_interactions_sign[which(ceRNA_interactions_sign$p.adj < fdr),]
+if (nrow(ceRNA_interactions_fdr)==0) {
+  print("Warning: fdr setting too strict, no significant interactions detected; min of padj is:")
+  print(min(ceRNA_interactions_sign$p.adj))
+  print("using pvalue and selecting top 100 samples")
+  ceRNA_interactions_fdr <- ceRNA_interactions_sign[which(ceRNA_interactions_sign$p.val < fdr),]
+  ceRNA_interactions_fdr <- ceRNA_interactions_fdr[order(ceRNA_interactions_fdr$p.val),]
+  ceRNA_interactions_fdr <- head(ceRNA_interactions_fdr, 500)
+}
 ceRNA_network_plot <- sponge_plot_network(ceRNA_interactions_fdr, genes_miRNA_candidates)
 visNetwork::visSave(ceRNA_network_plot, file = "plots/network.html")
+# MOST SIGNIFICANT SPONGES
+network_centralities <- sponge_node_centralities(ceRNA_interactions_fdr)
+ceRNA_interactions_weight <- ceRNA_interactions_fdr
+ceRNA_interactions_weight$weight <- -log10(ceRNA_interactions_fdr$p.adj)
+weighted_network_centralities <- sponge_node_centralities(ceRNA_interactions_weight)
+
+# CIRC RNA ONLY
+ceRNA_interactions_circ <- ceRNA_interactions_fdr[grep("circ", ceRNA_interactions_fdr$geneB),]
+circRNA_network_plot <- sponge_plot_network(ceRNA_interactions_circ, genes_miRNA_candidates) %>%
+                        visNetwork::visEdges(arrows = list(to = list(enabled = T, scaleFactor = 1)),
+                                             label = paste("mscor:", round(ceRNA_interactions_circ$mscor, 2)),
+                                             font.size = 20)
+# add scores
+
+# adjust layout
+circRNA_network_plot <- circRNA_network_plot %>% visNetwork::visHierarchicalLayout(direction = "LR", nodeSpacing = 125, levelSeparation = 300)
+visNetwork::visSave(circRNA_network_plot, file = "plots/circ_network.html")
 
 # NETWORK ANALYSIS
-network_centralities <- sponge_node_centralities(ceRNA_interactions_fdr)
-# different weights for ceRNA interactions
-ceRNA_interactions_fdr_weight <- ceRNA_interactions_fdr
-ceRNA_interactions_fdr_weight$weight <- -log10(ceRNA_interactions_fdr$p.adj)
-weighted_network_centralities <- sponge_node_centralities(ceRNA_interactions_fdr)
+ceRNA_interactions_circ_weight <- ceRNA_interactions_circ
+ceRNA_interactions_circ_weight$weight <- -log10(ceRNA_interactions_circ$p.adj)
+weighted_network_centralities_circ <- sponge_node_centralities(ceRNA_interactions_circ_weight)
 # plot top n samples
 n = 3
-top_network_plot <- sponge_plot_network_centralities(weighted_network_centralities, top = n)
-visNetwork::visSave(ceRNA_network_plot, file = "plots/top_network.html")
+top_network_plot <- sponge_plot_network_centralities(weighted_network_centralities_circ, top = n)
+png(file = "plots/circ_top_network.png")
+plot(top_network_plot)
 
+more_covariance_matrices <- sample_zero_mscor_cov(m = 1,
+                                                  number_of_solutions = 10,
+                                                  gene_gene_correlation = 0.5)
+
+mscor_coefficients <- sample_zero_mscor_data(cov_matrices = more_covariance_matrices,
+                                             number_of_samples = 200, number_of_datasets = 100)
+
+dev.off()
 stopCluster(cl) # stop cluster
 # save R objects
 save.image(file = file.path(out, "sponge.RData"))

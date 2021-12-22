@@ -307,44 +307,58 @@ if (nrow(ceRNA_interactions_fdr)==0) {
   print("using pvalue and selecting top 100 samples")
   ceRNA_interactions_fdr <- ceRNA_interactions_sign[which(ceRNA_interactions_sign$p.val < fdr),]
   ceRNA_interactions_fdr <- ceRNA_interactions_fdr[order(ceRNA_interactions_fdr$p.val),]
-  ceRNA_interactions_fdr <- head(ceRNA_interactions_fdr, 500)
+  ceRNA_interactions_fdr <- head(ceRNA_interactions_fdr, 1000)
 }
+if (nrow(ceRNA_interactions_fdr)>10000){
+  print("Warning: fdr setting too loose, generated over 10000 significant hits; adjusting")
+  ceRNA_interactions_fdr <- ceRNA_interactions_fdr[order(ceRNA_interactions_fdr$p.adj),]
+  ceRNA_interactions_fdr <- head(ceRNA_interactions_fdr, 5000)
+}
+# GENERAL NETWORK
 ceRNA_network_plot <- sponge_plot_network(ceRNA_interactions_fdr, genes_miRNA_candidates)
+ceRNA_network_plot <- sponge_plot_network(ceRNA_interactions_fdr, genes_miRNA_candidates, ) %>%
+  visNetwork::visEdges(arrows = list(to = list(enabled = T, scaleFactor = 1)))
+ceRNA_network_plot$x$edges$label <- paste("mscor:", round(ceRNA_interactions_fdr$mscor, 2))
 visNetwork::visSave(ceRNA_network_plot, file = "plots/network.html")
 # MOST SIGNIFICANT SPONGES
 network_centralities <- sponge_node_centralities(ceRNA_interactions_fdr)
 ceRNA_interactions_weight <- ceRNA_interactions_fdr
 ceRNA_interactions_weight$weight <- -log10(ceRNA_interactions_fdr$p.adj)
 weighted_network_centralities <- sponge_node_centralities(ceRNA_interactions_weight)
+weighed_network_plot <- sponge_plot_network_centralities(weighted_network_centralities, top = 3)
+
+# STRONGEST LINEAR
+ceRNA_strongest <- ceRNA_interactions_fdr[order(ceRNA_interactions_fdr$mscor, decreasing = T),]
+ceRNA_strongest <- head(ceRNA_strongest, 100)
+ceRNA_strongest_plot <- sponge_plot_network(ceRNA_strongest, genes_miRNA_candidates, ) %>%
+  visNetwork::visEdges(arrows = list(to = list(enabled = T, scaleFactor = 1)))
+ceRNA_strongest_plot$x$edges$label <- paste("mscor:", round(ceRNA_strongest$mscor, 2))
 
 # CIRC RNA ONLY
-ceRNA_interactions_circ <- ceRNA_interactions_fdr[grep("circ", ceRNA_interactions_fdr$geneB),]
-circRNA_network_plot <- sponge_plot_network(ceRNA_interactions_circ, genes_miRNA_candidates) %>%
-                        visNetwork::visEdges(arrows = list(to = list(enabled = T, scaleFactor = 1)),
-                                             label = paste("mscor:", round(ceRNA_interactions_circ$mscor, 2)),
-                                             font.size = 20)
-# add scores
+ceRNA_interactions_circ <- ceRNA_interactions_fdr[grepl("circ", ceRNA_interactions_fdr$geneA) | grepl("circ", ceRNA_interactions_fdr$geneB), ]
+not_circ_A <- ceRNA_interactions_circ$geneA[!grepl("circ", ceRNA_interactions_circ$geneA)]
+not_circ_B <- ceRNA_interactions_circ$geneB[!grepl("circ", ceRNA_interactions_circ$geneB)]
+not_circ <- c(not_circ_A, not_circ_B)
+ceRNA_interactions_w_circ <- 
+interactions_w_circ <- ceRNA_interactions_fdr[ceRNA_interactions_fdr$geneA %in% not_circ | ceRNA_interactions_fdr$geneB %in% not_circ,]
+ceRNA_interactions_all_circ <- merge(ceRNA_interactions_circ, interactions_w_circ, all = T)
 
-# adjust layout
-circRNA_network_plot <- circRNA_network_plot %>% visNetwork::visHierarchicalLayout(direction = "LR", nodeSpacing = 125, levelSeparation = 300)
+# add scores
+circRNA_network_plot <- sponge_plot_network(ceRNA_interactions_all_circ, genes_miRNA_candidates, ) %>%
+                        visNetwork::visEdges(arrows = list(to = list(enabled = T, scaleFactor = 1)))
+circRNA_network_plot$x$edges$label <- paste("mscor:", round(ceRNA_interactions_all_circ$mscor, 2))
+
 visNetwork::visSave(circRNA_network_plot, file = "plots/circ_network.html")
 
 # NETWORK ANALYSIS
 ceRNA_interactions_circ_weight <- ceRNA_interactions_circ
-ceRNA_interactions_circ_weight$weight <- -log10(ceRNA_interactions_circ$p.adj)
+ceRNA_interactions_circ_weight$weight <- -log10(ceRNA_interactions_circ$p.val)
 weighted_network_centralities_circ <- sponge_node_centralities(ceRNA_interactions_circ_weight)
 # plot top n samples
 n = 3
 top_network_plot <- sponge_plot_network_centralities(weighted_network_centralities_circ, top = n)
 png(file = "plots/circ_top_network.png")
 plot(top_network_plot)
-
-more_covariance_matrices <- sample_zero_mscor_cov(m = 1,
-                                                  number_of_solutions = 10,
-                                                  gene_gene_correlation = 0.5)
-
-mscor_coefficients <- sample_zero_mscor_data(cov_matrices = more_covariance_matrices,
-                                             number_of_samples = 200, number_of_datasets = 100)
 
 dev.off()
 stopCluster(cl) # stop cluster

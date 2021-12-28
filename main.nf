@@ -749,7 +749,7 @@ if (!params.circRNA_only) {
     * SPONGE ANALYSIS (https://github.com/biomedbigdata/SPONGE)
     */
     if (params.sponge) {
-        process SPONGE_db_annotation{
+        process SPONGE{
             label 'process_high'
 
             publishDir "${params.out_dir}/results/sponging/SPONGE", mode: params.publish_dir_mode

@@ -361,7 +361,7 @@ if (params.database_annotation){
         """
     }
 } else {
-    ch_circRNA_counts_filtered.into{ ch_circRNA_counts_filtered1; ch_circRNA_counts_filtered2; ch_circRNA_counts_filtered3; ch_circRNA_counts_filtered4; ch_circRNA_counts_filtered5; ch_circRNA_counts_filtered6) }
+    ch_circRNA_counts_filtered.into{ ch_circRNA_counts_filtered1; ch_circRNA_counts_filtered2; ch_circRNA_counts_filtered3; ch_circRNA_counts_filtered4; ch_circRNA_counts_filtered5; ch_circRNA_counts_filtered6 }
 }
 
 /*
@@ -433,7 +433,7 @@ if (params.database_annotation){
         """
     }
 } else {
-    circRNAs_fasta.into{circRNAs_fasta1; circRNAs_fasta2}
+    circRNAs_fasta.into{ circRNAs_fasta1; circRNAs_fasta2 }
 }
 
 /*

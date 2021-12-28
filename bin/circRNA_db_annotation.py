@@ -142,9 +142,11 @@ def read_db(db_loc):
 
 # write annotated output circ rna
 def write_mapping_file(matched_dict, db_dict, output_loc, separator):
-    # build gene symbol converter
-    expr_header = ["circBaseID"]
-    expr_header.extend(matched_dict["header"][4:])
+    # build expression headers
+    expr_header = matched_dict["header"][:6]
+    expr_header.append("circBaseID")
+    expr_header.extend(matched_dict["header"][6:])
+    # build annotation header
     header = matched_dict["header"][:4]
     header.append(matched_dict["header"][5])
     matched_dict.pop("header")
@@ -157,7 +159,7 @@ def write_mapping_file(matched_dict, db_dict, output_loc, separator):
     header.extend(db_header[3:])
     print(len(matched_dict))
     annotation_file = os.path.join(output_loc, "circRNAs_annotated.tsv")
-    annotated_expr = os.path.join(output_loc, "circRNAs_counts_annotated.tsv")
+    annotated_expr = os.path.join(output_loc, "circRNA_counts_annotated.tsv")
     with open(annotation_file, "w") as output, open(annotated_expr, "w") as an_expr:
         if header is not None:
             output.write(str(separator).join(header) + "\n")
@@ -167,7 +169,7 @@ def write_mapping_file(matched_dict, db_dict, output_loc, separator):
             db_info = db_dict[k]
             circBaseID = str(db_info[3])
             # write annotated expression
-            an_expr.write(circBaseID + separator.join(v[6:]) + "\n")
+            an_expr.write(separator.join(v[:6]) + circBaseID + separator.join(v[6:]) + "\n")
             data = v[:4]
             # include ensgid
             data.append(v[5])

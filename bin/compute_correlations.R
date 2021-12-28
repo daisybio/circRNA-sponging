@@ -110,7 +110,7 @@ circRNA_for_row <- function(circRNA_expr_line){
   circRNA <- paste(chr,":", start, "-", end, "_", strand, sep="")
   
   # get sample counts for current circRNA
-  circRNA_counts <- circRNA_expr_line[-c(1:5)]
+  circRNA_counts <- circRNA_expr_line[-c(1:7)]
   circRNA_counts <- data.frame(sample = as.character(names(circRNA_counts)), "circRNA_counts" = as.numeric(unname(circRNA_counts)))
   
   res_list <- apply(miRNA_expression, 1, FUN = miRNA_for_row, circRNA, circRNA_counts)

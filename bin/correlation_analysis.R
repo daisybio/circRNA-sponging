@@ -106,7 +106,7 @@ plotCorrelationForPair <- function(circRNA, miRNA, circRNA_expression_df, miRNA_
   strand <- sapply(strsplit(as.character(circRNA),'_'), "[", 2)
   
   # get sample counts for current circRNA
-  circRNA_counts <- data.frame(t(circRNA_expression_df[circRNA_expression_df$chr == chr & circRNA_expression_df$start == start & circRNA_expression_df$stop == end & circRNA_expression_df$strand == strand,c(5:ncol(circRNA_expression_df))]))
+  circRNA_counts <- data.frame(t(circRNA_expression_df[circRNA_expression_df$chr == chr & circRNA_expression_df$start == start & circRNA_expression_df$stop == end & circRNA_expression_df$strand == strand,c(7:ncol(circRNA_expression_df))]))
   colnames(circRNA_counts) <- "circRNA_counts"
   circRNA_counts$sample <- row.names(circRNA_counts)
   circRNA_counts$circRNA_counts <- as.numeric(as.character(circRNA_counts$circRNA_counts))

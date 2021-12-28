@@ -327,7 +327,7 @@ process filter_circRNAs{
     file(circRNA_counts_norm) from ch_circRNA_counts_norm1
 
     output:
-    file("circRNA_counts_filtered.tsv") into (ch_circRNA_counts_filtered1, ch_circRNA_counts_filtered2, ch_circRNA_counts_filtered3, ch_circRNA_counts_filtered4, ch_circRNA_counts_filtered5, ch_circRNA_counts_filtered6)
+    file("circRNA_counts_filtered.tsv") into ch_circRNA_counts_filtered
 
     script:
     """
@@ -345,11 +345,11 @@ if (params.database_annotation){
     publishDir "${params.out_dir}/results/circRNA/", mode: params.publish_dir_mode
 
     input:
-    file(circRNAs_filtered) from ch_circRNA_counts_filtered1
+    file(circRNAs_filtered) from ch_circRNA_counts_filtered
 
     output:
-    file("circRNA_annotated.tsv") into (circRNAs_annotated1, circRNAs_annotated2)
-
+    file("circRNAs_annotated.tsv") into circRNAs_annotated
+    file("circRNA_counts_annotated.tsv") into (ch_circRNA_counts_filtered1, ch_circRNA_counts_filtered2, ch_circRNA_counts_filtered3, ch_circRNA_counts_filtered4, ch_circRNA_counts_filtered5, ch_circRNA_counts_filtered6)
     script:
     if( params.offline_circ_db == null )
         """
@@ -360,6 +360,8 @@ if (params.database_annotation){
         python3 "${projectDir}"/bin/circRNA_db_annotation.py -o $params.species -gv $params.genome_version -d $circRNAs_filtered -out "circRNA_annotated.tsv" -off $params.offline_circ_db
         """
     }
+} else {
+    ch_circRNA_counts_filtered.into{ ch_circRNA_counts_filtered1; ch_circRNA_counts_filtered2; ch_circRNA_counts_filtered3; ch_circRNA_counts_filtered4; ch_circRNA_counts_filtered5; ch_circRNA_counts_filtered6) }
 }
 
 /*
@@ -371,10 +373,8 @@ if (params.differential_expression){
         publishDir "${params.out_dir}/results/gene_expression/differential_expression", mode: params.publish_dir_mode
 
         input:
-        file(circRNAs_filtered) from ch_circRNA_counts_filtered2
+        file(circRNA_counts) from ch_circRNA_counts_filtered1
         file(txiRDS) from txiRDS
-        file(circRNAs_annotated1) from circRNAs_annotated1
-
 
         output:
         file("total_rna/total_rna.tsv") into deseq_total_rna
@@ -387,7 +387,7 @@ if (params.differential_expression){
 
         script:
         """
-        Rscript "${projectDir}"/bin/differentialExpression.R $txiRDS $params.samplesheet $circRNAs_filtered $circRNAs_annotated1
+        Rscript "${projectDir}"/bin/differentialExpression.R $txiRDS $params.samplesheet $circRNA_counts
         """
     }
 }
@@ -422,7 +422,7 @@ if (params.database_annotation){
 
         input:
         file(circRNAs_fasta) from circRNAs_fasta
-        file(circ_annotated) from circRNAs_annotated1
+        file(circ_annotated) from circRNAs_annotated
 
         output:
         file("circRNAs_annotated.fa") into (circRNAs_fasta1, circRNAs_fasta2)
@@ -433,21 +433,7 @@ if (params.database_annotation){
         """
     }
 } else {
-    process annotate_circRNA_fasta {
-        label 'process_medium'
-        publishDir "${params.out_dir}/results/binding_sites/input/", mode: params.publish_dir_mode
-
-        input:
-        file(circRNAs_fasta) from circRNAs_fasta
-
-        output:
-        file("circRNAs.fa") into (circRNAs_fasta1, circRNAs_fasta2)
-
-        script:
-        """
-        Rscript "${projectDir}"/bin/annotate_fasta.R $circRNAs_fasta
-        """
-    }
+    circRNAs_fasta.into{circRNAs_fasta1; circRNAs_fasta2}
 }
 
 /*
@@ -763,72 +749,36 @@ if (!params.circRNA_only) {
     * SPONGE ANALYSIS (https://github.com/biomedbigdata/SPONGE)
     */
     if (params.sponge) {
-        if (params.database_annotation) {
-            process SPONGE_db_annotation{
-                label 'process_high'
+        process SPONGE_db_annotation{
+            label 'process_high'
 
-                publishDir "${params.out_dir}/results/sponging/SPONGE", mode: params.publish_dir_mode
+            publishDir "${params.out_dir}/results/sponging/SPONGE", mode: params.publish_dir_mode
 
-                input:
-                file(gene_expression) from gene_expression
-                file(circRNA_counts_filtered) from ch_circRNA_counts_filtered6
-                file(circRNA_annotated) from circRNAs_annotated2
-                file(mirna_expression) from ch_miRNA_counts_filtered3
-                file(miranda_bind_sites) from ch_bindsites_filtered2
+            input:
+            file(gene_expression) from gene_expression
+            file(circRNA_counts_filtered) from ch_circRNA_counts_filtered6
+            file(mirna_expression) from ch_miRNA_counts_filtered3
+            file(miranda_bind_sites) from ch_bindsites_filtered2
 
-                output:
-                file("sponge.RData") into Rimage
-                file("plots/*.png") into ch_sponge_plots
+            output:
+            file("sponge.RData") into Rimage
+            file("plots/*.png") into ch_sponge_plots
 
-                script:
-                """
-                Rscript "${projectDir}"/bin/SPONGE.R \\
-                --gene_expr $gene_expression \\
-                --circ_rna $circRNA_counts_filtered \\
-                --circ_annotated $circRNA_annotation \\
-                --mirna_expr $mirna_expression \\
-                --organism $params.organism \\
-                --fdr $params.fdr \\
-                --target_scan_symbols $params.target_scan_symbols \\
-                --miRTarBase_loc $params.miRTarBaseData \\
-                --miranda_data $miranda_bind_sites \\
-                --TargetScan_data $params.TargetScanData \\
-                --lncBase_data $params.lncBaseData \\
-                --miRDB_data $params.miRDB_data
-                """
-            }
-        } else {
-            process SPONGE{
-                label 'process_high'
-
-                publishDir "${params.out_dir}/results/sponging/SPONGE", mode: params.publish_dir_mode
-
-                input:
-                file(gene_expression) from gene_expression
-                file(circRNA_counts_filtered) from ch_circRNA_counts_filtered6
-                file(mirna_expression) from ch_miRNA_counts_filtered3
-                file(miranda_bind_sites) from ch_bindsites_filtered2
-
-                output:
-                file("sponge.RData") into Rimage
-                file("plots/*.png") into ch_sponge_plots
-
-                script:
-                """
-                Rscript "${projectDir}"/bin/SPONGE.R \\
-                --gene_expr $gene_expression \\
-                --circ_rna $circRNA_counts_filtered \\
-                --mirna_expr $mirna_expression \\
-                --organism $params.organism \\
-                --fdr $params.fdr \\
-                --target_scan_symbols $params.target_scan_symbols \\
-                --miRTarBase_loc $params.miRTarBaseData \\
-                --miranda_data $miranda_bind_sites \\
-                --TargetScan_data $params.TargetScanData \\
-                --lncBase_data $params.lncBaseData \\
-                --miRDB_data $params.miRDB_data
-                """
-            }
+            script:
+            """
+            Rscript "${projectDir}"/bin/SPONGE.R \\
+            --gene_expr $gene_expression \\
+            --circ_rna $circRNA_counts_filtered \\
+            --mirna_expr $mirna_expression \\
+            --organism $params.organism \\
+            --fdr $params.fdr \\
+            --target_scan_symbols $params.target_scan_symbols \\
+            --miRTarBase_loc $params.miRTarBaseData \\
+            --miranda_data $miranda_bind_sites \\
+            --TargetScan_data $params.TargetScanData \\
+            --lncBase_data $params.lncBaseData \\
+            --miRDB_data $params.miRDB_data
+            """
         }
     }
 }

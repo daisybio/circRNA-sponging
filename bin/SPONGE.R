@@ -21,7 +21,6 @@ parser <- add_argument(parser, "--miranda_data", help = "miRanda default output 
 parser <- add_argument(parser, "--TargetScan_data", help = "TargetScan contingency data location in tsv format", default = "null")
 parser <- add_argument(parser, "--lncBase_data", help = "LncBase contingency data location in tsv format", default = "null")
 parser <- add_argument(parser, "--miRDB_data", help = "miRDB contingency data location in tsv format", default = "null")
-parser <- add_argument(parser, "--circ_annotation", help = "Path to circRNA annotation file containing circBaseIDs and genomic position of circRNAs in tsv format", default = "null")
 
 argv <- parse_args(parser, argv = args)
 
@@ -213,22 +212,20 @@ gene_expr <- as.data.frame(t(read.table(file = argv$gene_expr, header = T, sep =
 
 # READ CIRC_RNA EXPRESSION AND COMBINE THEM
 print("adding circRNA expression...")
-circ_rna_expression <- as.data.frame(read.table(file = argv$circ_rna, header = T, sep = "\t"))
-circ_filtered <- 0
-# use db_annotation
-if (file.exists(argv$circ_annotation)) {
-  print("using circBase IDs")
-  circ_rna_annotation <- as.data.frame(read.table(file = argv$circ_annotation, header = T, sep = "\t"))
-  # use circBase ID
-  circ_annotation <- circ_rna_annotation[, c("chr", "start", "stop", "strand", "circRNA.ID")]
-  circ_filtered <- merge(circ_rna_expression, circ_annotation, by = c("chr", "start", "stop", "strand"), all = T)
+circ_RNAs <- as.data.frame(read.table(file = argv$circ_rna, header = T, sep = "\t"))
+# use given annotation if possible
+if ("circBaseID" %in% colnames(circ_RNAs)) {
+  circ_RNA_annotation <- data.table(circRNA.ID=circ_RNAs$circBaseID)
+  # cut table and annotate rownames
+  circ_filtered <- circ_RNAs[,-c(1:7)]
 } else {
-  print("using circRNA position as ID")
-  circ_filtered <- data.table(circRNA.ID=paste0(circ_rna_expression$chr, ":", circ_rna_expression$start, "-", circ_rna_expression$stop,"_", circ_rna_expression$strand))
-  circ_rna_expression$circRNA.ID <- circ_filtered$circRNA.ID
-  circ_filtered <- circ_rna_expression
+  circ_RNA_annotation <- data.table(circRNA.ID=paste0(circ_RNAs$chr, ":", circ_RNAs$start, ":", circ_RNAs$stop, ":", circ_RNAs$strand))
+  # cut table and annotate row names
+  circ_filtered <- circ_RNAs[,-c(1:6)]
 }
-circ_filtered <- circ_filtered[, 7:length(circ_filtered)]
+rownames(circ_filtered) <- circ_RNA_annotation$circRNA.ID
+
+circ_filtered <- circ_filtered[, 7:ncol(circ_filtered)]
 circ_filtered <- circ_filtered[complete.cases(circ_filtered),]
 rownames(circ_filtered) <- circ_filtered$circRNA.ID
 circ_filtered$circRNA.ID <- NULL

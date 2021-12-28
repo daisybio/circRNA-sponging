@@ -373,17 +373,21 @@ if (params.differential_expression){
         input:
         file(circRNAs_filtered) from ch_circRNA_counts_filtered2
         file(txiRDS) from txiRDS
+        file(circRNAs_annotated1) from circRNAs_annotated1
+
 
         output:
         file("total_rna/total_rna.tsv") into deseq_total_rna
-        file("circ_rna/circ_rna.tsv") into deseq_circ_rna
+        file("circ_rna_gene/circ_rna.tsv") into deseq_circ_rna_gene
+        file("circ_rna_DE/circ_rna_DE.tsv") into deseq_circ_rna
         file("total_rna/*.png") into total_plots
-        file("circ_rna/*.png") into circ_plots
+        file("circ_rna/*.png") into circ_gene_plots
+        file("circ_rna_DE/*.png") into circ_plots
         file("DESeq2.RData") into deseq2_rdata
 
         script:
         """
-        Rscript "${projectDir}"/bin/differentialExpression.R $txiRDS $params.samplesheet $circRNAs_filtered
+        Rscript "${projectDir}"/bin/differentialExpression.R $txiRDS $params.samplesheet $circRNAs_filtered $circRNAs_annotated1
         """
     }
 }
@@ -409,6 +413,44 @@ process extract_circRNA_sequences {
 }
 
 /*
+* ANNOTATE CIRCRNA IF POSSIBLE
+*/
+if (params.database_annotation){
+    process annotate_circRNA_fasta {
+        label 'process_medium'
+        publishDir "${params.out_dir}/results/binding_sites/input/", mode: params.publish_dir_mode
+
+        input:
+        file(circRNAs_fasta) from circRNAs_fasta
+        file(circ_annotated) from circRNAs_annotated1
+
+        output:
+        file("circRNAs_annotated.fa") into (circRNAs_fasta1, circRNAs_fasta2)
+
+        script:
+        """
+        Rscript "${projectDir}"/bin/annotate_fasta.R $circRNAs_fasta $circ_annotated
+        """
+    }
+} else {
+    process annotate_circRNA_fasta {
+        label 'process_medium'
+        publishDir "${params.out_dir}/results/binding_sites/input/", mode: params.publish_dir_mode
+
+        input:
+        file(circRNAs_fasta) from circRNAs_fasta
+
+        output:
+        file("circRNAs.fa") into (circRNAs_fasta1, circRNAs_fasta2)
+
+        script:
+        """
+        Rscript "${projectDir}"/bin/annotate_fasta.R $circRNAs_fasta
+        """
+    }
+}
+
+/*
 * DETERMINE miRNA BINDING SITES ON THE PREVIOUSLY DETECTED circRNAs USING miranda
 */
 process miranda {
@@ -416,7 +458,7 @@ process miranda {
     publishDir "${params.out_dir}/results/binding_sites/output/", mode: params.publish_dir_mode
     
     input:
-    file(circRNA_fasta) from circRNAs_fasta
+    file(circRNA_fasta) from circRNAs_fasta1
 
     output:
     file("bind_sites_raw.out") into bind_sites_out
@@ -468,39 +510,47 @@ process binding_sites_filtering {
 }
 
 /*
-* ANNOTATE MIRANDA OUTPUT WITH GENE IDS AND PREPARE COUNT MATRIX FOR SPONGE
+* RUN TARPMIR ANALYSIS ON CIRCRNA FASTAS
 */
-if (params.database_annotation){
-    process prepare_miranda_db {
-        label 'process_medium'
-        publishDir "${params.out_dir}/results/binding_sites/output/", mode: params.publish_dir_mode
+if (params.tarpmir) {
+    Random random = new Random()
+
+    // RUN TARPMIR ON CHUNKED MRNA FASTAS
+    process tarpmir {
+        label 'process_high'
+        publishDir "${params.out_dir}/results/binding_sites/output/tarpmir/tmp", mode: 'copy'
 
         input:
-        file(bindsites) from ch_bindsites_filtered2
-        file(circ_annotated) from circRNAs_annotated1
+        val(randomInt) from random.nextInt()
+        file(mRNA_fasta) from circRNAs_fasta2.splitFasta( by: params.splitter, file: true )
 
         output:
-        file("miranda_counts_sponge.tsv") into miranda_counts_sponge
+        file("bindings_${randomInt}.bp") into bp_files
 
         script:
         """
-        Rscript "${projectDir}"/bin/process_miranda_bindings.R $bindsites $circ_annotated
+        python3 "${projectDir}"/bin/TarPmiR_threading.py" \\
+        -a $params.mature_fasta \\
+        -b $mRNA_fasta \\
+        -m $params.model \\
+        -p $params.p \\
+        -t $params.threads \\
+        -o "bindings_${randomInt}.bp"
         """
     }
-} else { 
-    process prepare_miranda {
-        label 'process_medium'
-        publishDir "${params.out_dir}/results/binding_sites/output/", mode: params.publish_dir_mode
+
+    // combine files to one
+    combined_bp_file = bp_files.collectFile(name: "${params.out_dir}/results/binding_sites/output/tarpmir/tarpmir_bp.tsv")
+
+    process clean_tmp {
+        label 'process_low'
 
         input:
-        file(bindsites) from ch_bindsites_filtered2
-
-        output:
-        file("miranda_counts_sponge.tsv") into miranda_counts_sponge
+        file(files) from combined_bp_file
 
         script:
         """
-        Rscript "${projectDir}"/bin/process_miranda_bindings.R $bindsites
+        rm -r "${params.out_dir}/results/binding_sites/output/tarpmir/tmp"
         """
     }
 }
@@ -724,7 +774,7 @@ if (!params.circRNA_only) {
                 file(circRNA_counts_filtered) from ch_circRNA_counts_filtered6
                 file(circRNA_annotated) from circRNAs_annotated2
                 file(mirna_expression) from ch_miRNA_counts_filtered3
-                file(miranda_bind_sites) from miranda_counts_sponge
+                file(miranda_bind_sites) from ch_bindsites_filtered2
 
                 output:
                 file("sponge.RData") into Rimage
@@ -757,7 +807,7 @@ if (!params.circRNA_only) {
                 file(gene_expression) from gene_expression
                 file(circRNA_counts_filtered) from ch_circRNA_counts_filtered6
                 file(mirna_expression) from ch_miRNA_counts_filtered3
-                file(miranda_bind_sites) from miranda_counts_sponge
+                file(miranda_bind_sites) from ch_bindsites_filtered2
 
                 output:
                 file("sponge.RData") into Rimage

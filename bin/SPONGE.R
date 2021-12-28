@@ -15,12 +15,12 @@ parser <- add_argument(parser, "--organism", help = "Organism given in three let
 # add all target scan symbol options to be included -> will generate final target scan symbols
 parser <- add_argument(parser, "--output_dir", help = "Output directory", default = getwd())
 parser <- add_argument(parser, "--fdr", help = "FDR rate for ceRNA networks", default = 0.01)
-parser <- add_argument(parser, "--target_scan_symbols", help = "Matrix of target scan symbols provided as tsv", default = "null")
-parser <- add_argument(parser, "--miRTarBase_loc", help = "MiRTarBase data location in csv format", default = "null")
-parser <- add_argument(parser, "--miranda_data", help = "Annotated miranda contigency table", default = "null")
-parser <- add_argument(parser, "--TargetScan_data", help = "TargetScan data location in tsv format", default = "null")
-parser <- add_argument(parser, "--lncBase_data", help = "LncBase data location in tsv format", default = "null")
-parser <- add_argument(parser, "--miRDB_data", help = "miRDB data location in tsv format", default = "null")
+parser <- add_argument(parser, "--target_scan_symbols", help = "Contingency matrix of target scan symbols provided as tsv", default = "null")
+parser <- add_argument(parser, "--miRTarBase_loc", help = "MiRTarBase contingency data location in csv format", default = "null")
+parser <- add_argument(parser, "--miranda_data", help = "miRanda default output in tsv", default = "null")
+parser <- add_argument(parser, "--TargetScan_data", help = "TargetScan contingency data location in tsv format", default = "null")
+parser <- add_argument(parser, "--lncBase_data", help = "LncBase contingency data location in tsv format", default = "null")
+parser <- add_argument(parser, "--miRDB_data", help = "miRDB contingency data location in tsv format", default = "null")
 parser <- add_argument(parser, "--circ_annotation", help = "Path to circRNA annotation file containing circBaseIDs and genomic position of circRNAs in tsv format", default = "null")
 
 argv <- parse_args(parser, argv = args)
@@ -140,7 +140,8 @@ create_target_scan_symbols <- function(merged_data, miRTarBase, miranda, TargetS
   miranda_targets <- NULL
   if (file.exists(miranda)) {
     print("processing miranda targets")
-    miranda_targets <- data.frame(read.table(miranda, header = T, sep = "\t"))
+    miranda.bp <- data.frame(read.table(miranda, header = T, sep = "\t"))
+    miranda_targets <- as.data.frame.matrix(table(miranda.bp$Target, miranda.bp$miRNA))
   }
   # process TargetScan data
   target_scan_targets <- NULL

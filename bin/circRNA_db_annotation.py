@@ -16,8 +16,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-o", "--organism", help="Organism on three letter code (hsa for human)", required=True)
 parser.add_argument("-gv", "--genome_version", help="Used genome version", required=True)
 parser.add_argument("-d", "--data_loc", help="Location of data to be converted", required=True)
-parser.add_argument("-out", "--output", help="Output file location", required=True)
 # optional
+parser.add_argument("-out", "--output", help="Output directory", default="./")
 parser.add_argument("-s", "--separator", help="Separator of file", default="\t")
 parser.add_argument("-chrC", "--chromosome", help="Column of chromosome", default=0)
 parser.add_argument("-startC", "--start", help="Column of start of position", default=1)
@@ -143,6 +143,8 @@ def read_db(db_loc):
 # write annotated output circ rna
 def write_mapping_file(matched_dict, db_dict, output_loc, separator):
     # build gene symbol converter
+    expr_header = ["circBaseID"]
+    expr_header.extend(matched_dict["header"][4:])
     header = matched_dict["header"][:4]
     header.append(matched_dict["header"][5])
     matched_dict.pop("header")
@@ -154,12 +156,18 @@ def write_mapping_file(matched_dict, db_dict, output_loc, separator):
     # extend rest of db data without already present information
     header.extend(db_header[3:])
     print(len(matched_dict))
-    with open(output_loc, "w") as output:
+    annotation_file = os.path.join(output_loc, "circRNAs_annotated.tsv")
+    annotated_expr = os.path.join(output_loc, "circRNAs_counts_annotated.tsv")
+    with open(annotation_file, "w") as output, open(annotated_expr, "w") as an_expr:
         if header is not None:
             output.write(str(separator).join(header) + "\n")
+            an_expr.write(str(separator).join(expr_header) + "\n")
         # filter output and merge annotations
         for k, v in matched_dict.items():
             db_info = db_dict[k]
+            circBaseID = str(db_info[3])
+            # write annotated expression
+            an_expr.write(circBaseID + separator.join(v[6:]) + "\n")
             data = v[:4]
             # include ensgid
             data.append(v[5])

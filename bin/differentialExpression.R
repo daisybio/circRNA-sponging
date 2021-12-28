@@ -88,12 +88,12 @@ circ_RNAs <- read.table(file = args[3], sep = "\t", header = TRUE)
 ens_ids <- circ_RNAs$ensembl_gene_id
 dds_filtered <- dds
 filtered_res <- res[rownames(res) %in% ens_ids,]
-create_outputs(d = dds_filtered, results = filtered_res, marker = "condition", out = "circ_rna")
+create_outputs(d = dds_filtered, results = filtered_res, marker = "condition", out = "circ_rna_gene")
 
 # circRNA differential expression
 circ_RNA_annotation <- 0
 # use annotation if possible
-if (length(args)==4) {
+if (length(args)==4 & file.exists(args[4])) {
   circ_RNA_annotation <- data.frame(read.table(args[4], sep = "\t", header = T))
   circ_RNA_annotation <- data.table(pos=paste0(circ_RNA_annotation$chr, ":", circ_RNA_annotation$start, ":", circ_RNA_annotation$stop, ":", circ_RNA_annotation$strand),
                                     circRNA.ID=circ_RNA_annotation$circRNA.ID)
@@ -102,10 +102,10 @@ if (length(args)==4) {
 } else {
   circ_RNA_annotation <- data.table(circRNA.ID=paste0(circ_RNAs$chr, ":", circ_RNAs$start, ":", circ_RNAs$stop, ":", circ_RNAs$strand))
 }
-circ_RNAs$circRNA.ID <- circ_RNA_annotation$circRNA.ID
+# cut table and annotate rownames
 circ_expr <- circ_RNAs[,-c(1:6)]
-rownames(circ_expr) <- circ_expr$circRNA.ID
-circ_expr$circRNA.ID <- NULL
+rownames(circ_expr) <- circ_RNA_annotation$circRNA.ID
+# format miRNA ids
 colnames(circ_expr) <- sapply(gsub("\\.", "-", colnames(circ_expr)), "[", 1)
 circ_expr <- as.matrix(circ_expr)
 

@@ -88,7 +88,7 @@ circ_RNAs <- read.table(file = args[3], sep = "\t", header = TRUE)
 ens_ids <- circ_RNAs$ensembl_gene_id
 dds_filtered <- dds
 filtered_res <- res[rownames(res) %in% ens_ids,]
-create_outputs(d = dds_filtered, results = filtered_res, marker = "condition", out = "circ_rna_gene")
+create_outputs(d = dds_filtered, results = filtered_res, marker = "condition", out = "circ_rna_GE")
 
 # DIFFERENTIAL CIRCRNA EXPRESSION
 # use given annotation if possible

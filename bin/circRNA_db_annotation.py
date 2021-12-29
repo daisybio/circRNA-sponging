@@ -13,7 +13,7 @@ from selenium.webdriver.firefox.options import Options
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument("-o", "--organism", help="Organism on three letter code (hsa for human)", required=True)
+parser.add_argument("-o", "--organism", help="Organism in three letter code (hsa for human)", required=True)
 parser.add_argument("-gv", "--genome_version", help="Used genome version", required=True)
 parser.add_argument("-d", "--data_loc", help="Location of data to be converted", required=True)
 # optional
@@ -169,7 +169,7 @@ def write_mapping_file(matched_dict, db_dict, output_loc, separator):
             db_info = db_dict[k]
             circBaseID = str(db_info[3])
             # write annotated expression
-            an_expr.write(separator.join(v[:6]) + circBaseID + separator.join(v[6:]) + "\n")
+            an_expr.write(separator.join(v[:6]) + separator + circBaseID + separator + separator.join(v[6:]) + "\n")
             data = v[:4]
             # include ensgid
             data.append(v[5])

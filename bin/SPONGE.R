@@ -225,10 +225,7 @@ if ("circBaseID" %in% colnames(circ_RNAs)) {
 }
 rownames(circ_filtered) <- circ_RNA_annotation$circRNA.ID
 
-circ_filtered <- circ_filtered[, 7:ncol(circ_filtered)]
 circ_filtered <- circ_filtered[complete.cases(circ_filtered),]
-rownames(circ_filtered) <- circ_filtered$circRNA.ID
-circ_filtered$circRNA.ID <- NULL
 circ_filtered <- as.data.frame(t(circ_filtered))
 
 gene_expr <- cbind(gene_expr, circ_filtered)

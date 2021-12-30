@@ -770,7 +770,7 @@ if (!params.circRNA_only) {
             --gene_expr $gene_expression \\
             --circ_rna $circRNA_counts_filtered \\
             --mirna_expr $mirna_expression \\
-            --organism $params.organism \\
+            --organism $params.species \\
             --fdr $params.fdr \\
             --target_scan_symbols $params.target_scan_symbols \\
             --miRTarBase_loc $params.miRTarBaseData \\

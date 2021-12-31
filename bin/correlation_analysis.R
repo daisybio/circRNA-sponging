@@ -34,6 +34,8 @@ circRNA_expression_raw <- read.table(circRNA_raw_path,header = T, stringsAsFacto
 
 miRNA_expression <- read.table(miRNA_filtered_path, header = T, stringsAsFactors = F, check.names = F)
 circRNA_expression <- read.table(circRNA_filtered_path,header = T, stringsAsFactors = F, check.names = F)
+# check for annotation
+annotation <- "circBaseID" %in% colnames(circRNA_expression)
 
 # write starting statistics to file
 file.create(statistics_file)
@@ -99,14 +101,19 @@ plotCorrelationDistribution(correlations_processed, paste("Filter: adj_pval <", 
 
 # define function for plotting correlation for specific pair
 plotCorrelationForPair <- function(circRNA, miRNA, circRNA_expression_df, miRNA_expression_df, bind_sites, R_value, adjusted_p_value, plot_folder, plot_name){
-  #get coordinates of circRNA
-  chr <- sapply(strsplit(as.character(circRNA),':'), "[", 1)
-  start <- as.numeric(sapply(strsplit(sapply(strsplit(as.character(circRNA),':'), "[", 2),'-'), "[", 1))
-  end <- as.numeric(sapply(strsplit(sapply(strsplit(as.character(circRNA),'-'), "[", 2),'_'), "[", 1))
-  strand <- sapply(strsplit(as.character(circRNA),'_'), "[", 2)
-  
-  # get sample counts for current circRNA
-  circRNA_counts <- data.frame(t(circRNA_expression_df[circRNA_expression_df$chr == chr & circRNA_expression_df$start == start & circRNA_expression_df$stop == end & circRNA_expression_df$strand == strand,c(7:ncol(circRNA_expression_df))]))
+  if (annotation) {
+    # get sample counts for current circRNA
+    circRNA_counts <- data.frame(t(circRNA_expression_df[circRNA, c(8:ncol(circRNA_expression_df))]))
+  } else {
+    # get coordinates of circRNA
+    chr <- sapply(strsplit(as.character(circRNA),':'), "[", 1)
+    start <- as.numeric(sapply(strsplit(sapply(strsplit(as.character(circRNA),':'), "[", 2),'-'), "[", 1))
+    end <- as.numeric(sapply(strsplit(sapply(strsplit(as.character(circRNA),'-'), "[", 2),'_'), "[", 1))
+    strand <- sapply(strsplit(as.character(circRNA),'_'), "[", 2)
+    
+    # get sample counts for current circRNA
+    circRNA_counts <- data.frame(t(circRNA_expression_df[circRNA_expression_df$chr == chr & circRNA_expression_df$start == start & circRNA_expression_df$stop == end & circRNA_expression_df$strand == strand,c(7:ncol(circRNA_expression_df))]))
+  }
   colnames(circRNA_counts) <- "circRNA_counts"
   circRNA_counts$sample <- row.names(circRNA_counts)
   circRNA_counts$circRNA_counts <- as.numeric(as.character(circRNA_counts$circRNA_counts))
@@ -160,10 +167,7 @@ p_colored <- ggplot(joined_counts, aes(x=circRNA_counts, y=miRNA_counts)) +
 
 
 }
-
-
 }
-
 
 # plot top negative correlation
 correlations_sign <- correlations_bind
@@ -176,7 +180,6 @@ for (i in 1:10){
   R_value <- correlations_sign[i,"pearson_R"]
   adjusted_p_value <- correlations_sign[i,"adj_pval"]
   plotCorrelationForPair(circRNA_min, miRNA_min, circRNA_expression, miRNA_expression, bind_sites, R_value, adjusted_p_value, plot_folder, paste0("correlation_pair_", circRNA_min, "_", miRNA_min))
-
 }
 
 

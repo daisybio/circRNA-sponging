@@ -28,6 +28,8 @@ if(length(samples) < 5){
 miRNA_expression <- read.table(miRNA_filtered_path, header = T, stringsAsFactors = F, check.names = F)
 
 circRNA_expression <- read.table(circRNA_filtered_path,header = T, stringsAsFactors = F, check.names = F)
+# check for annotation
+annotation <- "circBaseID" %in% colnames(circRNA_expression)
 
 header <- "circRNA\tmiRNA\tcircRNA_miRNA_ratio\tmiRNA_binding_sites\tpearson_R\tcorr_pval\tRSS_norm\tintercept\tintercept_pval\tslope\tslope_pval\tadj_r_squared"
 #write(header, file=paste0("filtered_circRNA_miRNA_correlation_libSizeEstNorm_directwritten.tsv"), append = F)
@@ -101,23 +103,28 @@ miRNA_for_row <- function(miRNA_expr_line, circRNA, circRNA_counts){
   return(res)
 }
 
+# TODO: handle annotation!!!
 circRNA_for_row <- function(circRNA_expr_line){
   # get coordinations of current circRNA
-  chr <- as.character(circRNA_expr_line[1])
-  start <- as.numeric(as.character(circRNA_expr_line[2]))
-  end <- as.numeric(as.character(circRNA_expr_line[3]))
-  strand <- as.character(circRNA_expr_line[4])
-  circRNA <- paste(chr,":", start, "-", end, "_", strand, sep="")
+  if (annotation) {
+    circRNA <- circRNA_expr_line$circBaseID
+    circRNA_counts <- circRNA_expr_line[-c(1:7)]
+  } else {
+    chr <- as.character(circRNA_expr_line[1])
+    start <- as.numeric(as.character(circRNA_expr_line[2]))
+    end <- as.numeric(as.character(circRNA_expr_line[3]))
+    strand <- as.character(circRNA_expr_line[4])
+    circRNA <- paste(chr,":", start, "-", end, "_", strand, sep="")
+    circRNA_counts <- circRNA_expr_line[-c(1:6)]
+  }
   
   # get sample counts for current circRNA
-  circRNA_counts <- circRNA_expr_line[-c(1:7)]
   circRNA_counts <- data.frame(sample = as.character(names(circRNA_counts)), "circRNA_counts" = as.numeric(unname(circRNA_counts)))
   
   res_list <- apply(miRNA_expression, 1, FUN = miRNA_for_row, circRNA, circRNA_counts)
   res_df <- do.call(rbind, res_list)
   return(res_df)
 }
-
 
 correlations_list <- apply(circRNA_expression, MARGIN = 1, circRNA_for_row)
 correlations_df <- do.call(rbind, correlations_list)

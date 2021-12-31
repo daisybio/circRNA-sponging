@@ -3,6 +3,7 @@
 library(SPONGE)
 library(argparser)
 library(data.table)
+library(dplyr)
 library(ggplot2)
 
 args = commandArgs(trailingOnly = TRUE)

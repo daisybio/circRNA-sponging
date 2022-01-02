@@ -103,7 +103,7 @@ plotCorrelationDistribution(correlations_processed, paste("Filter: adj_pval <", 
 plotCorrelationForPair <- function(circRNA, miRNA, circRNA_expression_df, miRNA_expression_df, bind_sites, R_value, adjusted_p_value, plot_folder, plot_name){
   if (annotation) {
     # get sample counts for current circRNA
-    circRNA_counts <- data.frame(t(circRNA_expression_df[circRNA, c(8:ncol(circRNA_expression_df))]))
+    circRNA_counts <- data.frame(t(circRNA_expression_df[circRNA == circRNA_expression_df$circBaseID, -c(1:7)]))
     name <- paste(circRNA, " VS. ", miRNA, sep = "")
   } else {
     # get coordinates of circRNA
@@ -176,7 +176,7 @@ p_colored <- ggplot(joined_counts, aes(x=circRNA_counts, y=miRNA_counts)) +
 correlations_sign <- correlations_bind
 correlations_sign <- correlations_sign[order(correlations_sign$pearson_R),]
 top_plots <- list()
-save.image("correlation.RData")
+
 for (i in 1:10){
   circRNA_min <- correlations_sign[i,1]
   miRNA_min <- correlations_sign[i,2]

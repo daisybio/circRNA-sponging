@@ -107,7 +107,7 @@ miRNA_for_row <- function(miRNA_expr_line, circRNA, circRNA_counts){
 circRNA_for_row <- function(circRNA_expr_line){
   # get coordinations of current circRNA
   if (annotation) {
-    circRNA <- circRNA_expr_line$circBaseID
+    circRNA <- circRNA_expr_line[7]
     circRNA_counts <- circRNA_expr_line[-c(1:7)]
   } else {
     chr <- as.character(circRNA_expr_line[1])

@@ -176,6 +176,7 @@ p_colored <- ggplot(joined_counts, aes(x=circRNA_counts, y=miRNA_counts)) +
 correlations_sign <- correlations_bind
 correlations_sign <- correlations_sign[order(correlations_sign$pearson_R),]
 top_plots <- list()
+save.image("correlation.RData")
 for (i in 1:10){
   circRNA_min <- correlations_sign[i,1]
   miRNA_min <- correlations_sign[i,2]

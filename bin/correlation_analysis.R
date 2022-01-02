@@ -104,12 +104,15 @@ plotCorrelationForPair <- function(circRNA, miRNA, circRNA_expression_df, miRNA_
   if (annotation) {
     # get sample counts for current circRNA
     circRNA_counts <- data.frame(t(circRNA_expression_df[circRNA, c(8:ncol(circRNA_expression_df))]))
+    name <- paste(circRNA, " VS. ", miRNA, sep = "")
   } else {
     # get coordinates of circRNA
     chr <- sapply(strsplit(as.character(circRNA),':'), "[", 1)
     start <- as.numeric(sapply(strsplit(sapply(strsplit(as.character(circRNA),':'), "[", 2),'-'), "[", 1))
     end <- as.numeric(sapply(strsplit(sapply(strsplit(as.character(circRNA),'-'), "[", 2),'_'), "[", 1))
     strand <- sapply(strsplit(as.character(circRNA),'_'), "[", 2)
+    
+    name <- paste(chr, ":", start,"-", end ," VS. ", miRNA, sep="")
     
     # get sample counts for current circRNA
     circRNA_counts <- data.frame(t(circRNA_expression_df[circRNA_expression_df$chr == chr & circRNA_expression_df$start == start & circRNA_expression_df$stop == end & circRNA_expression_df$strand == strand,c(7:ncol(circRNA_expression_df))]))
@@ -132,7 +135,7 @@ plotCorrelationForPair <- function(circRNA, miRNA, circRNA_expression_df, miRNA_
   p <- ggplot(joined_counts, aes(x=circRNA_counts, y=miRNA_counts)) + 
     geom_point(size = 2)+
     geom_smooth(method = "lm", formula = y ~ x) +
-    labs(title=paste(chr, ":", start,"-", end ," VS. ", miRNA, sep=""), 
+    labs(title=name, 
        x ="circRNA counts", 
        y = "miRNA counts", 
        subtitle=paste0("R=",round(R_value, digits = 2),
@@ -155,7 +158,7 @@ if (sample_path != "null") {
 p_colored <- ggplot(joined_counts, aes(x=circRNA_counts, y=miRNA_counts)) + 
     geom_point(size = 2, aes(col = group))+
     geom_smooth(method = "lm", formula = y ~ x) +
-    labs(title=paste(chr, ":", start,"-", end ," VS. ", miRNA, sep=""), 
+    labs(title=name, 
        x ="circRNA counts", 
        y = "miRNA counts", 
        subtitle=paste0("R=",round(R_value, digits = 2),

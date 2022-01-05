@@ -19,6 +19,7 @@ parser <- add_argument(parser, "--fdr", help = "FDR rate for ceRNA networks", de
 parser <- add_argument(parser, "--target_scan_symbols", help = "Contingency matrix of target scan symbols provided as tsv", default = "null")
 parser <- add_argument(parser, "--miRTarBase_loc", help = "MiRTarBase contingency data location in csv format", default = "null")
 parser <- add_argument(parser, "--miranda_data", help = "miRanda default output in tsv", default = "null")
+parser <- add_argument(parser, "--tarpmir_data", help = "default tarpmir output file in tsv", default = "null")
 parser <- add_argument(parser, "--TargetScan_data", help = "TargetScan contingency data location in tsv format", default = "null")
 parser <- add_argument(parser, "--lncBase_data", help = "LncBase contingency data location in tsv format", default = "null")
 parser <- add_argument(parser, "--miRDB_data", help = "miRDB contingency data location in tsv format", default = "null")
@@ -109,7 +110,7 @@ split_encoding <- function(coded_vector) {
 }
 
 # use pipeline outputs to create target scan symbols
-create_target_scan_symbols <- function(merged_data, miRTarBase, miranda, TargetScan, lncBase, miRDB, org_data) {
+create_target_scan_symbols <- function(merged_data, miRTarBase, miranda, tarpmir, TargetScan, lncBase, miRDB, org_data) {
   print("CREATING TARGET SCAN SYMBOLS")
   # check targets
   start_file <- 0
@@ -143,6 +144,13 @@ create_target_scan_symbols <- function(merged_data, miRTarBase, miranda, TargetS
     miranda.bp <- data.frame(read.table(miranda, header = T, sep = "\t"))
     miranda_targets <- as.data.frame.matrix(table(miranda.bp$Target, miranda.bp$miRNA))
   }
+  # process tarpmir data
+  tarpmir_targets <- NULL
+  if (file.exists(tarpmir)) {
+    print("processing TarPmiR data")
+    tarpmir_data <- read.table(tarpmir, header = F, sep = "\t")
+    tarpmir_targets <- as.data.frame.matrix(table(tarpmir_data$V2, tarpmir_data$V1))
+  }
   # process TargetScan data
   target_scan_targets <- NULL
   if (file.exists(TargetScan)) {
@@ -159,7 +167,7 @@ create_target_scan_symbols <- function(merged_data, miRTarBase, miranda, TargetS
   
   # MERGE DATA
   merged.targets <- NULL
-  targets_data <- list(merged_data_targets, miRTarBase_targets, miranda_targets, target_scan_targets, lncBase_targets)
+  targets_data <- list(merged_data_targets, miRTarBase_targets, miranda_targets, tarpmir_targets, target_scan_targets, lncBase_targets)
   for (target in targets_data) {
     # append data if present
     if (!is.null(target)) {

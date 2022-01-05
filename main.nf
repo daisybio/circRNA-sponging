@@ -526,7 +526,7 @@ if (params.tarpmir) {
     }
 
     // combine files to one
-    combined_bp_file = bp_files.collectFile(name: "${params.out_dir}/results/binding_sites/output/tarpmir/tarpmir_bp.tsv")
+    combined_bp_file = bp_files.collectFile(name: "${params.out_dir}/results/binding_sites/output/tarpmir/tarpmir_bp.tsv", newLine: true)
 
     process clean_tmp {
         label 'process_low'

@@ -501,13 +501,13 @@ if (params.tarpmir) {
     }
 
     // combine files to one
-    tarpmir_bp_file = bp_files.collectFile(name: "${params.out_dir}/results/binding_sites/output/tarpmir/tarpmir_bp.tsv", newLine: true)
+    bp_files.collectFile(name: "${params.out_dir}/results/binding_sites/output/tarpmir/tarpmir_bp.tsv", newLine: true).into{tarpmir_bp_file1, tarpmir_bp_file2}
 
     process clean_tmp {
         label 'process_low'
 
         input:
-        file(files) from tarpmir_bp_file
+        file(files) from tarpmir_bp_file1
 
         script:
         """
@@ -736,7 +736,7 @@ if (!params.circRNA_only) {
                 file(circRNA_counts_filtered) from ch_circRNA_counts_filtered6
                 file(mirna_expression) from ch_miRNA_counts_filtered3
                 file(miranda_bind_sites) from ch_bindsites_filtered2
-                file(tarpmir_bind_sites) from tarpmir_bp_file
+                file(tarpmir_bind_sites) from tarpmir_bp_file2
 
                 output:
                 file("sponge.RData") into Rimage

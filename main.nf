@@ -501,7 +501,7 @@ if (params.tarpmir) {
     }
 
     // combine files to one
-    bp_files.collectFile(name: "${params.out_dir}/results/binding_sites/output/tarpmir/tarpmir_bp.tsv", newLine: true).into{tarpmir_bp_file1, tarpmir_bp_file2}
+    bp_files.collectFile(name: "${params.out_dir}/results/binding_sites/output/tarpmir/tarpmir_bp.tsv", newLine: true).into{ tarpmir_bp_file1; tarpmir_bp_file2 }
 
     process clean_tmp {
         label 'process_low'

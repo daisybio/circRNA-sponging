@@ -393,7 +393,7 @@ if (params.differential_expression){
 }
 
 /*
-* FOR THE PREVIOUSLY DETECTED circRNAs EXTRACT FASTA SEQUENCES
+* FOR THE PREVIOUSLY DETECTED circRNAs EXTRACT FASTA SEQUENCES ACOORDING TO circRNA TYPE
 */
 process extract_circRNA_sequences {
     label 'process_medium'
@@ -501,13 +501,13 @@ if (params.tarpmir) {
     }
 
     // combine files to one
-    combined_bp_file = bp_files.collectFile(name: "${params.out_dir}/results/binding_sites/output/tarpmir/tarpmir_bp.tsv", newLine: true)
+    tarpmir_bp_file = bp_files.collectFile(name: "${params.out_dir}/results/binding_sites/output/tarpmir/tarpmir_bp.tsv", newLine: true)
 
     process clean_tmp {
         label 'process_low'
 
         input:
-        file(files) from combined_bp_file
+        file(files) from tarpmir_bp_file
 
         script:
         """
@@ -724,36 +724,73 @@ if (!params.circRNA_only) {
     * SPONGE ANALYSIS (https://github.com/biomedbigdata/SPONGE)
     */
     if (params.sponge) {
-        process SPONGE{
-            label 'process_high'
+        // RUN WITH TARPMIR DATA
+        if (params.tarpmir) {
+            process SPONGE{
+                label 'process_high'
 
-            publishDir "${params.out_dir}/results/sponging/SPONGE", mode: params.publish_dir_mode
+                publishDir "${params.out_dir}/results/sponging/SPONGE", mode: params.publish_dir_mode
 
-            input:
-            file(gene_expression) from gene_expression
-            file(circRNA_counts_filtered) from ch_circRNA_counts_filtered6
-            file(mirna_expression) from ch_miRNA_counts_filtered3
-            file(miranda_bind_sites) from ch_bindsites_filtered2
+                input:
+                file(gene_expression) from gene_expression
+                file(circRNA_counts_filtered) from ch_circRNA_counts_filtered6
+                file(mirna_expression) from ch_miRNA_counts_filtered3
+                file(miranda_bind_sites) from ch_bindsites_filtered2
+                file(tarpmir_bind_sites) from tarpmir_bp_file
 
-            output:
-            file("sponge.RData") into Rimage
-            file("plots/*.png") into ch_sponge_plots
+                output:
+                file("sponge.RData") into Rimage
+                file("plots/*.png") into ch_sponge_plots
 
-            script:
-            """
-            Rscript "${projectDir}"/bin/SPONGE.R \\
-            --gene_expr $gene_expression \\
-            --circ_rna $circRNA_counts_filtered \\
-            --mirna_expr $mirna_expression \\
-            --organism $params.species \\
-            --fdr $params.fdr \\
-            --target_scan_symbols $params.target_scan_symbols \\
-            --miRTarBase_loc $params.miRTarBaseData \\
-            --miranda_data $miranda_bind_sites \\
-            --TargetScan_data $params.TargetScanData \\
-            --lncBase_data $params.lncBaseData \\
-            --miRDB_data $params.miRDB_data
-            """
-        }
+                script:
+                """
+                Rscript "${projectDir}"/bin/SPONGE.R \\
+                --gene_expr $gene_expression \\
+                --circ_rna $circRNA_counts_filtered \\
+                --mirna_expr $mirna_expression \\
+                --organism $params.species \\
+                --fdr $params.fdr \\
+                --target_scan_symbols $params.target_scan_symbols \\
+                --miRTarBase_loc $params.miRTarBaseData \\
+                --miranda_data $miranda_bind_sites \\
+                --tarpmir_data $tarpmir_bind_sites \\
+                --TargetScan_data $params.TargetScanData \\
+                --lncBase_data $params.lncBaseData \\
+                --miRDB_data $params.miRDB_data
+                """
+            }
+        } else {
+            process SPONGE{
+                label 'process_high'
+
+                publishDir "${params.out_dir}/results/sponging/SPONGE", mode: params.publish_dir_mode
+
+                input:
+                file(gene_expression) from gene_expression
+                file(circRNA_counts_filtered) from ch_circRNA_counts_filtered6
+                file(mirna_expression) from ch_miRNA_counts_filtered3
+                file(miranda_bind_sites) from ch_bindsites_filtered2
+
+                output:
+                file("sponge.RData") into Rimage
+                file("plots/*.png") into ch_sponge_plots
+
+                script:
+                """
+                Rscript "${projectDir}"/bin/SPONGE.R \\
+                --gene_expr $gene_expression \\
+                --circ_rna $circRNA_counts_filtered \\
+                --mirna_expr $mirna_expression \\
+                --organism $params.species \\
+                --fdr $params.fdr \\
+                --target_scan_symbols $params.target_scan_symbols \\
+                --miRTarBase_loc $params.miRTarBaseData \\
+                --miranda_data $miranda_bind_sites \\
+                --TargetScan_data $params.TargetScanData \\
+                --lncBase_data $params.lncBaseData \\
+                --miRDB_data $params.miRDB_data
+                """
+            }
+        } 
     }
 }

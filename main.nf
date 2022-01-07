@@ -726,7 +726,7 @@ if (!params.circRNA_only) {
     if (params.sponge) {
         // RUN WITH TARPMIR DATA
         if (params.tarpmir) {
-            process SPONGE{
+            process SPONGE_tarpmir {
                 label 'process_high'
 
                 publishDir "${params.out_dir}/results/sponging/SPONGE", mode: params.publish_dir_mode
@@ -760,7 +760,7 @@ if (!params.circRNA_only) {
                 """
             }
         } else {
-            process SPONGE{
+            process SPONGE {
                 label 'process_high'
 
                 publishDir "${params.out_dir}/results/sponging/SPONGE", mode: params.publish_dir_mode

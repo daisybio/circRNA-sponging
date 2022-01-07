@@ -95,11 +95,11 @@ create_outputs(d = dds_filtered, results = filtered_res, marker = "condition", o
 if ("circBaseID" %in% colnames(circ_RNAs)) {
   circ_RNA_annotation <- data.table(circRNA.ID=circ_RNAs$circBaseID)
   # cut table and annotate rownames
-  circ_expr <- circ_RNAs[,-c(1:7)]
+  circ_expr <- circ_RNAs[,-c(1:8)]
 } else {
   circ_RNA_annotation <- data.table(circRNA.ID=paste0(circ_RNAs$chr, ":", circ_RNAs$start, ":", circ_RNAs$stop, ":", circ_RNAs$strand))
   # cut table and annotate row names
-  circ_expr <- circ_RNAs[,-c(1:6)]
+  circ_expr <- circ_RNAs[,-c(1:7)]
 }
 rownames(circ_expr) <- circ_RNA_annotation$circRNA.ID
 # format miRNA ids

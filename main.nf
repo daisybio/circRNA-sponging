@@ -401,39 +401,14 @@ process extract_circRNA_sequences {
     
     input:
     file(circRNAs_filtered) from ch_circRNA_counts_filtered3
-    file(fasta) from ch_fasta
 
     output:
-    file("circRNAs.fa") into circRNAs_fasta
+    file("circRNAs.fa") into (circRNAs_fasta1, circRNAs_fasta2)
 
     script:
     """
-	bash "${projectDir}"/bin/get_circRNA_sequences.sh $fasta $circRNAs_filtered "circRNAs.fa"
+	Rscript "${projectDir}"/bin/extract_fasta.R $params.genome_version $circRNAs_filtered
     """
-}
-
-/*
-* ANNOTATE CIRCRNA IF POSSIBLE
-*/
-if (params.database_annotation){
-    process annotate_circRNA_fasta {
-        label 'process_medium'
-        publishDir "${params.out_dir}/results/binding_sites/input/", mode: params.publish_dir_mode
-
-        input:
-        file(circRNAs_fasta) from circRNAs_fasta
-        file(circ_annotated) from circRNAs_annotated
-
-        output:
-        file("circRNAs_annotated.fa") into (circRNAs_fasta1, circRNAs_fasta2)
-
-        script:
-        """
-        Rscript "${projectDir}"/bin/annotate_fasta.R $circRNAs_fasta $circ_annotated
-        """
-    }
-} else {
-    circRNAs_fasta.into{ circRNAs_fasta1; circRNAs_fasta2 }
 }
 
 /*

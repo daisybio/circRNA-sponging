@@ -108,14 +108,14 @@ circRNA_for_row <- function(circRNA_expr_line){
   # get coordinations of current circRNA
   if (annotation) {
     circRNA <- circRNA_expr_line[7]
-    circRNA_counts <- circRNA_expr_line[-c(1:7)]
+    circRNA_counts <- circRNA_expr_line[-c(1:8)]
   } else {
     chr <- as.character(circRNA_expr_line[1])
     start <- as.numeric(as.character(circRNA_expr_line[2]))
     end <- as.numeric(as.character(circRNA_expr_line[3]))
     strand <- as.character(circRNA_expr_line[4])
     circRNA <- paste(chr,":", start, "-", end, "_", strand, sep="")
-    circRNA_counts <- circRNA_expr_line[-c(1:6)]
+    circRNA_counts <- circRNA_expr_line[-c(1:7)]
   }
   
   # get sample counts for current circRNA

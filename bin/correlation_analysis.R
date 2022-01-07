@@ -103,7 +103,7 @@ plotCorrelationDistribution(correlations_processed, paste("Filter: adj_pval <", 
 plotCorrelationForPair <- function(circRNA, miRNA, circRNA_expression_df, miRNA_expression_df, bind_sites, R_value, adjusted_p_value, plot_folder, plot_name){
   if (annotation) {
     # get sample counts for current circRNA
-    circRNA_counts <- data.frame(t(circRNA_expression_df[circRNA == circRNA_expression_df$circBaseID, -c(1:7)]))
+    circRNA_counts <- data.frame(t(circRNA_expression_df[circRNA == circRNA_expression_df$circBaseID, -c(1:8)]))
     name <- paste(circRNA, " VS. ", miRNA, sep = "")
   } else {
     # get coordinates of circRNA
@@ -115,7 +115,7 @@ plotCorrelationForPair <- function(circRNA, miRNA, circRNA_expression_df, miRNA_
     name <- paste(chr, ":", start,"-", end ," VS. ", miRNA, sep="")
     
     # get sample counts for current circRNA
-    circRNA_counts <- data.frame(t(circRNA_expression_df[circRNA_expression_df$chr == chr & circRNA_expression_df$start == start & circRNA_expression_df$stop == end & circRNA_expression_df$strand == strand,c(7:ncol(circRNA_expression_df))]))
+    circRNA_counts <- data.frame(t(circRNA_expression_df[circRNA_expression_df$chr == chr & circRNA_expression_df$start == start & circRNA_expression_df$stop == end & circRNA_expression_df$strand == strand,c(8:ncol(circRNA_expression_df))]))
   }
   colnames(circRNA_counts) <- "circRNA_counts"
   circRNA_counts$sample <- row.names(circRNA_counts)

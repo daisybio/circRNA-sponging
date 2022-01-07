@@ -40,7 +40,7 @@ org_data <- org_codes[organism][[1]]
 
 expression_norm <- read.table(expression_norm_path, sep = "\t", header=T, stringsAsFactors = F, check.names = F)
 
-samples <- colnames(expression_norm)[-c(1:5)]
+samples <- colnames(expression_norm)[-c(1:6)]
 
 # filter data: counts > 5 in at least 20% of samples
 if(length(samples) < 5){
@@ -51,7 +51,7 @@ sample_nr_cutoff <- ceiling(samples_percentage *length(samples))
 rows_to_keep <- c()
 for (i in 1:nrow(expression_norm)){
   number_of_samples_containing_this_circRNA <- 0
-  for (j in 6:ncol(expression_norm)){
+  for (j in 7:ncol(expression_norm)){
     if(expression_norm[i,j] >= read_cutoff){
       number_of_samples_containing_this_circRNA <- number_of_samples_containing_this_circRNA + 1
     }
@@ -93,6 +93,6 @@ gene.ens.all <- gene.ens.all[!duplicated(gene.ens.all$hgnc_symbol),]
 # append data
 filtered_data <- merge(filtered_data, gene.ens.all, by.x = "gene_symbol", by.y = "hgnc_symbol", all.x = T)
 # rearrange columns
-filtered_data <- filtered_data[, c(2,3,4,5,1,ncol(filtered_data),7:ncol(filtered_data)-1)]
+filtered_data <- filtered_data[, c(2,3,4,5,1,ncol(filtered_data),8:ncol(filtered_data)-1)]
 # write final output
 write.table(filtered_data, file = "circRNA_counts_filtered.tsv", quote = F, sep = "\t", row.names = F)

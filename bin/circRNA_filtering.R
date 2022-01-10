@@ -83,6 +83,7 @@ while(not_done)
   }, finally = {
   })
 }
+print("SUCCESS")
 # annotate data: gene symbol + ENSG
 gene.ens.all <- biomaRt::getBM(attributes = c("ensembl_gene_id", "hgnc_symbol"),
                       filters = "hgnc_symbol",
@@ -93,6 +94,6 @@ gene.ens.all <- gene.ens.all[!duplicated(gene.ens.all$hgnc_symbol),]
 # append data
 filtered_data <- merge(filtered_data, gene.ens.all, by.x = "gene_symbol", by.y = "hgnc_symbol", all.x = T)
 # rearrange columns
-filtered_data <- filtered_data[, c(2,3,4,5,1,ncol(filtered_data),8:ncol(filtered_data)-1)]
+filtered_data <- filtered_data[, c(2,3,4,5,1,ncol(filtered_data),6,8:ncol(filtered_data)-1)]
 # write final output
 write.table(filtered_data, file = "circRNA_counts_filtered.tsv", quote = F, sep = "\t", row.names = F)

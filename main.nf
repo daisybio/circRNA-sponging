@@ -349,7 +349,7 @@ if (params.database_annotation){
 
     output:
     file("circRNAs_annotated.tsv") into circRNAs_annotated
-    file("circRNA_counts_annotated.tsv") into (ch_circRNA_counts_filtered1, ch_circRNA_counts_filtered2, ch_circRNA_counts_filtered3, ch_circRNA_counts_filtered4, ch_circRNA_counts_filtered5, ch_circRNA_counts_filtered6)
+    file("circRNA_counts_annotated.tsv") into (ch_circRNA_counts_filtered1, ch_circRNA_counts_filtered2, ch_circRNA_counts_filtered3, ch_circRNA_counts_filtered4, ch_circRNA_counts_filtered5)
     script:
     if( params.offline_circ_db == null )
         """
@@ -361,7 +361,7 @@ if (params.database_annotation){
         """
     }
 } else {
-    ch_circRNA_counts_filtered.into{ ch_circRNA_counts_filtered1; ch_circRNA_counts_filtered2; ch_circRNA_counts_filtered3; ch_circRNA_counts_filtered4; ch_circRNA_counts_filtered5; ch_circRNA_counts_filtered6 }
+    ch_circRNA_counts_filtered.into{ ch_circRNA_counts_filtered1; ch_circRNA_counts_filtered2; ch_circRNA_counts_filtered3; ch_circRNA_counts_filtered4; ch_circRNA_counts_filtered5 }
 }
 
 /*
@@ -400,7 +400,7 @@ process extract_circRNA_sequences {
     publishDir "${params.out_dir}/results/binding_sites/input/", mode: params.publish_dir_mode
     
     input:
-    file(circRNAs_filtered) from ch_circRNA_counts_filtered3
+    file(circRNAs_filtered) from ch_circRNA_counts_filtered2
 
     output:
     file("circRNAs.fa") into (circRNAs_fasta1, circRNAs_fasta2)
@@ -680,7 +680,7 @@ if (!params.circRNA_only) {
         
         input:
         file(miRNA_counts_filtered) from ch_miRNA_counts_filtered1
-        file(circRNA_counts_filtered) from ch_circRNA_counts_filtered4
+        file(circRNA_counts_filtered) from ch_circRNA_counts_filtered3
         file(filtered_bindsites) from ch_bindsites_filtered1
 
         output:
@@ -704,7 +704,7 @@ if (!params.circRNA_only) {
         input:
         file(correlations) from ch_correlations
         file(miRNA_counts_filtered) from ch_miRNA_counts_filtered2
-        file(circRNA_counts_filtered) from ch_circRNA_counts_filtered5
+        file(circRNA_counts_filtered) from ch_circRNA_counts_filtered4
         file(miRNA_counts_norm) from ch_miRNA_counts_norm2
         file(circRNA_counts_norm) from ch_circRNA_counts_norm2
 
@@ -733,7 +733,7 @@ if (!params.circRNA_only) {
 
                 input:
                 file(gene_expression) from gene_expression
-                file(circRNA_counts_filtered) from ch_circRNA_counts_filtered6
+                file(circRNA_counts_filtered) from ch_circRNA_counts_filtered5
                 file(mirna_expression) from ch_miRNA_counts_filtered3
                 file(miranda_bind_sites) from ch_bindsites_filtered2
                 file(tarpmir_bind_sites) from tarpmir_bp_file2
@@ -767,7 +767,7 @@ if (!params.circRNA_only) {
 
                 input:
                 file(gene_expression) from gene_expression
-                file(circRNA_counts_filtered) from ch_circRNA_counts_filtered6
+                file(circRNA_counts_filtered) from ch_circRNA_counts_filtered5
                 file(mirna_expression) from ch_miRNA_counts_filtered3
                 file(miranda_bind_sites) from ch_bindsites_filtered2
 

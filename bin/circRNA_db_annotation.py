@@ -142,14 +142,18 @@ def read_db(db_loc):
 
 # write annotated output circ rna
 def write_mapping_file(matched_dict, db_dict, output_loc, separator):
-    # build expression headers
+    # build expression header
     expr_header = matched_dict["header"][:7]
     expr_header.append("circBaseID")
     expr_header.extend(matched_dict["header"][7:])
     # build annotation header
     header = matched_dict["header"][:4]
+    # add circRNA type
+    header.append("type")
     header.append(matched_dict["header"][5])
+    # remove headers from dicts
     matched_dict.pop("header")
+    # get db header
     db_header = db_dict["header"]
     db_dict.pop("header")
 
@@ -171,6 +175,8 @@ def write_mapping_file(matched_dict, db_dict, output_loc, separator):
             # write annotated expression
             an_expr.write(separator.join(v[:7]) + separator + circBaseID + separator + separator.join(v[7:]) + "\n")
             data = v[:4]
+            # show circRNA type
+            data.append(v[6])
             # include ensgid
             data.append(v[5])
             # add converted position

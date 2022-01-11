@@ -482,7 +482,7 @@ if (params.tarpmir) {
         publishDir "${params.out_dir}/results/binding_sites/output/tarpmir/tmp", mode: 'copy'
 
         input:
-        val(randomInt) from abs(random.nextInt())
+        val(randomInt) from random.nextInt()
         file(mRNA_fasta) from circRNAs_fasta2.splitFasta( by: params.splitter, file: true )
 
         output:

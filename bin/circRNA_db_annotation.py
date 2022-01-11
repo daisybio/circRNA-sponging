@@ -217,7 +217,7 @@ def read_html(response):
 def online_access(upload_file, converted_circ_data, output_loc):
     # get circBase url
     url = dbs["circBase"]
-    # create Chrome driver and navigate to circBase list search
+    # create driver and navigate to circBase list search
     options = Options()
     # set headless
     options.headless = True

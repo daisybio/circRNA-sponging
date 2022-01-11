@@ -482,7 +482,7 @@ if (params.tarpmir) {
         publishDir "${params.out_dir}/results/binding_sites/output/tarpmir/tmp", mode: 'copy'
 
         input:
-        val(randomInt) from random.nextInt()
+        val(randomInt) from abs(random.nextInt())
         file(mRNA_fasta) from circRNAs_fasta2.splitFasta( by: params.splitter, file: true )
 
         output:
@@ -490,7 +490,7 @@ if (params.tarpmir) {
 
         script:
         """
-        python3 "${projectDir}"/bin/TarPmiR_threading.py" \\
+        python3 "${projectDir}/bin/TarPmiR_threading.py" \\
         -a $params.mature_fasta \\
         -b $mRNA_fasta \\
         -m $params.model \\

@@ -97,14 +97,11 @@ if (params.help) {
 }
 
 /*
- * CREATE A CHANNEL FOR INPUT READ FILES
+ * CREATE CHANNELS FOR INPUT READ FILES
  */
-ch_totalRNA_reads1=Channel.fromPath(params.samplesheet)
+Channel.fromPath(params.samplesheet)
    .splitCsv( header:true, sep:'\t')
-   .map { get_circRNA_paths(it) }
-ch_totalRNA_reads2=Channel.fromPath(params.samplesheet)
-   .splitCsv( header:true, sep:'\t')
-   .map { get_circRNA_paths(it) }
+   .map { get_circRNA_paths(it) }.into { ch_totalRNA_reads1; ch_totalRNA_reads2}
 
 ch_fasta = Channel.value(file(params.fasta))
 ch_gtf = Channel.value(file(params.gtf))
@@ -719,6 +716,8 @@ if (!params.circRNA_only) {
         Rscript "${projectDir}"/bin/correlation_analysis.R $params.samplesheet $miRNA_counts_filtered $circRNA_counts_filtered $correlations $params.out_dir $params.sample_group $miRNA_counts_norm $circRNA_counts_norm
         """
     }
+    // USE GIVEN TARGET SYMBOLS OR DEFAULT LOCATED IN DATA
+    target_scan_symbols = params.target_scan_symbols ? Channel.value(file(params.target_scan_symbols)) : Channel.value(file(projectDir + "data/miRNA_target_symbols/hsa_mirWalk_lncbase_21_ENSG.tsv.gz"))
 
     /*
     * SPONGE ANALYSIS (https://github.com/biomedbigdata/SPONGE)
@@ -737,6 +736,7 @@ if (!params.circRNA_only) {
                 file(mirna_expression) from ch_miRNA_counts_filtered3
                 file(miranda_bind_sites) from ch_bindsites_filtered2
                 file(tarpmir_bind_sites) from tarpmir_bp_file2
+                file(target_scan_symbols) from target_scan_symbols
 
                 output:
                 file("sponge.RData") into Rimage
@@ -750,7 +750,7 @@ if (!params.circRNA_only) {
                 --mirna_expr $mirna_expression \\
                 --organism $params.species \\
                 --fdr $params.fdr \\
-                --target_scan_symbols $params.target_scan_symbols \\
+                --target_scan_symbols $target_scan_symbols \\
                 --miRTarBase_loc $params.miRTarBaseData \\
                 --miranda_data $miranda_bind_sites \\
                 --tarpmir_data $tarpmir_bind_sites \\
@@ -770,6 +770,7 @@ if (!params.circRNA_only) {
                 file(circRNA_counts_filtered) from ch_circRNA_counts_filtered5
                 file(mirna_expression) from ch_miRNA_counts_filtered3
                 file(miranda_bind_sites) from ch_bindsites_filtered2
+                file(target_scan_symbols) from target_scan_symbols
 
                 output:
                 file("sponge.RData") into Rimage
@@ -783,7 +784,7 @@ if (!params.circRNA_only) {
                 --mirna_expr $mirna_expression \\
                 --organism $params.species \\
                 --fdr $params.fdr \\
-                --target_scan_symbols $params.target_scan_symbols \\
+                --target_scan_symbols $target_scan_symbols \\
                 --miRTarBase_loc $params.miRTarBaseData \\
                 --miranda_data $miranda_bind_sites \\
                 --TargetScan_data $params.TargetScanData \\

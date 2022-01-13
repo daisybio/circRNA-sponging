@@ -469,6 +469,7 @@ process binding_sites_filtering {
 
 /*
 * RUN TARPMIR ANALYSIS ON CIRCRNA FASTAS
+* TODO: make file names unique
 */
 if (params.tarpmir) {
     Random random = new Random()

@@ -104,6 +104,7 @@ plotCorrelationForPair <- function(circRNA, miRNA, circRNA_expression_df, miRNA_
   if (annotation) {
     # get sample counts for current circRNA
     circRNA_counts <- data.frame(t(circRNA_expression_df[circRNA == circRNA_expression_df$circBaseID, -c(1:8)]))
+    print(circRNA_counts[1:5,1:5])
     name <- paste(circRNA, " VS. ", miRNA, sep = "")
   } else {
     # get coordinates of circRNA

@@ -208,6 +208,7 @@ org_data <- org_codes[argv$organism][[1]]
 target_scan_symbols_counts <- create_target_scan_symbols(merged_data = argv$target_scan_symbols,
                                                         miRTarBase = argv$miRTarBase_loc,
                                                         miranda = argv$miranda_data,
+                                                        tarpmir = argv$tarpmir_data,
                                                         TargetScan = argv$TargetScan_data,
                                                         lncBase = argv$lncBase_data,
                                                         miRDB = argv$miRDB_data,

@@ -34,12 +34,14 @@ def helpMessage() {
       --mature_fasta [file]		Path to mature miRNA fasta (must be surrounded with quotes)
       --mature_other_fasta [file]	Path to mature miRNA fasta of related species (must be surrounded with quotes)
       --hairpin_fasta [file]		Path to miRNA hairpin fasta (must be surrounded with quotes)
-      SPONGE:
-      Apply target scan symbols directly:
-        --target_scan_symbols [file]    Path to target scan symbols for SPONGE analysis
-      Give one of the following options to create target scan symbols also using miranda/tarpmir
-        --miRTarBaseData [file]     Path to miRTarBase dataset
-        --TargetScanData [file]     Path to TargetScan dataset
+      if SPONGE is enabled:
+        Supply at least one of the following target scan symbols:
+            --target_scan_symbols [file]    Path to target scan symbols in tsv and SPONGE format (rows=GENE,cols=miRNA,data=counts)
+            --lncBaseData    [file]     Path to lncBase targets in tsv
+            --miRTarBaseData [file]     Path to miRTarBase targets in tsv
+            --TargetScanData [file]     Path to TargetScan targets in tsv
+            --miRDB_data     [file]     Path to miRDB targets in tsv
+        --fdr   [real]     False discovery rate (default: 0.1)
 
     Options:
       --miRNA_raw_counts [file]		Path to tabulated raw miRNA counts (must be surrounded with quotes)
@@ -51,6 +53,12 @@ def helpMessage() {
       --database_annotation [bool]  Annotate circRNA hits with circBase data
         --offline_circ_db [file]      File containing downloaded circBase entries for offline access to the database
       --differential_expression [bool]  Enable differential expression analysis using DESeq2 on all given RNA-seq data and circRNA only
+      --tarpmir [bool]   Wheather to use tarpmir for bindsite prediction (may take significantly longer)
+        --model [pkl]       Path to a specific tarpmir model as pickle (default model is Human_sklearn_0.22.pkl)
+        --p     [real]      Double between 0 and 1 specifing cutoff for tarpmir
+        --threads [int]     Number of threads to use for tarpmir
+        --splitter [int]    Number of fasta circRNA entries to use for each tarpmir run
+      --sponge [bool]   Wheather to perform SPONGE ceRNA network analysis          
    """.stripIndent()
 }
 
@@ -472,6 +480,8 @@ process binding_sites_filtering {
 * TODO: make file names unique
 */
 if (params.tarpmir) {
+    model = params.model ? Channel.value(file(params.target_scan_symbols)) : Channel.value(file(projectDir + "data/tarpmir_models/Human_sklearn_0.22.pkl"))
+
 
     // RUN TARPMIR ON CHUNKED MRNA FASTAS
     process tarpmir {
@@ -479,6 +489,7 @@ if (params.tarpmir) {
         publishDir "${params.out_dir}/results/binding_sites/output/tarpmir/tmp", mode: 'copy'
 
         input:
+        file(model) from model
         file(mRNA_fasta) from circRNAs_fasta2.splitFasta( by: params.splitter, file: true )
 
         output:
@@ -489,7 +500,7 @@ if (params.tarpmir) {
         python3 "${projectDir}/bin/TarPmiR_threading.py" \\
         -a $params.mature_fasta \\
         -b $mRNA_fasta \\
-        -m $params.model \\
+        -m $model \\
         -p $params.p \\
         -t $params.threads \\
         -o "bindings.bp"

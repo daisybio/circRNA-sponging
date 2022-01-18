@@ -33,16 +33,16 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
                       results$padj<as.double(padj) &
                       abs(results$log2FoldChange)>=as.numeric(log2FC),]
   
-  signif.top <- head(signif.hits, n)
+  signif.top <- head(signif.hits[order(signif.hits$padj),], n)
   # select all
   # PSEUDOCOUNTS
   selected <- rownames(signif.hits)
-  counts <- counts(d,normalized=T)[rownames(d) %in% selected,]+1e-3
+  counts <- counts(d,normalized=T)[rownames(d) %in% selected,]+1e-6
   filtered <- as.data.frame(log2(counts))
   filtered <- filtered[, df$sample]
   # select top n
   selected.top <- rownames(signif.top)
-  counts.top <- counts(d,normalized=TRUE)[rownames(d) %in% selected.top,]+1e-6
+  counts.top <- counts(d,normalized=T)[rownames(d) %in% selected.top,]+1e-6
   filtered.top <- as.data.frame(log2(counts.top))
   filtered.top <- filtered.top[, df$sample]
 
@@ -84,7 +84,7 @@ DESeq2::summary(res)
 # total_RNA
 create_outputs(d = dds, results = res, marker = "condition", out = "total_rna")
 # circRNA gene expression
-circ_RNAs <- read.table(file = args[3], sep = "\t", header = TRUE)
+circ_RNAs <- read.table(file = args[3], sep = "\t", header = T)
 ens_ids <- circ_RNAs$ensembl_gene_id
 dds_filtered <- dds
 filtered_res <- res[rownames(res) %in% ens_ids,]

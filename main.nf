@@ -472,7 +472,6 @@ process binding_sites_filtering {
 * TODO: make file names unique
 */
 if (params.tarpmir) {
-    Random random = new Random()
 
     // RUN TARPMIR ON CHUNKED MRNA FASTAS
     process tarpmir {
@@ -480,11 +479,10 @@ if (params.tarpmir) {
         publishDir "${params.out_dir}/results/binding_sites/output/tarpmir/tmp", mode: 'copy'
 
         input:
-        val(randomInt) from random.nextInt()
         file(mRNA_fasta) from circRNAs_fasta2.splitFasta( by: params.splitter, file: true )
 
         output:
-        file("bindings_${randomInt}.bp") into bp_files
+        file("bindings.bp") into bp_files
 
         script:
         """
@@ -494,13 +492,16 @@ if (params.tarpmir) {
         -m $params.model \\
         -p $params.p \\
         -t $params.threads \\
-        -o "bindings_${randomInt}.bp"
+        -o "bindings.bp"
         """
     }
 
     // combine files to one
     bp_files.collectFile(name: "${params.out_dir}/results/binding_sites/output/tarpmir/tarpmir_bp.tsv", newLine: true).into{ tarpmir_bp_file1; tarpmir_bp_file2 }
 
+    /*
+    * remove temporary files
+    */
     process clean_tmp {
         label 'process_low'
 

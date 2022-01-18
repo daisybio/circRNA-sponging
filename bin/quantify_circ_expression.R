@@ -10,6 +10,9 @@ index <- args[1]
 samplesheet <- read.table(args[2], header = T, sep = "\t")
 # read circRNA counts
 circ.counts <- read.table(args[3], header = T, sep = "\t")
+# PARAMS
+fragment.length <- 76
+standard.dev <- 20
 # change colnames
 colnames(circ.counts) <- sapply(gsub("\\.", "-", colnames(circ.counts)), "[", 1)
 # create tmp
@@ -30,8 +33,8 @@ for (i in 1:nrow(samplesheet)) {
   output <- file.path("tmp", sample)
   fastq <- samplesheet[i, "totalRNA1"]
   # write to tmp/sample
-  cmd <- paste(c("psirc-quant quant -i", index, "-o", output, "--single", "-l", "15", "-s", "20", fastq), collapse = " ")
-  system(cmd)           # invoke psirc command
+  cmd <- paste(c("psirc-quant quant -i", index, "-o", output, "--single", "-l", fragment.length, "-s", standard.dev, fastq), collapse = " ")
+  std <- system(cmd, ignore.stdout = T, intern = T)           # invoke psirc command
   # read created abundances
   abundance <- read.table(file.path(output, "abundance.tsv"), sep = "\t", header = T)
   if (annotation) {
@@ -43,6 +46,10 @@ for (i in 1:nrow(samplesheet)) {
   circ.counts[abundance.circ$target_id, sample] <- abundance.circ$est_counts
   cat(eval(round(i/nrow(samplesheet), 2)*100), " %", "\r")
 }
+# remove tmp
+# unlink("tmp", recursive = T)
 # write output to disk
 o <- paste0(strsplit(basename(args[3]), "\\.")[[1]][1], "_quant", ".tsv")
+cat("writing output file to ", o, "...\n")
 write.table(circ.counts, file = o, sep = "\t")
+print("done")

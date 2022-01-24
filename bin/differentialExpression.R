@@ -31,13 +31,13 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   # filter for significant differential expression
   signif.hits <- results[!is.na(results$padj) &
                       results$padj<as.double(padj) &
-                      abs(results$log2FoldChange)>=as.numeric(log2FC),]
+                        abs(results$log2FoldChange) > log2FC,]
   
   signif.top <- head(signif.hits[order(signif.hits$padj),], n)
   # select all
   # PSEUDOCOUNTS
   selected <- rownames(signif.hits)
-  counts <- counts(d,normalized=T)[rownames(d) %in% selected,]+1e-6
+  counts <- counts(d,normalized=T)[rownames(d) %in% selected & rownames(d)!="hsa_circ_0020397",]+1e-6
   filtered <- as.data.frame(log2(counts))
   filtered <- filtered[, df$sample]
   # select top n
@@ -49,14 +49,14 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   # set output file loc
   heatmap_name <- paste(out, "HMAP", sep = "_")
   # plot heatmap
-  pheatmap::pheatmap(filtered, cluster_rows=T, show_rownames=T,
-           cluster_cols=F, annotation_col=df,
+  pheatmap::pheatmap(filtered, cluster_rows=F, show_rownames=T,
+           cluster_cols=T, annotation_col=df,
            filename = file.path(out, paste(heatmap_name, "png", sep = ".")),
            height = 15, width = 25, legend = T)
   # top n
   heatmap_name_top <- paste(out, "HMAP_top", sep = "_")
   pheatmap::pheatmap(filtered.top, cluster_rows=T, show_rownames=T,
-                     cluster_cols=F, annotation_col=df,
+                     cluster_cols=T, annotation_col=df,
                      filename = file.path(out, paste(heatmap_name_top, "png", sep = ".")),
                      height = 15, width = 25, legend = T)
 }

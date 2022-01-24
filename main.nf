@@ -54,7 +54,7 @@ def helpMessage() {
         --offline_circ_db [file]      File containing downloaded circBase entries for offline access to the database
       --differential_expression [bool]  Enable differential expression analysis using DESeq2 on all given RNA-seq data and circRNA only
       --tarpmir [bool]   Wheather to use tarpmir for bindsite prediction (may take significantly longer)
-        --model [pkl]       Path to a specific tarpmir model as pickle (default model is Human_sklearn_0.22.pkl)
+        --model [pkl]       Path to a specific tarpmir model as pickle (default model is Human_sklearn_0.22.pkl, located in data directory)
         --p     [real]      Double between 0 and 1 specifing cutoff for tarpmir
         --threads [int]     Number of threads to use for tarpmir
         --splitter [int]    Number of fasta circRNA entries to use for each tarpmir run

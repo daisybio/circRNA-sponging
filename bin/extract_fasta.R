@@ -40,7 +40,7 @@ gtf.pkg <- BiocManager::available(paste0(genome.version, ".knownGene"))
 BiocManager::install(gtf.pkg)
 library(package = gtf.pkg, character.only = T)
 gtf <- eval(parse(text=paste0(gtf.pkg,"::",gtf.pkg)))
-exons <- exons(gtf)
+exons <- exonicParts(gtf)
 
 # splice sequences according to circ annotation
 circ.exons <- findOverlapPairs(circ.ranges, exons, type = "any")

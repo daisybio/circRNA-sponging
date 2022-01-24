@@ -317,12 +317,12 @@ if (nrow(ceRNA_interactions_fdr)==0) {
     ceRNA_interactions_fdr <- ceRNA_interactions_sign[which(ceRNA_interactions_sign$p.val < fdr),]
   }
   ceRNA_interactions_fdr <- ceRNA_interactions_fdr[order(ceRNA_interactions_fdr$p.val),]
-  ceRNA_interactions_fdr <- head(ceRNA_interactions_fdr, 8000)
+  # ceRNA_interactions_fdr <- head(ceRNA_interactions_fdr, 8000)
 }
 if (nrow(ceRNA_interactions_fdr)>10000){
-  print("Warning: fdr setting too loose, generated over 10000 significant hits; adjusting")
+  print("Warning: fdr setting too loose, generated over 10000 significant hits; adjusting to half of samples")
   ceRNA_interactions_fdr <- ceRNA_interactions_fdr[order(ceRNA_interactions_fdr$p.adj),]
-  ceRNA_interactions_fdr <- head(ceRNA_interactions_fdr, 5000)
+  ceRNA_interactions_fdr <- head(ceRNA_interactions_fdr, 3000)
 }
 # GENERAL NETWORK
 ceRNA_network_plot <- sponge_plot_network(ceRNA_interactions_fdr, genes_miRNA_candidates)
@@ -336,7 +336,7 @@ network_centralities <- sponge_node_centralities(ceRNA_interactions_fdr)
 ceRNA_interactions_weight <- ceRNA_interactions_fdr
 ceRNA_interactions_weight$weight <- -log10(ceRNA_interactions_fdr$p.adj)
 weighted_network_centralities <- sponge_node_centralities(ceRNA_interactions_weight)
-weighed_network_plot <- sponge_plot_network_centralities(weighted_network_centralities, top = 3)
+weighed_network_plot <- sponge_plot_network_centralities(weighted_network_centralities, top = 10)
 
 # STRONGEST LINEAR
 ceRNA_strongest <- ceRNA_interactions_fdr[order(ceRNA_interactions_fdr$mscor, decreasing = T),]

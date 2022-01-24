@@ -479,7 +479,7 @@ process binding_sites_filtering {
 * TODO: make file names unique
 */
 if (params.tarpmir) {
-    model = params.model ? Channel.value(file(params.target_scan_symbols)) : Channel.fromPath("${projectDir}/data/tarpmir_models/Human_sklearn_0.22.pkl")
+    model = params.model ? Channel.value(file(params.target_scan_symbols)) : Channel.value(file("${projectDir}/data/tarpmir_models/Human_sklearn_0.22.pkl"))
 
     // RUN TARPMIR ON CHUNKED MRNA FASTAS
     process tarpmir {

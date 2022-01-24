@@ -109,7 +109,7 @@ if (params.help) {
  */
 Channel.fromPath(params.samplesheet)
    .splitCsv( header:true, sep:'\t')
-   .map { get_circRNA_paths(it) }.into { ch_totalRNA_reads1; ch_totalRNA_reads2}
+   .map { get_circRNA_paths(it) }.into { ch_totalRNA_reads1; ch_totalRNA_reads2 }
 
 ch_fasta = Channel.value(file(params.fasta))
 ch_gtf = Channel.value(file(params.gtf))
@@ -145,7 +145,7 @@ process generate_star_index{
     --runThreadN 8 \\
     --sjdbGTFfile $gtf \\
     --genomeDir star_index/ \\
-    --genomeFastaFiles $fasta 
+    --genomeFastaFiles $fasta
     """
 }
 
@@ -472,7 +472,6 @@ process binding_sites_filtering {
     """
     Rscript "${projectDir}"/bin/binding_sites_analysis.R ${bind_sites_proc}
     """
-
 }
 
 /*

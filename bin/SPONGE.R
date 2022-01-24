@@ -324,6 +324,12 @@ if (nrow(ceRNA_interactions_fdr)>10000){
   ceRNA_interactions_fdr <- ceRNA_interactions_fdr[order(ceRNA_interactions_fdr$p.adj),]
   ceRNA_interactions_fdr <- head(ceRNA_interactions_fdr, 3000)
 }
+dev.off()
+stopCluster(cl) # stop cluster
+# save R objects
+save.image(file = file.path(out, "sponge.RData"))
+stop("SPONGE done")
+
 # GENERAL NETWORK
 ceRNA_network_plot <- sponge_plot_network(ceRNA_interactions_fdr, genes_miRNA_candidates)
 ceRNA_network_plot <- sponge_plot_network(ceRNA_interactions_fdr, genes_miRNA_candidates, ) %>%

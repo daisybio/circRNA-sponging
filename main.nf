@@ -370,6 +370,29 @@ if (params.database_annotation){
 }
 
 /*
+* FOR THE PREVIOUSLY DETECTED circRNAs EXTRACT FASTA SEQUENCES ACOORDING TO circRNA TYPE
+*/
+process extract_circRNA_sequences {
+    label 'process_medium'
+    publishDir "${params.out_dir}/results/binding_sites/input/", mode: params.publish_dir_mode
+    
+    input:
+    file(circRNAs_filtered) from ch_circRNA_counts_filtered2
+
+    output:
+    file("circRNAs.fa") into (circRNAs_fasta1, circRNAs_fasta2)
+
+    script:
+    """
+	Rscript "${projectDir}"/bin/extract_fasta.R $params.genome_version $circRNAs_filtered
+    """
+}
+
+/*
+* 
+*/
+
+/*
 * DIFFERENTIAL EXPRESSION ANALYSIS USING SAM FILES FROM STAR
 */
 if (params.differential_expression){
@@ -395,25 +418,6 @@ if (params.differential_expression){
         Rscript "${projectDir}"/bin/differentialExpression.R $txiRDS $params.samplesheet $circRNA_counts
         """
     }
-}
-
-/*
-* FOR THE PREVIOUSLY DETECTED circRNAs EXTRACT FASTA SEQUENCES ACOORDING TO circRNA TYPE
-*/
-process extract_circRNA_sequences {
-    label 'process_medium'
-    publishDir "${params.out_dir}/results/binding_sites/input/", mode: params.publish_dir_mode
-    
-    input:
-    file(circRNAs_filtered) from ch_circRNA_counts_filtered2
-
-    output:
-    file("circRNAs.fa") into (circRNAs_fasta1, circRNAs_fasta2)
-
-    script:
-    """
-	Rscript "${projectDir}"/bin/extract_fasta.R $params.genome_version $circRNAs_filtered
-    """
 }
 
 /*

@@ -738,6 +738,7 @@ if (!params.circRNA_only) {
         if (params.tarpmir) {
             process SPONGE_tarpmir {
                 label 'process_high'
+                errorStrategy 'ignore'
 
                 publishDir "${params.out_dir}/results/sponging/SPONGE", mode: params.publish_dir_mode
 
@@ -773,6 +774,7 @@ if (!params.circRNA_only) {
         } else {
             process SPONGE {
                 label 'process_high'
+                errorStrategy 'ignore'
 
                 publishDir "${params.out_dir}/results/sponging/SPONGE", mode: params.publish_dir_mode
 

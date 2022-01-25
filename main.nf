@@ -728,7 +728,7 @@ if (!params.circRNA_only) {
         """
     }
     // USE GIVEN TARGET SYMBOLS OR DEFAULT LOCATED IN DATA
-    target_scan_symbols = params.target_scan_symbols ? Channel.value(file(params.target_scan_symbols)) : Channel.value(file(projectDir + "data/miRNA_target_symbols/hsa_mirWalk_lncbase_21_ENSG.tsv.gz"))
+    target_scan_symbols = params.target_scan_symbols ? Channel.value(file(params.target_scan_symbols)) : Channel.value(file(projectDir + "/data/miRNA_target_symbols/hsa_mirWalk_lncbase_21_ENSG.tsv.gz"))
 
     /*
     * SPONGE ANALYSIS (https://github.com/biomedbigdata/SPONGE)

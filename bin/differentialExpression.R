@@ -15,10 +15,10 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   dir.create(out, showWarnings = FALSE)
   # write data to disk
   write.table(cbind(ENS_ID=rownames(results), results), file = file.path(out, paste(out, "tsv", sep = ".")), quote = FALSE, sep = "\t", col.names = NA)
-  # group
+  # col data
   df <- as.data.frame(colData(d))
   df <- df[,c("sample", "condition")]
-  df <- df[order(df$condition, decreasing = T),]
+  # df <- df[order(df$condition, decreasing = T),]
   # PCA
   # variance stabilizing transformation
   deseq_vst <- DESeq2::vst(d, blind = FALSE, nsub = nsub)
@@ -37,34 +37,34 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   # select all
   # PSEUDOCOUNTS
   selected <- rownames(signif.hits)
-  counts <- counts(d,normalized=T)[rownames(d) %in% selected & rownames(d)!="hsa_circ_0020397",]+1e-6
+  counts <- counts(d)[rownames(d) %in% selected,]+1
   filtered <- as.data.frame(log2(counts))
   filtered <- filtered[, df$sample]
   # select top n
   selected.top <- rownames(signif.top)
-  counts.top <- counts(d,normalized=T)[rownames(d) %in% selected.top,]+1e-6
+  counts.top <- counts(d)[rownames(d) %in% selected.top,]+1
   filtered.top <- as.data.frame(log2(counts.top))
   filtered.top <- filtered.top[, df$sample]
 
   # set output file loc
   heatmap_name <- paste(out, "HMAP", sep = "_")
   # plot heatmap
-  pheatmap::pheatmap(filtered, cluster_rows=F, show_rownames=T,
+  pheatmap::pheatmap(filtered, cluster_rows=T, show_rownames=F,
            cluster_cols=T, annotation_col=df,
            filename = file.path(out, paste(heatmap_name, "png", sep = ".")),
-           height = 15, width = 25, legend = T)
+           height = 15, width = 25, legend = F, annotation_legend = F)
   # top n
   heatmap_name_top <- paste(out, "HMAP_top", sep = "_")
   pheatmap::pheatmap(filtered.top, cluster_rows=T, show_rownames=T,
                      cluster_cols=T, annotation_col=df,
                      filename = file.path(out, paste(heatmap_name_top, "png", sep = ".")),
-                     height = 15, width = 25, legend = T)
+                     height = 15, width = 25, legend = F)
 }
 
 txi <- readRDS(args[1])
 
 # metadata
-samplesheet <- read.table(file = args[2], sep = "\t", header = TRUE)
+samplesheet <- read.table(file = args[2], sep = "\t", header = T)
 
 # dds object
 dds <- DESeq2::DESeqDataSetFromTximport(txi,

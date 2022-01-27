@@ -354,7 +354,7 @@ if (params.database_annotation){
 
     output:
     file("circRNAs_annotated.tsv") into circRNAs_annotated
-    file("circRNA_counts_annotated.tsv") into (ch_circRNA_counts_filtered1, ch_circRNA_counts_filtered2, ch_circRNA_counts_filtered3, ch_circRNA_counts_filtered4, ch_circRNA_counts_filtered5)
+    file("circRNA_counts_annotated.tsv") into (ch_circRNA_counts_filtered_tmp1, ch_circRNA_counts_filtered_tmp2)
     script:
     if( params.offline_circ_db == null )
         """
@@ -366,7 +366,7 @@ if (params.database_annotation){
         """
     }
 } else {
-    ch_circRNA_counts_filtered.into{ ch_circRNA_counts_filtered1; ch_circRNA_counts_filtered2; ch_circRNA_counts_filtered3; ch_circRNA_counts_filtered4; ch_circRNA_counts_filtered5 }
+    ch_circRNA_counts_filtered.into{ ch_circRNA_counts_filtered_tmp1; ch_circRNA_counts_filtered_tmp2 }
 }
 
 /*
@@ -377,10 +377,10 @@ process extract_circRNA_sequences {
     publishDir "${params.out_dir}/results/binding_sites/input/", mode: params.publish_dir_mode
     
     input:
-    file(circRNAs_filtered) from ch_circRNA_counts_filtered2
+    file(circRNAs_filtered) from ch_circRNA_counts_filtered_tmp1
 
     output:
-    file("circRNAs.fa") into (circRNAs_fasta1, circRNAs_fasta2)
+    file("circRNAs.fa") into (circRNAs_fasta1, circRNAs_fasta2, circRNAs_fasta3)
 
     script:
     """
@@ -389,8 +389,35 @@ process extract_circRNA_sequences {
 }
 
 /*
-* 
+* QUANTIFY circRNA EXPRESSION USING PSIRC
 */
+if (params.quantification){
+    process psirc {
+        label 'process_medium'
+        publishDir "${params.out_dir}/results/circRNA/", mode: params.publish_dir_mode
+
+        input:
+        file(circ_counts) from ch_circRNA_counts_filtered_tmp2
+        file(circ_fasta) from circRNAs_fasta3
+
+        output:
+        file("psirc.index") into psirc_index
+        file("circRNA*.tsv") into (ch_circRNA_counts_filtered1, ch_circRNA_counts_filtered2, ch_circRNA_counts_filtered3, ch_circRNA_counts_filtered4, ch_circRNA_counts_filtered5)
+
+        script:
+        """
+        Rscript "${projectDir}"/bin/quantify_circ_expression.R \
+        --index "psirc.index" \
+        --samplesheet $params.samplesheet \
+        --circ_counts $circ_counts \
+        --transcriptome $params.transcriptome \
+        --circ_fasta $circ_fasta \
+        --psirc-quant "${projectDir}/ext/psirc-quant"
+        """
+    }
+} else {
+    ch_circRNA_counts_filtered.into{ ch_circRNA_counts_filtered1; ch_circRNA_counts_filtered2; ch_circRNA_counts_filtered3; ch_circRNA_counts_filtered4; ch_circRNA_counts_filtered5 }
+}
 
 /*
 * DIFFERENTIAL EXPRESSION ANALYSIS USING SAM FILES FROM STAR
@@ -488,7 +515,7 @@ if (params.tarpmir) {
     // RUN TARPMIR ON CHUNKED MRNA FASTAS
     process tarpmir {
         label 'process_high'
-        publishDir "${params.out_dir}/results/binding_sites/output/tarpmir/tmp", mode: 'copy'
+        publishDir "${params.out_dir}/results/binding_sites/output/tarpmir/tmp", mode: params.publish_dir_mode
 
         input:
         file(model) from model

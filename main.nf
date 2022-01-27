@@ -392,6 +392,7 @@ process extract_circRNA_sequences {
 * QUANTIFY circRNA EXPRESSION USING PSIRC
 */
 if (params.quantification){
+    psirc = params.psirc_exc ? Channel.value(file(params.psirc_exc)) : Channel.value(file("${projectDir}/ext/psirc-quant"))
     process psirc {
         label 'process_medium'
         publishDir "${params.out_dir}/results/circRNA/", mode: params.publish_dir_mode
@@ -399,6 +400,7 @@ if (params.quantification){
         input:
         file(circ_counts) from ch_circRNA_counts_filtered_tmp2
         file(circ_fasta) from circRNAs_fasta3
+        file(psirc_quant) from psirc
 
         output:
         file("psirc.index") into psirc_index
@@ -412,7 +414,7 @@ if (params.quantification){
         --circ_counts $circ_counts \
         --transcriptome $params.transcriptome \
         --circ_fasta $circ_fasta \
-        --psirc-quant "${projectDir}/ext/psirc-quant"
+        --psirc-quant $psirc_quant
         """
     }
 } else {

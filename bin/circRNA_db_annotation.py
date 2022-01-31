@@ -87,6 +87,7 @@ def convert(c, x, y, s, converter):
 
 # read input data, convert each position, write tmp file for db, return whole converted data
 def convert_and_write(o, c, d, s, tmp_out, nh):
+    print("writing database search file and lifting coordinates")
     # create LiftOver for desired genome versions
     converter = LiftOver(o, c)
     data = {}
@@ -206,6 +207,7 @@ def read_db_data_to_dict(header, data):
 
 
 def read_html(response):
+    print("processing results")
     soup = bs(response, "html.parser")
     table = soup.find("table")
     header = [h.text for h in table.find_all("th")]
@@ -231,6 +233,7 @@ def online_access(upload_file, converted_circ_data, output_loc):
     # upload tmp database file
     driver.find_element(By.ID, "queryfile").send_keys(upload_file)
     # submit form and retrieve data
+    print("Submitting data: " + str(upload_file))
     driver.find_element(By.ID, "submit").click()
     delay = 300  # seconds
     try:
@@ -241,6 +244,7 @@ def online_access(upload_file, converted_circ_data, output_loc):
     # process response
     db_dict = read_html(driver.page_source)
     direct_matches = {x: converted_circ_data[x] for x in set(converted_circ_data.keys()).intersection(set(db_dict.keys()))}
+    print("Writing output file")
     write_mapping_file(direct_matches, db_dict, output_loc, "\t")
     # close driver
     driver.quit()
@@ -267,10 +271,12 @@ def main():
 
     # DATABASE ACCESS
     if db_data == "None":
+        print("Attempting circBase online access")
         online_access(upload_file=tmp_db_file,
                       converted_circ_data=converted_data,
                       output_loc=out_loc)
     else:
+        print("Using circBase offline access")
         offline_access(converted_circ_data=converted_data,
                        output_loc=out_loc,
                        database_loc=db_data,

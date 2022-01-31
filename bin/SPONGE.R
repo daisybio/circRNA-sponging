@@ -343,7 +343,7 @@ network_centralities <- sponge_node_centralities(ceRNA_interactions_fdr)
 ceRNA_interactions_weight <- ceRNA_interactions_fdr
 ceRNA_interactions_weight$weight <- -log10(ceRNA_interactions_fdr$p.adj)
 weighted_network_centralities <- sponge_node_centralities(ceRNA_interactions_weight)
-weighed_network_plot <- sponge_plot_network_centralities(weighted_network_centralities, top = 10)
+weighed_network_plot <- sponge_plot_network_centralities(weighted_network_centralities, top = 3)
 
 # STRONGEST LINEAR
 ceRNA_strongest <- ceRNA_interactions_fdr[order(ceRNA_interactions_fdr$mscor, decreasing = T),]
@@ -370,7 +370,7 @@ visNetwork::visSave(circRNA_network_plot, file = "plots/circ_network.html")
 # save significant circRNAs that act as ceRNAs
 write.table(ceRNA_interactions_all_circ, "circRNAs_as_ceRNAs.tsv", sep = "\t")
 
-# NETWORK ANALYSIS
+# NETWORK ANALYSIS CIRC
 ceRNA_interactions_circ_weight <- ceRNA_interactions_circ
 ceRNA_interactions_circ_weight$weight <- -log10(ceRNA_interactions_circ$p.val)
 weighted_network_centralities_circ <- sponge_node_centralities(ceRNA_interactions_circ_weight)

@@ -316,7 +316,7 @@ process normalize_circRNAs{
 
     script:
     """
-    Rscript "${projectDir}"/bin/circRNA_results_LibrarySizeEstimation.R $circRNA_counts_raw $params.out_dir
+    Rscript "${projectDir}"/bin/circRNA_results_LibrarySizeEstimation.R $circRNA_counts_raw $params.samplesheet $params.out_dir
     """
 }
 
@@ -336,7 +336,7 @@ process filter_circRNAs{
 
     script:
     """
-    Rscript "${projectDir}"/bin/circRNA_filtering.R $circRNA_counts_norm $params.out_dir $params.sample_percentage $params.read_threshold $params.species
+    Rscript "${projectDir}"/bin/circRNA_filtering.R $circRNA_counts_norm $params.samplesheet $params.out_dir $params.sample_percentage $params.read_threshold $params.species
     """
 }
 

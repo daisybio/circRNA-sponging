@@ -87,6 +87,9 @@ for (i in 1:nrow(samplesheet)) {
   circ.quant[abundance.circ$target_id, sample] <- abundance.circ$est_counts
   cat(eval(round(i/nrow(samplesheet), 2)*100), " %", "\r")
 }
+
+# filter quantified data
+
 # remove tmp
 # unlink("tmp", recursive = T)
 # write output to disk

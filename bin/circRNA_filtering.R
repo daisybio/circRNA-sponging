@@ -7,10 +7,11 @@ if (length(args)!=5) {
 }
 
 expression_norm_path = args[1]
-output_dir = args[2]
-samples_percentage = as.numeric(args[3]) # default 0.2, minimum percentage of samples, a circRNA has to be expressed in is to pass filtering
-read_cutoff = as.numeric(args[4]) # default 5, minimum number of reads, a circRNA is required to have to pass filtering
-organism = args[5] # organism in three letter code to provide further gene annotation
+samples <- gsub("-", ".", read.table(file = args[2], sep = "\t", header = T)[,"sample"]) # get samples from samplesheet
+output_dir = args[3]
+samples_percentage = as.numeric(args[4]) # default 0.2, minimum percentage of samples, a circRNA has to be expressed in is to pass filtering
+read_cutoff = as.numeric(args[5]) # default 5, minimum number of reads, a circRNA is required to have to pass filtering
+organism = args[6] # organism in three letter code to provide further gene annotation
 
 # define organism three letter codes
 org_codes <- list("ebv" = c("Epstein Barr virus", ""),
@@ -40,19 +41,18 @@ org_data <- org_codes[organism][[1]]
 
 expression_norm <- read.table(expression_norm_path, sep = "\t", header=T, stringsAsFactors = F, check.names = F)
 
-samples <- colnames(expression_norm)[-c(1:6)]
-
 # filter data: counts > 5 in at least 20% of samples
 if(length(samples) < 5){
   stop("Cannot perform filtering on less than 5 samples")
 }
 sample_nr_cutoff <- ceiling(samples_percentage *length(samples))
-
+# select expressions only
+expr_only <- expression_norm[,samples]
 rows_to_keep <- c()
-for (i in 1:nrow(expression_norm)){
+for (i in 1:nrow(expr_only)){
   number_of_samples_containing_this_circRNA <- 0
-  for (j in 7:ncol(expression_norm)){
-    if(expression_norm[i,j] >= read_cutoff){
+  for (j in 1:ncol(expr_only)){
+    if(expr_only[i,j] >= read_cutoff){
       number_of_samples_containing_this_circRNA <- number_of_samples_containing_this_circRNA + 1
     }
   }

@@ -9,8 +9,8 @@ library(data.table)
 
 args = commandArgs(trailingOnly = TRUE)
 
-# create ouptut data and plots
-create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.1, log2FC = 1) {
+# create output data and plots
+create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.1, log2FC = 1, pseudocount = 1e-3) {
   # create dirs in cwd
   dir.create(out, showWarnings = FALSE)
   # write data to disk
@@ -23,8 +23,7 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   # variance stabilizing transformation
   deseq_vst <- DESeq2::vst(d, blind = FALSE, nsub = nsub)
   PCA_plot <- DESeq2::plotPCA(deseq_vst, intgroup = marker)
-  pca_name <- paste(out, "pca", sep = "_")
-  png(filename = file.path(out, paste(pca_name, "png", sep = ".")), res = 200, width = 1024, height = 800)
+  png(filename = file.path(out, paste("pca", "png", sep = ".")), res = 200, width = 1024, height = 800)
   plot(PCA_plot)
   # HEAT MAP
   
@@ -37,30 +36,28 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   # select all
   # PSEUDOCOUNTS
   selected <- rownames(signif.hits)
-  counts <- counts(d)[rownames(d) %in% selected,]+1
+  counts <- counts(d, normalized = T)[rownames(d) %in% selected,]+pseudocount
   filtered <- as.data.frame(log2(counts))
   filtered <- filtered[, df$sample]
   # select top n
   selected.top <- rownames(signif.top)
-  counts.top <- counts(d)[rownames(d) %in% selected.top,]+1
+  counts.top <- counts(d, normalized = T)[rownames(d) %in% selected.top,]+pseudocount
   filtered.top <- as.data.frame(log2(counts.top))
   filtered.top <- filtered.top[, df$sample]
 
   # set output file loc
-  heatmap_name <- paste(out, "HMAP", sep = "_")
   # plot heatmap
   pheatmap::pheatmap(filtered, cluster_rows=T, show_rownames=F,
            cluster_cols=T, annotation_col=df,
-           filename = file.path(out, paste(heatmap_name, "png", sep = ".")),
+           filename = file.path(out, paste("HMAP", "png", sep = ".")),
            height = 15, width = 25, legend = F, annotation_legend = F)
   # top n
-  heatmap_name_top <- paste(out, "HMAP_top", sep = "_")
   pheatmap::pheatmap(filtered.top, cluster_rows=T, show_rownames=T,
                      cluster_cols=T, annotation_col=df,
-                     filename = file.path(out, paste(heatmap_name_top, "png", sep = ".")),
+                     filename = file.path(out, paste("HMAP_top", "png", sep = ".")),
                      height = 15, width = 25, legend = F)
 }
-
+# load total gene expression of samples
 txi <- readRDS(args[1])
 
 # metadata
@@ -83,28 +80,37 @@ DESeq2::summary(res)
 # WRITE OUTPUTS GENE EXPRESSION
 # total_RNA
 create_outputs(d = dds, results = res, marker = "condition", out = "total_rna")
-# circRNA gene expression
+
+# circRNAs filtered
 circ_RNAs <- read.table(file = args[3], sep = "\t", header = T)
+filtered.circs <- paste0(circ_RNAs$chr, ":", circ_RNAs$start, "-", circ_RNAs$stop, ":", circ_RNAs$strand)
+# raw circRNA expression
+circ.raw <- read.table(file = args[4], sep = "\t", header = T)
+circ.raw$key <- paste0(circ.raw$chr, ":", circ.raw$start, "-", circ.raw$stop, ":", circ.raw$strand)
+
 ens_ids <- circ_RNAs$ensembl_gene_id
 dds_filtered <- dds
 filtered_res <- res[rownames(res) %in% ens_ids,]
 create_outputs(d = dds_filtered, results = filtered_res, marker = "condition", out = "circ_rna_GE")
 
+annotation <- "circBaseID" %in% colnames(circ_RNAs)
+# get samples
+samples <- gsub("-", ".", samplesheet$sample)
+
 # DIFFERENTIAL CIRCRNA EXPRESSION
 # use given annotation if possible
-if ("circBaseID" %in% colnames(circ_RNAs)) {
+if (annotation) {
   circ_RNA_annotation <- data.table(circRNA.ID=circ_RNAs$circBaseID)
-  # cut table and annotate rownames
-  circ_expr <- circ_RNAs[,-c(1:8)]
 } else {
   circ_RNA_annotation <- data.table(circRNA.ID=paste0(circ_RNAs$chr, ":", circ_RNAs$start, ":", circ_RNAs$stop, ":", circ_RNAs$strand))
-  # cut table and annotate row names
-  circ_expr <- circ_RNAs[,-c(1:7)]
 }
+# get raw expression values for filtered circRNAs and samples
+circ_expr <- circ.raw[circ.raw$key %in% filtered.circs, samples]
 rownames(circ_expr) <- circ_RNA_annotation$circRNA.ID
 # format miRNA ids
 colnames(circ_expr) <- sapply(gsub("\\.", "-", colnames(circ_expr)), "[", 1)
-circ_expr <- as.matrix(circ_expr)
+# add pseudo counts
+circ_expr <- as.matrix(circ_expr) + 1
 
 dds.circ <- DESeq2::DESeqDataSetFromMatrix(countData = round(circ_expr),
                                            colData = samplesheet,
@@ -116,7 +122,7 @@ res.circ <- res.circ[order(res.circ$padj),]
 # create summary
 DESeq2::summary(res.circ)
 
-create_outputs(dds.circ, res.circ, marker = "condition", out = "circ_rna_DE", nsub = 100)
+create_outputs(dds.circ, res.circ, marker = "condition", out = "circ_rna_DE", nsub = 100, pseudocount = 0)
 
 # save R image
 save.image(file = "DESeq2.RData")

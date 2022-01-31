@@ -37,7 +37,7 @@ if (!file.exists(index)) {
   # write combined file to disk
   writeXStringSet(all.fasta, filepath = out)
   # build psirc index with combined fasta file
-  cmd <- paste(c("psirc-quant index -i", index, out), collapse = " ")
+  cmd <- paste(c(argv$psirc-quant, "index -i", index, out), collapse = " ")
   system(cmd)
 }
 # read samplesheet
@@ -70,10 +70,10 @@ for (i in 1:nrow(samplesheet)) {
   fastq <- samplesheet[i, "totalRNA1"]
   if (single.end) {
     # write to tmp/sample
-    cmd <- paste(c("psirc-quant quant -i", index, "-o", output, "--single", "-l", fragment.length, "-s", standard.dev, fastq), collapse = " ")
+    cmd <- paste(c(argv$psirc-quant, "quant -i", index, "-o", output, "--single", "-l", fragment.length, "-s", standard.dev, fastq), collapse = " ")
   } else {
     fastq2 <- samplesheet[i, "totalRNA2"]
-    cmd <- paste(c("psirc-quant quant -i", index, "-o", output, fastq, fastq2), collapse = " ")
+    cmd <- paste(c(argv$psirc-quant, "quant -i", index, "-o", output, fastq, fastq2), collapse = " ")
   }
   std <- system(cmd, ignore.stdout = T, intern = T)           # invoke psirc command
   # read created abundances

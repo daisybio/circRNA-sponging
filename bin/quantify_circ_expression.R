@@ -35,7 +35,7 @@ if (!file.exists(index)) {
   all.fasta <- c(transcriptome, circ.fasta)
   out <- "cDNA_circRNA.fa"
   # write combined file to disk
-  writeXStringSet(all.sequences.combined, filepath = out)
+  writeXStringSet(all.fasta, filepath = out)
   # build psirc index with combined fasta file
   cmd <- paste(c("psirc-quant index -i", index, out), collapse = " ")
   system(cmd)

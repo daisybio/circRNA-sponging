@@ -16,7 +16,7 @@ if (length(select.genome) == 0) {
 }
 # select default genome
 select.genome <- select.genome[!grepl("masked", select.genome)]
-BiocManager::install(select.genome)
+BiocManager::install(select.genome, ask = F)
 library(package = select.genome, character.only = T)
 fasta <- getBSgenome(select.genome)
 # load circ expression
@@ -37,7 +37,7 @@ if ("circBaseID" %in% colnames(circ.expression)) {
 
 # load gtf
 gtf.pkg <- BiocManager::available(paste0(genome.version, ".knownGene"))
-BiocManager::install(gtf.pkg)
+BiocManager::install(gtf.pkg, ask = F)
 library(package = gtf.pkg, character.only = T)
 gtf <- eval(parse(text=paste0(gtf.pkg,"::",gtf.pkg)))
 exons <- exonicParts(gtf)

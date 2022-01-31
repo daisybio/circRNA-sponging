@@ -44,7 +44,7 @@ if (!file.exists(index)) {
 # read samplesheet
 samplesheet <- read.table(argv$samplesheet, header = T, sep = "\t")
 # single or paired end
-single_end <- !"totalRNA2" %in% colnames(samplesheet)
+single.end <- !"totalRNA2" %in% colnames(samplesheet)
 # read circRNA counts
 circ.counts <- read.table(argv$circ_counts, header = T, sep = "\t")
 # PARAMS

@@ -9,7 +9,7 @@ parser <- arg_parser("Argument parser for circRNA quantification", name = "quant
 parser <- add_argument(parser, "--index", help = "Psirc index file name/file location", default = "psirc.index")
 parser <- add_argument(parser, "--samplesheet", help = "Samplesheet containing metadata for samples")
 parser <- add_argument(parser, "--circ_counts", help = "circRNA counts file")
-parser <- add_argument(parser, "--psirc-quant", help = "Path to psirc-quant executable")
+parser <- add_argument(parser, "--psirc_quant", help = "Path to psirc-quant executable")
 # ONLY NEEDED IF INDEX IS NOT ALREADY CONSTRUCTED
 parser <- add_argument(parser, "--transcriptome", help = "Transcriptome for given genome (cDNA)", default = NULL)
 parser <- add_argument(parser, "--circ_fasta", help = "Fasta file for circRNAs in circRNA counts file", default = NULL)
@@ -37,7 +37,7 @@ if (!file.exists(index)) {
   # write combined file to disk
   writeXStringSet(all.fasta, filepath = out)
   # build psirc index with combined fasta file
-  cmd <- paste(c(argv$psirc-quant, "index -i", index, out), collapse = " ")
+  cmd <- paste(c(argv$psirc_quant, "index -i", index, out), collapse = " ")
   system(cmd)
 }
 # read samplesheet
@@ -70,10 +70,10 @@ for (i in 1:nrow(samplesheet)) {
   fastq <- samplesheet[i, "totalRNA1"]
   if (single.end) {
     # write to tmp/sample
-    cmd <- paste(c(argv$psirc-quant, "quant -i", index, "-o", output, "--single", "-l", fragment.length, "-s", standard.dev, fastq), collapse = " ")
+    cmd <- paste(c(argv$psirc_quant, "quant -i", index, "-o", output, "--single", "-l", fragment.length, "-s", standard.dev, fastq), collapse = " ")
   } else {
     fastq2 <- samplesheet[i, "totalRNA2"]
-    cmd <- paste(c(argv$psirc-quant, "quant -i", index, "-o", output, fastq, fastq2), collapse = " ")
+    cmd <- paste(c(argv$psirc_quant, "quant -i", index, "-o", output, fastq, fastq2), collapse = " ")
   }
   std <- system(cmd, ignore.stdout = T, intern = T)           # invoke psirc command
   # read created abundances

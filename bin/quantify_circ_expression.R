@@ -21,6 +21,7 @@ index <- argv$index
 
 # build index if it not already exists
 if (!file.exists(index)) {
+  print("BUILDING PSIRC INDEX")
   # not all paramaters are given
   if (!file.exists(argv$transcriptome) | !file.exists(argv$circ_fasta)) {
     stop("Not all options required for index creation are given")
@@ -57,9 +58,10 @@ dir.create("tmp", showWarnings = F)
 annotation <- "circBaseID" %in% colnames(circ.counts)
 # set row names
 if (annotation) {
-  rownames(circ.counts) <- circ.counts$circBaseID
+  # rownames(circ.counts) <- circ.counts$circBaseID
 } else {
-  rownames(circ.counts) <- paste0(circ.counts$chr, ":", circ.counts$start, "-", circ.counts$stop, "_", circ.counts$strand)
+  # TODO: filter for uniques
+  # rownames(circ.counts) <- paste0(circ.counts$chr, ":", circ.counts$start, "-", circ.counts$stop, "_", circ.counts$strand)
 }
 
 circ.quant <- circ.counts
@@ -99,10 +101,10 @@ write.table(circ.quant, file = o, sep = "\t")
 print("done")
 
 # extract counts
-circ.counts.c <- circ.counts[order(circ.counts$circBaseID), -c(1:8)]
-circ.quant.c <- circ.quant[order(circ.quant$circBaseID), -c(1:8)]
+# circ.counts.c <- circ.counts[order(circ.counts$circBaseID), -c(1:8)]
+# circ.quant.c <- circ.quant[order(circ.quant$circBaseID), -c(1:8)]
 # calculate false positive rate
-tmp <- circ.counts.c - circ.quant.c
-fp <- length(tmp[tmp ==circ.counts.c])
-fp.rate <- fp/prod(dim(circ.counts.c))
-cat("False positive rate:", fp.rate, "according to psirc quantification\n")
+# tmp <- circ.counts.c - circ.quant.c
+# fp <- length(tmp[tmp ==circ.counts.c])
+# fp.rate <- fp/prod(dim(circ.counts.c))
+# cat("False positive rate:", fp.rate, "according to psirc quantification\n")

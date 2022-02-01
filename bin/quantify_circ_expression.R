@@ -9,7 +9,7 @@ parser <- arg_parser("Argument parser for circRNA quantification", name = "quant
 parser <- add_argument(parser, "--index", help = "Psirc index file name/file location", default = "psirc.index")
 parser <- add_argument(parser, "--samplesheet", help = "Samplesheet containing metadata for samples")
 parser <- add_argument(parser, "--circ_counts", help = "circRNA counts file")
-parser <- add_argument(parser, "--psirc_quant", help = "Path to psirc-quant executable")
+parser <- add_argument(parser, "--psirc_quant", help = "Path to psirc-quant executable", default = "psirc-quant")
 # ONLY NEEDED IF INDEX IS NOT ALREADY CONSTRUCTED
 parser <- add_argument(parser, "--transcriptome", help = "Transcriptome for given genome (cDNA)", default = NULL)
 parser <- add_argument(parser, "--circ_fasta", help = "Fasta file for circRNAs in circRNA counts file", default = NULL)
@@ -95,7 +95,7 @@ for (i in 1:nrow(samplesheet)) {
 # remove tmp
 # unlink("tmp", recursive = T)
 # write output to disk
-o <- paste0(strsplit(basename(args[3]), "\\.")[[1]][1], "_quant", ".tsv")
+o <- paste0(strsplit(basename(argv$circ_counts), "\\.")[[1]][1], "_quant", ".tsv")
 cat("writing output file to ", o, "...\n")
 write.table(circ.quant, file = o, sep = "\t")
 print("done")

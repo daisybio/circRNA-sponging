@@ -2,8 +2,8 @@
 library(biomaRt)
 
 args = commandArgs(trailingOnly=TRUE)
-if (length(args)!=5) {
-  stop("Five arguments must be supplied", call.=FALSE)
+if (length(args)!=6) {
+  stop("Six arguments must be supplied", call.=FALSE)
 }
 
 expression_norm_path = args[1]

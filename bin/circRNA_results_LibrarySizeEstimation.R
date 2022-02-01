@@ -2,8 +2,8 @@
 
 args = commandArgs(trailingOnly=TRUE)
 
-if (length(args)!=2) {
-  stop("Two argument must be supplied", call.=FALSE)
+if (length(args)!=3) {
+  stop("Three argument must be supplied", call.=FALSE)
 }
 
 expression_raw_path = args[1]

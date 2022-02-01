@@ -301,6 +301,58 @@ process summarize_detected_circRNAs{
 }
 
 /*
+* FOR THE PREVIOUSLY DETECTED circRNAs EXTRACT FASTA SEQUENCES ACOORDING TO circRNA TYPE
+*/
+process extract_circRNA_sequences {
+    label 'process_medium'
+    publishDir "${params.out_dir}/results/binding_sites/input/", mode: params.publish_dir_mode
+    
+    input:
+    file(circRNAs_filtered) from ch_circRNA_counts_raw
+
+    output:
+    file("circRNAs_raw.fa") into circRNAs_raw_fasta
+
+    script:
+    """
+	Rscript "${projectDir}"/bin/extract_fasta.R $params.genome_version $circRNAs_filtered
+    """
+}
+
+/*
+* QUANTIFY circRNA EXPRESSION USING PSIRC
+*/
+if (params.quantification){
+    psirc = params.psirc_exc ? Channel.value(file(params.psirc_exc)) : Channel.value(file("${projectDir}/ext/psirc-quant"))
+    process psirc {
+        label 'process_medium'
+        publishDir "${params.out_dir}/results/circRNA/", mode: params.publish_dir_mode
+
+        input:
+        file(circ_counts) from ch_circRNA_counts_raw
+        file(circ_fasta) from circRNAs_raw_fasta
+        file(psirc_quant) from psirc
+
+        output:
+        file("psirc.index") into psirc_index
+        file("circRNA*.tsv") into (ch_circRNA_counts1, ch_circRNA_counts2)
+
+        script:
+        """
+        Rscript "${projectDir}"/bin/quantify_circ_expression.R \
+        --index "psirc.index" \
+        --samplesheet $params.samplesheet \
+        --circ_counts $circ_counts \
+        --transcriptome $params.transcriptome \
+        --circ_fasta $circ_fasta \
+        --psirc-quant $psirc_quant
+        """
+    }
+} else {
+    ch_circRNA_counts_raw.into{ ch_circRNA_counts1; ch_circRNA_counts2 }
+}
+
+/*
 * NORMALIZE RAW circRNA COUNT USING LIBRARY SIZE ESTIMATION
 */
 process normalize_circRNAs{
@@ -309,7 +361,7 @@ process normalize_circRNAs{
     publishDir "${params.out_dir}/results/circRNA/", mode: params.publish_dir_mode
     
     input:
-    file(circRNA_counts_raw) from ch_circRNA_counts_raw
+    file(circRNA_counts_raw) from ch_circRNA_counts1
 
     output:
     file("circRNA_counts_normalized.tsv") into (ch_circRNA_counts_norm1, ch_circRNA_counts_norm2)
@@ -354,7 +406,7 @@ if (params.database_annotation){
 
     output:
     file("circRNAs_annotated.tsv") into circRNAs_annotated
-    file("circRNA_counts_annotated.tsv") into (ch_circRNA_counts_filtered_tmp1, ch_circRNA_counts_filtered_tmp2)
+    file("circRNA_counts_annotated.tsv") into (ch_circRNA_counts_filtered1, ch_circRNA_counts_filtered2, ch_circRNA_counts_filtered3, ch_circRNA_counts_filtered4, ch_circRNA_counts_filtered5)
     script:
     if( params.offline_circ_db == null )
         """
@@ -366,59 +418,27 @@ if (params.database_annotation){
         """
     }
 } else {
-    ch_circRNA_counts_filtered.into{ ch_circRNA_counts_filtered_tmp1; ch_circRNA_counts_filtered_tmp2 }
+    ch_circRNA_counts_filtered.into{ ch_circRNA_counts_filtered1; ch_circRNA_counts_filtered2, ch_circRNA_counts_filtered3, ch_circRNA_counts_filtered4, ch_circRNA_counts_filtered5 }
 }
 
 /*
-* FOR THE PREVIOUSLY DETECTED circRNAs EXTRACT FASTA SEQUENCES ACOORDING TO circRNA TYPE
+* EXTRACT circRNA FASTAS
 */
-process extract_circRNA_sequences {
+process circ_fastas{
     label 'process_medium'
+
     publishDir "${params.out_dir}/results/binding_sites/input/", mode: params.publish_dir_mode
-    
+
     input:
-    file(circRNAs_filtered) from ch_circRNA_counts_filtered_tmp1
+    file(circRNAs_filtered) from ch_circRNA_counts_filtered2
 
     output:
-    file("circRNAs.fa") into (circRNAs_fasta1, circRNAs_fasta2, circRNAs_fasta3)
+    file("circRNAs.fa") into (circRNAs_fasta1, circRNAs_fasta2)
 
     script:
     """
 	Rscript "${projectDir}"/bin/extract_fasta.R $params.genome_version $circRNAs_filtered
     """
-}
-
-/*
-* QUANTIFY circRNA EXPRESSION USING PSIRC
-*/
-if (params.quantification){
-    psirc = params.psirc_exc ? Channel.value(file(params.psirc_exc)) : Channel.value(file("${projectDir}/ext/psirc-quant"))
-    process psirc {
-        label 'process_medium'
-        publishDir "${params.out_dir}/results/circRNA/", mode: params.publish_dir_mode
-
-        input:
-        file(circ_counts) from ch_circRNA_counts_filtered_tmp2
-        file(circ_fasta) from circRNAs_fasta3
-        file(psirc_quant) from psirc
-
-        output:
-        file("psirc.index") into psirc_index
-        file("circRNA*.tsv") into (ch_circRNA_counts_filtered1, ch_circRNA_counts_filtered2, ch_circRNA_counts_filtered3, ch_circRNA_counts_filtered4, ch_circRNA_counts_filtered5)
-
-        script:
-        """
-        Rscript "${projectDir}"/bin/quantify_circ_expression.R \
-        --index "psirc.index" \
-        --samplesheet $params.samplesheet \
-        --circ_counts $circ_counts \
-        --transcriptome $params.transcriptome \
-        --circ_fasta $circ_fasta \
-        --psirc-quant $psirc_quant
-        """
-    }
-} else {
-    ch_circRNA_counts_filtered.into{ ch_circRNA_counts_filtered1; ch_circRNA_counts_filtered2; ch_circRNA_counts_filtered3; ch_circRNA_counts_filtered4; ch_circRNA_counts_filtered5 }
 }
 
 /*
@@ -431,6 +451,7 @@ if (params.differential_expression){
 
         input:
         file(circRNA_counts) from ch_circRNA_counts_filtered1
+        file(circRNA_raw) from ch_circRNA_counts2
         file(txiRDS) from txiRDS
 
         output:
@@ -444,7 +465,7 @@ if (params.differential_expression){
 
         script:
         """
-        Rscript "${projectDir}"/bin/differentialExpression.R $txiRDS $params.samplesheet $circRNA_counts
+        Rscript "${projectDir}"/bin/differentialExpression.R $txiRDS $params.samplesheet $circRNA_counts $circRNA_raw
         """
     }
 }

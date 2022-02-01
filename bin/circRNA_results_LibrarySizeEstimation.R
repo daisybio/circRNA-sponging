@@ -16,6 +16,7 @@ suppressWarnings(library(DESeq2, data.table))
 expression_raw <- read.table(expression_raw_path, sep = "\t", header=T, stringsAsFactors = F, check.names = F)
 expression_raw$key <- paste0(expression_raw$chr, ":", expression_raw$start, "-", expression_raw$stop,"_", expression_raw$strand, "!", expression_raw$gene_symbol)
 expression_raw <- expression_raw[!duplicated(expression_raw$key)]
+row.names(expression_raw) <- expression_raw$key
 circRNA_names <- expression_raw[,colnames(expression_raw) %!in% samples]
 circRNA_names$order <- 1:nrow(circRNA_names)
 expression_raw <- expression_raw[,samples]

@@ -7,7 +7,8 @@ if (length(args)!=3) {
 }
 
 expression_raw_path = args[1]
-samples <- read.table(file = args[2], sep = "\t", header = T)[,"sample"] # get samples from samplesheet
+samplesheet <- read.table(file = args[2], sep = "\t", header = T) # get samples from samplesheet
+samples <- samplesheet$sample
 output_dir = args[3]
 
 suppressWarnings(library(DESeq2, data.table))
@@ -28,7 +29,7 @@ data <- as.matrix(expression_raw)
 all(colnames(data) %in% rownames(meta))
 all(colnames(data) == rownames(meta))
 
-dds <- DESeq2::DESeqDataSetFromMatrix(countData = data + 1, colData = meta, design = ~ 1)
+dds <- DESeq2::DESeqDataSetFromMatrix(countData = round(data + 1), colData = meta, design = ~ 1)
 dds <- DESeq2::estimateSizeFactors(dds)
 
 normalized_counts <- DESeq2::counts(dds, normalized=TRUE)

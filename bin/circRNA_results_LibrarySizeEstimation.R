@@ -7,7 +7,7 @@ if (length(args)!=3) {
 }
 
 expression_raw_path = args[1]
-samples <- gsub("-", ".", read.table(file = args[2], sep = "\t", header = T)[,"sample"]) # get samples from samplesheet
+samples <- read.table(file = args[2], sep = "\t", header = T)[,"sample"] # get samples from samplesheet
 output_dir = args[3]
 
 suppressWarnings(library(DESeq2, data.table))

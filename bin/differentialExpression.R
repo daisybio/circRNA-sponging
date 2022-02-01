@@ -82,10 +82,10 @@ DESeq2::summary(res)
 create_outputs(d = dds, results = res, marker = "condition", out = "total_rna")
 
 # circRNAs filtered
-circ_RNAs <- read.table(file = args[3], sep = "\t", header = T)
+circ_RNAs <- read.table(file = args[3], sep = "\t", header = T, stringsAsFactors = F, check.names = F)
 filtered.circs <- paste0(circ_RNAs$chr, ":", circ_RNAs$start, "-", circ_RNAs$stop, ":", circ_RNAs$strand)
 # raw circRNA expression
-circ.raw <- read.table(file = args[4], sep = "\t", header = T)
+circ.raw <- read.table(file = args[4], sep = "\t", header = T, stringsAsFactors = F, check.names = F)
 circ.raw$key <- paste0(circ.raw$chr, ":", circ.raw$start, "-", circ.raw$stop, ":", circ.raw$strand)
 
 ens_ids <- circ_RNAs$ensembl_gene_id
@@ -107,8 +107,6 @@ if (annotation) {
 # get raw expression values for filtered circRNAs and samples
 circ_expr <- circ.raw[circ.raw$key %in% filtered.circs, samples]
 rownames(circ_expr) <- circ_RNA_annotation$circRNA.ID
-# format miRNA ids
-colnames(circ_expr) <- sapply(gsub("\\.", "-", colnames(circ_expr)), "[", 1)
 # add pseudo counts
 circ_expr <- as.matrix(circ_expr) + 1
 

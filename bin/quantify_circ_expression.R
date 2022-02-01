@@ -46,12 +46,10 @@ samplesheet <- read.table(argv$samplesheet, header = T, sep = "\t")
 # single or paired end
 single.end <- !"totalRNA2" %in% colnames(samplesheet)
 # read circRNA counts
-circ.counts <- read.table(argv$circ_counts, header = T, sep = "\t")
+circ.counts <- read.table(argv$circ_counts, header = T, sep = "\t", stringsAsFactors = F, check.names = F)
 # PARAMS
 fragment.length <- 76
 standard.dev <- 20
-# change colnames
-colnames(circ.counts) <- sapply(gsub("\\.", "-", colnames(circ.counts)), "[", 1)
 # create tmp
 dir.create("tmp", showWarnings = F)
 # determine annotation

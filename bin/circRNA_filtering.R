@@ -7,7 +7,7 @@ if (length(args)!=6) {
 }
 
 expression_norm_path = args[1]
-samples <- gsub("-", ".", read.table(file = args[2], sep = "\t", header = T)[,"sample"]) # get samples from samplesheet
+samples <- read.table(file = args[2], sep = "\t", header = T)[,"sample"] # get samples from samplesheet
 output_dir = args[3]
 samples_percentage = as.numeric(args[4]) # default 0.2, minimum percentage of samples, a circRNA has to be expressed in is to pass filtering
 read_cutoff = as.numeric(args[5]) # default 5, minimum number of reads, a circRNA is required to have to pass filtering

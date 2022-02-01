@@ -125,13 +125,13 @@ create_target_scan_symbols <- function(merged_data, miRTarBase, miranda, tarpmir
   merged_data_targets <- NULL
   if (file.exists(merged_data)) {
     print("using given targets")
-    merged_data_targets <- data.frame(read.table(merged_data, header = T, sep = "\t"))
+    merged_data_targets <- data.frame(read.table(merged_data, header = T, sep = "\t", stringsAsFactors = F, check.names = F))
   }
   # process miRTarBase
   miRTarBase_targets <- NULL
   if (file.exists(miRTarBase)) {
     print("processing miRTarBase targets")
-    miRTarBase_targets <- data.frame(read.csv(miRTarBase, header = T))
+    miRTarBase_targets <- data.frame(read.csv(miRTarBase, header = T, stringsAsFactors = F, check.names = F))
     # filter by organism
     miRTarBase_targets <- miRTarBase_targets[miRTarBase_targets$Species..miRNA. == org_data[1],]
     # create target scan counts matrix
@@ -141,28 +141,28 @@ create_target_scan_symbols <- function(merged_data, miRTarBase, miranda, tarpmir
   miranda_targets <- NULL
   if (file.exists(miranda)) {
     print("processing miranda targets")
-    miranda.bp <- data.frame(read.table(miranda, header = T, sep = "\t"))
+    miranda.bp <- data.frame(read.table(miranda, header = T, sep = "\t", stringsAsFactors = F, check.names = F))
     miranda_targets <- as.data.frame.matrix(table(miranda.bp$Target, miranda.bp$miRNA))
   }
   # process tarpmir data
   tarpmir_targets <- NULL
   if (file.exists(tarpmir)) {
     print("processing TarPmiR data")
-    tarpmir_data <- read.table(tarpmir, header = F, sep = "\t")
+    tarpmir_data <- read.table(tarpmir, header = F, sep = "\t", stringsAsFactors = F, check.names = F)
     tarpmir_targets <- as.data.frame.matrix(table(tarpmir_data$V2, tarpmir_data$V1))
   }
   # process TargetScan data
   target_scan_targets <- NULL
   if (file.exists(TargetScan)) {
     print("processing TargetScan data")
-    target_scan_data <- data.frame(read.table(TargetScan, header = T, sep = "\t"))
+    target_scan_data <- data.frame(read.table(TargetScan, header = T, sep = "\t", stringsAsFactors = F, check.names = F))
     target_scan_targets <- as.data.frame.matrix(table(target_scan_data$Gene.Symbol, target_scan_data$miR.Family))
   }
   # process lncBase data
   lncBase_targets <- NULL
   if (file.exists(lncBase)) {
     print("processing lncBase data")
-    lncBase_targets <- as.data.frame(data.frame(read.table(lncBase, sep = "\t", header = T)))
+    lncBase_targets <- as.data.frame(data.frame(read.table(lncBase, sep = "\t", header = T, stringsAsFactors = F, check.names = F)))
   }
   
   # MERGE DATA
@@ -171,15 +171,12 @@ create_target_scan_symbols <- function(merged_data, miRTarBase, miranda, tarpmir
   for (target in targets_data) {
     # append data if present
     if (!is.null(target)) {
-      colnames(target) <- sapply(gsub("\\.", "-", colnames(target)), "[", 1)
       # first data set
       if (is.null(merged.targets)) {
         merged.targets <- target
       } else {
-        # merge by rowname
+        # merge by row names
         merged.targets <- merge(merged.targets, target, by = 0, all = T)
-        # redo columns
-        colnames(merged.targets) <- sapply(strsplit(colnames(merged.targets), "\\."), "[", 1)
         # reformat rows
         rownames(merged.targets) <- merged.targets$Row
         # drop Row

@@ -24,7 +24,7 @@ expression_raw <- expression_raw[,samples]
 # normalize using DeSeq2, Library Size Estimation
 meta <- data.frame(samples)
 row.names(meta) <- meta$samples 
-data <- expression_raw
+data <- as.matrix(expression_raw)
 all(colnames(data) %in% rownames(meta))
 all(colnames(data) == rownames(meta))
 

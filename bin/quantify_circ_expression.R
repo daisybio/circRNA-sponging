@@ -75,7 +75,7 @@ for (i in 1:nrow(samplesheet)) {
     fastq2 <- samplesheet[i, "totalRNA2"]
     cmd <- paste(c(argv$psirc_quant, "quant -i", index, "-o", output, fastq, fastq2), collapse = " ")
   }
-  std <- system(cmd, ignore.stdout = T, intern = T)           # invoke psirc command
+  # std <- system(cmd, ignore.stdout = T, intern = T)           # invoke psirc command
   # read created abundances
   abundance <- read.table(file.path(output, "abundance.tsv"), sep = "\t", header = T)
   if (annotation) {

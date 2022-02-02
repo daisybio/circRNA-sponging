@@ -418,7 +418,7 @@ if (params.database_annotation){
         """
     }
 } else {
-    ch_circRNA_counts_filtered.into{ ch_circRNA_counts_filtered1; ch_circRNA_counts_filtered2, ch_circRNA_counts_filtered3, ch_circRNA_counts_filtered4, ch_circRNA_counts_filtered5 }
+    ch_circRNA_counts_filtered.into{ ch_circRNA_counts_filtered1; ch_circRNA_counts_filtered2; ch_circRNA_counts_filtered3; ch_circRNA_counts_filtered4; ch_circRNA_counts_filtered5 }
 }
 
 /*
@@ -788,7 +788,7 @@ if (!params.circRNA_only) {
     if (params.sponge) {
         // USE GIVEN TARGET SYMBOLS OR DEFAULT LOCATED IN DATA
         target_scan_symbols = params.target_scan_symbols ? Channel.value(file(params.target_scan_symbols)) : Channel.value(file(projectDir + "/data/miRNA_target_symbols/hsa_mirWalk_lncbase_21_ENSG.tsv.gz"))
-        
+
         // RUN WITH TARPMIR DATA
         if (params.tarpmir) {
             process SPONGE_tarpmir {

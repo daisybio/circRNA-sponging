@@ -292,7 +292,7 @@ process summarize_detected_circRNAs{
     file(circRNA_file) from ch_circRNA_known_files.collect()
 
     output:
-    file("circRNA_counts_raw.tsv") into ch_circRNA_counts_raw
+    file("circRNA_counts_raw.tsv") into (ch_circRNA_counts_raw1, ch_circRNA_counts_raw2)
 
     script:
     """
@@ -308,14 +308,14 @@ process extract_circRNA_sequences {
     publishDir "${params.out_dir}/results/binding_sites/input/", mode: params.publish_dir_mode
     
     input:
-    file(circRNAs_filtered) from ch_circRNA_counts_raw
+    file(circRNAs_raw) from ch_circRNA_counts_raw1
 
     output:
     file("circRNAs_raw.fa") into circRNAs_raw_fasta
 
     script:
     """
-	Rscript "${projectDir}"/bin/extract_fasta.R $params.genome_version $circRNAs_filtered
+	Rscript "${projectDir}"/bin/extract_fasta.R $params.genome_version $circRNAs_raw
     """
 }
 
@@ -329,7 +329,7 @@ if (params.quantification){
         publishDir "${params.out_dir}/results/circRNA/", mode: params.publish_dir_mode
 
         input:
-        file(circ_counts) from ch_circRNA_counts_raw
+        file(circ_counts) from ch_circRNA_counts_raw2
         file(circ_fasta) from circRNAs_raw_fasta
         file(psirc_quant) from psirc
 
@@ -349,7 +349,7 @@ if (params.quantification){
         """
     }
 } else {
-    ch_circRNA_counts_raw.into{ ch_circRNA_counts1; ch_circRNA_counts2 }
+    ch_circRNA_counts_raw2.into{ ch_circRNA_counts1; ch_circRNA_counts2 }
 }
 
 /*
@@ -430,7 +430,7 @@ process circ_fastas{
     publishDir "${params.out_dir}/results/binding_sites/input/", mode: params.publish_dir_mode
 
     input:
-    file(circRNAs_filtered) from ch_circRNA_counts_filtered2
+    file(circRNAs_filtered) from ch_circRNA_counts_filtered1
 
     output:
     file("circRNAs.fa") into (circRNAs_fasta1, circRNAs_fasta2)
@@ -450,7 +450,7 @@ if (params.differential_expression){
         publishDir "${params.out_dir}/results/gene_expression/differential_expression", mode: params.publish_dir_mode
 
         input:
-        file(circRNA_counts) from ch_circRNA_counts_filtered1
+        file(circRNA_counts) from ch_circRNA_counts_filtered2
         file(circRNA_raw) from ch_circRNA_counts2
         file(txiRDS) from txiRDS
 
@@ -781,13 +781,14 @@ if (!params.circRNA_only) {
         Rscript "${projectDir}"/bin/correlation_analysis.R $params.samplesheet $miRNA_counts_filtered $circRNA_counts_filtered $correlations $params.out_dir $params.sample_group $miRNA_counts_norm $circRNA_counts_norm
         """
     }
-    // USE GIVEN TARGET SYMBOLS OR DEFAULT LOCATED IN DATA
-    target_scan_symbols = params.target_scan_symbols ? Channel.value(file(params.target_scan_symbols)) : Channel.value(file(projectDir + "/data/miRNA_target_symbols/hsa_mirWalk_lncbase_21_ENSG.tsv.gz"))
 
     /*
     * SPONGE ANALYSIS (https://github.com/biomedbigdata/SPONGE)
     */
     if (params.sponge) {
+        // USE GIVEN TARGET SYMBOLS OR DEFAULT LOCATED IN DATA
+        target_scan_symbols = params.target_scan_symbols ? Channel.value(file(params.target_scan_symbols)) : Channel.value(file(projectDir + "/data/miRNA_target_symbols/hsa_mirWalk_lncbase_21_ENSG.tsv.gz"))
+        
         // RUN WITH TARPMIR DATA
         if (params.tarpmir) {
             process SPONGE_tarpmir {

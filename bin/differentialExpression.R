@@ -95,7 +95,7 @@ create_outputs(d = dds_filtered, results = filtered_res, marker = "condition", o
 
 annotation <- "circBaseID" %in% colnames(circ_RNAs)
 # get samples
-samples <- gsub("-", ".", samplesheet$sample)
+samples <- samplesheet$sample
 
 # DIFFERENTIAL CIRCRNA EXPRESSION
 # use given annotation if possible

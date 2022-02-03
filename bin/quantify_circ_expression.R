@@ -78,7 +78,7 @@ for (i in 1:nrow(samplesheet)) {
     fastq2 <- samplesheet[i, "totalRNA2"]
     cmd <- paste(c(argv$psirc_quant, "quant -i", index, "-o", output, fastq, fastq2), collapse = " ")
   }
-  # std <- system(cmd, ignore.stdout = T, intern = T)           # invoke psirc command
+  std <- system(cmd, ignore.stdout = T, intern = T)           # invoke psirc command
   # read created abundances
   abundance <- read.table(file.path(output, "abundance.tsv"), sep = "\t", header = T)
   if (annotation) {
@@ -104,8 +104,8 @@ write.table(circ.quant, file = o, sep = "\t")
 print("done")
 
 # extract counts
-circ.counts.c <- circ.counts[order(circ.counts$circBaseID), -c(1:8)]
-circ.quant.c <- circ.quant[order(circ.quant$circBaseID), -c(1:8)]
+circ.counts.c <- circ.counts[order(rownames(circ.counts)), -c(1:8)]
+circ.quant.c <- circ.quant[order(rownames(circ.quant)), -c(1:8)]
 # calculate false positive rate
 tmp <- circ.counts.c - circ.quant.c
 fp <- length(tmp[tmp ==circ.counts.c])

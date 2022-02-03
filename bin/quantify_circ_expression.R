@@ -11,6 +11,7 @@ parser <- add_argument(parser, "--samplesheet", help = "Samplesheet containing m
 parser <- add_argument(parser, "--circ_counts", help = "circRNA counts file")
 parser <- add_argument(parser, "--psirc_quant", help = "Path to psirc-quant executable", default = "psirc-quant")
 # ONLY NEEDED IF INDEX IS NOT ALREADY CONSTRUCTED
+parser <- add_argument(parser, "--keep_tmp", help = "Keep temporary files", default = T)
 parser <- add_argument(parser, "--transcriptome", help = "Transcriptome for given genome (cDNA)", default = NULL)
 parser <- add_argument(parser, "--circ_fasta", help = "Fasta file for circRNAs in circRNA counts file", default = NULL)
 
@@ -56,10 +57,12 @@ dir.create("tmp", showWarnings = F)
 annotation <- "circBaseID" %in% colnames(circ.counts)
 # set row names
 if (annotation) {
-  # rownames(circ.counts) <- circ.counts$circBaseID
+  rownames(circ.counts) <- circ.counts$circBaseID
 } else {
   # TODO: filter for uniques
-  # rownames(circ.counts) <- paste0(circ.counts$chr, ":", circ.counts$start, "-", circ.counts$stop, "_", circ.counts$strand)
+  circ.counts$key <- paste0(circ.counts$chr, ":", circ.counts$start, "-", circ.counts$stop, "_", circ.counts$strand)
+  circ.counts <- circ.counts[!duplicated(circ.counts$key),]
+  rownames(circ.counts) <- paste0(circ.counts$chr, ":", circ.counts$start, "-", circ.counts$stop, "_", circ.counts$strand)
 }
 
 circ.quant <- circ.counts
@@ -75,7 +78,7 @@ for (i in 1:nrow(samplesheet)) {
     fastq2 <- samplesheet[i, "totalRNA2"]
     cmd <- paste(c(argv$psirc_quant, "quant -i", index, "-o", output, fastq, fastq2), collapse = " ")
   }
-  std <- system(cmd, ignore.stdout = T, intern = T)           # invoke psirc command
+  # std <- system(cmd, ignore.stdout = T, intern = T)           # invoke psirc command
   # read created abundances
   abundance <- read.table(file.path(output, "abundance.tsv"), sep = "\t", header = T)
   if (annotation) {
@@ -91,7 +94,9 @@ for (i in 1:nrow(samplesheet)) {
 # filter quantified data
 
 # remove tmp
-# unlink("tmp", recursive = T)
+if (!argv$keep_tmp) {
+  unlink("tmp", recursive = T)
+}
 # write output to disk
 o <- paste0(strsplit(basename(argv$circ_counts), "\\.")[[1]][1], "_quant", ".tsv")
 cat("writing output file to ", o, "...\n")
@@ -99,10 +104,10 @@ write.table(circ.quant, file = o, sep = "\t")
 print("done")
 
 # extract counts
-# circ.counts.c <- circ.counts[order(circ.counts$circBaseID), -c(1:8)]
-# circ.quant.c <- circ.quant[order(circ.quant$circBaseID), -c(1:8)]
+circ.counts.c <- circ.counts[order(circ.counts$circBaseID), -c(1:8)]
+circ.quant.c <- circ.quant[order(circ.quant$circBaseID), -c(1:8)]
 # calculate false positive rate
-# tmp <- circ.counts.c - circ.quant.c
-# fp <- length(tmp[tmp ==circ.counts.c])
-# fp.rate <- fp/prod(dim(circ.counts.c))
-# cat("False positive rate:", fp.rate, "according to psirc quantification\n")
+tmp <- circ.counts.c - circ.quant.c
+fp <- length(tmp[tmp ==circ.counts.c])
+fp.rate <- fp/prod(dim(circ.counts.c))
+cat("False positive rate:", fp.rate, "according to psirc quantification\n")

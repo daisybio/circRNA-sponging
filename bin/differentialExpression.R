@@ -6,6 +6,7 @@ library(tximport)
 library(pheatmap)
 library(DESeq2)
 library(data.table)
+library(EnhancedVolcano)
 
 args = commandArgs(trailingOnly = TRUE)
 
@@ -13,6 +14,10 @@ args = commandArgs(trailingOnly = TRUE)
 create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.1, log2FC = 1, pseudocount = 1e-3) {
   # create dirs in cwd
   dir.create(out, showWarnings = FALSE)
+  results <- results(d,
+                     contrast = c('condition', 'Non-Seminoma', 'Seminoma'))
+  results <- lfcShrink(d,
+                       contrast = c('condition', 'Non-Seminoma', 'Seminoma'), res=results, type = 'normal')
   # write data to disk
   write.table(cbind(ENS_ID=rownames(results), results), file = file.path(out, paste(out, "tsv", sep = ".")), quote = FALSE, sep = "\t", col.names = NA)
   # col data
@@ -25,6 +30,13 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   PCA_plot <- DESeq2::plotPCA(deseq_vst, intgroup = marker)
   png(filename = file.path(out, paste("pca", "png", sep = ".")), res = 200, width = 1024, height = 800)
   plot(PCA_plot)
+  # VOLCANO PLOT
+  volcano <- EnhancedVolcano(results,
+                  lab = rownames(results),
+                  x = 'log2FoldChange',
+                  y = 'pvalue')
+  png(filename = file.path(out, paste("volcano", "png", sep = ".")), res = 200, width = 1024, height = 800)
+  plot(volcano)
   # HEAT MAP
   
   # filter for significant differential expression
@@ -56,6 +68,7 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
                      cluster_cols=T, annotation_col=df,
                      filename = file.path(out, paste("HMAP_top", "png", sep = ".")),
                      height = 15, width = 25, legend = F)
+  dev.off()
 }
 # load total gene expression of samples
 txi <- readRDS(args[1])
@@ -120,7 +133,7 @@ res.circ <- res.circ[order(res.circ$padj),]
 # create summary
 DESeq2::summary(res.circ)
 
-create_outputs(dds.circ, res.circ, marker = "condition", out = "circ_rna_DE", nsub = 100, pseudocount = 0)
+create_outputs(dds.circ, res.circ, marker = "condition", out = "circ_rna_DE", nsub = 100, pseudocount = 0, log2FC = 0)
 
 # save R image
 save.image(file = "DESeq2.RData")

@@ -30,6 +30,7 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   PCA_plot <- DESeq2::plotPCA(deseq_vst, intgroup = marker)
   png(filename = file.path(out, paste("pca", "png", sep = ".")), res = 200, width = 1024, height = 800)
   plot(PCA_plot)
+  dev.off()
   # VOLCANO PLOT
   volcano <- EnhancedVolcano(results,
                   lab = rownames(results),
@@ -37,6 +38,7 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
                   y = 'pvalue')
   png(filename = file.path(out, paste("volcano", "png", sep = ".")), res = 200, width = 1024, height = 800)
   plot(volcano)
+  dev.off()
   # HEAT MAP
   
   # filter for significant differential expression
@@ -59,16 +61,19 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
 
   # set output file loc
   # plot heatmap
+  d <- dist(t(filtered))
+  m <- 5 / max(d)
+  colors <- c(colorRampPalette(c("blue", "orange"))(100), colorRampPalette(c("orange", "red"))(100))
   pheatmap::pheatmap(filtered, cluster_rows=T, show_rownames=F,
            cluster_cols=T, annotation_col=df,
            filename = file.path(out, paste("HMAP", "png", sep = ".")),
-           height = 15, width = 25, legend = F, annotation_legend = F)
+           height = 15, width = 25, legend = T, annotation_legend = T,
+           color = colors)
   # top n
   pheatmap::pheatmap(filtered.top, cluster_rows=T, show_rownames=T,
                      cluster_cols=T, annotation_col=df,
                      filename = file.path(out, paste("HMAP_top", "png", sep = ".")),
                      height = 15, width = 25, legend = F)
-  dev.off()
 }
 # load total gene expression of samples
 txi <- readRDS(args[1])

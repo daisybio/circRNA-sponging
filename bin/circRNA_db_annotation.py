@@ -267,7 +267,6 @@ def submit(tsv_data):
         logging.error("Timeout: cirBase did not respond within " + str(delay) + " seconds")
         exit(1)
     # process response
-    driver.quit()
     return read_html(driver.page_source)
 
 

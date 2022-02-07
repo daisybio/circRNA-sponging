@@ -266,6 +266,8 @@ def online_access(converted_circ_data, output_loc, splitter):
     # if more than 2500 entries are supplied, thread execute database search with 2500 max splits
     splitter = 1000
     tsv_data = tsvData(converted_circ_data)[1000]
+    print(tsv_data)[1:10]
+    exit(0)
     if len(tsv_data) > splitter:
         with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
             logging.basicConfig(level=logging.INFO, format='%(relativeCreated)6d %(threadName)s %(message)s')

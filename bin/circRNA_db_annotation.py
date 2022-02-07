@@ -11,6 +11,7 @@ from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.firefox.options import Options
+# from selenium.webdriver.chrome.options import Options
 import threading
 import logging
 import time
@@ -257,7 +258,9 @@ def online_access(converted_circ_data, output_loc, splitter):
     # set headless
     options.headless = True
     firefox_path = os.path.join(pipeline_home, "assets/geckodriver")
+    # chrome_path = "/Users/leonschwartz/Desktop/Bioinformatik/local_data/software/chromedriver"
     driver = webdriver.Firefox(executable_path=firefox_path, options=options)
+    # driver = webdriver.Chrome(executable_path=chrome_path, options=options)
     driver.get(url=url)
     # select according organism
     organism_select = Select(driver.find_element(By.ID, "organism"))
@@ -265,9 +268,7 @@ def online_access(converted_circ_data, output_loc, splitter):
     organism_select.select_by_value(organism.get_db_name())
     # if more than 2500 entries are supplied, thread execute database search with 2500 max splits
     splitter = 1000
-    tsv_data = tsvData(converted_circ_data)[1000]
-    print(tsv_data[1:10])
-    exit(0)
+    tsv_data = tsvData(converted_circ_data)[1:splitter]
     if len(tsv_data) > splitter:
         with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
             logging.basicConfig(level=logging.INFO, format='%(relativeCreated)6d %(threadName)s %(message)s')

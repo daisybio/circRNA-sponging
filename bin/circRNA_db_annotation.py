@@ -267,6 +267,7 @@ def submit(tsv_data):
         logging.error("Timeout: cirBase did not respond within " + str(delay) + " seconds")
         exit(1)
     # process response
+    driver.quit()
     return read_html(driver.page_source)
 
 
@@ -279,21 +280,22 @@ def online_access(converted_circ_data, output_loc, splitter):
             logging.basicConfig(level=logging.INFO, format='%(relativeCreated)6d %(threadName)s %(message)s')
             results = [executor.submit(submit, d) for d in [tsv_data[i:i+splitter] for i in range(0, len(converted_circ_data), splitter)]]
             db_dict = {}
+            i = 0
             for f in concurrent.futures.as_completed(results):
                 # each threads database search result as dict
                 r = f.result()
+                print(str(i) + ":", r.keys())
                 # first entry
                 if len(db_dict.keys()) == 0:
                     db_dict = r
                 else:
                     db_dict.update(r)   # add next entries
+                i+=1
     else:
         db_dict = submit(tsv_data)
     direct_matches = {x: converted_circ_data[x] for x in set(converted_circ_data.keys()).intersection(set(db_dict.keys()))}
     print("Writing output file")
     write_mapping_file(direct_matches, db_dict, output_loc, "\t")
-    # close driver
-    driver.quit()
 
 
 def main():

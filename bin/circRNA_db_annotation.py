@@ -229,6 +229,7 @@ def read_html(response):
 
 
 def submit(driver, tsv_data):
+    print(tsv_data)
     # upload tmp database file
     driver.find_element(By.ID, "querybox").send_keys(tsv_data)
     # submit form and retrieve data

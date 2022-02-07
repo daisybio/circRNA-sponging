@@ -11,6 +11,9 @@ from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.firefox.options import Options
+import threading
+import time
+import concurrent.futures
 
 parser = argparse.ArgumentParser()
 
@@ -26,7 +29,6 @@ parser.add_argument("-endC", "--end", help="Column of end of position", default=
 parser.add_argument("-strandC", "--strand", help="Column of strand", default=3)
 parser.add_argument("-nh", "--no_header", help="Specified file has no header", action='store_true')
 parser.add_argument("-off", "--offline_access", default="None", help="Location of database offline data")
-parser.add_argument("-off-only", "--offline_only", help="Just use given offline access", action="store_true")
 
 args = parser.parse_args()
 
@@ -78,6 +80,14 @@ def db_format(c, x, y, s):
     return "\t".join([c, x, y, s])+"\n"
 
 
+# generate string to search in circBase
+def tsvData(data):
+    x = []
+    for entry in data.values():
+        x.append("\t".join([entry[chr_c], entry[start_c], entry[end_c], entry[strand_c]]))
+    return x
+
+
 # READ FOUND CIRC RNA AND CONVERT GENOMIC POSITIONS
 def convert(c, x, y, s, converter):
     first = converter.convert_coordinate(c, int(x), s)
@@ -88,12 +98,12 @@ def convert(c, x, y, s, converter):
 
 
 # read input data, convert each position, write tmp file for db, return whole converted data
-def convert_and_write(o, c, d, s, tmp_out, nh):
+def convert_and_write(o, c, d, s, nh):
     print("writing database search file and lifting coordinates")
     # create LiftOver for desired genome versions
     converter = LiftOver(o, c)
     data = {}
-    with open(d, "r") as file, open(tmp_out, "w") as out_file:
+    with open(d, "r") as file:
         i = 0
         for line in file:
             # split line according to given separator
@@ -118,9 +128,6 @@ def convert_and_write(o, c, d, s, tmp_out, nh):
             # save line to data with according key
             k = key_gen(chromosome, x_converted, y_converted, strand)
             data[k] = split
-            # dont print duplicates
-            if k not in data.keys():
-                out_file.write(db_format(chromosome, x_converted, y_converted, strand))
             # increase counter
             i += 1
     return data
@@ -220,8 +227,25 @@ def read_html(response):
     return read_db_data_to_dict(header, data)
 
 
+def submit(driver, tsv_data):
+    # upload tmp database file
+    driver.find_element(By.ID, "querybox").send_keys(tsv_data)
+    # submit form and retrieve data
+    print("Submitting data")
+    driver.find_element(By.ID, "submit").click()
+    delay = 300  # seconds
+    try:
+        WebDriverWait(driver, delay).until(EC.presence_of_element_located((By.ID, 'tablesorter')))
+        print("Results have appeared")
+    except TimeoutException:
+        print("Timeout: cirBase did not respond within " + str(delay) + " seconds")
+        exit(1)
+    # process response
+    return read_html(driver.page_source)
+
+
 # make request using selenium
-def online_access(upload_file, converted_circ_data, output_loc, offline, separator):
+def online_access(converted_circ_data, output_loc, splitter):
     # get circBase url
     url = dbs["circBase"]
     # create driver and navigate to circBase list search
@@ -235,28 +259,23 @@ def online_access(upload_file, converted_circ_data, output_loc, offline, separat
     organism_select = Select(driver.find_element(By.ID, "organism"))
     # select for current organism by DbOrganism class
     organism_select.select_by_value(organism.get_db_name())
-    # upload tmp database file
-    driver.find_element(By.ID, "queryfile").send_keys(upload_file)
-    # submit form and retrieve data
-    print("Submitting data: " + str(upload_file))
-    driver.find_element(By.ID, "submit").click()
-    delay = 300  # seconds
-    try:
-        WebDriverWait(driver, delay).until(EC.presence_of_element_located((By.ID, 'tablesorter')))
-        print("Results have appeared")
-    except TimeoutException:
-        print("Loading took too much time")
-        if Path(offline).is_file():
-            print("Using downloaded database from: " + str(offline))
-            offline_access(converted_circ_data=converted_circ_data,
-                       output_loc=output_loc,
-                       database_loc=offline,
-                       separator=separator)
-        else:
-            print("No database file given or file doesn't exist")
-            exit(1)
-    # process response
-    db_dict = read_html(driver.page_source)
+    # if more than 2500 entries are supplied, thread execute database search with 2500 max splits
+    splitter = 2500
+    if len(converted_circ_data) > splitter:
+        tsv_data = tsvData(converted_circ_data)
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            results = [executor.submit(submit, driver, "\n".join(d)) for d in [tsv_data[i:i+splitter] for i in range(0, len(converted_circ_data), splitter)]]
+            db_dict = {}
+            for f in concurrent.futures.as_completed(results):
+                # each threads database search result as dict
+                r = f.result()
+                # first entry
+                if len(db_dict.keys()) == 0:
+                    db_dict = r
+                else:
+                    db_dict.update(r)   # add next entries
+    else:
+        db_dict = submit(driver, converted_circ_data)
     direct_matches = {x: converted_circ_data[x] for x in set(converted_circ_data.keys()).intersection(set(db_dict.keys()))}
     print("Writing output file")
     write_mapping_file(direct_matches, db_dict, output_loc, "\t")
@@ -276,33 +295,22 @@ def main():
     # NO HEADER OPTION
     no_header = args.no_header
 
-    # TMP FILE LOCATION
-    tmp_db_file = os.path.join(os.path.dirname(os.path.realpath(circ_rna_loc)), "tmp_converted_for_db.tsv")
-
     # CIRC RNA CONVERSION, TMP FILE
     converted_data = convert_and_write(original_genome, converted_genome, d=circ_rna_loc,
-                                       tmp_out=tmp_db_file, s=separator, nh=no_header)
+                                        s=separator, nh=no_header)
 
     # DATABASE ACCESS
-    if not args.offline_only:
+    if not Path(db_data).is_file():
         print("Attempting circBase online access")
-        online_access(upload_file=tmp_db_file,
-                      converted_circ_data=converted_data,
+        online_access(converted_circ_data=converted_data,
                       output_loc=out_loc,
-                      offline = db_data,
-                      separator=separator)
+                      splitter=2500)
     else:
         print("Using circBase offline access")
         offline_access(converted_circ_data=converted_data,
                        output_loc=out_loc,
                        database_loc=db_data,
                        separator=separator)
-
-    # clean tmp file
-    if os.path.exists(tmp_db_file):
-        os.remove(tmp_db_file)
-    else:
-        print("TMP file not found: " + str(tmp_db_file))
 
 
 if __name__ == "__main__":

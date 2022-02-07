@@ -257,13 +257,11 @@ def submit(tsv_data):
         textbox.send_keys(Keys.ENTER)
     time.sleep(1)
     # submit form and retrieve data
-    print("submit")
     logging.info("Submitting data")
     driver.find_element(By.ID, "submit").click()
     delay = 300  # seconds
     try:
         WebDriverWait(driver, delay).until(EC.presence_of_element_located((By.ID, 'tablesorter')))
-        print("got it")
         logging.info("Results have appeared")
     except TimeoutException:
         logging.error("Timeout: cirBase did not respond within " + str(delay) + " seconds")
@@ -319,7 +317,7 @@ def main():
         print("Attempting circBase online access")
         online_access(converted_circ_data=converted_data,
                       output_loc=out_loc,
-                      splitter=2500)
+                      splitter=1000)
     else:
         print("Using circBase offline access")
         offline_access(converted_circ_data=converted_data,

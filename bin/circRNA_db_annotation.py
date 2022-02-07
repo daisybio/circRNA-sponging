@@ -5,6 +5,7 @@ import os
 from bs4 import BeautifulSoup as bs
 from selenium import webdriver
 import pandas
+from pathlib import Path
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -25,6 +26,7 @@ parser.add_argument("-endC", "--end", help="Column of end of position", default=
 parser.add_argument("-strandC", "--strand", help="Column of strand", default=3)
 parser.add_argument("-nh", "--no_header", help="Specified file has no header", action='store_true')
 parser.add_argument("-off", "--offline_access", default="None", help="Location of database offline data")
+parser.add_argument("-off-only", "--offline_only", help="Just use given offline access", action="store_true")
 
 args = parser.parse_args()
 
@@ -111,11 +113,14 @@ def convert_and_write(o, c, d, s, tmp_out, nh):
             x_converted, y_converted = convert(chromosome, start_pos, end_pos, strand, converter)
             # skip if no conversion possible
             if x_converted is None:
-                print("Conversion failed for line " + str(i) + ": " + str(s).join(split))
+                print("Conversion failed for line " + str(i) + ": " + str(s).join([chromosome, start_pos, end_pos, strand]))
                 continue
             # save line to data with according key
-            data[key_gen(chromosome, x_converted, y_converted, strand)] = split
-            out_file.write(db_format(chromosome, x_converted, y_converted, strand))
+            k = key_gen(chromosome, x_converted, y_converted, strand)
+            data[k] = split
+            # dont print duplicates
+            if k not in data.keys():
+                out_file.write(db_format(chromosome, x_converted, y_converted, strand))
             # increase counter
             i += 1
     return data
@@ -216,7 +221,7 @@ def read_html(response):
 
 
 # make request using selenium
-def online_access(upload_file, converted_circ_data, output_loc):
+def online_access(upload_file, converted_circ_data, output_loc, offline, separator):
     # get circBase url
     url = dbs["circBase"]
     # create driver and navigate to circBase list search
@@ -241,6 +246,15 @@ def online_access(upload_file, converted_circ_data, output_loc):
         print("Results have appeared")
     except TimeoutException:
         print("Loading took too much time")
+        if Path(offline).is_file():
+            print("Using downloaded database from: " + str(offline))
+            offline_access(converted_circ_data=converted_circ_data,
+                       output_loc=output_loc,
+                       database_loc=offline,
+                       separator=separator)
+        else:
+            print("No database file given or file doesn't exist")
+            exit(1)
     # process response
     db_dict = read_html(driver.page_source)
     direct_matches = {x: converted_circ_data[x] for x in set(converted_circ_data.keys()).intersection(set(db_dict.keys()))}
@@ -270,11 +284,13 @@ def main():
                                        tmp_out=tmp_db_file, s=separator, nh=no_header)
 
     # DATABASE ACCESS
-    if db_data == "None":
+    if not args.offline_only:
         print("Attempting circBase online access")
         online_access(upload_file=tmp_db_file,
                       converted_circ_data=converted_data,
-                      output_loc=out_loc)
+                      output_loc=out_loc,
+                      offline = db_data,
+                      separator=separator)
     else:
         print("Using circBase offline access")
         offline_access(converted_circ_data=converted_data,

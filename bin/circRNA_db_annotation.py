@@ -237,11 +237,11 @@ def submit(tsv_data):
     # create driver and navigate to circBase list search
     options = Options()
     # set headless
-    # options.headless = True
-    # firefox_path = os.path.join(pipeline_home, "assets/geckodriver")
-    chrome_path = "/Users/leonschwartz/Desktop/Bioinformatik/local_data/software/chromedriver"
-    # driver = webdriver.Firefox(executable_path=firefox_path, options=options)
-    driver = webdriver.Chrome(executable_path=chrome_path, options=options)
+    options.headless = True
+    firefox_path = os.path.join(pipeline_home, "assets/geckodriver")
+    # chrome_path = "/Users/leonschwartz/Desktop/Bioinformatik/local_data/software/chromedriver"
+    driver = webdriver.Firefox(executable_path=firefox_path, options=options)
+    # driver = webdriver.Chrome(executable_path=chrome_path, options=options)
     driver.get(url=url)
     WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
     # select according organism

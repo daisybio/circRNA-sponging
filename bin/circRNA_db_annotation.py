@@ -280,6 +280,7 @@ def online_access(converted_circ_data, output_loc, splitter):
             results = [executor.submit(submit, d) for d in [tsv_data[i:i+splitter] for i in range(0, len(converted_circ_data), splitter)]]
             db_dict = {}
             i = 0
+            circ_ids = set
             for f in concurrent.futures.as_completed(results):
                 # each threads database search result as dict
                 r = f.result()
@@ -289,7 +290,8 @@ def online_access(converted_circ_data, output_loc, splitter):
                     db_dict = r
                 else:
                     db_dict.update(r)   # add next entries
-                i+=1
+                i += 1
+                circ_ids.add(r.keys())
     else:
         db_dict = submit(tsv_data)
     direct_matches = {x: converted_circ_data[x] for x in set(converted_circ_data.keys()).intersection(set(db_dict.keys()))}

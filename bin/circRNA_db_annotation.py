@@ -232,11 +232,13 @@ def submit(driver, tsv_data):
     # upload tmp database file
     driver.find_element(By.ID, "querybox").send_keys(tsv_data)
     # submit form and retrieve data
+    print("submit")
     logging.info("Submitting data")
     driver.find_element(By.ID, "submit").click()
     delay = 300  # seconds
     try:
         WebDriverWait(driver, delay).until(EC.presence_of_element_located((By.ID, 'tablesorter')))
+        print("got it")
         logging.info("Results have appeared")
     except TimeoutException:
         logging.error("Timeout: cirBase did not respond within " + str(delay) + " seconds")
@@ -265,7 +267,7 @@ def online_access(converted_circ_data, output_loc, splitter):
     tsv_data = tsvData(converted_circ_data)[1000]
     if len(tsv_data) > splitter:
         with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
-            logging.basicConfig(level=logging.DEBUG, format='%(relativeCreated)6d %(threadName)s %(message)s')
+            logging.basicConfig(level=logging.INFO, format='%(relativeCreated)6d %(threadName)s %(message)s')
             results = [executor.submit(submit, driver, "\n".join(d)) for d in [tsv_data[i:i+splitter] for i in range(0, len(converted_circ_data), splitter)]]
             db_dict = {}
             for f in concurrent.futures.as_completed(results):

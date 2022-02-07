@@ -291,7 +291,7 @@ def online_access(converted_circ_data, output_loc, splitter=1000):
                 else:
                     db_dict.update(r)   # add next entries
                 i += 1
-                circ.update(r.values()[3])
+                circ.update(list(r.values())[3])
             print("Unique circIDs: " + str(len(circ)))
     else:
         db_dict = submit(tsv_data)

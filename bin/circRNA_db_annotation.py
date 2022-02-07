@@ -292,6 +292,7 @@ def online_access(converted_circ_data, output_loc, splitter=1000):
     else:
         db_dict = submit(tsv_data)
     print(len(db_dict.keys()))
+    print(set(converted_circ_data.keys()))
     direct_matches = {x: converted_circ_data[x] for x in set(converted_circ_data.keys()).intersection(set(db_dict.keys()))}
     print("Writing output file")
     write_mapping_file(direct_matches, db_dict, output_loc, "\t")

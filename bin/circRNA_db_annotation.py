@@ -283,7 +283,7 @@ def online_access(converted_circ_data, output_loc, splitter):
             for f in concurrent.futures.as_completed(results):
                 # each threads database search result as dict
                 r = f.result()
-                print(str(i) + ":", r.keys())
+                print(str(i) + ":", len(r.keys()))
                 # first entry
                 if len(db_dict.keys()) == 0:
                     db_dict = r

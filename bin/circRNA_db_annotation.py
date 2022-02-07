@@ -10,8 +10,10 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.firefox.options import Options
-# from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.options import Options
 import threading
 import logging
 import time
@@ -86,7 +88,7 @@ def db_format(c, x, y, s):
 def tsvData(data):
     x = []
     for entry in data.values():
-        x.append("\t".join([entry[chr_c], entry[start_c], entry[end_c], entry[strand_c]]))
+        x.append(" ".join([entry[chr_c], entry[start_c], entry[end_c], entry[strand_c]]))
     return x
 
 
@@ -229,10 +231,33 @@ def read_html(response):
     return read_db_data_to_dict(header, data)
 
 
-def submit(driver, tsv_data):
-    print(tsv_data)
+def submit(tsv_data):
+    # get circBase url
+    url = dbs["circBase"]
+    # create driver and navigate to circBase list search
+    options = Options()
+    # set headless
+    # options.headless = True
+    # firefox_path = os.path.join(pipeline_home, "assets/geckodriver")
+    chrome_path = "/Users/leonschwartz/Desktop/Bioinformatik/local_data/software/chromedriver"
+    # driver = webdriver.Firefox(executable_path=firefox_path, options=options)
+    driver = webdriver.Chrome(executable_path=chrome_path, options=options)
+    driver.get(url=url)
+    WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
+    # select according organism
+    organism_select = Select(driver.find_element(By.ID, "organism"))
+    # select for current organism by DbOrganism class
+    organism_select.select_by_value(organism.get_db_name())
     # upload tmp database file
-    driver.find_element(By.ID, "querybox").send_keys(tsv_data)
+    textbox = driver.find_element(By.ID, "querybox")
+    WebDriverWait(driver, 2).until(EC.element_to_be_clickable(textbox))
+    # select it
+    textbox.click()
+    # fill data
+    for circ in tsv_data:
+        textbox.send_keys(circ)
+        textbox.send_keys(Keys.ENTER)
+    time.sleep(1)
     # submit form and retrieve data
     print("submit")
     logging.info("Submitting data")
@@ -251,24 +276,8 @@ def submit(driver, tsv_data):
 
 # make request using selenium
 def online_access(converted_circ_data, output_loc, splitter):
-    # get circBase url
-    url = dbs["circBase"]
-    # create driver and navigate to circBase list search
-    options = Options()
-    # set headless
-    options.headless = True
-    firefox_path = os.path.join(pipeline_home, "assets/geckodriver")
-    # chrome_path = "/Users/leonschwartz/Desktop/Bioinformatik/local_data/software/chromedriver"
-    driver = webdriver.Firefox(executable_path=firefox_path, options=options)
-    # driver = webdriver.Chrome(executable_path=chrome_path, options=options)
-    driver.get(url=url)
-    # select according organism
-    organism_select = Select(driver.find_element(By.ID, "organism"))
-    # select for current organism by DbOrganism class
-    organism_select.select_by_value(organism.get_db_name())
     # if more than 2500 entries are supplied, thread execute database search with 2500 max splits
-    splitter = 1000
-    tsv_data = tsvData(converted_circ_data)[1:splitter]
+    tsv_data = tsvData(converted_circ_data)[1:10]
     if len(tsv_data) > splitter:
         with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
             logging.basicConfig(level=logging.INFO, format='%(relativeCreated)6d %(threadName)s %(message)s')
@@ -283,7 +292,7 @@ def online_access(converted_circ_data, output_loc, splitter):
                 else:
                     db_dict.update(r)   # add next entries
     else:
-        db_dict = submit(driver, "\n".join(tsv_data))
+        db_dict = submit(tsv_data)
     direct_matches = {x: converted_circ_data[x] for x in set(converted_circ_data.keys()).intersection(set(db_dict.keys()))}
     print("Writing output file")
     write_mapping_file(direct_matches, db_dict, output_loc, "\t")

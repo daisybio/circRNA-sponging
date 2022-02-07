@@ -262,8 +262,8 @@ def online_access(converted_circ_data, output_loc, splitter):
     organism_select.select_by_value(organism.get_db_name())
     # if more than 2500 entries are supplied, thread execute database search with 2500 max splits
     splitter = 1000
-    if len(converted_circ_data) > splitter:
-        tsv_data = tsvData(converted_circ_data)[2000]
+    tsv_data = tsvData(converted_circ_data)[1000]
+    if len(tsv_data) > splitter:
         with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
             logging.basicConfig(level=logging.DEBUG, format='%(relativeCreated)6d %(threadName)s %(message)s')
             results = [executor.submit(submit, driver, "\n".join(d)) for d in [tsv_data[i:i+splitter] for i in range(0, len(converted_circ_data), splitter)]]

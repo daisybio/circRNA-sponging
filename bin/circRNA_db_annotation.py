@@ -271,8 +271,8 @@ def submit(tsv_data):
 
 
 # make request using selenium
-def online_access(converted_circ_data, output_loc, splitter):
-    # if more than 2500 entries are supplied, thread execute database search with 2500 max splits
+def online_access(converted_circ_data, output_loc, splitter=1000):
+    # if more than 2500 entries are supplied, thread execute database search with splitter max splits
     tsv_data = tsvData(converted_circ_data)
     if len(tsv_data) > splitter:
         with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
@@ -280,7 +280,7 @@ def online_access(converted_circ_data, output_loc, splitter):
             results = [executor.submit(submit, d) for d in [tsv_data[i:i+splitter] for i in range(0, len(converted_circ_data), splitter)]]
             db_dict = {}
             i = 0
-            circ_ids = set
+            circ = {}
             for f in concurrent.futures.as_completed(results):
                 # each threads database search result as dict
                 r = f.result()
@@ -291,7 +291,8 @@ def online_access(converted_circ_data, output_loc, splitter):
                 else:
                     db_dict.update(r)   # add next entries
                 i += 1
-                circ_ids.add(r.keys())
+                circ.add(r.values()[3])
+            print("Unique circIDs: " + str(len(circ)))
     else:
         db_dict = submit(tsv_data)
     direct_matches = {x: converted_circ_data[x] for x in set(converted_circ_data.keys()).intersection(set(db_dict.keys()))}
@@ -319,8 +320,7 @@ def main():
     if not Path(db_data).is_file():
         print("Attempting circBase online access")
         online_access(converted_circ_data=converted_data,
-                      output_loc=out_loc,
-                      splitter=1000)
+                      output_loc=out_loc)
     else:
         print("Using circBase offline access")
         offline_access(converted_circ_data=converted_data,

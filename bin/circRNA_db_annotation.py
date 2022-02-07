@@ -280,7 +280,7 @@ def online_access(converted_circ_data, output_loc, splitter=1000):
             results = [executor.submit(submit, d) for d in [tsv_data[i:i+splitter] for i in range(0, len(converted_circ_data), splitter)]]
             db_dict = {}
             i = 0
-            circ = {}
+            circ = set
             for f in concurrent.futures.as_completed(results):
                 # each threads database search result as dict
                 r = f.result()
@@ -291,7 +291,7 @@ def online_access(converted_circ_data, output_loc, splitter=1000):
                 else:
                     db_dict.update(r)   # add next entries
                 i += 1
-                circ.add(r.values()[3])
+                circ.update(r.values()[3])
             print("Unique circIDs: " + str(len(circ)))
     else:
         db_dict = submit(tsv_data)

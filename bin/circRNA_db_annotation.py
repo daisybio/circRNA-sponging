@@ -264,6 +264,8 @@ def online_access(converted_circ_data, output_loc, splitter):
     splitter = 1000
     if len(converted_circ_data) > splitter:
         tsv_data = tsvData(converted_circ_data)
+        print(tsv_data[1000])
+        exit(0)
         with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
             logging.basicConfig(level=logging.DEBUG, format='%(relativeCreated)6d %(threadName)s %(message)s')
             results = [executor.submit(submit, driver, "\n".join(d)) for d in [tsv_data[i:i+splitter] for i in range(0, len(converted_circ_data), splitter)]]

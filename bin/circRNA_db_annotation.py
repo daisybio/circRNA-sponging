@@ -277,7 +277,7 @@ def online_access(converted_circ_data, output_loc, splitter):
                 else:
                     db_dict.update(r)   # add next entries
     else:
-        db_dict = submit(driver, converted_circ_data)
+        db_dict = submit(driver, "\n".join(tsv_data))
     direct_matches = {x: converted_circ_data[x] for x in set(converted_circ_data.keys()).intersection(set(db_dict.keys()))}
     print("Writing output file")
     write_mapping_file(direct_matches, db_dict, output_loc, "\t")

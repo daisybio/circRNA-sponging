@@ -280,21 +280,18 @@ def online_access(converted_circ_data, output_loc, splitter=1000):
             results = [executor.submit(submit, d) for d in [tsv_data[i:i+splitter] for i in range(0, len(converted_circ_data), splitter)]]
             db_dict = {}
             i = 0
-            circ = set
             for f in concurrent.futures.as_completed(results):
                 # each threads database search result as dict
                 r = f.result()
                 print(str(i) + ":", len(r.keys()))
-                # first entry
                 if len(db_dict.keys()) == 0:
-                    db_dict = r
+                    db_dict = r         # initiate first entry
                 else:
                     db_dict.update(r)   # add next entries
                 i += 1
-                circ.update(list(r.values())[3])
-            print("Unique circIDs: " + str(len(circ)))
     else:
         db_dict = submit(tsv_data)
+    print(len(db_dict.keys()))
     direct_matches = {x: converted_circ_data[x] for x in set(converted_circ_data.keys()).intersection(set(db_dict.keys()))}
     print("Writing output file")
     write_mapping_file(direct_matches, db_dict, output_loc, "\t")

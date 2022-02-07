@@ -86,7 +86,6 @@ def tsvData(data):
     x = []
     for entry in data.values():
         x.append("\t".join([entry[chr_c], entry[start_c], entry[end_c], entry[strand_c]]))
-        print(x)
     return x
 
 

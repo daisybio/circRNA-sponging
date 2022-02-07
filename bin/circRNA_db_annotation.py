@@ -281,7 +281,7 @@ def online_access(converted_circ_data, output_loc, splitter):
     if len(tsv_data) > splitter:
         with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
             logging.basicConfig(level=logging.INFO, format='%(relativeCreated)6d %(threadName)s %(message)s')
-            results = [executor.submit(submit, driver, "\n".join(d)) for d in [tsv_data[i:i+splitter] for i in range(0, len(converted_circ_data), splitter)]]
+            results = [executor.submit(submit, "\n".join(d)) for d in [tsv_data[i:i+splitter] for i in range(0, len(converted_circ_data), splitter)]]
             db_dict = {}
             for f in concurrent.futures.as_completed(results):
                 # each threads database search result as dict

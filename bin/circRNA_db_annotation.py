@@ -12,6 +12,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.firefox.options import Options
 import threading
+import logging
 import time
 import concurrent.futures
 
@@ -99,7 +100,7 @@ def convert(c, x, y, s, converter):
 
 # read input data, convert each position, write tmp file for db, return whole converted data
 def convert_and_write(o, c, d, s, nh):
-    print("writing database search file and lifting coordinates")
+    print("lifting coordinates")
     # create LiftOver for desired genome versions
     converter = LiftOver(o, c)
     data = {}
@@ -231,14 +232,14 @@ def submit(driver, tsv_data):
     # upload tmp database file
     driver.find_element(By.ID, "querybox").send_keys(tsv_data)
     # submit form and retrieve data
-    print("Submitting data")
+    logging.info("Submitting data")
     driver.find_element(By.ID, "submit").click()
     delay = 300  # seconds
     try:
         WebDriverWait(driver, delay).until(EC.presence_of_element_located((By.ID, 'tablesorter')))
-        print("Results have appeared")
+        logging.info("Results have appeared")
     except TimeoutException:
-        print("Timeout: cirBase did not respond within " + str(delay) + " seconds")
+        logging.error("Timeout: cirBase did not respond within " + str(delay) + " seconds")
         exit(1)
     # process response
     return read_html(driver.page_source)
@@ -260,7 +261,7 @@ def online_access(converted_circ_data, output_loc, splitter):
     # select for current organism by DbOrganism class
     organism_select.select_by_value(organism.get_db_name())
     # if more than 2500 entries are supplied, thread execute database search with 2500 max splits
-    splitter = 2500
+    splitter = 1000
     if len(converted_circ_data) > splitter:
         tsv_data = tsvData(converted_circ_data)
         with concurrent.futures.ThreadPoolExecutor() as executor:

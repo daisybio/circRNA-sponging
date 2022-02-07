@@ -249,7 +249,6 @@ def submit(tsv_data):
     organism_select.select_by_value(organism.get_db_name())
     # upload tmp database file
     textbox = driver.find_element(By.ID, "querybox")
-    WebDriverWait(driver, 2).until(EC.element_to_be_clickable(textbox))
     # select it
     textbox.click()
     # fill data

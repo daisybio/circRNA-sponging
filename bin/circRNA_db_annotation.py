@@ -216,15 +216,12 @@ def read_db_data_to_dict(header, data):
         if len(split) < 3:
             continue
         key = str(split[1]) + "_" + str(split[2])
-        if key ==  'chr1:1158623-1159348_-':
-            print("FOUND KEY 'chr1:1158623-1159348_-'")
         d[key] = split
     d["header"] = header
     return d
 
 
 def read_html(response):
-    print("processing results")
     soup = bs(response, "html.parser")
     table = soup.find("table")
     header = [h.text for h in table.find_all("th")]
@@ -276,6 +273,9 @@ def submit(tsv_data):
 def online_access(converted_circ_data, output_loc, splitter=1000):
     # if more than 2500 entries are supplied, thread execute database search with splitter max splits
     tsv_data = tsvData(converted_circ_data)
+    with open("tmp.txt", "w") as test:
+        test.writelines(tsv_data)
+    exit(0)
     if len(tsv_data) > splitter:
         print("Splitting search into " + str(len(range(0, len(converted_circ_data), splitter))) + " parts")
         with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:

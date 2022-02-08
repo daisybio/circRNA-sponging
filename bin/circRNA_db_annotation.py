@@ -32,6 +32,7 @@ parser.add_argument("-endC", "--end", help="Column of end of position", default=
 parser.add_argument("-strandC", "--strand", help="Column of strand", default=3)
 parser.add_argument("-nh", "--no_header", help="Specified file has no header", action='store_true')
 parser.add_argument("-off", "--offline_access", default="None", help="Location of database offline data")
+parser.add_argument("-split", "--splitter", default=1000, help="Maximum number of entries before splitting into search threads")
 
 args = parser.parse_args()
 
@@ -41,6 +42,7 @@ start_c = args.start
 end_c = args.end
 strand_c = args.strand
 organism = args.organism
+splitter = args.splitter
 
 # set pipeline home
 pipeline_home = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -270,7 +272,7 @@ def submit(tsv_data):
 
 
 # make request using selenium
-def online_access(converted_circ_data, output_loc, splitter=1000):
+def online_access(converted_circ_data, output_loc):
     # if more than 2500 entries are supplied, thread execute database search with splitter max splits
     tsv_data = tsvData(converted_circ_data)[2500]
     if len(tsv_data) > splitter:
@@ -317,7 +319,7 @@ def main():
     if not Path(db_data).is_file():
         print("Attempting circBase online access")
         online_access(converted_circ_data=converted_data,
-                      output_loc=out_loc, splitter=2500)
+                      output_loc=out_loc)
     else:
         print("Using circBase offline access")
         offline_access(converted_circ_data=converted_data,

@@ -231,7 +231,7 @@ def read_html(response):
 
 
 def submit(tsv_data):
-    logging.info("\n".join(tsv_data))
+    os.system("echo %s >> tmp.txt" % "\n".join(tsv_data))
     # get circBase url
     url = dbs["circBase"]
     # create driver and navigate to circBase list search
@@ -256,7 +256,7 @@ def submit(tsv_data):
     for circ in tsv_data:
         textbox.send_keys(circ)
         textbox.send_keys(Keys.ENTER)
-    time.sleep(2)
+    time.sleep(0.5)
     # submit form and retrieve data
     logging.info("Submitting data")
     driver.find_element(By.ID, "submit").click()

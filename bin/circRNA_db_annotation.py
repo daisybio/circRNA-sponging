@@ -216,6 +216,8 @@ def read_db_data_to_dict(header, data):
         if len(split) < 3:
             continue
         key = str(split[1]) + "_" + str(split[2])
+        if key ==  'chr1:1158623-1159348_-':
+            print("FOUND KEY 'chr1:1158623-1159348_-'")
         d[key] = split
     d["header"] = header
     return d
@@ -231,7 +233,6 @@ def read_html(response):
 
 
 def submit(tsv_data):
-    os.system("echo %s >> tmp.txt" % "\n".join(tsv_data))
     # get circBase url
     url = dbs["circBase"]
     # create driver and navigate to circBase list search

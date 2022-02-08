@@ -151,7 +151,7 @@ def read_db(db_loc):
                 c += 1
                 continue
             pos = str(split[0]) + "_" + str(split[1])
-            d[pos] = split[2:]
+            d[pos] = split
             c += 1
     return d
 
@@ -177,7 +177,7 @@ def write_mapping_file(matched_dict, db_dict, output_loc, separator):
     header.append(converted_genome + "_converted_pos")
     # extend rest of db data without already present information
     header.extend(db_header[3:])
-    print(len(matched_dict))
+    print("[final] found " + str(len(matched_dict)) + " exact matching circRNAs to submitted query")
     annotation_file = os.path.join(output_loc, "circRNAs_annotated.tsv")
     annotated_expr = os.path.join(output_loc, "circRNA_counts_annotated.tsv")
     with open(annotation_file, "w") as output, open(annotated_expr, "w") as an_expr:
@@ -275,6 +275,7 @@ def online_access(converted_circ_data, output_loc, splitter=1000):
     # if more than 2500 entries are supplied, thread execute database search with splitter max splits
     tsv_data = tsvData(converted_circ_data)
     if len(tsv_data) > splitter:
+        print("Splitting search into " + str(len(range(0, len(converted_circ_data), splitter))) + " parts")
         with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
             logging.basicConfig(level=logging.INFO, format='%(relativeCreated)6d %(threadName)s %(message)s')
             results = [executor.submit(submit, d) for d in [tsv_data[i:i+splitter] for i in range(0, len(converted_circ_data), splitter)]]
@@ -283,7 +284,7 @@ def online_access(converted_circ_data, output_loc, splitter=1000):
             for f in concurrent.futures.as_completed(results):
                 # each threads database search result as dict
                 r = f.result()
-                print(str(i) + ":", len(r.keys()))
+                print(str(i) + ": found ", str(len(r.keys())) + " matching circRNAs")
                 if len(db_dict.keys()) == 0:
                     db_dict = r         # initiate first entry
                 else:
@@ -291,8 +292,7 @@ def online_access(converted_circ_data, output_loc, splitter=1000):
                 i += 1
     else:
         db_dict = submit(tsv_data)
-    print(len(db_dict.keys()))
-    print(set(converted_circ_data.keys()))
+    # extract only direct matches of genomic positions  and no overlaps
     direct_matches = {x: converted_circ_data[x] for x in set(converted_circ_data.keys()).intersection(set(db_dict.keys()))}
     print("Writing output file")
     write_mapping_file(direct_matches, db_dict, output_loc, "\t")

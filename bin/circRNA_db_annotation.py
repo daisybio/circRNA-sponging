@@ -274,7 +274,7 @@ def submit(tsv_data):
 # make request using selenium
 def online_access(converted_circ_data, output_loc):
     # if more than 2500 entries are supplied, thread execute database search with splitter max splits
-    tsv_data = tsvData(converted_circ_data)[1000]
+    tsv_data = tsvData(converted_circ_data)
     if len(tsv_data) > splitter:
         print("Splitting search into " + str(len(range(0, len(converted_circ_data), splitter))) + " parts")
         with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:

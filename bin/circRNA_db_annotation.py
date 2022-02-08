@@ -274,7 +274,7 @@ def online_access(converted_circ_data, output_loc, splitter=1000):
     # if more than 2500 entries are supplied, thread execute database search with splitter max splits
     tsv_data = tsvData(converted_circ_data)
     with open("tmp.txt", "w") as test:
-        test.writelines(tsv_data)
+        test.writelines("\n".join(tsv_data))
     exit(0)
     if len(tsv_data) > splitter:
         print("Splitting search into " + str(len(range(0, len(converted_circ_data), splitter))) + " parts")

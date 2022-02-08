@@ -152,6 +152,7 @@ def read_db(db_loc):
                 continue
             pos = str(split[1]) + "_" + str(split[2])
             d[pos] = split
+            print(pos)
             c += 1
     return d
 

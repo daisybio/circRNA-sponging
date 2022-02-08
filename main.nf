@@ -345,7 +345,7 @@ if (params.quantification){
         --circ_counts $circ_counts \
         --transcriptome $params.transcriptome \
         --circ_fasta $circ_fasta \
-        --psirc-quant $psirc_quant
+        --psirc_quant $psirc_quant
         """
     }
 } else {

@@ -73,7 +73,8 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   pheatmap::pheatmap(filtered.top, cluster_rows=T, show_rownames=T,
                      cluster_cols=T, annotation_col=df,
                      filename = file.path(out, paste("HMAP_top", "png", sep = ".")),
-                     height = 15, width = 25, legend = F)
+                     height = 15, width = 25, legend = F,
+                     color = colors)
 }
 # load total gene expression of samples
 txi <- readRDS(args[1])

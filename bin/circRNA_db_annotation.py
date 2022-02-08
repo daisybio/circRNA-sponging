@@ -272,7 +272,7 @@ def submit(tsv_data):
 # make request using selenium
 def online_access(converted_circ_data, output_loc, splitter=1000):
     # if more than 2500 entries are supplied, thread execute database search with splitter max splits
-    tsv_data = tsvData(converted_circ_data)
+    tsv_data = tsvData(converted_circ_data)[2500]
     if len(tsv_data) > splitter:
         print("Splitting search into " + str(len(range(0, len(converted_circ_data), splitter))) + " parts")
         with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
@@ -317,7 +317,7 @@ def main():
     if not Path(db_data).is_file():
         print("Attempting circBase online access")
         online_access(converted_circ_data=converted_data,
-                      output_loc=out_loc)
+                      output_loc=out_loc, splitter=2500)
     else:
         print("Using circBase offline access")
         offline_access(converted_circ_data=converted_data,

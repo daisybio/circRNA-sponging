@@ -323,7 +323,7 @@ process extract_circRNA_sequences {
 * QUANTIFY circRNA EXPRESSION USING PSIRC
 */
 if (params.quantification){
-    psirc = params.psirc_exc ? Channel.value(file(params.psirc_exc)) : Channel.value(file("${projectDir}/ext/psirc-quant"))
+    psirc = params.psirc_exc ? Channel.value(file(params.psirc_exc)) : Channel.value(file(projectDir + "/ext/psirc-quant"))
     process psirc {
         label 'process_medium'
         publishDir "${params.out_dir}/results/circRNA/", mode: params.publish_dir_mode
@@ -533,7 +533,7 @@ process binding_sites_filtering {
 * TODO: make file names unique
 */
 if (params.tarpmir) {
-    model = params.model ? Channel.value(file(params.model)) : Channel.value(file("${projectDir}/data/tarpmir_models/Human_sklearn_0.22.pkl"))
+    model = params.model ? Channel.value(file(params.model)) : Channel.value(file(projectDir + "/data/tarpmir_models/Human_sklearn_0.22.pkl"))
 
     // RUN TARPMIR ON CHUNKED MRNA FASTAS
     process tarpmir {

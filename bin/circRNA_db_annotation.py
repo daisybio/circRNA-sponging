@@ -255,7 +255,7 @@ def submit(tsv_data):
     for circ in tsv_data:
         textbox.send_keys(circ)
         textbox.send_keys(Keys.ENTER)
-    time.sleep(1)
+    time.sleep(2)
     # submit form and retrieve data
     logging.info("Submitting data")
     driver.find_element(By.ID, "submit").click()

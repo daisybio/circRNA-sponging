@@ -231,6 +231,7 @@ def read_html(response):
 
 
 def submit(tsv_data):
+    logging.info("\n".join(tsv_data))
     # get circBase url
     url = dbs["circBase"]
     # create driver and navigate to circBase list search

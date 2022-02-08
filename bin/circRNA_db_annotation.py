@@ -273,9 +273,6 @@ def submit(tsv_data):
 def online_access(converted_circ_data, output_loc, splitter=1000):
     # if more than 2500 entries are supplied, thread execute database search with splitter max splits
     tsv_data = tsvData(converted_circ_data)
-    with open("tmp.txt", "w") as test:
-        test.writelines("\n".join(tsv_data))
-    exit(0)
     if len(tsv_data) > splitter:
         print("Splitting search into " + str(len(range(0, len(converted_circ_data), splitter))) + " parts")
         with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
@@ -286,7 +283,7 @@ def online_access(converted_circ_data, output_loc, splitter=1000):
             for f in concurrent.futures.as_completed(results):
                 # each threads database search result as dict
                 r = f.result()
-                print(str(i) + ": found ", str(len(r.keys())) + " matching circRNAs")
+                print(str(i) + ": found ", str(len(r.keys())) + " overlapping circRNAs")
                 if len(db_dict.keys()) == 0:
                     db_dict = r         # initiate first entry
                 else:

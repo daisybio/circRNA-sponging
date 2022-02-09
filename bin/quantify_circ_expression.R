@@ -62,6 +62,7 @@ if (annotation) {
   # TODO: filter for uniques
   circ.counts$key <- paste0(circ.counts$chr, ":", circ.counts$start, "-", circ.counts$stop, "_", circ.counts$strand)
   circ.counts <- circ.counts[!duplicated(circ.counts$key),]
+  circ.counts$key <- NULL
   rownames(circ.counts) <- paste0(circ.counts$chr, ":", circ.counts$start, "-", circ.counts$stop, "_", circ.counts$strand)
 }
 

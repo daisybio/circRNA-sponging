@@ -23,7 +23,7 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   # col data
   df <- as.data.frame(colData(d))
   df <- df[,c("sample", "condition")]
-  # df <- df[order(df$condition, decreasing = T),]
+  
   # PCA
   # variance stabilizing transformation
   deseq_vst <- DESeq2::vst(d, blind = FALSE, nsub = nsub)
@@ -63,18 +63,23 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   # plot heatmap
   d <- dist(t(filtered))
   m <- 5 / max(d)
+  # set colors
   colors <- c(colorRampPalette(c("blue", "orange"))(100), colorRampPalette(c("orange", "red"))(100))
+  annotation.colors <- list(condition = c("Seminoma" = "#339300", "Non-Seminoma" = "#CC0000"))
+  row.names(df) <- df$sample
+  df <- df[, "condition", drop = F]
   pheatmap::pheatmap(filtered, cluster_rows=T, show_rownames=F,
            cluster_cols=T, annotation_col=df,
            filename = file.path(out, paste("HMAP", "png", sep = ".")),
            height = 15, width = 25, legend = T, annotation_legend = T,
-           color = colors)
+           show_colnames = F, color = colors, annotation_names_col = F, main = out,
+           treeheight_row = 0, treeheight_col = 0, annotation_colors = annotation.colors)
   # top n
   pheatmap::pheatmap(filtered.top, cluster_rows=T, show_rownames=T,
                      cluster_cols=T, annotation_col=df,
                      filename = file.path(out, paste("HMAP_top", "png", sep = ".")),
                      height = 15, width = 25, legend = F,
-                     color = colors)
+                     color = colors, annotation_colors = annotation.colors)
 }
 # load total gene expression of samples
 txi <- readRDS(args[1])

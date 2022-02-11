@@ -101,7 +101,8 @@ def db_format(c, x, y, s):
 def tsvData(data):
     x = []
     for key in data.keys():
-        x.append(key_to_bed(key))
+        if key != "header":
+            x.append(key_to_bed(key))
     return x
 
 

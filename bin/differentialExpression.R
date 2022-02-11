@@ -51,7 +51,7 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   # PSEUDOCOUNTS
   selected <- rownames(signif.hits)
   counts <- counts(d, normalized = T)[rownames(d) %in% selected,]+pseudocount
-  filtered <- as.data.frame(log2(counts))
+  filtered <- as.data.frame(log10(counts))
   filtered <- filtered[, df$sample]
   # select top n
   selected.top <- rownames(signif.top)

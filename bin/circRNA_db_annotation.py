@@ -80,6 +80,18 @@ def key_gen(c, x, y, s):
     return str(c)+":"+str(x)+"-"+str(y)+"_"+str(s)
 
 
+# get key information from key_gen as bed format
+def key_to_bed(k):
+    s1 = k.split(":")   # "chr1":,"start-end_strand"
+    c = s1[0]   # chr
+    s2 = s1[1].split("_")   # "start-end", "strand"
+    strand = s2[1]  # strand
+    lr = s2[0].split("-")   # "start", "end"
+    s = lr[0]   # start
+    e = lr[1]   # end
+    return " ".join([c, s, e, strand])
+
+
 # format for database
 def db_format(c, x, y, s):
     return "\t".join([c, x, y, s])+"\n"
@@ -88,8 +100,8 @@ def db_format(c, x, y, s):
 # generate string to search in circBase
 def tsvData(data):
     x = []
-    for entry in data.values():
-        x.append(" ".join([entry[chr_c], entry[start_c], entry[end_c], entry[strand_c]]))
+    for key in data.keys():
+        x.append(key_to_bed(key))
     return x
 
 

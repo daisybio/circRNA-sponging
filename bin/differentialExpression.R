@@ -73,7 +73,7 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
            filename = file.path(out, paste("HMAP", "png", sep = ".")),
            height = 15, width = 25, legend = T, annotation_legend = T,
            show_colnames = F, color = colors, annotation_names_col = F, main = out,
-           treeheight_row = 0, treeheight_col = 0, annotation_colors = annotation.colors)
+           treeheight_row = 0, treeheight_col = 0, annotation_colors = annotation.colors, fontsize = 25)
   # top n
   pheatmap::pheatmap(filtered.top, cluster_rows=T, show_rownames=T,
                      cluster_cols=T, annotation_col=df,

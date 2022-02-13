@@ -168,10 +168,6 @@ create_target_scan_symbols <- function(merged_data, miRTarBase, miranda, tarpmir
   # MERGE DATA
   merged.targets <- NULL
   targets_data <- list(merged_data_targets, miRTarBase_targets, miranda_targets, tarpmir_targets, target_scan_targets, lncBase_targets)
-  
-  save.image(file = file.path(out, "sponge.RData"))
-  stop("test")
-  
   for (target in targets_data) {
     # append data if present
     if (!is.null(target)) {

@@ -175,12 +175,13 @@ create_target_scan_symbols <- function(merged_data, miRTarBase, miranda, tarpmir
       if (is.null(merged.targets)) {
         merged.targets <- target
       } else {
+        colnames(target) <- gsub("\\.", "-", colnames(target))
         # merge by row names
         merged.targets <- merge(merged.targets, target, by = 0, all = T)
         # reformat rows
-        rownames(merged.targets) <- merged.targets$Row
+        rownames(merged.targets) <- merged.targets$Row.names
         # drop Row
-        merged.targets$Row <- NULL
+        merged.targets$Row.names <- NULL
         # remove NAs
         merged.targets[is.na(merged.targets)] <- 0
         # combine tables

@@ -114,7 +114,7 @@ create_target_scan_symbols <- function(merged_data, miRTarBase, miranda, tarpmir
   print("CREATING TARGET SCAN SYMBOLS")
   # check targets
   start_file <- 0
-  data <- list(merged_data, miRTarBase, miranda, TargetScan, lncBase, miRDB)
+  data <- list(merged_data, miRTarBase, miranda, tarpmir, TargetScan, lncBase, miRDB)
   
   # check files
   if (length(Filter(file.exists, data)) == 0) {
@@ -168,6 +168,10 @@ create_target_scan_symbols <- function(merged_data, miRTarBase, miranda, tarpmir
   # MERGE DATA
   merged.targets <- NULL
   targets_data <- list(merged_data_targets, miRTarBase_targets, miranda_targets, tarpmir_targets, target_scan_targets, lncBase_targets)
+  
+  save.image(file = file.path(out, "sponge.RData"))
+  stop("test")
+  
   for (target in targets_data) {
     # append data if present
     if (!is.null(target)) {

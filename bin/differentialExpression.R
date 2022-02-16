@@ -46,6 +46,8 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
                       results$padj<as.double(padj) &
                         abs(results$log2FoldChange) > log2FC,]
   
+  write.table(signif.hits, file = file.path(out, paste(out, "signif", "tsv", sep = ".")), quote = FALSE, sep = "\t", col.names = NA)
+  
   signif.top <- head(signif.hits[order(signif.hits$padj),], n)
   # select all
   # PSEUDOCOUNTS

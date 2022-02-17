@@ -24,6 +24,7 @@ parser <- add_argument(parser, "--tarpmir_data", help = "default tarpmir output 
 parser <- add_argument(parser, "--TargetScan_data", help = "TargetScan contingency data location in tsv format", default = "null")
 parser <- add_argument(parser, "--lncBase_data", help = "LncBase contingency data location in tsv format", default = "null")
 parser <- add_argument(parser, "--miRDB_data", help = "miRDB contingency data location in tsv format", default = "null")
+parser <- add_argument(parser, "--normalize", help = "Normalize given gene expression before analysis", flag = T)
 
 argv <- parse_args(parser, argv = args)
 
@@ -229,6 +230,18 @@ mi_rna_expr <- t(data.frame(read.table(file = argv$mirna_expr, header = T, sep =
 # SET GENE EXPRESSION
 print("reading gene expression...")
 gene_expr <- as.data.frame(t(read.table(file = argv$gene_expr, header = T, sep = "\t")))
+# normalize expressions if not already done
+if (argv$normalize) {
+  print("normalizing gene expression")
+  # normalize gene expr
+  samples <- colnames(gene_expr)
+  meta <- data.frame(samples)
+  row.names(meta) <- meta$samples 
+  data <- as.matrix(gene_expr)
+  dds <- DESeq2::DESeqDataSetFromMatrix(countData = round(data + 1), colData = meta, design = ~ 1)
+  dds <- DESeq2::estimateSizeFactors(dds)
+  gene_expr <- DESeq2::counts(dds, normalized=T)
+}
 
 # READ CIRC_RNA EXPRESSION AND COMBINE THEM
 print("adding circRNA expression...")

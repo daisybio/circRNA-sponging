@@ -822,7 +822,8 @@ if (!params.circRNA_only) {
                 --tarpmir_data $tarpmir_bind_sites \\
                 --TargetScan_data $params.TargetScanData \\
                 --lncBase_data $params.lncBaseData \\
-                --miRDB_data $params.miRDB_data
+                --miRDB_data $params.miRDB_data \\
+                --normalize
                 """
             }
         } else {
@@ -856,7 +857,8 @@ if (!params.circRNA_only) {
                 --miranda_data $miranda_bind_sites \\
                 --TargetScan_data $params.TargetScanData \\
                 --lncBase_data $params.lncBaseData \\
-                --miRDB_data $params.miRDB_data
+                --miRDB_data $params.miRDB_data \\
+                --normalize
                 """
             }
         } 

@@ -842,7 +842,9 @@ if (!params.circRNA_only) {
 
                 output:
                 file("sponge.RData") into Rimage
-                file("plots/*.png") into ch_sponge_plots
+                file("plots/simulation.png") into simulation
+                file("circRNA/*") into circResults
+                file("total/*") into totalResults
 
                 script:
                 """

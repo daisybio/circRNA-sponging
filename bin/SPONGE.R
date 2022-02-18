@@ -329,22 +329,23 @@ ceRNA_interactions_sign <- sponge_compute_p_values(sponge_result = ceRNA_interac
 print("building ceRNA network...")
 # (D) ceRNA interaction network
 fdr <- as.double(argv$fdr)
+min.interactions <- 500
 ceRNA_interactions_fdr <- ceRNA_interactions_sign[which(ceRNA_interactions_sign$p.adj < fdr),]
 if (nrow(ceRNA_interactions_fdr)==0) {
   print("Warning: fdr setting too strict, no significant interactions detected; min of padj is:")
   print(min(ceRNA_interactions_sign$p.adj))
-  print("using pvalue")
-  ceRNA_interactions_fdr <- ceRNA_interactions_sign[which(ceRNA_interactions_sign$p.val < fdr),]
-  while (nrow(ceRNA_interactions_fdr)==0) {
-    fdr <- fdr * 1.1
-    cat("adjusted fdr to :", fdr, "\n")
-    ceRNA_interactions_fdr <- ceRNA_interactions_sign[which(ceRNA_interactions_sign$p.val < fdr),]
+  print("adjusting...")
+  ceRNA_interactions_fdr <- ceRNA_interactions_sign[which(ceRNA_interactions_sign$p.adj < fdr),]
+  while (nrow(ceRNA_interactions_fdr)<min.interactions) {
+    fdr <- fdr * 1.01
+    ceRNA_interactions_fdr <- ceRNA_interactions_sign[which(ceRNA_interactions_sign$p.adj < fdr),]
   }
-  ceRNA_interactions_fdr <- ceRNA_interactions_fdr[order(ceRNA_interactions_fdr$p.val),]
+  cat("adjusted fdr to :", fdr, "to allow for a minimum", min.interactions, "interactions", "\n")
+  ceRNA_interactions_fdr <- ceRNA_interactions_fdr[order(ceRNA_interactions_fdr$p.adj),]
   # ceRNA_interactions_fdr <- head(ceRNA_interactions_fdr, 8000)
 }
 # cut samples if too many are detected TODO: choose cutoff
-cutoff <- 5000
+cutoff <- 3000
 if (nrow(ceRNA_interactions_fdr)>10000){
   print("Warning: fdr setting too loose, generated over 10000 significant hits; adjusting")
   ceRNA_interactions_fdr <- ceRNA_interactions_fdr[order(ceRNA_interactions_fdr$p.adj),]

@@ -382,7 +382,7 @@ ceRNA_strongest_plot <- sponge_plot_network(ceRNA_strongest, genes_miRNA_candida
   visNetwork::visEdges(arrows = list(to = list(enabled = T, scaleFactor = 1)))
 ceRNA_strongest_plot$x$edges$label <- paste("mscor:", round(ceRNA_strongest$mscor, 2))
 visNetwork::visSave(ceRNA_strongest_plot, file = "total/plots/strongest_network.html")
-write.table(ceRNA_strongest, "total/strongest_linear_ceRNAs.tsv", sep = "\t")
+write.table(ceRNA_strongest, "total/strongest_linear_ceRNAs.tsv", sep = "\t", row.names = F)
 
 # CIRC RNA ONLY
 ceRNA_interactions_all_circ <- subnetwork(ceRNA_interactions_fdr, pattern = ifelse(annotation, "circ", "chr"))
@@ -393,7 +393,7 @@ circRNA_network_plot$x$edges$label <- paste("mscor:", round(ceRNA_interactions_a
 
 visNetwork::visSave(circRNA_network_plot, file = "circRNA/plots/circ_network.html")
 # save significant circRNAs that act as ceRNAs
-write.table(ceRNA_interactions_all_circ, "circRNA/circRNAs_as_ceRNAs.tsv", sep = "\t")
+write.table(ceRNA_interactions_all_circ, "circRNA/circRNAs_as_ceRNAs.tsv", sep = "\t", row.names = F)
 
 # NETWORK ANALYSIS CIRC
 ceRNA_interactions_circ_weight <- ceRNA_interactions_all_circ

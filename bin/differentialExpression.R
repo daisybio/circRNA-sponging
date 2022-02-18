@@ -19,7 +19,7 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   results <- lfcShrink(d,
                        contrast = c('condition', 'Non-Seminoma', 'Seminoma'), res=results, type = 'normal')
   # write data to disk
-  write.table(cbind(ENS_ID=rownames(results), results), file = file.path(out, paste(out, "tsv", sep = ".")), quote = FALSE, sep = "\t", col.names = NA)
+  write.table(results, file = file.path(out, paste(out, "tsv", sep = ".")), quote = FALSE, sep = "\t", col.names = NA)
   # col data
   df <- as.data.frame(colData(d))
   df <- df[,c("sample", "condition")]

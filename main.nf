@@ -64,7 +64,6 @@ def helpMessage() {
 
 def get_circRNA_paths(LinkedHashMap row) {
     def array = []
-    println(row.totalRNA1)
     if (!file(row.totalRNA1).exists()) {
         exit 1, "Error: Fastq file does not exist!\n${row.totalRNA1}"
     }

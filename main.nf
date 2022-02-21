@@ -64,6 +64,7 @@ def helpMessage() {
 
 def get_circRNA_paths(LinkedHashMap row) {
     def array = []
+    println(row.totalRNA1)
     if (!file(row.totalRNA1).exists()) {
         exit 1, "Error: Fastq file does not exist!\n${row.totalRNA1}"
     }
@@ -73,7 +74,6 @@ def get_circRNA_paths(LinkedHashMap row) {
         if (!file(row.totalRNA2).exists()) {
              exit 1, "Error: Fastq file does not exist!\n${row.totalRNA2}"
         }
-        println(row.totalRNA2)
         array = [ row.sample, [ file(row.totalRNA1), file(row.totalRNA2) ] ]
     }
     if (params.differential_expression){

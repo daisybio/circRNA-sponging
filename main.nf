@@ -73,6 +73,7 @@ def get_circRNA_paths(LinkedHashMap row) {
         if (!file(row.totalRNA2).exists()) {
              exit 1, "Error: Fastq file does not exist!\n${row.totalRNA2}"
         }
+        println(row.totalRNA2)
         array = [ row.sample, [ file(row.totalRNA1), file(row.totalRNA2) ] ]
     }
     if (params.differential_expression){

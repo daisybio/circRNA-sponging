@@ -212,8 +212,10 @@ process salmon_quant {
         salmon quant -i $salmon_index -l A -r $reads --validateMappings -o ./
         """
     } else {
+        r1 = reads[0]
+        r2 = reads[1]
         """
-        salmon quant -i $salmon_index -l A -1 $reads[0] -2 $reads[1] --validateMappings -o ./
+        salmon quant -i $salmon_index -l A -1 $r1 -2 $r2 --validateMappings -o ./
         """
     }
 }

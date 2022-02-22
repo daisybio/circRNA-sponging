@@ -195,7 +195,7 @@ process STAR {
 * USE SALMON FOR QUANTIFICATION
 */
 process salmon_quant {
-    label 'process_medium'
+    label 'process_high'
     publishDir "${params.out_dir}/samples/${sampleID}/salmon", mode: params.publish_dir_mode
 
     input:

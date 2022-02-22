@@ -45,6 +45,7 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   signif.hits <- results[!is.na(results$padj) &
                       results$padj<as.double(padj) &
                         abs(results$log2FoldChange) > log2FC,]
+  cat(nrow(signif.hits), "of", nrow(results), "hits survived filtering of padj:", padj, "and log2FC:", log2FC, "\n")
   
   write.table(signif.hits, file = file.path(out, paste(out, "signif", "tsv", sep = ".")), quote = FALSE, sep = "\t", col.names = NA)
   

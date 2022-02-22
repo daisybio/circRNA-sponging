@@ -12,7 +12,7 @@ samples_loc <- args[1]
 samplesheet <- read.table(file = args[2], sep = "\t", header = TRUE)
 
 # get quant files
-quant.files <- file.path(samples_loc, samplesheet$sample, "salmon", "quant.sf")
+quant.files <- file.path(samples_loc, samplesheet$sample, "salmon", "quant.sf.gz")
 names(quant.files) <- samplesheet$sample
 
 # read input gtf

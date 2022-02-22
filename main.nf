@@ -204,7 +204,7 @@ process salmon_quant {
 
     output:
     val(sampleID) into samples
-    file("quant.sf") into quant_files
+    file("quant.sf.gz") into quant_files
 
     script:
     if (params.single_end){
@@ -218,6 +218,9 @@ process salmon_quant {
         salmon quant -i $salmon_index -l A -1 $r1 -2 $r2 --validateMappings -o ./
         """
     }
+    """
+    gzip quant.sf
+    """
 }
 
 /*

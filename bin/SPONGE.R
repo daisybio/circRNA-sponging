@@ -17,6 +17,7 @@ parser <- add_argument(parser, "--organism", help = "Organism given in three let
 # add all target scan symbol options to be included -> will generate final target scan symbols
 parser <- add_argument(parser, "--output_dir", help = "Output directory", default = getwd())
 parser <- add_argument(parser, "--fdr", help = "FDR rate for ceRNA networks", default = 0.01)
+parser <- add_argument(parser, "--cpus", help = "Number of cores to use for paralellization", default = 20)
 parser <- add_argument(parser, "--target_scan_symbols", help = "Contingency matrix of target scan symbols provided as tsv", default = "null")
 parser <- add_argument(parser, "--miRTarBase_loc", help = "MiRTarBase contingency data location in csv format", default = "null")
 parser <- add_argument(parser, "--miranda_data", help = "miRanda default output in tsv", default = "null")
@@ -294,8 +295,8 @@ library(doParallel)
 library(foreach)
 
 logging.file <- ".sponge.log"
-
-num.of.cores <- 20
+# number of cores from args
+num.of.cores <- argv$cpus
 
 cl <- makeCluster(num.of.cores, outfile=logging.file) 
 registerDoParallel(cl)

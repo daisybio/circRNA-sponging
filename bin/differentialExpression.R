@@ -11,18 +11,21 @@ library(EnhancedVolcano)
 args = commandArgs(trailingOnly = TRUE)
 
 # create output data and plots
-create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.1, log2FC = 1, pseudocount = 1e-3) {
+create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.1, log2FC = 1, pseudocount = 1e-3, filter=NULL) {
   # create dirs in cwd
   dir.create(out, showWarnings = FALSE)
-  results <- results(d,
-                     contrast = c('condition', 'Non-Seminoma', 'Seminoma'))
-  results <- lfcShrink(d,
-                       contrast = c('condition', 'Non-Seminoma', 'Seminoma'), res=results, type = 'normal')
-  # write data to disk
-  write.table(results, file = file.path(out, paste(out, "tsv", sep = ".")), quote = FALSE, sep = "\t", col.names = NA)
   # col data
   df <- as.data.frame(colData(d))
-  df <- df[,c("sample", "condition")]
+  df <- df[,c("sample", marker)]
+  
+  conditions <- unique(df[,marker])
+  
+  results <- results(d,
+                     contrast = c(marker, as.vector(conditions)))
+  results <- lfcShrink(d,
+                       contrast = c(marker, as.vector(conditions)), res=results, type = 'normal')
+  # write data to disk
+  write.table(results, file = file.path(out, paste(out, "tsv", sep = ".")), quote = FALSE, sep = "\t", col.names = NA)
   
   # PCA
   # variance stabilizing transformation
@@ -31,14 +34,6 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   png(filename = file.path(out, paste("pca", "png", sep = ".")), res = 200, width = 1024, height = 800)
   plot(PCA_plot)
   dev.off()
-  # VOLCANO PLOT
-  volcano <- EnhancedVolcano(results,
-                  lab = rownames(results),
-                  x = 'log2FoldChange',
-                  y = 'pvalue')
-  png(filename = file.path(out, paste("volcano", "png", sep = ".")), res = 200, width = 1024, height = 800)
-  plot(volcano)
-  dev.off()
   # HEAT MAP
   
   # filter for significant differential expression
@@ -46,10 +41,20 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
                       results$padj<as.double(padj) &
                         abs(results$log2FoldChange) > log2FC,]
   cat(nrow(signif.hits), "of", nrow(results), "hits survived filtering of padj:", padj, "and log2FC:", log2FC, "\n")
+  # VOLCANO PLOT
+  volcano <- EnhancedVolcano(signif.hits,
+                             lab = rownames(signif.hits),
+                             x = 'log2FoldChange',
+                             y = 'pvalue')
+  png(filename = file.path(out, paste("volcano", "png", sep = ".")), res = 200, width = 1024, height = 800)
+  plot(volcano)
+  dev.off()
   
   write.table(signif.hits, file = file.path(out, paste(out, "signif", "tsv", sep = ".")), quote = FALSE, sep = "\t", col.names = NA)
   
   signif.top <- head(signif.hits[order(signif.hits$padj),], n)
+  
+  # signif.hits <- signif.hits[signif.hits$X == "hsa_circ_0001137",]
   # select all
   # PSEUDOCOUNTS
   selected <- rownames(signif.hits)
@@ -84,6 +89,7 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
                      height = 15, width = 25, legend = F,
                      color = colors, annotation_colors = annotation.colors)
 }
+
 # load total gene expression of samples
 txi <- readRDS(args[1])
 

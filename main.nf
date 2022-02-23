@@ -188,6 +188,7 @@ process STAR {
     script:
     """
     STAR --chimSegmentMin 10 --runThreadN 10 --genomeDir $star_index --readFilesCommand zcat --readFilesIn $reads
+    gzip Aligned.out.sam
     """
 }
 

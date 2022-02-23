@@ -19,3 +19,12 @@ differential.circ.plot <- sponge_plot_network(differential.circ.in.ce.network, g
   visNetwork::visEdges(arrows = list(to = list(enabled = T, scaleFactor = 1)))
 differential.circ.plot$x$edges$label <- paste("mscor:", round(differential.circ.in.ce.network$mscor, 2))
 differential.circ.plot
+
+nodes <- differential.circ.plot$x$nodes
+nodes$color <- NULL
+nodes$shape <- NULL
+nodes$group <- ifelse(grepl("circ", nodes$id), "circRNA", "mRNA")
+test <- visNetwork(nodes = nodes, edges = differential.circ.plot$x$edges, physics = F) %>%
+  visGroups(groupname = "circRNA", shape = "rectangle", color = "#33FF99") %>%
+  visGroups(groupname = "mRNA", shape = "triangle", color = "#0066CC") %>% 
+  visLegend()

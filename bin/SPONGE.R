@@ -330,7 +330,7 @@ ceRNA_interactions_sign <- sponge_compute_p_values(sponge_result = ceRNA_interac
 print("building ceRNA network...")
 # (D) ceRNA interaction network
 fdr <- as.double(argv$fdr)
-min.interactions <- 500
+min.interactions <- 100
 ceRNA_interactions_fdr <- ceRNA_interactions_sign[which(ceRNA_interactions_sign$p.adj < fdr),]
 if (nrow(ceRNA_interactions_fdr)<min.interactions) {
   print("Warning: fdr setting too strict, no significant interactions detected; min of padj is:")

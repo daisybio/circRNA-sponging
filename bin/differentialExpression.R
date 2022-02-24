@@ -11,7 +11,7 @@ library(EnhancedVolcano)
 args = commandArgs(trailingOnly = TRUE)
 
 # create output data and plots
-create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.1, log2FC = 1, pseudocount = 1e-3, filter=NULL) {
+create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.1, log2FC = 1, pseudocount = 1e-3, filter = NULL) {
   # create dirs in cwd
   dir.create(out, showWarnings = FALSE)
   # col data
@@ -40,6 +40,11 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   signif.hits <- results[!is.na(results$padj) &
                       results$padj<as.double(padj) &
                         abs(results$log2FoldChange) > log2FC,]
+  # filter for specific RNAs
+  if (!is.null(filter)){
+    cat("using specific filtering for:", filter, "\n")
+    signif.hits <- signif.hits[rownames(signif.hits) %in% filter,]
+  }
   cat(nrow(signif.hits), "of", nrow(results), "hits survived filtering of padj:", padj, "and log2FC:", log2FC, "\n")
   # VOLCANO PLOT
   volcano <- EnhancedVolcano(signif.hits,
@@ -54,7 +59,6 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   
   signif.top <- head(signif.hits[order(signif.hits$padj),], n)
   
-  # signif.hits <- signif.hits[signif.hits$X == "hsa_circ_0001137",]
   # select all
   # PSEUDOCOUNTS
   selected <- rownames(signif.hits)
@@ -86,7 +90,7 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   pheatmap::pheatmap(filtered.top, cluster_rows=T, show_rownames=T,
                      cluster_cols=T, annotation_col=df,
                      filename = file.path(out, paste("HMAP_top", "png", sep = ".")),
-                     height = 15, width = 25, legend = F,
+                     height = 15, width = 25, legend = T,
                      color = colors, annotation_colors = annotation.colors)
 }
 

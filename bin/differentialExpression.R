@@ -2,7 +2,6 @@
 
 library(ggplot2)
 library(ensembldb)
-library(tximport)
 library(pheatmap)
 library(DESeq2)
 library(data.table)
@@ -94,17 +93,15 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
                      color = colors, annotation_colors = annotation.colors)
 }
 
-# load total gene expression of samples
-txi <- readRDS(args[1])
+# read gene expression and add pseudocount
+gene_expression <- as.matrix(read.table(file = args[1], header = T, sep = "\t")) + 1
 
 # metadata
 samplesheet <- read.table(file = args[2], sep = "\t", header = T)
 
-# dds object
-dds <- DESeq2::DESeqDataSetFromTximport(txi,
-                                colData = samplesheet,
-                                design = ~ condition)
-
+dds <- DESeq2::DESeqDataSetFromMatrix(countData = round(gene_expression),
+                                           colData = samplesheet,
+                                           design = ~ condition)
 # differential expression analysis
 dds <- DESeq2::DESeq(dds)
 # results

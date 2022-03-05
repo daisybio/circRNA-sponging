@@ -12,6 +12,7 @@ parser <- add_argument(parser, "--circ_counts", help = "circRNA counts file")
 parser <- add_argument(parser, "--psirc_quant", help = "Path to psirc-quant executable", default = "psirc-quant")
 # ONLY NEEDED IF INDEX IS NOT ALREADY CONSTRUCTED
 parser <- add_argument(parser, "--keep_tmp", help = "Keep temporary files", default = T)
+parser <- add_argument(parser, "--mapping_only", help = "Just use the mRNA kallisto mapping", default = T)
 parser <- add_argument(parser, "--transcriptome", help = "Transcriptome for given genome (cDNA)", default = NULL)
 parser <- add_argument(parser, "--circ_fasta", help = "Fasta file for circRNAs in circRNA counts file", default = NULL)
 
@@ -55,6 +56,8 @@ standard.dev <- 20
 dir.create("tmp", showWarnings = F)
 # determine annotation
 annotation <- "circBaseID" %in% colnames(circ.counts)
+# set search key
+key <- ifelse(annotation, "circ", "chr")
 # set row names
 if (annotation) {
   rownames(circ.counts) <- circ.counts$circBaseID
@@ -67,6 +70,7 @@ if (annotation) {
 }
 
 circ.quant <- circ.counts
+mRNA.quant <- data.frame()
 # run psirc for every sample
 for (i in 1:nrow(samplesheet)) {
   sample <- samplesheet[i, "sample"]
@@ -82,26 +86,29 @@ for (i in 1:nrow(samplesheet)) {
   std <- system(cmd, ignore.stdout = T, intern = T)           # invoke psirc command
   # read created abundances
   abundance <- read.table(file.path(output, "abundance.tsv"), sep = "\t", header = T)
-  if (annotation) {
-    abundance.circ <- abundance[grepl("circ", abundance$target_id),]
-  } else {
-    abundance.circ <- abundance[grepl("chr", abundance$target_id),]
-  }
+  # split abundances accoording to circular and linear
+  abundance$RNAtype <- ifelse(grepl(key, abundance$target_id), "circular", "linear")
+  circ_or_linear <- split(abundance, abundance$RNAtype)
+  abundance.circ <- circ_or_linear$circular
+  abundance.mRNA <- circ_or_linear$linear
   # set counts to quantified levels
   circ.quant[abundance.circ$target_id, sample] <- abundance.circ$est_counts
+  # save linear transcripts
+  mRNA.quant[abundance.mRNA$target_id, sample] <- abundance.mRNA$est_counts
   cat(eval(round(i/nrow(samplesheet), 2)*100), " %", "\r")
 }
-
-# filter quantified data
 
 # remove tmp
 if (!argv$keep_tmp) {
   unlink("tmp", recursive = T)
 }
 # write output to disk
+linear.o <- "linear_expression.tsv"
+cat("writing mRNA output to", linear.o, "\n")
+write.table(mRNA.quant, file = linear.o, sep = "\t", row.names = F)
 o <- paste0(strsplit(basename(argv$circ_counts), "\\.")[[1]][1], "_quant", ".tsv")
 cat("writing output file to ", o, "...\n")
-write.table(circ.quant, file = o, sep = "\t")
+write.table(circ.quant, file = o, sep = "\t", row.names = F)
 print("done")
 
 # extract counts

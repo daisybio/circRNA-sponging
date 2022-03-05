@@ -192,57 +192,57 @@ process STAR {
     """
 }
 
-/*
-* USE SALMON FOR QUANTIFICATION
-*/
-process salmon_quant {
-    label 'process_high'
-    publishDir "${params.out_dir}/samples/${sampleID}/salmon", mode: params.publish_dir_mode
+// /*
+// * USE SALMON FOR QUANTIFICATION
+// */
+// process salmon_quant {
+//     label 'process_high'
+//     publishDir "${params.out_dir}/samples/${sampleID}/salmon", mode: params.publish_dir_mode
 
-    input:
-    tuple val(sampleID), file(reads) from ch_totalRNA_reads2
-    file(salmon_index) from ch_salmon_index
+//     input:
+//     tuple val(sampleID), file(reads) from ch_totalRNA_reads2
+//     file(salmon_index) from ch_salmon_index
 
-    output:
-    val(sampleID) into samples
-    file("quant.sf.gz") into quant_files
+//     output:
+//     val(sampleID) into samples
+//     file("quant.sf.gz") into quant_files
 
-    script:
-    if (params.single_end){
-        """
-        salmon quant -i $salmon_index -l A -r $reads --validateMappings -o ./
-        gzip quant.sf
-        """
-    } else {
-        r1 = reads[0]
-        r2 = reads[1]
-        """
-        salmon quant -i $salmon_index -l A -1 $r1 -2 $r2 --validateMappings -o ./
-        gzip quant.sf
-        """
-    }
-}
+//     script:
+//     if (params.single_end){
+//         """
+//         salmon quant -i $salmon_index -l A -r $reads --validateMappings -o ./
+//         gzip quant.sf
+//         """
+//     } else {
+//         r1 = reads[0]
+//         r2 = reads[1]
+//         """
+//         salmon quant -i $salmon_index -l A -1 $r1 -2 $r2 --validateMappings -o ./
+//         gzip quant.sf
+//         """
+//     }
+// }
 
-/*
-* COMBINE SALMON TRANSCRIPT EXPRESSIONS INTO ONE AND CONVERT TO GENES
-*/
-process combine_expression {
-    label 'process_medium'
-    publishDir "${params.out_dir}/results/gene_expression", mode: params.publish_dir_mode
+// /*
+// * COMBINE SALMON TRANSCRIPT EXPRESSIONS INTO ONE AND CONVERT TO GENES
+// */
+// process combine_expression {
+//     label 'process_medium'
+//     publishDir "${params.out_dir}/results/gene_expression", mode: params.publish_dir_mode
 
-    input:
-    file(gtf) from ch_gtf
-    val(sampleID) from samples.collect()
+//     input:
+//     file(gtf) from ch_gtf
+//     val(sampleID) from samples.collect()
 
-    output:
-    file("gene_expression.tsv") into gene_expression
-    file("txi.RDS") into txiRDS
+//     output:
+//     file("gene_expression.tsv") into gene_expression
+//     file("txi.RDS") into txiRDS
 
-    script:
-    """
-    Rscript "${projectDir}"/bin/combine_expression.R "${params.out_dir}/samples/" $params.samplesheet $gtf
-    """
-}
+//     script:
+//     """
+//     Rscript "${projectDir}"/bin/combine_expression.R "${params.out_dir}/samples/" $params.samplesheet $gtf
+//     """
+// }
 
 /*
 * PARSE STAR OUTPUT INTO CIRCExplorer2 FORMAT
@@ -327,32 +327,36 @@ process extract_circRNA_sequences {
 /*
 * QUANTIFY circRNA EXPRESSION USING PSIRC
 */
+// psirc location in git
+psirc = params.psirc_exc ? params.psirc_exc : projectDir + "/ext/psirc-quant"
+process psirc_quant {
+    label 'process_medium'
+    publishDir "${params.out_dir}/results/circRNA/", mode: params.publish_dir_mode
+
+    input:
+    file(circ_counts) from ch_circRNA_counts_raw2
+    file(circ_fasta) from circRNAs_raw_fasta
+    val(psirc_quant) from psirc
+
+    output:
+    file("psirc.index") into psirc_index
+    file("linear_expression.tsv") into gene_expression
+    file("circRNA*.tsv") into ch_circRNA_counts_raw_quant
+
+    script:
+    """
+    Rscript "${projectDir}"/bin/quantify_circ_expression.R \
+    --index "psirc.index" \
+    --samplesheet $params.samplesheet \
+    --circ_counts $circ_counts \
+    --transcriptome $params.transcriptome \
+    --circ_fasta $circ_fasta \
+    --psirc_quant $psirc_quant
+    """
+}
+// choose either quantified or regular circRNA counts for downstream analysis
 if (params.quantification){
-    psirc = params.psirc_exc ? params.psirc_exc : projectDir + "/ext/psirc-quant"
-    process psirc {
-        label 'process_medium'
-        publishDir "${params.out_dir}/results/circRNA/", mode: params.publish_dir_mode
-
-        input:
-        file(circ_counts) from ch_circRNA_counts_raw2
-        file(circ_fasta) from circRNAs_raw_fasta
-        val(psirc_quant) from psirc
-
-        output:
-        file("psirc.index") into psirc_index
-        file("circRNA*.tsv") into (ch_circRNA_counts1, ch_circRNA_counts2)
-
-        script:
-        """
-        Rscript "${projectDir}"/bin/quantify_circ_expression.R \
-        --index "psirc.index" \
-        --samplesheet $params.samplesheet \
-        --circ_counts $circ_counts \
-        --transcriptome $params.transcriptome \
-        --circ_fasta $circ_fasta \
-        --psirc_quant $psirc_quant
-        """
-    }
+    ch_circRNA_counts_raw_quant.into{ ch_circRNA_counts1; ch_circRNA_counts2 }
 } else {
     ch_circRNA_counts_raw2.into{ ch_circRNA_counts1; ch_circRNA_counts2 }
 }
@@ -457,7 +461,7 @@ if (params.differential_expression){
         input:
         file(circRNA_counts) from ch_circRNA_counts_filtered2
         file(circRNA_raw) from ch_circRNA_counts2
-        file(txiRDS) from txiRDS
+        file(gene_expression) from gene_expression
 
         output:
         file("total_rna/total_rna.tsv") into deseq_total_rna
@@ -470,7 +474,7 @@ if (params.differential_expression){
 
         script:
         """
-        Rscript "${projectDir}"/bin/differentialExpression.R $txiRDS $params.samplesheet $circRNA_counts $circRNA_raw
+        Rscript "${projectDir}"/bin/differentialExpression.R $gene_expression $params.samplesheet $circRNA_counts $circRNA_raw
         """
     }
 }

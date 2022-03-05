@@ -361,8 +361,7 @@ save.image(file = file.path(out, "sponge.RData"))
 
 # GENERAL NETWORK
 ceRNA_network_plot <- sponge_plot_network(ceRNA_interactions_fdr, genes_miRNA_candidates)
-ceRNA_network_plot <- sponge_plot_network(ceRNA_interactions_fdr, genes_miRNA_candidates, ) %>%
-  visNetwork::visEdges(arrows = list(to = list(enabled = T, scaleFactor = 1)))
+ceRNA_network_plot <- sponge_plot_network(ceRNA_interactions_fdr, genes_miRNA_candidates, )
 ceRNA_network_plot$x$edges$label <- paste("mscor:", round(ceRNA_interactions_fdr$mscor, 2))
 visNetwork::visSave(ceRNA_network_plot, file = "total/plots/network.html")
 
@@ -388,8 +387,7 @@ write.table(ceRNA_strongest, "total/strongest_linear_ceRNAs.tsv", sep = "\t", ro
 # CIRC RNA ONLY
 ceRNA_interactions_all_circ <- subnetwork(ceRNA_interactions_fdr, pattern = ifelse(annotation, "circ", "chr"))
 # add scores
-circRNA_network_plot <- sponge_plot_network(ceRNA_interactions_all_circ, genes_miRNA_candidates, ) %>%
-                        visNetwork::visEdges(arrows = list(to = list(enabled = T, scaleFactor = 1)))
+circRNA_network_plot <- sponge_plot_network(ceRNA_interactions_all_circ, genes_miRNA_candidates, )
 circRNA_network_plot$x$edges$label <- paste("mscor:", round(ceRNA_interactions_all_circ$mscor, 2))
 
 visNetwork::visSave(circRNA_network_plot, file = "circRNA/plots/circ_network.html")

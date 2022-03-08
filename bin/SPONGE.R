@@ -250,15 +250,17 @@ circ_RNAs <- as.data.frame(read.table(file = argv$circ_rna, header = T, sep = "\
 # use given annotation if possible
 annotation <- "circBaseID" %in% colnames(circ_RNAs)
 if (annotation) {
-  circ_RNA_annotation <- data.table(circRNA.ID=circ_RNAs$circBaseID)
+  circ_RNA_annotation <- ifelse(circ_RNAs$circBaseID != "None", 
+                                circ_RNAs$circBaseID, 
+                                paste0(circ_RNAs$chr, ":", circ_RNAs$start, ":", circ_RNAs$stop, ":", circ_RNAs$strand))
   # cut table and annotate rownames
   circ_filtered <- circ_RNAs[,-c(1:8)]
 } else {
-  circ_RNA_annotation <- data.table(circRNA.ID=paste0(circ_RNAs$chr, ":", circ_RNAs$start, ":", circ_RNAs$stop, ":", circ_RNAs$strand))
+  circ_RNA_annotation <- paste0(circ_RNAs$chr, ":", circ_RNAs$start, ":", circ_RNAs$stop, ":", circ_RNAs$strand)
   # cut table and annotate row names
   circ_filtered <- circ_RNAs[,-c(1:7)]
 }
-rownames(circ_filtered) <- circ_RNA_annotation$circRNA.ID
+rownames(circ_filtered) <- circ_RNA_annotation
 
 circ_filtered <- circ_filtered[complete.cases(circ_filtered),]
 circ_filtered <- as.data.frame(t(circ_filtered))

@@ -131,16 +131,18 @@ annotation <- "circBaseID" %in% colnames(circ_RNAs)
 # get samples
 samples <- samplesheet$sample
 
-# DIFFERENTIAL CIRCRNA EXPRESSION
+# DIFFERENTIAL circRNA EXPRESSION
 # use given annotation if possible
 if (annotation) {
-  circ_RNA_annotation <- data.table(circRNA.ID=circ_RNAs$circBaseID)
+  circ_RNA_annotation <- ifelse(circ_RNAs$circBaseID != "None", 
+                                circ_RNAs$circBaseID, 
+                                paste0(circ_RNAs$chr, ":", circ_RNAs$start, ":", circ_RNAs$stop, ":", circ_RNAs$strand))
 } else {
-  circ_RNA_annotation <- data.table(circRNA.ID=paste0(circ_RNAs$chr, ":", circ_RNAs$start, ":", circ_RNAs$stop, ":", circ_RNAs$strand))
+  circ_RNA_annotation <- paste0(circ_RNAs$chr, ":", circ_RNAs$start, ":", circ_RNAs$stop, ":", circ_RNAs$strand)
 }
 # get raw expression values for filtered circRNAs and samples
 circ_expr <- circ.raw[circ.raw$key %in% filtered.circs, samples]
-rownames(circ_expr) <- circ_RNA_annotation$circRNA.ID
+rownames(circ_expr) <- circ_RNA_annotation
 # add pseudo counts
 circ_expr <- as.matrix(circ_expr) + 1
 

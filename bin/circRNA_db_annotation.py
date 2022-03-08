@@ -172,7 +172,7 @@ def read_db(db_loc):
 
 
 # write annotated output circ rna
-def write_mapping_file(matched_dict, db_dict, output_loc, separator):
+def write_mapping_file(matched_dict, unannotated_dict, db_dict, output_loc, separator):
     # build expression header
     expr_header = matched_dict["header"][:7]
     expr_header.append("circBaseID")
@@ -192,7 +192,7 @@ def write_mapping_file(matched_dict, db_dict, output_loc, separator):
     header.append(converted_genome + "_converted_pos")
     # extend rest of db data without already present information
     header.extend(db_header[3:])
-    print("[final] found " + str(len(matched_dict)) + " exact matching circRNAs to submitted query")
+    print("[final] found " + str(len(matched_dict)) + " exact matching circRNAs to submitted query of size " + str(len(unannotated_dict)))
     annotation_file = os.path.join(output_loc, "circRNAs_annotated.tsv")
     annotated_expr = os.path.join(output_loc, "circRNA_counts_annotated.tsv")
     with open(annotation_file, "w") as output, open(annotated_expr, "w") as an_expr:
@@ -214,6 +214,9 @@ def write_mapping_file(matched_dict, db_dict, output_loc, separator):
             data.append(k)
             data.extend(db_info[3:])
             output.write(separator.join(data) + "\n")
+        # add unannotated circRNAs, um des Flexes Willen
+        for k, v in unannotated_dict.items():
+            an_expr.write(separator.join(v[:7]) + separator + "None" + separator + separator.join(v[7:]) + "\n")
 
 
 # LAUNCH OFFLINE MODE
@@ -221,7 +224,8 @@ def offline_access(converted_circ_data, output_loc, database_loc, separator):
     db_circ_rna = read_db(database_loc)
     matched_keys = set(converted_circ_data.keys()).intersection(set(db_circ_rna.keys()))
     m = {k: converted_circ_data[k] for k in matched_keys}
-    write_mapping_file(m, db_circ_rna, output_loc, separator)
+    unannotated = {k: converted_circ_data[k] for k in set(converted_circ_data.keys()).difference(set(db_circ_rna.keys()))}
+    write_mapping_file(m, unannotated, db_circ_rna, output_loc, separator)
 
 
 # ONLINE ACCESS -------------------------------------------------------------
@@ -306,10 +310,12 @@ def online_access(converted_circ_data, output_loc):
                 i += 1
     else:
         db_dict = submit(tsv_data)
-    # extract only direct matches of genomic positions  and no overlaps
+    # extract only direct matches of genomic positions and no overlaps
     direct_matches = {x: converted_circ_data[x] for x in set(converted_circ_data.keys()).intersection(set(db_dict.keys()))}
+    # extract all unannotated circRNAs
+    unannoted_matches = {x: converted_circ_data[x] for x in set(converted_circ_data.keys()).difference(set(db_dict.keys()))}
     print("Writing output file")
-    write_mapping_file(direct_matches, db_dict, output_loc, "\t")
+    write_mapping_file(direct_matches, unannoted_matches, db_dict, output_loc, "\t")
 
 
 def main():

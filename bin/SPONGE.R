@@ -25,6 +25,7 @@ parser <- add_argument(parser, "--tarpmir_data", help = "default tarpmir output 
 parser <- add_argument(parser, "--TargetScan_data", help = "TargetScan contingency data location in tsv format", default = "null")
 parser <- add_argument(parser, "--lncBase_data", help = "LncBase contingency data location in tsv format", default = "null")
 parser <- add_argument(parser, "--miRDB_data", help = "miRDB contingency data location in tsv format", default = "null")
+parser <- add_argument(parser, "--pita_data", help = "Default PITA output", default = "null")
 parser <- add_argument(parser, "--normalize", help = "Normalize given gene expression before analysis", flag = T)
 
 argv <- parse_args(parser, argv = args)
@@ -113,7 +114,7 @@ split_encoding <- function(coded_vector) {
 }
 
 # use pipeline outputs to create target scan symbols
-create_target_scan_symbols <- function(merged_data, miRTarBase, miranda, tarpmir, TargetScan, lncBase, miRDB, org_data) {
+create_target_scan_symbols <- function(merged_data, miRTarBase, miranda, tarpmir, pita, TargetScan, lncBase, miRDB, org_data) {
   print("CREATING TARGET SCAN SYMBOLS")
   # check targets
   start_file <- 0
@@ -154,6 +155,13 @@ create_target_scan_symbols <- function(merged_data, miRTarBase, miranda, tarpmir
     tarpmir_data <- read.table(tarpmir, header = F, sep = "\t")
     tarpmir_targets <- as.data.frame.matrix(table(tarpmir_data$V2, tarpmir_data$V1))
   }
+  # process PITA data
+  pita_targets <- NULL
+  if (file.exists(pita)) {
+    print("processsing PITA data")
+    pita_data <- read.table(pita, header = T, sep = "\t")
+    pita_targets <- as.data.frame.matrix(table(pita_data$RefSeq, pita_data$microRNA))
+  }
   # process TargetScan data
   target_scan_targets <- NULL
   if (file.exists(TargetScan)) {
@@ -170,7 +178,7 @@ create_target_scan_symbols <- function(merged_data, miRTarBase, miranda, tarpmir
   
   # MERGE DATA
   merged.targets <- NULL
-  targets_data <- list(merged_data_targets, miRTarBase_targets, miranda_targets, tarpmir_targets, target_scan_targets, lncBase_targets)
+  targets_data <- list(merged_data_targets, miRTarBase_targets, miranda_targets, tarpmir_targets, pita_targets, target_scan_targets, lncBase_targets)
   for (target in targets_data) {
     # append data if present
     if (!is.null(target)) {
@@ -221,6 +229,7 @@ target_scan_symbols_counts <- create_target_scan_symbols(merged_data = argv$targ
                                                         miRTarBase = argv$miRTarBase_loc,
                                                         miranda = argv$miranda_data,
                                                         tarpmir = argv$tarpmir_data,
+                                                        pita = argv$pita_data,
                                                         TargetScan = argv$TargetScan_data,
                                                         lncBase = argv$lncBase_data,
                                                         miRDB = argv$miRDB_data,

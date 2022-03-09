@@ -442,7 +442,7 @@ process circ_fastas{
     file(circRNAs_filtered) from ch_circRNA_counts_filtered1
 
     output:
-    file("circRNAs.fa") into (circRNAs_fasta1, circRNAs_fasta2)
+    file("circRNAs.fa") into (circRNAs_fasta1, circRNAs_fasta2, circRNAs_fasta3)
 
     script:
     """
@@ -589,10 +589,22 @@ if (params.tarpmir) {
 /*
  * RUN TargetScan ANALYSIS FOR circRNAs
  */
-if (params.targetScan) {
-    process TargetScan {
+if (params.pita) {
+    process PITA {
         label 'process_high'
-        publishDir "${params.out_dir}/results/binding_sites/output/tarpmir/tmp", mode: params.publish_dir_mode
+        publishDir "${params.out_dir}/results/binding_sites/output/PITA", mode: params.publish_dir_mode
+
+        input:
+        file(circ_fasta) from circRNAs_fasta3
+
+        output:
+        file("circRNA_pita_results_targets.tab") into pita_targets
+        file("circRNA_pita_results.tab") into pita_results
+
+        script:
+        """
+        perl pita_prediction.pl -utr $circ_fasta -mir $params.mature_fasta -prefix circRNA
+        """
     }
 }
 

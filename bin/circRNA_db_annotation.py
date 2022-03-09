@@ -229,14 +229,16 @@ def offline_access(converted_circ_data, output_loc, database_loc, separator):
 
 
 # ONLINE ACCESS -------------------------------------------------------------
-def read_db_data_to_dict(header, data):
+def read_db_data_to_dict(header, data, out="raw.matches"):
     d = {}
-    for split in data:
-        if len(split) < 3:
-            continue
-        key = str(split[1]) + "_" + str(split[2])
-        d[key] = split
-    d["header"] = header
+    with open(out, "w") as o:
+        for split in data:
+            o.write("\t".join(split) + "\n")
+            if len(split) < 3:
+                continue
+            key = str(split[1]) + "_" + str(split[2])
+            d[key] = split
+        d["header"] = header
     return d
 
 
@@ -282,7 +284,7 @@ def submit(tsv_data):
         WebDriverWait(driver, delay).until(EC.presence_of_element_located((By.ID, 'tablesorter')))
         logging.info("Results have appeared")
     except TimeoutException:
-        logging.error("Timeout: cirBase did not respond within " + str(delay) + " seconds")
+        logging.error("Timeout: circBase did not respond within " + str(delay) + " seconds")
         exit(1)
     # process response
     return read_html(driver.page_source)
@@ -313,9 +315,9 @@ def online_access(converted_circ_data, output_loc):
     # extract only direct matches of genomic positions and no overlaps
     direct_matches = {x: converted_circ_data[x] for x in set(converted_circ_data.keys()).intersection(set(db_dict.keys()))}
     # extract all unannotated circRNAs
-    unannoted_matches = {x: converted_circ_data[x] for x in set(converted_circ_data.keys()).difference(set(db_dict.keys()))}
+    unannotated_matches = {x: converted_circ_data[x] for x in set(converted_circ_data.keys()).difference(set(db_dict.keys()))}
     print("Writing output file")
-    write_mapping_file(direct_matches, unannoted_matches, db_dict, output_loc, "\t")
+    write_mapping_file(direct_matches, unannotated_matches, db_dict, output_loc, "\t")
 
 
 def main():

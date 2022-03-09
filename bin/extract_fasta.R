@@ -28,12 +28,19 @@ circ.ranges <- makeGRangesFromDataFrame(circ.expression[,1:4])
 ci.ranges <- makeGRangesFromDataFrame(ci.expression[,1:4])
 # set names according to annotation
 if ("circBaseID" %in% colnames(circ.expression)) {
-  names(circ.ranges) <- circ.expression$circBaseID
-  names(ci.ranges) <- ci.expression$circBaseID
+  circ_RNA_annotation <- ifelse(circ.expression$circBaseID != "None", 
+                                circ.expression$circBaseID, 
+                                paste0(circ.expression$chr, ":", circ.expression$start, ":", circ.expression$stop, ":", circ.expression$strand))
+  ci_annotaion <- ifelse(ci.expression$circBaseID != "None", 
+                         ci.expression$circBaseID, 
+                         paste0(ci.expression$chr, ":", ci.expression$start, ":", ci.expression$stop, ":", ci.expression$strand))
+  
 } else {
-  names(circ.ranges) <- paste0(circ.expression$chr, ":", circ.expression$start, "-", circ.expression$stop, "_", circ.expression$strand)
-  names(ci.ranges) <- paste0(ci.expression$chr, ":", ci.expression$start, "-", ci.expression$stop, "_", ci.expression$strand)
+  circ_RNA_annotation <- paste0(circ.expression$chr, ":", circ.expression$start, "-", circ.expression$stop, "_", circ.expression$strand)
+  ci_annotaion <- paste0(ci.expression$chr, ":", ci.expression$start, "-", ci.expression$stop, "_", ci.expression$strand)
 }
+names(circ.ranges) <- circ_RNA_annotation
+names(ci.ranges) <- ci_annotaion
 
 # load gtf
 gtf.pkg <- BiocManager::available(paste0(genome.version, ".knownGene"))

@@ -587,6 +587,16 @@ if (params.tarpmir) {
 }
 
 /*
+ * RUN TargetScan ANALYSIS FOR circRNAs
+ */
+if (params.targetScan) {
+    process TargetScan {
+        label 'process_high'
+        publishDir "${params.out_dir}/results/binding_sites/output/tarpmir/tmp", mode: params.publish_dir_mode
+    }
+}
+
+/*
  * RUN miRNA part only if circRNA_only==false
  */
 

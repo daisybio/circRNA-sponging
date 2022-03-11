@@ -6,6 +6,8 @@ library(data.table)
 library(dplyr)
 library(ggplot2)
 library(reshape2)
+library(stringr)
+library(VennDiagram)
 
 args = commandArgs(trailingOnly = TRUE)
 
@@ -13,18 +15,13 @@ parser <- arg_parser("Argument parser for SPONGE analysis", name = "SPONGE_parse
 parser <- add_argument(parser, "--gene_expr", help = "Gene expression file in tsv format as given by DeSeq2")
 parser <- add_argument(parser, "--circ_rna", help = "Path to circ_rna detection results containing gene ids in tsv")
 parser <- add_argument(parser, "--mirna_expr", help = "miRNA expression file in tsv format")
-parser <- add_argument(parser, "--organism", help = "Organism given in three letter code")
 # add all target scan symbol options to be included -> will generate final target scan symbols
 parser <- add_argument(parser, "--output_dir", help = "Output directory", default = getwd())
 parser <- add_argument(parser, "--fdr", help = "FDR rate for ceRNA networks", default = 0.01)
 parser <- add_argument(parser, "--cpus", help = "Number of cores to use for paralellization", default = 20)
 parser <- add_argument(parser, "--target_scan_symbols", help = "Contingency matrix of target scan symbols provided as tsv", default = "null")
-parser <- add_argument(parser, "--miRTarBase_loc", help = "MiRTarBase contingency data location in csv format", default = "null")
 parser <- add_argument(parser, "--miranda_data", help = "miRanda default output in tsv", default = "null")
 parser <- add_argument(parser, "--tarpmir_data", help = "default tarpmir output file in tsv", default = "null")
-parser <- add_argument(parser, "--TargetScan_data", help = "TargetScan contingency data location in tsv format", default = "null")
-parser <- add_argument(parser, "--lncBase_data", help = "LncBase contingency data location in tsv format", default = "null")
-parser <- add_argument(parser, "--miRDB_data", help = "miRDB contingency data location in tsv format", default = "null")
 parser <- add_argument(parser, "--pita_data", help = "Default PITA output", default = "null")
 parser <- add_argument(parser, "--normalize", help = "Normalize given gene expression before analysis", flag = T)
 
@@ -113,34 +110,79 @@ split_encoding <- function(coded_vector) {
   return(paste(c(chr, start, end, strand), collapse = ":"))
 }
 
-# use pipeline outputs to create target scan symbols
-create_target_scan_symbols <- function(merged_data, miRTarBase, miranda, tarpmir, pita, TargetScan, lncBase, miRDB, org_data) {
-  print("CREATING TARGET SCAN SYMBOLS")
-  # check targets
-  start_file <- 0
-  data <- list(merged_data, miRTarBase, miranda, tarpmir, TargetScan, lncBase, miRDB)
-  
+majority_vote <- function(miranda, tarpmir, pita) {
+  data <- list(miranda, tarpmir, pita)
   # check files
-  if (length(Filter(file.exists, data)) == 0) {
-    stop("Error: At least one target symbol file has to be supplied")
+  if (length(Filter(file.exists, data)) != 3) {
+    print("not all three predictions given, no majority vote available")
+    return(NULL)
   }
+  print("calculating majority vote of circRNA-miRNA binding sites")
   
-  # process given targets
-  merged_data_targets <- NULL
-  if (file.exists(merged_data)) {
-    print("using given targets")
-    merged_data_targets <- data.frame(read.table(merged_data, header = T, sep = "\t"))
-  }
-  # process miRTarBase
-  miRTarBase_targets <- NULL
-  if (file.exists(miRTarBase)) {
-    print("processing miRTarBase targets")
-    miRTarBase_targets <- data.frame(read.csv(miRTarBase, header = T))
-    # filter by organism
-    miRTarBase_targets <- miRTarBase_targets[miRTarBase_targets$Species..miRNA. == org_data[1],]
-    # create target scan counts matrix
-    miRTarBase_targets <- as.data.frame.matrix(table(miRTarBase_targets$Target.Gene, miRTarBase_targets$miRNA))
-  }
+  print("process miranda targets")
+  miranda.bp <- data.frame(read.table(miranda, header = T, sep = "\t"))
+  miranda.bp[,c("start", "end")] <- str_split_fixed(miranda.bp$Subject.Al.Start.End., " ", 2)
+  miranda.keys <- paste0(miranda.bp$miRNA, ":", miranda.bp$Target, ":", miranda.bp$start, ":", miranda.bp$end)
+
+  print("process tarpmir targets")
+  tarpmir_data <- read.table(tarpmir, header = F, sep = "\t")
+  tarpmir_data <- tarpmir_data[,c(1:3)]
+  tarpmir_data[, c("start", "end")] <- str_split_fixed(tarpmir_data$V3, ",", 2)
+  tarpmir.keys <- paste0(tarpmir_data$V1, ":", tarpmir_data$V2, ":", tarpmir_data$start, ":", tarpmir_data$end)
+  
+  print("process PITA targets")
+  pita_data <- read.table(pita, header = T, sep = "\t")
+  pita.keys <- paste0(pita_data$microRNA, ":", pita_data$UTR, ":", pita_data$Start, ":", pita_data$End)
+  
+  # search for intersections
+  miranda_x_tarpmir <- intersect(miranda.keys, tarpmir.keys)
+  miranda_x_pita <- intersect(miranda.keys, pita.keys)
+  tarpmir_x_pita <- intersect(tarpmir.keys, pita.keys)
+  # apply majority vote: only use binding sites where 2/3 approve
+  majority.vote <- unique(c(miranda_x_tarpmir, miranda_x_pita, tarpmir_x_pita))
+  # build table
+  majority.vote <- str_split_fixed(majority.vote, ":", 4)
+  majority.vote <- as.data.frame.matrix(table(majority.vote[,2], majority.vote[,1]))
+  # output VENN diagram
+  library(RColorBrewer)
+  myCol <- brewer.pal(3, "Pastel2")
+  venn.diagram(x = list(miranda.keys, tarpmir.keys, pita.keys), 
+               category.names = c("miRanda", "TarPmiR", "PITA"), 
+               filename = "plots/binding_sites.png", output = T,
+               imagetype="png",
+               height = 800, 
+               width = 1200, 
+               resolution = 300,
+               compression = "lzw",
+               
+               # Circles
+               lwd = 2,
+               lty = 'blank',
+               fill = myCol,
+               
+               # Numbers
+               cex = .6,
+               fontface = "bold",
+               fontfamily = "sans",
+               
+               # Set names
+               cat.cex = 0.6,
+               cat.fontface = "bold",
+               cat.default.pos = "outer",
+               cat.pos = c(-27, 27, 135),
+               cat.dist = c(0.055, 0.055, 0.085),
+               cat.fontfamily = "sans",
+               rotation = 1)
+  return(majority.vote)
+}
+
+# TODO only merge majority vote and merged_data
+# use pipeline outputs to create target scan symbols
+create_target_scan_symbols <- function(merged_data, majority, miranda, tarpmir, pita) {
+  print("CREATING TARGET SCAN SYMBOLS")
+  print("using given targets")
+  merged_data_targets <- data.frame(read.table(merged_data, header = T, sep = "\t"))
+  
   # process targets from miranda
   miranda_targets <- NULL
   if (file.exists(miranda)) {
@@ -162,23 +204,10 @@ create_target_scan_symbols <- function(merged_data, miRTarBase, miranda, tarpmir
     pita_data <- read.table(pita, header = T, sep = "\t")
     pita_targets <- as.data.frame.matrix(table(pita_data$RefSeq, pita_data$microRNA))
   }
-  # process TargetScan data
-  target_scan_targets <- NULL
-  if (file.exists(TargetScan)) {
-    print("processing TargetScan data")
-    target_scan_data <- data.frame(read.table(TargetScan, header = T, sep = "\t"))
-    target_scan_targets <- as.data.frame.matrix(table(target_scan_data$Gene.Symbol, target_scan_data$miR.Family))
-  }
-  # process lncBase data
-  lncBase_targets <- NULL
-  if (file.exists(lncBase)) {
-    print("processing lncBase data")
-    lncBase_targets <- as.data.frame(data.frame(read.table(lncBase, sep = "\t", header = T)))
-  }
   
   # MERGE DATA
   merged.targets <- NULL
-  targets_data <- list(merged_data_targets, miRTarBase_targets, miranda_targets, tarpmir_targets, pita_targets, target_scan_targets, lncBase_targets)
+  targets_data <- list(merged_data_targets, majority, miranda_targets, tarpmir_targets, pita_targets)
   for (target in targets_data) {
     # append data if present
     if (!is.null(target)) {
@@ -220,20 +249,20 @@ subnetwork <- function(interactions, pattern){
 if (notset(argv$gene_expr) || notset(argv$mirna_expr) || notset(argv$organism)) {
   stop("One or more mandatory arguments are not given")
 }
-
-# choose organism
-org_data <- org_codes[argv$organism][[1]]
+majority <- NULL
+n.targets <- length(sapply(list(argv$miranda, argv$tarpmir, argv$pita), notset))
+if (n.targets == 0) {
+  stop("Supply at least one ")
+} else if (n.targets == 3) {
+  majority <- majority_vote(argv$miranda, argv$tarpmir, argv$pita)
+}
 
 # SET TARGET SCAN SYMBOLS
 target_scan_symbols_counts <- create_target_scan_symbols(merged_data = argv$target_scan_symbols,
-                                                        miRTarBase = argv$miRTarBase_loc,
-                                                        miranda = argv$miranda_data,
-                                                        tarpmir = argv$tarpmir_data,
-                                                        pita = argv$pita_data,
-                                                        TargetScan = argv$TargetScan_data,
-                                                        lncBase = argv$lncBase_data,
-                                                        miRDB = argv$miRDB_data,
-                                                        org_data = org_data)
+                                                        majority = majority,
+                                                        miranda = argv$miranda,
+                                                        tarpmir = argv$tarpmir,
+                                                        pita = argv$pita)
 # SET MIRNA EXPRESSION
 print("reading miRNA expression...")
 mi_rna_expr <- t(data.frame(read.table(file = argv$mirna_expr, header = T, sep = "\t"), row.names = 1))

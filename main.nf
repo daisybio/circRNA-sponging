@@ -568,7 +568,7 @@ if (params.tarpmir) {
     }
 
     // combine files to one
-    bp_files.collectFile(name: "${params.out_dir}/results/binding_sites/output/tarpmir/tarpmir_bp.tsv", newLine: true).into{ tarpmir_bp_file1; tarpmir_bp_file2 }
+    bp_files.collectFile(name: "${params.out_dir}/results/binding_sites/output/tarpmir/tarpmir_bp.tsv", newLine: true).into{ all; tarpmir_bp_file }
 
     /*
     * remove temporary files
@@ -577,13 +577,15 @@ if (params.tarpmir) {
         label 'process_low'
 
         input:
-        file(files) from tarpmir_bp_file1
+        file(files) from all
 
         script:
         """
         rm -r "${params.out_dir}/results/binding_sites/output/tarpmir/tmp"
         """
     }
+} else {
+    Channel.of( 'null' ).into{ tarpmir_bp_file }
 }
 
 /*
@@ -606,6 +608,8 @@ if (params.pita) {
         perl pita_prediction.pl -utr $circ_fasta -mir $params.mature_fasta -prefix circRNA
         """
     }
+} else {
+    Channel.of( 'null' ).into{ pita_results }
 }
 
 /*
@@ -818,82 +822,40 @@ if (!params.circRNA_only) {
     if (params.sponge) {
         // USE GIVEN TARGET SYMBOLS OR DEFAULT LOCATED IN DATA
         target_scan_symbols = params.target_scan_symbols ? Channel.value(file(params.target_scan_symbols)) : Channel.value(file(projectDir + "/data/miRNA_target_symbols/hsa_mirWalk_lncbase_21_ENSG.tsv.gz"))
+        process SPONGE {
+            label 'process_high'
+            errorStrategy 'ignore'
 
-        // RUN WITH TARPMIR DATA
-        if (params.tarpmir) {
-            process SPONGE_tarpmir {
-                label 'process_high'
-                errorStrategy 'ignore'
+            publishDir "${params.out_dir}/results/sponging/SPONGE", mode: params.publish_dir_mode
 
-                publishDir "${params.out_dir}/results/sponging/SPONGE", mode: params.publish_dir_mode
+            input:
+            file(gene_expression) from gene_expression
+            file(circRNA_counts_filtered) from ch_circRNA_counts_filtered5
+            file(mirna_expression) from ch_miRNA_counts_filtered3
+            file(miranda_bind_sites) from ch_bindsites_filtered2
+            file(target_scan_symbols) from target_scan_symbols
+            val(tarpmir) from tarpmir_bp_file
+            val(pita) from pita_results
 
-                input:
-                file(gene_expression) from gene_expression
-                file(circRNA_counts_filtered) from ch_circRNA_counts_filtered5
-                file(mirna_expression) from ch_miRNA_counts_filtered3
-                file(miranda_bind_sites) from ch_bindsites_filtered2
-                file(tarpmir_bind_sites) from tarpmir_bp_file2
-                file(target_scan_symbols) from target_scan_symbols
+            output:
+            file("sponge.RData") into Rimage
+            file("plots/*.png") into plots
+            file("circRNA/*") into circResults
+            file("total/*") into totalResults
 
-                output:
-                file("sponge.RData") into Rimage
-                file("plots/*.png") into ch_sponge_plots
-
-                script:
-                """
-                Rscript "${projectDir}"/bin/SPONGE.R \\
-                --gene_expr $gene_expression \\
-                --circ_rna $circRNA_counts_filtered \\
-                --mirna_expr $mirna_expression \\
-                --organism $params.species \\
-                --fdr $params.fdr \\
-                --target_scan_symbols $target_scan_symbols \\
-                --miRTarBase_loc $params.miRTarBaseData \\
-                --miranda_data $miranda_bind_sites \\
-                --tarpmir_data $tarpmir_bind_sites \\
-                --TargetScan_data $params.TargetScanData \\
-                --lncBase_data $params.lncBaseData \\
-                --miRDB_data $params.miRDB_data \\
-                --normalize
-                """
-            }
-        } else {
-            process SPONGE {
-                label 'process_high'
-                errorStrategy 'ignore'
-
-                publishDir "${params.out_dir}/results/sponging/SPONGE", mode: params.publish_dir_mode
-
-                input:
-                file(gene_expression) from gene_expression
-                file(circRNA_counts_filtered) from ch_circRNA_counts_filtered5
-                file(mirna_expression) from ch_miRNA_counts_filtered3
-                file(miranda_bind_sites) from ch_bindsites_filtered2
-                file(target_scan_symbols) from target_scan_symbols
-
-                output:
-                file("sponge.RData") into Rimage
-                file("plots/simulation.png") into simulation
-                file("circRNA/*") into circResults
-                file("total/*") into totalResults
-
-                script:
-                """
-                Rscript "${projectDir}"/bin/SPONGE.R \\
-                --gene_expr $gene_expression \\
-                --circ_rna $circRNA_counts_filtered \\
-                --mirna_expr $mirna_expression \\
-                --organism $params.species \\
-                --fdr $params.fdr \\
-                --target_scan_symbols $target_scan_symbols \\
-                --miRTarBase_loc $params.miRTarBaseData \\
-                --miranda_data $miranda_bind_sites \\
-                --TargetScan_data $params.TargetScanData \\
-                --lncBase_data $params.lncBaseData \\
-                --miRDB_data $params.miRDB_data \\
-                --normalize
-                """
-            }
-        } 
+            script:
+            """
+            Rscript "${projectDir}"/bin/SPONGE.R \\
+            --gene_expr $gene_expression \\
+            --circ_rna $circRNA_counts_filtered \\
+            --mirna_expr $mirna_expression \\
+            --fdr $params.fdr \\
+            --target_scan_symbols $target_scan_symbols \\
+            --miranda_data $miranda_bind_sites \\
+            --tarpmir_data $tarpmir \\
+            --pita_data $pita \\
+            --normalize
+            """
+        }
     }
 }

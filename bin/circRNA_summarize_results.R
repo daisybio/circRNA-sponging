@@ -20,7 +20,7 @@ for (i in 1:length(samples)){
   file <- read.table(path, sep = "\t")
   # skip if no circRNAs found
   if(nrow(file)==0) next
-  CIRCexplorer2_output <- data.table()
+  CIRCexplorer2_output <- data.table(file)
   
   N_of_circRNAs_raw[i] <- nrow(CIRCexplorer2_output)
   names(N_of_circRNAs_raw)[i] <- sample

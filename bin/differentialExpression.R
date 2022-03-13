@@ -122,11 +122,6 @@ filtered.circs <- paste0(circ_RNAs$chr, ":", circ_RNAs$start, "-", circ_RNAs$sto
 circ.raw <- read.table(file = args[4], sep = "\t", header = T, stringsAsFactors = F, check.names = F)
 circ.raw$key <- paste0(circ.raw$chr, ":", circ.raw$start, "-", circ.raw$stop, ":", circ.raw$strand)
 
-ens_ids <- circ_RNAs$ensembl_gene_id
-dds_filtered <- dds
-filtered_res <- res[rownames(res) %in% ens_ids,]
-create_outputs(d = dds_filtered, results = filtered_res, marker = "condition", out = "circ_rna_GE")
-
 annotation <- "circBaseID" %in% colnames(circ_RNAs)
 # get samples
 samples <- samplesheet$sample

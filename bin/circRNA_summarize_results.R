@@ -26,7 +26,7 @@ for (i in 1:length(samples)){
   names(N_of_circRNAs_raw)[i] <- sample
   
   expression_raw <- CIRCexplorer2_output[,c(1,2,3,6,13,15,16,14)]
-  colnames(expression_raw) <- c("chr", "start", "stop", "strand", "counts", "gene_symbol", paste0("isoform_", sample), "type")
+  colnames(expression_raw) <- c("chr", "start", "stop", "strand", "counts", "gene_symbol", "isoform", "type")
   expression_raw <- expression_raw[,c(1,2,3,4,5,6,8)]
   
   # REMOVE SCAFFOLDS/ CONTIG CHROMOSME ENTRIES

@@ -397,7 +397,7 @@ process filter_circRNAs{
 
     script:
     """
-    Rscript "${projectDir}"/bin/circRNA_filtering.R $circRNA_counts_norm $params.samplesheet $params.out_dir $params.sample_percentage $params.read_threshold $params.species
+    Rscript "${projectDir}"/bin/circRNA_filtering.R $circRNA_counts_norm $params.samplesheet $params.out_dir $params.sample_percentage $params.read_threshold
     """
 }
 
@@ -465,10 +465,8 @@ if (params.differential_expression){
 
         output:
         file("total_rna/total_rna.tsv") into deseq_total_rna
-        file("circ_rna_GE/circ_rna_GE.tsv") into deseq_circ_rna_gene
         file("circ_rna_DE/circ_rna_DE.tsv") into deseq_circ_rna
         file("total_rna/*.png") into total_plots
-        file("circ_rna_GE/*.png") into circ_gene_plots
         file("circ_rna_DE/*.png") into circ_plots
         file("DESeq2.RData") into deseq2_rdata
 

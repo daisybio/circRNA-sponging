@@ -457,6 +457,7 @@ if (params.differential_expression){
     process differential_expression {
         label 'process_medium'
         publishDir "${params.out_dir}/results/gene_expression/differential_expression", mode: params.publish_dir_mode
+        errorStrategy 'ignore'
 
         input:
         file(circRNA_counts) from ch_circRNA_counts_filtered2

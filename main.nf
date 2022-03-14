@@ -603,6 +603,7 @@ if (params.pita) {
 
         script:
         """
+        cd $pita_path
         perl pita_prediction.pl -utr $circ_fasta -mir $params.mature_fasta -prefix circRNA
         """
     }

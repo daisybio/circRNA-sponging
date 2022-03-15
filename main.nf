@@ -600,6 +600,7 @@ if (params.pita) {
     process PITA {
         label 'process_high'
         publishDir "${params.out_dir}/results/binding_sites/output/PITA", mode: params.publish_dir_mode
+        errorStrategy 'ignore'
 
         input:
         file(circ_fasta) from circRNAs_fasta3

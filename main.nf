@@ -482,7 +482,7 @@ if (params.differential_expression){
 * DETERMINE miRNA BINDING SITES ON THE PREVIOUSLY DETECTED circRNAs USING miranda
 run only if file is not already present
 */
-miranda_output = file(params.out_dir + "/results/binding_sites/output/bindsites_25%_filtered.tsv").view()
+miranda_output = file(params.out_dir + "/results/binding_sites/output/bind_sites_raw.out")
 if (miranda_output.exist()) {
     process miranda {
         label 'process_long'
@@ -499,47 +499,46 @@ if (miranda_output.exist()) {
         miranda $params.mature_fasta $circRNA_fasta -out "bind_sites_raw.out" -quiet
         """
     }
-
-    /*
-    * PROCESS miranda OUTPUT INTO A TABLE FORMAT
-    */
-    process binding_sites_processing {
-        label 'process_medium'
-        publishDir "${params.out_dir}/results/binding_sites/output/", mode: params.publish_dir_mode
-        
-        input:
-        file(bind_sites_raw) from bind_sites_out
-
-        output:
-        file("bind_sites_processed.txt") into bind_sites_processed
-
-        script:
-        """
-        echo -e "miRNA\tTarget\tScore\tEnergy-Kcal/Mol\tQuery-Al(Start-End)\tSubject-Al(Start-End)\tAl-Len\tSubject-Identity\tQuery-Identity" > "bind_sites_processed.txt"
-        grep -A 1 "Scores for this hit:" $bind_sites_raw | sort | grep ">" | cut -c 2- >> "bind_sites_processed.txt"
-        """
-    }
-
-    /*
-    * FILTER BINDING SITES, KEEP TOP 25%
-    */
-    process binding_sites_filtering {
-        label 'process_medium'
-        publishDir "${params.out_dir}/results/binding_sites/output/", mode: params.publish_dir_mode
-        
-        input:
-        file(bind_sites_proc) from bind_sites_processed
-        
-        output:
-        file("bindsites_25%_filtered.tsv") into (ch_bindsites_filtered1, ch_bindsites_filtered2)
-
-        script:
-        """
-        Rscript "${projectDir}"/bin/binding_sites_analysis.R ${bind_sites_proc}
-        """
-    }
 } else {
-    miranda_output.into{ ch_bindsites_filtered1; ch_bindsites_filtered2 }
+    miranda_output.into{ bind_sites_out }
+}
+/*
+* PROCESS miranda OUTPUT INTO A TABLE FORMAT
+*/
+process binding_sites_processing {
+    label 'process_medium'
+    publishDir "${params.out_dir}/results/binding_sites/output/", mode: params.publish_dir_mode
+    
+    input:
+    file(bind_sites_raw) from bind_sites_out
+
+    output:
+    file("bind_sites_processed.txt") into bind_sites_processed
+
+    script:
+    """
+    echo -e "miRNA\tTarget\tScore\tEnergy-Kcal/Mol\tQuery-Al(Start-End)\tSubject-Al(Start-End)\tAl-Len\tSubject-Identity\tQuery-Identity" > "bind_sites_processed.txt"
+    grep -A 1 "Scores for this hit:" $bind_sites_raw | sort | grep ">" | cut -c 2- >> "bind_sites_processed.txt"
+    """
+}
+
+/*
+* FILTER BINDING SITES, KEEP TOP 25%
+*/
+process binding_sites_filtering {
+    label 'process_medium'
+    publishDir "${params.out_dir}/results/binding_sites/output/", mode: params.publish_dir_mode
+    
+    input:
+    file(bind_sites_proc) from bind_sites_processed
+    
+    output:
+    file("bindsites_25%_filtered.tsv") into (ch_bindsites_filtered1, ch_bindsites_filtered2)
+
+    script:
+    """
+    Rscript "${projectDir}"/bin/binding_sites_analysis.R ${bind_sites_proc}
+    """
 }
 
 /*

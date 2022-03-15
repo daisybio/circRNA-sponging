@@ -483,7 +483,7 @@ if (params.differential_expression){
 run only if file is not already present
 */
 miranda_output = file(params.out_dir + "/results/binding_sites/output/bind_sites_raw.out")
-if (miranda_output.exist()) {
+if (miranda_output.exists()) {
     process miranda {
         label 'process_long'
         publishDir "${params.out_dir}/results/binding_sites/output/", mode: params.publish_dir_mode

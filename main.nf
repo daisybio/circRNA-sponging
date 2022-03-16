@@ -597,7 +597,7 @@ if (params.tarpmir) {
  */
 if (params.pita) {
     process PITA {
-        label 'process_high'
+        label 'process_long'
         publishDir "${params.out_dir}/results/binding_sites/output/PITA", mode: params.publish_dir_mode
         errorStrategy 'ignore'
 

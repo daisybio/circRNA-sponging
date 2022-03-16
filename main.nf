@@ -549,7 +549,7 @@ if (params.tarpmir) {
 
     // RUN TARPMIR ON CHUNKED MRNA FASTAS
     process tarpmir {
-        label 'process_high'
+        label 'process_medium'
         publishDir "${params.out_dir}/results/binding_sites/output/tarpmir/tmp", mode: params.publish_dir_mode
 
         input:

@@ -501,7 +501,7 @@ if (!miranda_output.exists()) {
         """
     }
     // combine files to one
-    bp_files.collectFile(name: "${params.out_dir}/results/binding_sites/output/bind_sites_raw.out", newLine: true).into{ bind_sites_out }
+    bind_sites_split.collectFile(name: "${params.out_dir}/results/binding_sites/output/bind_sites_raw.out", newLine: true).into{ bind_sites_out }
     // delete tmp files
     miranda_tmp.toFile().deleteDir()
 } else {

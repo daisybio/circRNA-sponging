@@ -484,21 +484,26 @@ run only if file is not already present
 */
 miranda_output = file(params.out_dir + "/results/binding_sites/output/bind_sites_raw.out")
 if (!miranda_output.exists()) {
+    miranda_tmp = params.out_dir + "/results/binding_sites/output/tmp"
     process miranda {
         label 'process_long'
-        publishDir "${params.out_dir}/results/binding_sites/output/", mode: params.publish_dir_mode
+        publishDir miranda_tmp, mode: params.publish_dir_mode
         
         input:
-        file(circRNA_fasta) from circRNAs_fasta1
+        file(circRNA_fasta) from circRNAs_fasta1.splitFasta( by: params.splitter, file: true )
 
         output:
-        file("bind_sites_raw.out") into bind_sites_out
+        file("bind_sites_raw.out") into bind_sites_split
 
         script:
         """
         miranda $params.mature_fasta $circRNA_fasta -out "bind_sites_raw.out" -quiet
         """
     }
+    // combine files to one
+    bp_files.collectFile(name: "${params.out_dir}/results/binding_sites/output/bind_sites_raw.out", newLine: true).into{ bind_sites_out }
+    // delete tmp files
+    miranda_tmp.toFile().deleteDir()
 } else {
     miranda_output.into{ bind_sites_out }
 }

@@ -546,11 +546,11 @@ process binding_sites_filtering {
 */
 if (params.tarpmir) {
     model = params.model ? Channel.value(file(params.model)) : Channel.value(file(projectDir + "/data/tarpmir_models/Human_sklearn_0.22.pkl"))
-
+    tarpmir_tmp = params.out_dir + "/results/binding_sites/output/tarpmir/tmp"
     // RUN TARPMIR ON CHUNKED MRNA FASTAS
     process tarpmir {
         label 'process_medium'
-        publishDir "${params.out_dir}/results/binding_sites/output/tarpmir/tmp", mode: params.publish_dir_mode
+        publishDir tarpmir_tmp, mode: params.publish_dir_mode
 
         input:
         file(model) from model
@@ -572,47 +572,39 @@ if (params.tarpmir) {
     }
 
     // combine files to one
-    bp_files.collectFile(name: "${params.out_dir}/results/binding_sites/output/tarpmir/tarpmir_bp.tsv", newLine: true).into{ all; tarpmir_bp_file }
-
-    /*
-    * remove temporary files
-    */
-    process clean_tmp {
-        label 'process_low'
-
-        input:
-        file(files) from all
-
-        script:
-        """
-        rm -r "${params.out_dir}/results/binding_sites/output/tarpmir/tmp"
-        """
-    }
+    bp_files.collectFile(name: "${params.out_dir}/results/binding_sites/output/tarpmir/tarpmir_bp.tsv", newLine: true).into{ tarpmir_bp_file }
+    // delete tmp files
+    tarpmir_tmp.toFile().deleteDir()
 } else {
     Channel.of( 'null' ).into{ tarpmir_bp_file }
 }
 
 /*
- * RUN TargetScan ANALYSIS FOR circRNAs
+ * RUN PITA ANALYSIS FOR circRNAs
  */
 if (params.pita) {
+    pita_tmp = params.out_dir + "/results/binding_sites/output/PITA/tmp"
     process PITA {
-        label 'process_long'
-        publishDir "${params.out_dir}/results/binding_sites/output/PITA", mode: params.publish_dir_mode
+        label 'process_medium'
+        publishDir pita_tmp, mode: params.publish_dir_mode
         errorStrategy 'ignore'
 
         input:
-        file(circ_fasta) from circRNAs_fasta3
+        file(circ_fasta) from circRNAs_fasta3.splitFasta( by: params.splitter, file: true )
 
         output:
-        file("circRNA_pita_results_targets.tab") into pita_targets
-        file("circRNA_pita_results.tab") into pita_results
+        file("circRNA_pita_results.tab") into pita_splits
 
         script:
         """
         perl $params.pita_path/pita_prediction.pl -utr $circ_fasta -mir $params.mature_fasta -prefix circRNA
         """
     }
+
+    // collect all PITA splits
+    pita_splits.collectFile(name: "${params.out_dir}/results/binding_sites/output/PITA/circRNA_pita_results.tsv", newLine: true).into{ pita_results }
+    // delete tmp directory
+    pita_tmp.toFile().deleteDir()
 } else {
     Channel.of( 'null' ).into{ pita_results }
 }

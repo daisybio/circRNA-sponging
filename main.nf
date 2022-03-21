@@ -419,11 +419,11 @@ if (params.database_annotation){
     script:
     if( params.offline_circ_db == null )
         """
-        python3 "${projectDir}"/bin/circRNA_db_annotation.py -o $params.species -gv $params.genome_version -d $circRNAs_filtered
+        python3 "${projectDir}"/bin/circRNA_db_annotation.py -o $params.species -gv $params.genome_version -d $circRNAs_filtered -ao $params.annotated_only
         """
     else
         """
-        python3 "${projectDir}"/bin/circRNA_db_annotation.py -o $params.species -gv $params.genome_version -d $circRNAs_filtered -off $params.offline_circ_db
+        python3 "${projectDir}"/bin/circRNA_db_annotation.py -o $params.species -gv $params.genome_version -d $circRNAs_filtered -off $params.offline_circ_db -ao $params.annotated_only
         """
     }
 } else {

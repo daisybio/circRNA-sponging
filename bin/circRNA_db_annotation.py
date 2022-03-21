@@ -1,4 +1,5 @@
 import argparse
+from email.errors import HeaderParseError
 
 from pyliftover import LiftOver
 import os
@@ -24,6 +25,7 @@ parser.add_argument("-o", "--organism", help="Organism in three letter code (hsa
 parser.add_argument("-gv", "--genome_version", help="Used genome version", required=True)
 parser.add_argument("-d", "--data_loc", help="Location of data to be converted", required=True)
 # optional
+parser.add_argument("-ao", "--annotated_only", help="Keep annotated circRNAs only (true/false)", default=None)
 parser.add_argument("-out", "--output", help="Output directory", default="./")
 parser.add_argument("-s", "--separator", help="Separator of file", default="\t")
 parser.add_argument("-chrC", "--chromosome", help="Column of chromosome", default=0)
@@ -43,6 +45,7 @@ end_c = args.end
 strand_c = args.strand
 organism = args.organism
 splitter = args.splitter
+annotated_only = True if args.annotated_only == "true" else False
 
 # set pipeline home
 pipeline_home = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -215,8 +218,9 @@ def write_mapping_file(matched_dict, unannotated_dict, db_dict, output_loc, sepa
             data.extend(db_info[3:])
             output.write(separator.join(data) + "\n")
         # add unannotated circRNAs, um des Flexes Willen
-        for k, v in unannotated_dict.items():
-            an_expr.write(separator.join(v[:7]) + separator + "None" + separator + separator.join(v[7:]) + "\n")
+        if not annotated_only:
+            for k, v in unannotated_dict.items():
+                an_expr.write(separator.join(v[:7]) + separator + "None" + separator + separator.join(v[7:]) + "\n")
 
 
 # LAUNCH OFFLINE MODE

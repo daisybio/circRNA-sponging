@@ -505,7 +505,7 @@ if (!miranda_output.exists()) {
     // delete tmp files
     file(miranda_tmp).deleteDir()
 } else {
-    miranda_output.into{ bind_sites_out }
+    miranda_output.set{ bind_sites_out }
 }
 /*
 * PROCESS miranda OUTPUT INTO A TABLE FORMAT
@@ -581,7 +581,7 @@ if (params.tarpmir) {
     // delete tmp files
     file(tarpmir_tmp).deleteDir()
 } else {
-    Channel.of( 'null' ).into{ tarpmir_bp_file }
+    Channel.of( 'null' ).set{ tarpmir_bp_file }
 }
 
 /*
@@ -611,7 +611,7 @@ if (params.pita) {
     // delete tmp directory
     file(pita_tmp).deleteDir()
 } else {
-    Channel.of( 'null' ).into{ pita_results }
+    Channel.of( 'null' ).set{ pita_results }
 }
 
 /*

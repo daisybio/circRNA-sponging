@@ -192,58 +192,6 @@ process STAR {
     """
 }
 
-// /*
-// * USE SALMON FOR QUANTIFICATION
-// */
-// process salmon_quant {
-//     label 'process_high'
-//     publishDir "${params.out_dir}/samples/${sampleID}/salmon", mode: params.publish_dir_mode
-
-//     input:
-//     tuple val(sampleID), file(reads) from ch_totalRNA_reads2
-//     file(salmon_index) from ch_salmon_index
-
-//     output:
-//     val(sampleID) into samples
-//     file("quant.sf.gz") into quant_files
-
-//     script:
-//     if (params.single_end){
-//         """
-//         salmon quant -i $salmon_index -l A -r $reads --validateMappings -o ./
-//         gzip quant.sf
-//         """
-//     } else {
-//         r1 = reads[0]
-//         r2 = reads[1]
-//         """
-//         salmon quant -i $salmon_index -l A -1 $r1 -2 $r2 --validateMappings -o ./
-//         gzip quant.sf
-//         """
-//     }
-// }
-
-// /*
-// * COMBINE SALMON TRANSCRIPT EXPRESSIONS INTO ONE AND CONVERT TO GENES
-// */
-// process combine_expression {
-//     label 'process_medium'
-//     publishDir "${params.out_dir}/results/gene_expression", mode: params.publish_dir_mode
-
-//     input:
-//     file(gtf) from ch_gtf
-//     val(sampleID) from samples.collect()
-
-//     output:
-//     file("gene_expression.tsv") into gene_expression
-//     file("txi.RDS") into txiRDS
-
-//     script:
-//     """
-//     Rscript "${projectDir}"/bin/combine_expression.R "${params.out_dir}/samples/" $params.samplesheet $gtf
-//     """
-// }
-
 /*
 * PARSE STAR OUTPUT INTO CIRCExplorer2 FORMAT
 */

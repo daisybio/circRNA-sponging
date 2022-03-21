@@ -484,7 +484,7 @@ run only if file is not already present
 */
 miranda_output = file(params.out_dir + "/results/binding_sites/output/bind_sites_raw.out")
 if (!miranda_output.exists()) {
-    miranda_tmp = params.out_dir + "/results/binding_sites/output/tmp"
+    miranda_tmp = "${params.out_dir}/results/binding_sites/output/tmp"
     process miranda {
         label 'process_long'
         publishDir miranda_tmp, mode: params.publish_dir_mode
@@ -503,7 +503,7 @@ if (!miranda_output.exists()) {
     // combine files to one
     bind_sites_split.collectFile(name: "${params.out_dir}/results/binding_sites/output/bind_sites_raw.out", newLine: true).into{ bind_sites_out }
     // delete tmp files
-    miranda_tmp.toFile().deleteDir()
+    file(miranda_tmp).deleteDir()
 } else {
     miranda_output.into{ bind_sites_out }
 }
@@ -551,7 +551,7 @@ process binding_sites_filtering {
 */
 if (params.tarpmir) {
     model = params.model ? Channel.value(file(params.model)) : Channel.value(file(projectDir + "/data/tarpmir_models/Human_sklearn_0.22.pkl"))
-    tarpmir_tmp = params.out_dir + "/results/binding_sites/output/tarpmir/tmp"
+    tarpmir_tmp = "${params.out_dir}/results/binding_sites/output/tarpmir/tmp"
     // RUN TARPMIR ON CHUNKED MRNA FASTAS
     process tarpmir {
         label 'process_medium'
@@ -579,7 +579,7 @@ if (params.tarpmir) {
     // combine files to one
     bp_files.collectFile(name: "${params.out_dir}/results/binding_sites/output/tarpmir/tarpmir_bp.tsv", newLine: true).into{ tarpmir_bp_file }
     // delete tmp files
-    tarpmir_tmp.toFile().deleteDir()
+    file(tarpmir_tmp).deleteDir()
 } else {
     Channel.of( 'null' ).into{ tarpmir_bp_file }
 }
@@ -588,7 +588,7 @@ if (params.tarpmir) {
  * RUN PITA ANALYSIS FOR circRNAs
  */
 if (params.pita) {
-    pita_tmp = params.out_dir + "/results/binding_sites/output/PITA/tmp"
+    pita_tmp = "${params.out_dir}/results/binding_sites/output/PITA/tmp"
     process PITA {
         label 'process_medium'
         publishDir pita_tmp, mode: params.publish_dir_mode
@@ -609,7 +609,7 @@ if (params.pita) {
     // collect all PITA splits
     pita_splits.collectFile(name: "${params.out_dir}/results/binding_sites/output/PITA/circRNA_pita_results.tsv", newLine: true).into{ pita_results }
     // delete tmp directory
-    pita_tmp.toFile().deleteDir()
+    file(pita_tmp).deleteDir()
 } else {
     Channel.of( 'null' ).into{ pita_results }
 }

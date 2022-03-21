@@ -18,7 +18,7 @@ parser <- add_argument(parser, "--mirna_expr", help = "miRNA expression file in 
 # add all target scan symbol options to be included -> will generate final target scan symbols
 parser <- add_argument(parser, "--output_dir", help = "Output directory", default = getwd())
 parser <- add_argument(parser, "--fdr", help = "FDR rate for ceRNA networks", default = 0.01)
-parser <- add_argument(parser, "--cpus", help = "Number of cores to use for paralellization", default = 20)
+parser <- add_argument(parser, "--cpus", help = "Number of cores to use for paralellization", default = 25)
 parser <- add_argument(parser, "--target_scan_symbols", help = "Contingency matrix of target scan symbols provided as tsv", default = "null")
 parser <- add_argument(parser, "--miranda_data", help = "miRanda default output in tsv", default = "null")
 parser <- add_argument(parser, "--tarpmir_data", help = "default tarpmir output file in tsv", default = "null")

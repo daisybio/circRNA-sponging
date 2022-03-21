@@ -434,7 +434,7 @@ miranda_output = file(params.out_dir + "/results/binding_sites/output/bind_sites
 if (!miranda_output.exists()) {
     miranda_tmp = "${params.out_dir}/results/binding_sites/output/tmp"
     process miranda {
-        label 'process_long'
+        label 'process_medium'
         publishDir miranda_tmp, mode: params.publish_dir_mode
         
         input:

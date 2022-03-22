@@ -273,14 +273,14 @@ process extract_circRNA_sequences {
 }
 
 /*
-* CREATE PSIRC INDEX IF NOT ALREADY PRESENT
+* CREATE PSIRC INDEX IF NOT ALREADY PRESENT/ GIVEN
 */
 psirc = params.psirc_exc ? params.psirc_exc : projectDir + "/ext/psirc-quant"
-psirc_index_path = params.psirc_index ? params.psirc_index : params.out_dir + "/results/circRNA/"
+psirc_index_path = params.psirc_index ? params.psirc_index : params.out_dir + "/results/psirc/"
 if(!file(psirc_index_path).exists()) {
     process psirc_index {
         label 'process_medium'
-        publishDir "${params.out_dir}/results/circRNA/", mode: params.publish_dir_mode
+        publishDir "${params.out_dir}/results/psirc/", mode: params.publish_dir_mode
 
         input:
         file(circ_fasta) from circRNAs_raw_fasta
@@ -298,14 +298,16 @@ if(!file(psirc_index_path).exists()) {
         --psirc_quant $psirc_quant
         """
     }
+} else {
+    Channel.fromPath( psirc_index_path ).into{ psirc_index }
 }
 
 /*
-* QUANTIFY circRNA EXPRESSION USING PSIRC
+* QUANTIFY EXPRESSIONS USING PSIRC
 */
 process psirc_quant {
     label 'process_medium'
-    publishDir "${params.out_dir}/results/psirc/tmp", mode: params.publish_dir_mode
+    publishDir "${params.out_dir}/results/psirc/tmp/", mode: params.publish_dir_mode
 
     input:
     set val(sampleID), file(reads) from ch_totalRNA_reads2
@@ -331,7 +333,7 @@ process psirc_quant {
 */
 process process_psirc {
     label 'process_medium'
-    publishDir "${params.out_dir}/results/psirc", mode: params.publish_dir_mode
+    publishDir "${params.out_dir}/results/psirc/", mode: params.publish_dir_mode
 
     input:
     file(circ_counts) from ch_circRNA_counts_raw2

@@ -107,7 +107,7 @@ circRNA_for_row <- function(circRNA_expr_line){
   # get coordinations of current circRNA
   if (annotation) {
     circRNA <- circRNA_expr_line[8]
-    circRNA <- ifelse(circRNA_expr_line$circBaseID != "None", 
+    circRNA <- ifelse(circRNA_expr_line[8] != "None", 
                                   circRNA_expr_line[8], 
                                   paste0(circRNA_expr_line[1], ":", circRNA_expr_line[2], ":", circRNA_expr_line[3], ":", circRNA_expr_line[4]))
     circRNA_counts <- circRNA_expr_line[-c(1:8)]

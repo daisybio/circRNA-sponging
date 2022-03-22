@@ -449,11 +449,11 @@ if (!miranda_output.exists()) {
         """
     }
     // combine files to one
-    bind_sites_split.collectFile(name: "${params.out_dir}/results/binding_sites/output/bind_sites_raw.out", newLine: true).set{ bind_sites_out }
+    bind_sites_split.collectFile(name: "${params.out_dir}/results/binding_sites/output/bind_sites_raw.out", newLine: true).into{ bind_sites_out }
     // delete tmp files
     file(miranda_tmp).deleteDir()
 } else {
-    miranda_output.set{ bind_sites_out }
+    miranda_output.into{ bind_sites_out }
 }
 /*
 * PROCESS miranda OUTPUT INTO A TABLE FORMAT
@@ -525,11 +525,11 @@ if (params.tarpmir) {
     }
 
     // combine files to one
-    bp_files.collectFile(name: "${params.out_dir}/results/binding_sites/output/tarpmir/tarpmir_bp.tsv", newLine: true).set{ tarpmir_bp_file }
+    bp_files.collectFile(name: "${params.out_dir}/results/binding_sites/output/tarpmir/tarpmir_bp.tsv", newLine: true).into{ tarpmir_bp_file }
     // delete tmp files
     file(tarpmir_tmp).deleteDir()
 } else {
-    Channel.of( 'null' ).set{ tarpmir_bp_file }
+    Channel.of( 'null' ).into{ tarpmir_bp_file }
 }
 
 /*
@@ -555,11 +555,11 @@ if (params.pita) {
     }
 
     // collect all PITA splits
-    pita_splits.collectFile(name: "${params.out_dir}/results/binding_sites/output/PITA/circRNA_pita_results.tsv", newLine: true).set{ pita_results }
+    pita_splits.collectFile(name: "${params.out_dir}/results/binding_sites/output/PITA/circRNA_pita_results.tsv", newLine: true).into{ pita_results }
     // delete tmp directory
     file(pita_tmp).deleteDir()
 } else {
-    Channel.of( 'null' ).set{ pita_results }
+    Channel.of( 'null' ).into{ pita_results }
 }
 
 /*

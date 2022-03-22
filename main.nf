@@ -264,7 +264,7 @@ process extract_circRNA_sequences {
     file(circRNAs_raw) from ch_circRNA_counts_raw1
 
     output:
-    file("circRNAs_raw.fa") into circRNAs_raw_fasta
+    file("circRNAs.fa") into circRNAs_raw_fasta
 
     script:
     """

@@ -275,7 +275,6 @@ process extract_circRNA_sequences {
 /*
 * CREATE PSIRC INDEX IF NOT ALREADY PRESENT
 */
-// psirc location in git
 psirc = params.psirc_exc ? params.psirc_exc : projectDir + "/ext/psirc-quant"
 psirc_index_path = params.psirc_index ? params.psirc_index : params.out_dir + "/results/circRNA/"
 if(!file(psirc_index_path).exists()) {

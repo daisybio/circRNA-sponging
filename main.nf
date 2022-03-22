@@ -430,8 +430,8 @@ if (params.differential_expression){
 * DETERMINE miRNA BINDING SITES ON THE PREVIOUSLY DETECTED circRNAs USING miranda
 run only if file is not already present
 */
-miranda_output = file(params.out_dir + "/results/binding_sites/output/bind_sites_raw.out")
-if (!miranda_output.exists()) {
+miranda_output = params.out_dir + "/results/binding_sites/output/bind_sites_raw.out"
+if (!file(miranda_output).exists()) {
     miranda_tmp = "${params.out_dir}/results/binding_sites/output/tmp"
     process miranda {
         label 'process_medium'
@@ -453,7 +453,7 @@ if (!miranda_output.exists()) {
     // delete tmp files
     file(miranda_tmp).deleteDir()
 } else {
-    miranda_output.into{ bind_sites_out }
+    Channel.fromPath(miranda_output).into{ bind_sites_out }
 }
 /*
 * PROCESS miranda OUTPUT INTO A TABLE FORMAT

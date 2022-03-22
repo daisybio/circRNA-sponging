@@ -273,33 +273,79 @@ process extract_circRNA_sequences {
 }
 
 /*
-* QUANTIFY circRNA EXPRESSION USING PSIRC
+* CREATE PSIRC INDEX IF NOT ALREADY PRESENT
 */
 // psirc location in git
 psirc = params.psirc_exc ? params.psirc_exc : projectDir + "/ext/psirc-quant"
+psirc_index_path = params.psirc_index ? params.psirc_index : params.out_dir + "/results/circRNA/"
+if(!file(psirc_index_path).exists()) {
+    process psirc_index {
+        label 'process_medium'
+        publishDir "${params.out_dir}/results/circRNA/", mode: params.publish_dir_mode
+
+        input:
+        file(circ_fasta) from circRNAs_raw_fasta
+        val(psirc_quant) from psirc
+
+        output:
+        file("psirc.index") into psirc_index
+
+        script:
+        """
+        Rscript "${projectDir}"/bin/build_psirc_index.R \
+        --index "psirc.index" \
+        --transcriptome $params.transcriptome \
+        --circ_fasta $circ_fasta \
+        --psirc_quant $psirc_quant
+        """
+    }
+}
+
+/*
+* QUANTIFY circRNA EXPRESSION USING PSIRC
+*/
 process psirc_quant {
     label 'process_medium'
-    publishDir "${params.out_dir}/results/circRNA/", mode: params.publish_dir_mode
+    publishDir "${params.out_dir}/results/psirc/tmp", mode: params.publish_dir_mode
+
+    input:
+    set val(sampleID), file(reads) from ch_totalRNA_reads2
+    val(psirc_quant) from psirc
+    file(psirc_index) from psirc_index
+
+    output:
+    file("abundance.tsv") into psirc_outputs
+
+    script:
+    if (params.single_end)
+        """
+        $psirc_quant quant -i $psirc_index -o $sampleID --single -l 76 -s 20 $reads
+        """
+    else
+        """
+        $psirc_quant quant -i $psirc_index -o $sampleID $reads
+        """
+}
+
+/*
+* COMBINE PSIRC OUTPUTS -> quantified linear and circular expression for each sample
+*/
+process process_psirc {
+    label 'process_medium'
+    publishDir "${params.out_dir}/results/psirc", mode: params.publish_dir_mode
 
     input:
     file(circ_counts) from ch_circRNA_counts_raw2
-    file(circ_fasta) from circRNAs_raw_fasta
-    val(psirc_quant) from psirc
+    file("abundance.tsv") from psirc_outputs.collect()
 
     output:
-    file("psirc.index") into psirc_index
-    file("linear_expression.tsv") into gene_expression
-    file("circRNA*.tsv") into ch_circRNA_counts_raw_quant
+    file("quant_circ_expression.tsv") into ch_circRNA_counts_raw_quant
+    file("quant_linear_expression.tsv") into gene_expression
 
     script:
     """
     Rscript "${projectDir}"/bin/quantify_circ_expression.R \
-    --index "psirc.index" \
-    --samplesheet $params.samplesheet \
-    --circ_counts $circ_counts \
-    --transcriptome $params.transcriptome \
-    --circ_fasta $circ_fasta \
-    --psirc_quant $psirc_quant
+    --circ_counts $circ_counts
     """
 }
 // choose either quantified or regular circRNA counts for downstream analysis

@@ -6,54 +6,16 @@ library(argparser)
 args <- commandArgs(trailingOnly = TRUE)
 
 parser <- arg_parser("Argument parser for circRNA quantification", name = "quant_parser")
-parser <- add_argument(parser, "--index", help = "Psirc index file name/file location", default = "psirc.index")
-parser <- add_argument(parser, "--samplesheet", help = "Samplesheet containing metadata for samples")
 parser <- add_argument(parser, "--circ_counts", help = "circRNA counts file")
-parser <- add_argument(parser, "--psirc_quant", help = "Path to psirc-quant executable", default = "psirc-quant")
-# ONLY NEEDED IF INDEX IS NOT ALREADY CONSTRUCTED
+parser <- add_argument(parser, "--dir", help = "Directory containing all samples with calculated abundances", default = ".")
 parser <- add_argument(parser, "--keep_tmp", help = "Keep temporary files", default = T)
-parser <- add_argument(parser, "--mapping_only", help = "Just use the mRNA kallisto mapping", default = T)
-parser <- add_argument(parser, "--transcriptome", help = "Transcriptome for given genome (cDNA)", default = NULL)
-parser <- add_argument(parser, "--circ_fasta", help = "Fasta file for circRNAs in circRNA counts file", default = NULL)
 
 argv <- parse_args(parser, argv = args)
 
-# save psirc index location
-index <- argv$index
 
-# build index if it not already exists
-if (!file.exists(index)) {
-  print("BUILDING PSIRC INDEX")
-  # not all paramaters are given
-  if (!file.exists(argv$transcriptome) | !file.exists(argv$circ_fasta)) {
-    stop("Not all options required for index creation are given")
-  }
-  # read transcriptome
-  transcriptome <- readDNAStringSet(argv$transcriptome)
-  # read circ fasta
-  circ.fasta <- readDNAStringSet(argv$circ_fasta)
-  # annotate circRNA fasta with C marker
-  names(circ.fasta) <- paste0(names(circ.fasta), "\tC")
-  # concat circRNAs with transcriptome
-  all.fasta <- c(transcriptome, circ.fasta)
-  out <- "cDNA_circRNA.fa"
-  # write combined file to disk
-  writeXStringSet(all.fasta, filepath = out)
-  # build psirc index with combined fasta file
-  cmd <- paste(c(argv$psirc_quant, "index -i", index, out), collapse = " ")
-  system(cmd)
-}
-# read samplesheet
-samplesheet <- read.table(argv$samplesheet, header = T, sep = "\t")
-# single or paired end
-single.end <- !"totalRNA2" %in% colnames(samplesheet)
 # read circRNA counts
 circ.counts <- read.table(argv$circ_counts, header = T, sep = "\t", stringsAsFactors = F, check.names = F)
-# PARAMS
-fragment.length <- 76
-standard.dev <- 20
-# create tmp
-dir.create("tmp", showWarnings = F)
+
 # determine annotation
 annotation <- "circBaseID" %in% colnames(circ.counts)
 # set search key
@@ -62,7 +24,6 @@ key <- ifelse(annotation, "circ", "chr")
 if (annotation) {
   rownames(circ.counts) <- circ.counts$circBaseID
 } else {
-  # TODO: filter for uniques
   circ.counts$key <- paste0(circ.counts$chr, ":", circ.counts$start, "-", circ.counts$stop, "_", circ.counts$strand)
   circ.counts <- circ.counts[!duplicated(circ.counts$key),]
   circ.counts$key <- NULL
@@ -71,31 +32,24 @@ if (annotation) {
 
 circ.quant <- circ.counts
 mRNA.quant <- data.frame()
-# run psirc for every sample
-for (i in 1:nrow(samplesheet)) {
-  sample <- samplesheet[i, "sample"]
-  output <- file.path("tmp", sample)
-  fastq <- samplesheet[i, "totalRNA1"]
-  if (single.end) {
-    # write to tmp/sample
-    cmd <- paste(c(argv$psirc_quant, "quant -i", index, "-o", output, "--single", "-l", fragment.length, "-s", standard.dev, fastq), collapse = " ")
-  } else {
-    fastq2 <- samplesheet[i, "totalRNA2"]
-    cmd <- paste(c(argv$psirc_quant, "quant -i", index, "-o", output, fastq, fastq2), collapse = " ")
-  }
-  std <- system(cmd, ignore.stdout = T, intern = T)           # invoke psirc command
+
+abundances <- list.files(path = argv$dir, pattern = "abundance.tsv", recursive = T)
+
+for (path in abundances) {
+  # get sample name
+  sample <- dirname(path)
   # read created abundances
-  abundance <- read.table(file.path(output, "abundance.tsv"), sep = "\t", header = T)
+  abundance <- read.table(path, sep = "\t", header = T)
   # split abundances accoording to circular and linear
   abundance$RNAtype <- ifelse(grepl(key, abundance$target_id), "circular", "linear")
   circ_or_linear <- split(abundance, abundance$RNAtype)
   abundance.circ <- circ_or_linear$circular
   abundance.mRNA <- circ_or_linear$linear
+  
   # set counts to quantified levels
   circ.quant[abundance.circ$target_id, sample] <- abundance.circ$est_counts
   # save linear transcripts
   mRNA.quant[abundance.mRNA$target_id, sample] <- abundance.mRNA$est_counts
-  cat(eval(round(i/nrow(samplesheet), 2)*100), " %", "\r")
 }
 
 # remove tmp

@@ -299,7 +299,7 @@ if(!file(psirc_index_path).exists()) {
         """
     }
 } else {
-    Channel.fromPath( psirc_index_path ).into{ psirc_index }
+    Channel.value( file(psirc_index_path) ).into{ psirc_index }
 }
 
 /*

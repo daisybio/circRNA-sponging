@@ -66,10 +66,10 @@ write.table(circ.quant, file = o, sep = "\t", row.names = F)
 print("done")
 
 # extract counts
-circ.counts.c <- circ.counts[order(rownames(circ.counts)), -c(1:8)]
-circ.quant.c <- circ.quant[order(rownames(circ.quant)), -c(1:8)]
+# circ.counts.c <- circ.counts[order(rownames(circ.counts)), -c(1:8)]
+# circ.quant.c <- circ.quant[order(rownames(circ.quant)), -c(1:8)]
 # calculate false positive rate
-tmp <- circ.counts.c - circ.quant.c
-fp <- length(tmp[tmp ==circ.counts.c])
-fp.rate <- fp/prod(dim(circ.counts.c))
-cat("False positive rate:", fp.rate, "according to psirc quantification\n")
+# tmp <- circ.counts.c - circ.quant.c
+# fp <- length(tmp[tmp ==circ.counts.c])
+# fp.rate <- fp/prod(dim(circ.counts.c))
+# cat("False positive rate:", fp.rate, "according to psirc quantification\n")

@@ -337,7 +337,7 @@ process process_psirc {
 
     input:
     file(circ_counts) from ch_circRNA_counts_raw2
-    file("abundance.tsv") from psirc_outputs.collect()
+    file(abundances) from psirc_outputs.collect()
 
     output:
     file("quant_circ_expression.tsv") into ch_circRNA_counts_raw_quant

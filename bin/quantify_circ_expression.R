@@ -62,7 +62,7 @@ cat("writing mRNA output to", linear.o, "\n")
 write.table(mRNA.quant, file = linear.o, sep = "\t", row.names = T)
 o <- "quant_circ_expression.tsv"
 cat("writing output file to ", o, "...\n")
-write.table(circ.quant, file = o, sep = "\t", row.names = F)
+write.table(circ.quant, file = o, sep = "\t", row.names = T)
 print("done")
 
 # extract counts

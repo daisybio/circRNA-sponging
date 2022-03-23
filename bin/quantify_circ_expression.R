@@ -33,11 +33,11 @@ if (annotation) {
 circ.quant <- circ.counts
 mRNA.quant <- data.frame()
 
-abundances <- list.files(path = argv$dir, pattern = "abundance.tsv", recursive = T)
+abundances <- list.files(path = argv$dir, pattern = "abundance.tsv", recursive = T, full.names = T)
 
 for (path in abundances) {
   # get sample name
-  sample <- dirname(path)
+  sample <- basename(dirname(path))
   # read created abundances
   abundance <- read.table(normalizePath(path), sep = "\t", header = T)
   # split abundances accoording to circular and linear

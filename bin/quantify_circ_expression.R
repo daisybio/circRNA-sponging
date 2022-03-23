@@ -39,7 +39,7 @@ for (path in abundances) {
   # get sample name
   sample <- dirname(path)
   # read created abundances
-  abundance <- read.table(path, sep = "\t", header = T)
+  abundance <- read.table(normalizePath(path), sep = "\t", header = T)
   # split abundances accoording to circular and linear
   abundance$RNAtype <- ifelse(grepl(key, abundance$target_id), "circular", "linear")
   circ_or_linear <- split(abundance, abundance$RNAtype)

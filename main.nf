@@ -312,7 +312,7 @@ process psirc_quant {
     input:
     set val(sampleID), file(reads) from ch_totalRNA_reads2
     val(psirc_quant) from psirc
-    file(psirc_index) from psirc_index
+    val(psirc_index) from psirc_index
 
     output:
     file("${sampleID}/abundance.tsv") into psirc_outputs

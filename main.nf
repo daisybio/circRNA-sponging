@@ -315,7 +315,7 @@ process psirc_quant {
     file(psirc_index) from psirc_index
 
     output:
-    file("abundance.tsv") into psirc_outputs
+    file("${sampleID}/abundance.tsv") into psirc_outputs
 
     script:
     if (params.single_end)

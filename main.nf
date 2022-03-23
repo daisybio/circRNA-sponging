@@ -346,7 +346,8 @@ process process_psirc {
     script:
     """
     Rscript "${projectDir}"/bin/quantify_circ_expression.R \
-    --circ_counts $circ_counts
+    --circ_counts $circ_counts \
+    --dir "${params.out_dir}/results/psirc/tmp/"
     """
 }
 // choose either quantified or regular circRNA counts for downstream analysis

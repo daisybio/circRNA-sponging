@@ -57,10 +57,10 @@ if (!argv$keep_tmp) {
   unlink("tmp", recursive = T)
 }
 # write output to disk
-linear.o <- "linear_expression.tsv"
+linear.o <- "quant_linear_expression.tsv"
 cat("writing mRNA output to", linear.o, "\n")
 write.table(mRNA.quant, file = linear.o, sep = "\t", row.names = T)
-o <- paste0(strsplit(basename(argv$circ_counts), "\\.")[[1]][1], "_quant", ".tsv")
+o <- "quant_circ_expression.tsv"
 cat("writing output file to ", o, "...\n")
 write.table(circ.quant, file = o, sep = "\t", row.names = F)
 print("done")

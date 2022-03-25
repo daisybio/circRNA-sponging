@@ -598,7 +598,7 @@ if (params.pita) {
 
         script:
         """
-        perl $params.pita_path/pita_prediction.pl -utr $circ_fasta -mir $params.mature_fasta -prefix circRNA
+        perl $params.pita_path/pita_prediction.pl -utr $circ_fasta -mir $params.mature_fasta -prefix circRNA -l 7-8 -gu 7:0,8:1 -m 7:0,8:0
         """
     }
 

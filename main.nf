@@ -768,7 +768,7 @@ if (!params.circRNA_only) {
     * FOR ALL POSSIBLE circRNA-miRNA PAIRS COMPUTE PEARSON CORRELATION
     */
     process compute_correlations{
-        label 'process_medium'
+        label 'process_high'
 
         publishDir "${params.out_dir}/results/sponging/", mode: params.publish_dir_mode
         

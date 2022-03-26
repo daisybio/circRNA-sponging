@@ -586,9 +586,9 @@ if (params.tarpmir) {
 if (params.pita) {
     pita_tmp = "${params.out_dir}/results/binding_sites/output/PITA/tmp"
     process PITA {
-        label 'process_medium'
+        label 'process_long'
         publishDir pita_tmp, mode: params.publish_dir_mode
-        errorStrategy 'ignore'
+        errorStrategy 'retry'
 
         input:
         file(circ_fasta) from circRNAs_fasta3.splitFasta( by: params.splitter, file: true )

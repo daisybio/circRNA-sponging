@@ -246,7 +246,7 @@ subnetwork <- function(interactions, pattern){
 
 # PROCESS INPUTS ------------------------------------------------
 # check required inputs
-if (notset(argv$gene_expr) || notset(argv$mirna_expr) || notset(argv$organism)) {
+if (notset(argv$gene_expr) || notset(argv$mirna_expr)) {
   stop("One or more mandatory arguments are not given")
 }
 majority <- NULL

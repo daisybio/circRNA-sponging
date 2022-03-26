@@ -132,7 +132,7 @@ majority_vote <- function(miranda, tarpmir, pita) {
   
   print("process PITA targets")
   pita_data <- read.table(pita, header = T, sep = "\t")
-  pita.keys <- paste0(pita_data$microRNA, ":", pita_data$UTR, ":", pita_data$Start, ":", pita_data$End)
+  pita.keys <- paste0(pita_data$microRNA, ":", pita_data$UTR, ":", pita_data$End, ":", pita_data$Start)
   
   # search for intersections
   miranda_x_tarpmir <- intersect(miranda.keys, tarpmir.keys)
@@ -176,33 +176,35 @@ majority_vote <- function(miranda, tarpmir, pita) {
   return(majority.vote)
 }
 
-# TODO only merge majority vote and merged_data
 # use pipeline outputs to create target scan symbols
 create_target_scan_symbols <- function(merged_data, majority, miranda, tarpmir, pita) {
   print("CREATING TARGET SCAN SYMBOLS")
   print("using given targets")
   merged_data_targets <- data.frame(read.table(merged_data, header = T, sep = "\t"))
-  
-  # process targets from miranda
   miranda_targets <- NULL
-  if (file.exists(miranda)) {
-    print("processing miranda targets")
-    miranda.bp <- data.frame(read.table(miranda, header = T, sep = "\t"))
-    miranda_targets <- as.data.frame.matrix(table(miranda.bp$Target, miranda.bp$miRNA))
-  }
-  # process tarpmir data
   tarpmir_targets <- NULL
-  if (file.exists(tarpmir)) {
-    print("processing TarPmiR data")
-    tarpmir_data <- read.table(tarpmir, header = F, sep = "\t")
-    tarpmir_targets <- as.data.frame.matrix(table(tarpmir_data$V2, tarpmir_data$V1))
-  }
-  # process PITA data
   pita_targets <- NULL
-  if (file.exists(pita)) {
-    print("processsing PITA data")
-    pita_data <- read.table(pita, header = T, sep = "\t")
-    pita_targets <- as.data.frame.matrix(table(pita_data$RefSeq, pita_data$microRNA))
+  
+  # add individually if no majority vote could be formed
+  if (is.null(majority)) {
+    # process targets from miranda
+    if (file.exists(miranda)) {
+      print("processing miranda targets")
+      miranda.bp <- data.frame(read.table(miranda, header = T, sep = "\t"))
+      miranda_targets <- as.data.frame.matrix(table(miranda.bp$Target, miranda.bp$miRNA))
+    }
+    # process tarpmir data
+    if (file.exists(tarpmir)) {
+      print("processing TarPmiR data")
+      tarpmir_data <- read.table(tarpmir, header = F, sep = "\t")
+      tarpmir_targets <- as.data.frame.matrix(table(tarpmir_data$V2, tarpmir_data$V1))
+    }
+    # process PITA data
+    if (file.exists(pita)) {
+      print("processsing PITA data")
+      pita_data <- read.table(pita, header = T, sep = "\t")
+      pita_targets <- as.data.frame.matrix(table(pita_data$RefSeq, pita_data$microRNA))
+    }
   }
   
   # MERGE DATA

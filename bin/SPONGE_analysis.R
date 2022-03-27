@@ -35,7 +35,7 @@ while(not_done){
 }
 print("SUCCESS")
 
-# get all differentialy expressed circRNAs that act as ceRNAs
+# get all differentially expressed circRNAs that act as ceRNAs
 # build network for all DE circRNAs
 de.circ.network <- c()
 for (hit in signif.hits$X) {
@@ -45,7 +45,7 @@ for (hit in signif.hits$X) {
 differential.circ.in.ce.network <- de.circ.network
 # find gene symbols for ensg
 targets <- unique(c(differential.circ.in.ce.network$geneA, differential.circ.in.ce.network$geneB))
-targets <- targets[!grepl(ifelse(annotation, "circ", "chr"), targets)]
+targets <- targets[!grepl("c", targets)]
 # start query
 gene.ens.all <- biomaRt::getBM(attributes = c("ensembl_gene_id", "hgnc_symbol"),
                                filter = "ensembl_gene_id",

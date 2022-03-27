@@ -852,6 +852,7 @@ if (!params.circRNA_only) {
             --miranda_data $miranda_bind_sites \\
             --tarpmir_data $tarpmir \\
             --pita_data $pita \\
+            --majority_matcher $params.majority_matcher \\
             --normalize
             """
         }

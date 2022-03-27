@@ -23,6 +23,7 @@ parser <- add_argument(parser, "--target_scan_symbols", help = "Contingency matr
 parser <- add_argument(parser, "--miranda_data", help = "miRanda default output in tsv", default = "null")
 parser <- add_argument(parser, "--tarpmir_data", help = "default tarpmir output file in tsv", default = "null")
 parser <- add_argument(parser, "--pita_data", help = "Default PITA output", default = "null")
+parser <- add_argument(parser, "--majority_matcher", help = "Majority match setting", default = "complete")
 parser <- add_argument(parser, "--normalize", help = "Normalize given gene expression before analysis", flag = T)
 
 argv <- parse_args(parser, argv = args)
@@ -34,30 +35,6 @@ out <- argv$output_dir
 
 # create plots in cwd
 dir.create(file.path(out, "plots"), showWarnings = F)
-
-# define organism three letter codes
-org_codes <- list("ebv" = c("Epstein Barr virus", ""),
-                  "oar" = c("Ovis aries", ""),
-                  "hcmv" = c("Human cytomegalovirus", ""),
-                  "cel" = c("Caenorhabditis elegans", ""),
-                  "cfa" = c("Canis familiaris", ""),
-                  "gga" = c("Gallus gallus", ""),
-                  "cgr" = c("Cricetulus griseus", ""),
-                  "tgu" = c("Taeniopygia guttata", ""),
-                  "xla" = c("Yenips laevis", ""),
-                  "ola" = c("Oryzias latipes", ""),
-                  "dme" = c("Drosophila melanogaster", "dmelanogaster_gene_ensembl"),
-                  "bmo" = c("Bombyx mori", ""),
-                  "mmu" = c("Mus musculus", "mmusculus_gene_ensembl"),
-                  "rno" = c("Rattus norvegicus", "rnorvegicus_gene_ensembl"),
-                  "dre" = c("Dano rerio", ""),
-                  "hsa" = c("Homo sapiens", "hsapiens_gene_ensembl"),
-                  "kshv" = c("Kaposi sarcoma-associated herpesvirus", "Herpes"),
-                  "osa" = c("Oryza sativa", ""),
-                  "ssc" = c("Sus scrofa", ""),
-                  "bta" = c("Bos taurus", "btaurus_gene_ensembl"),
-                  "ath" = c("Arabidopsis thaliana", ""),
-                  "xtr" = c("Xenopus tropicalis", ""))
 
 # FUNCTIONS ----------------------------------------------------
 remove_ext <- function(g) {
@@ -110,7 +87,8 @@ split_encoding <- function(coded_vector) {
   return(paste(c(chr, start, end, strand), collapse = ":"))
 }
 
-majority_vote <- function(miranda, tarpmir, pita) {
+# use only binding sites that 2/3 methods approve of; match criteria: complete(start and end pos), start(start pos), end(end pos)
+majority_vote <- function(miranda, tarpmir, pita, match) {
   data <- list(miranda, tarpmir, pita)
   # check files
   if (length(Filter(file.exists, data)) != 3) {
@@ -122,26 +100,46 @@ majority_vote <- function(miranda, tarpmir, pita) {
   print("process miranda targets")
   miranda.bp <- data.frame(read.table(miranda, header = T, sep = "\t"))
   miranda.bp[,c("start", "end")] <- str_split_fixed(miranda.bp$Subject.Al.Start.End., " ", 2)
-  miranda.keys <- paste0(miranda.bp$miRNA, ":", miranda.bp$Target, ":", miranda.bp$start, ":", miranda.bp$end)
 
   print("process tarpmir targets")
   tarpmir_data <- read.table(tarpmir, header = F, sep = "\t")
   tarpmir_data <- tarpmir_data[,c(1:3)]
   tarpmir_data[, c("start", "end")] <- str_split_fixed(tarpmir_data$V3, ",", 2)
-  tarpmir.keys <- paste0(tarpmir_data$V1, ":", tarpmir_data$V2, ":", tarpmir_data$start, ":", tarpmir_data$end)
+  colnames(tarpmir_data) <- c("miRNA", "mRNA", "pos", "start", "end")
   
   print("process PITA targets")
   pita_data <- read.table(pita, header = T, sep = "\t")
-  pita.keys <- paste0(pita_data$microRNA, ":", pita_data$UTR, ":", pita_data$End, ":", pita_data$Start)
+  # switch pita output labels
+  colnames(pita_data) <- c("UTR", "microRNA", "end", "start")
+  
+  print("creating keys...")
+  cat("using", match, "for matching binding sites")
+  
+  if (match=="complete") {
+    miranda.keys <- paste0(miranda.bp$miRNA, ":", miranda.bp$Target, ":", miranda.bp$start, ":", miranda.bp$end)
+    tarpmir.keys <- paste0(tarpmir_data$miRNA, ":", tarpmir_data$mRNA, ":", tarpmir_data$start, ":", tarpmir_data$end)
+    pita.keys <- paste0(pita_data$microRNA, ":", pita_data$UTR, ":", pita_data$start, ":", pita_data$end)
+  } else if (match=="start") {
+    miranda.keys <- paste0(miranda.bp$miRNA, ":", miranda.bp$Target, ":", miranda.bp$start)
+    tarpmir.keys <- paste0(tarpmir_data$miRNA, ":", tarpmir_data$mRNA, ":", tarpmir_data$start)
+    pita.keys <- paste0(pita_data$microRNA, ":", pita_data$UTR, ":", pita_data$start)
+  } else if (match=="end") {
+    miranda.keys <- paste0(miranda.bp$miRNA, ":", miranda.bp$Target, ":", miranda.bp$end)
+    tarpmir.keys <- paste0(tarpmir_data$miRNA, ":", tarpmir_data$mRNA, ":", tarpmir_data$end)
+    pita.keys <- paste0(pita_data$microRNA, ":", pita_data$UTR, ":", pita_data$end)
+  } else {
+    stop("Wrong --majority_matcher argument given, use one of 'complete', 'start', 'end'")
+  }
   
   # search for intersections
   miranda_x_tarpmir <- intersect(miranda.keys, tarpmir.keys)
   miranda_x_pita <- intersect(miranda.keys, pita.keys)
   tarpmir_x_pita <- intersect(tarpmir.keys, pita.keys)
   # apply majority vote: only use binding sites where 2/3 approve
-  majority.vote <- unique(c(miranda_x_tarpmir, miranda_x_pita, tarpmir_x_pita))
+  majority.vote <- c(miranda_x_tarpmir, miranda_x_pita, tarpmir_x_pita)
   # build table
-  majority.vote <- str_split_fixed(majority.vote, ":", 4)
+  splitter <- ifelse(match=="complete", 4, 3)
+  majority.vote <- str_split_fixed(majority.vote, ":", splitter)
   majority.vote <- as.data.frame.matrix(table(majority.vote[,2], majority.vote[,1]))
   # output VENN diagram
   library(RColorBrewer)
@@ -256,7 +254,7 @@ n.targets <- length(sapply(list(argv$miranda, argv$tarpmir, argv$pita), notset))
 if (n.targets == 0) {
   stop("Supply at least one ")
 } else if (n.targets == 3) {
-  majority <- majority_vote(argv$miranda, argv$tarpmir, argv$pita)
+  majority <- majority_vote(argv$miranda, argv$tarpmir, argv$pita, argv$majority_matcher)
 }
 
 # SET TARGET SCAN SYMBOLS

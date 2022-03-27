@@ -10,7 +10,7 @@ library(EnhancedVolcano)
 args = commandArgs(trailingOnly = TRUE)
 
 # create output data and plots
-create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.1, log2FC = 1, pseudocount = 1e-3, filter = NULL) {
+create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.1, log2FC = 0, pseudocount = 0, filter = NULL) {
   # create dirs in cwd
   dir.create(out, showWarnings = FALSE)
   # col data
@@ -94,7 +94,7 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
 }
 
 # read gene expression and add pseudocount
-gene_expression <- as.matrix(read.table(file = args[1], header = T, sep = "\t")) + 1
+gene_expression <- as.matrix(read.table(file = args[1], header = T, sep = "\t", stringsAsFactors = F, check.names = F)) + 1
 
 # metadata
 samplesheet <- read.table(file = args[2], sep = "\t", header = T)

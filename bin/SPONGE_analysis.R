@@ -2,38 +2,44 @@
 
 library(SPONGE)
 library(biomaRt)
+library(visNetwork)
 
 args = commandArgs(trailingOnly = TRUE)
 
 # load SPONGE workspace
 load(args[1])
 # differentially expressed circRNAs
-signif.hits <- read.table(args[2], sep = "\t", header = T)
+signif.hits.circ <- read.table(args[2], sep = "\t", header = T)
+signif.hits.mRNA <- read.table(args[3], sep = "\t", header = T)
+
+signif.hits <- rbind(signif.hits.circ, signif.hits.mRNA)
 
 # load biomaRt
-mart <- 0
-not_done=TRUE
-while(not_done)
-{
-  tryCatch({
-    mart <- useDataset("hsapiens_gene_ensembl", useMart("ensembl"))
-    not_done=FALSE
-  }, warning = function(w) {
-    print("WARNING SECTION")
-    print(w)
-  }, error = function(e) {
-    print("ERROR SECTION")
-    print(e)
-  }, finally = {
-  })
+mart <- NULL
+not_done <- T
+while(not_done){
+  tryCatch(
+    {
+      mart <- useEnsembl(biomart = "ensembl", "hsapiens_gene_ensembl")
+    },
+    error=function(cond) {
+      message(cond)
+    },
+    warning=function(cond) {
+      message(cond)
+    },
+    finally={
+      not_done = F
+    }
+  )
 }
 print("SUCCESS")
 
-# get all differentially expressed circRNAs that act as ceRNAs
+# get all differentialy expressed circRNAs that act as ceRNAs
 # build network for all DE circRNAs
 de.circ.network <- c()
 for (hit in signif.hits$X) {
-  circ.network <- subnetwork(ceRNA_interactions_all_circ, pattern = hit)
+  circ.network <- subnetwork(ceRNA_interactions_fdr, pattern = hit)
   de.circ.network <- rbind(de.circ.network, circ.network)
 }
 differential.circ.in.ce.network <- de.circ.network
@@ -61,15 +67,14 @@ hgncs <- merge(signif.hits, gene.ens.all, by.x = "X", by.y = "ensembl_gene_id")
 nodes <- differential.circ.plot$x$nodes
 nodes$color <- NULL
 nodes[nodes$id %in% hgncs$hgnc_symbol | nodes$id %in% signif.hits$X,"color"] <- "#CC3333"
-nodes$shape <- ifelse(grepl("circ", nodes$id), "rectangle", "triangle")
-nodes$group <- ifelse(grepl("circ", nodes$id), "circRNA", "mRNA")
+nodes$shape <- ifelse(grepl("c", nodes$id), "rectangle", "triangle")
+nodes$group <- ifelse(grepl("c", nodes$id), "circRNA", "mRNA")
 nodes[nodes$id %in% hgncs$hgnc_symbol | nodes$id %in% signif.hits$X,"group"] <- "DE"
 
-test <- visNetwork(nodes = nodes, edges = differential.circ.plot$x$edges) %>%
+graph <- visNetwork(nodes = nodes, edges = differential.circ.plot$x$edges) %>%
   visIgraphLayout(type = "full", physics = F) %>%
-  visEdges(arrows = list(to = list(enabled = T, scaleFactor = 1))) %>%
   visGroups(groupname = "circRNA", shape = "rectangle", color = "#33FF99") %>%
   visGroups(groupname = "mRNA", shape = "triangle", color = "#0066CC") %>% 
   visGroups(groupname = "DE", color = "#CC3333", shape = "rectangle") %>%
   visLegend()
-test
+graph

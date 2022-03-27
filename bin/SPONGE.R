@@ -234,6 +234,7 @@ create_target_scan_symbols <- function(merged_data, majority, miranda, tarpmir, 
   return(merged.targets)
 }
 
+# TODO: proper sub-network with all extensions
 # filter ceRNA networks
 subnetwork <- function(interactions, pattern){
   subnetwork <- interactions[grepl(pattern, interactions$geneA) | grepl(pattern, interactions$geneB), ]
@@ -382,6 +383,7 @@ if (nrow(ceRNA_interactions_fdr)<min.interactions) {
     ceRNA_interactions_fdr <- ceRNA_interactions_sign[which(ceRNA_interactions_sign$p.adj < fdr),]
   }
   cat("adjusted fdr to :", fdr, "to allow for a minimum", min.interactions, "interactions", "\n")
+  cat("current fdr relevant interactions:", nrow(ceRNA_interactions_fdr))
   ceRNA_interactions_fdr <- ceRNA_interactions_fdr[order(ceRNA_interactions_fdr$p.adj),]
   # ceRNA_interactions_fdr <- head(ceRNA_interactions_fdr, 8000)
 }
@@ -425,7 +427,8 @@ visNetwork::visSave(ceRNA_strongest_plot, file = "total/plots/strongest_network.
 write.table(ceRNA_strongest, "total/strongest_linear_ceRNAs.tsv", sep = "\t", row.names = F)
 
 # CIRC RNA ONLY
-ceRNA_interactions_all_circ <- subnetwork(ceRNA_interactions_fdr, pattern = ifelse(annotation, "circ", "chr"))
+ceRNA_interactions_all_circ <- subnetwork(ceRNA_interactions_fdr, pattern = "c")
+
 # add scores
 circRNA_network_plot <- sponge_plot_network(ceRNA_interactions_all_circ, genes_miRNA_candidates, )
 circRNA_network_plot$x$edges$label <- paste("mscor:", round(ceRNA_interactions_all_circ$mscor, 2))

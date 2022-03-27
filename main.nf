@@ -462,7 +462,9 @@ if (params.differential_expression){
 
         output:
         file("total_rna/total_rna.tsv") into deseq_total_rna
+        file("total_rna/total_rna.signif.tsv") into DE_mRNA_signif
         file("circ_rna_DE/circ_rna_DE.tsv") into deseq_circ_rna
+        file("circ_rna_DE/circ_rna_DE.signif.tsv") into DE_circ_signif
         file("total_rna/*.png") into total_plots
         file("circ_rna_DE/*.png") into circ_plots
         file("DESeq2.RData") into deseq2_rdata
@@ -836,7 +838,7 @@ if (!params.circRNA_only) {
             val(pita) from pita_results
 
             output:
-            file("sponge.RData") into Rimage
+            file("sponge.RData") into sponge_rimage
             file("plots/*.png") into plots
             file("circRNA/*") into circResults
             file("total/*") into totalResults
@@ -855,6 +857,33 @@ if (!params.circRNA_only) {
             --majority_matcher $params.majority_matcher \\
             --normalize
             """
+        }
+        /*
+        * PERFORM SPONGE circRNA DE ANALSIS
+        */
+        if (params.differential_expression) {
+            process SPONGE_DE_ANALYSIS {
+                label 'process_low'
+                errorStrategy 'ignore'
+
+                publishDir "${params.out_dir}/results/sponging/SPONGE/DE_analysis", mode: params.publish_dir_mode
+
+                input:
+                file(sponge_data) from sponge_rimage
+                file(circ_signif_DE) from DE_circ_signif
+                file(mRNA_signif_DE) from DE_mRNA_signif
+
+                output:
+                file("DE_SPONGE.html") into DE_SPONGE_graph
+
+                script:
+                """
+                Rscript "${projectDir}"/bin/SPONGE_analysis.R \\
+                $sponge_data \\
+                $circ_signif_DE \\
+                $mRNA_signif_DE
+                """
+            }
         }
     }
 }

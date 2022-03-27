@@ -78,3 +78,5 @@ graph <- visNetwork(nodes = nodes, edges = differential.circ.plot$x$edges) %>%
   visGroups(groupname = "DE", color = "#CC3333", shape = "rectangle") %>%
   visLegend()
 graph
+
+visNetwork::visSave(graph, file = "DE_SPONGE.html")

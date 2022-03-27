@@ -121,12 +121,12 @@ majority_vote <- function(miranda, tarpmir, pita, match) {
     pita.keys <- paste0(pita_data$microRNA, pita_data$UTR, pita_data$start, pita_data$end, sep="|")
   } else if (match=="start") {
     miranda.keys <- paste(miranda.bp$miRNA, miranda.bp$Target, miranda.bp$start, sep="|")
-    tarpmir.keys <- paste0(tarpmir_data$miRNA, tarpmir_data$mRNA, tarpmir_data$start, sep="|")
-    pita.keys <- paste0(pita_data$microRNA, pita_data$UTR, pita_data$start, sep="|")
+    tarpmir.keys <- paste(tarpmir_data$miRNA, tarpmir_data$mRNA, tarpmir_data$start, sep="|")
+    pita.keys <- paste(pita_data$microRNA, pita_data$UTR, pita_data$start, sep="|")
   } else if (match=="end") {
     miranda.keys <- paste(miranda.bp$miRNA, miranda.bp$Target, miranda.bp$end, sep="|")
-    tarpmir.keys <- paste0(tarpmir_data$miRNA, tarpmir_data$mRNA, tarpmir_data$end, sep="|")
-    pita.keys <- paste0(pita_data$microRNA, pita_data$UTR, pita_data$end, sep="|")
+    tarpmir.keys <- paste(tarpmir_data$miRNA, tarpmir_data$mRNA, tarpmir_data$end, sep="|")
+    pita.keys <- paste(pita_data$microRNA, pita_data$UTR, pita_data$end, sep="|")
   } else {
     stop("Wrong --majority_matcher argument given, use one of 'complete', 'start', 'end'")
   }
@@ -139,7 +139,7 @@ majority_vote <- function(miranda, tarpmir, pita, match) {
   majority.vote <- c(miranda_x_tarpmir, miranda_x_pita, tarpmir_x_pita)
   # build table
   splitter <- ifelse(match=="complete", 4, 3)
-  majority.vote <- str_split_fixed(majority.vote, "|", splitter)
+  majority.vote <- str_split_fixed(majority.vote, "\\|", splitter)
   majority.vote <- as.data.frame.matrix(table(majority.vote[,2], majority.vote[,1]))
   # output VENN diagram
   library(RColorBrewer)

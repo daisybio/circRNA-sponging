@@ -52,6 +52,27 @@ for (path in abundances) {
   mRNA.quant[abundance.mRNA$target_id, sample] <- abundance.mRNA$est_counts
 }
 
+library(biomaRt)
+# convert transcript ids to gene ids
+mart <- NULL
+not_done <- 
+while(not_done){
+  tryCatch(
+    {
+      mart <- 
+    },
+    error=function(cond) {
+      message(cond)
+    },
+    warning=function(cond) {
+      message(cond)
+    },
+    finally={
+      not_done = T
+    }
+  )
+}
+
 # remove tmp
 if (!argv$keep_tmp) {
   unlink("tmp", recursive = T)

@@ -478,9 +478,9 @@ if (params.differential_expression){
 * DETERMINE miRNA BINDING SITES ON THE PREVIOUSLY DETECTED circRNAs USING miranda
 run only if file is not already present
 */
-miranda_output = params.out_dir + "/results/binding_sites/output/bind_sites_raw.out"
+miranda_output = params.out_dir + "/results/binding_sites/output/miranda/bind_sites_raw.out"
 if (!file(miranda_output).exists()) {
-    miranda_tmp = "${params.out_dir}/results/binding_sites/output/tmp"
+    miranda_tmp = "${params.out_dir}/results/binding_sites/output/miranda/tmp"
     process miranda {
         label 'process_medium'
         publishDir miranda_tmp, mode: params.publish_dir_mode
@@ -497,7 +497,7 @@ if (!file(miranda_output).exists()) {
         """
     }
     // combine files to one
-    bind_sites_split.collectFile(name: "${params.out_dir}/results/binding_sites/output/bind_sites_raw.out", newLine: true).into{ bind_sites_out }
+    bind_sites_split.collectFile(name: miranda_output, newLine: true).into{ bind_sites_out }
     // delete tmp files
     file(miranda_tmp).deleteDir()
 } else {
@@ -508,7 +508,7 @@ if (!file(miranda_output).exists()) {
 */
 process binding_sites_processing {
     label 'process_medium'
-    publishDir "${params.out_dir}/results/binding_sites/output/", mode: params.publish_dir_mode
+    publishDir "${params.out_dir}/results/binding_sites/output/miranda", mode: params.publish_dir_mode
     
     input:
     file(bind_sites_raw) from bind_sites_out
@@ -528,7 +528,7 @@ process binding_sites_processing {
 */
 process binding_sites_filtering {
     label 'process_medium'
-    publishDir "${params.out_dir}/results/binding_sites/output/", mode: params.publish_dir_mode
+    publishDir "${params.out_dir}/results/binding_sites/output/miranda", mode: params.publish_dir_mode
     
     input:
     file(bind_sites_proc) from bind_sites_processed

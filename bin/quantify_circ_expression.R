@@ -55,11 +55,11 @@ for (path in abundances) {
 library(biomaRt)
 # convert transcript ids to gene ids
 mart <- NULL
-not_done <- 
+not_done <- T
 while(not_done){
   tryCatch(
     {
-      mart <- 
+      mart <- useEnsembl(biomart = "ensembl", "hsapiens_gene_ensembl")
     },
     error=function(cond) {
       message(cond)
@@ -68,11 +68,26 @@ while(not_done){
       message(cond)
     },
     finally={
-      not_done = T
+      not_done = F
     }
   )
 }
 
+# convert row names
+transcript.IDs <- sapply(strsplit(row.names(mRNA.quant), "\\."), "[", 1)
+rownames(mRNA.quant) <- transcript.IDs
+transcript2gene <- getBM(attributes=c("ensembl_transcript_id","external_gene_name","ensembl_gene_id"),
+                         filters = "ensembl_transcript_id",
+                         values = transcript.IDs, 
+                         mart = mart)
+conv <- merge(mRNA.quant, transcript2gene, by.x = 0, by.y = 1)
+conv$Row.names <- NULL
+conv$external_gene_name <- NULL
+conv <- aggregate(conv[,-ncol(conv)], list(Gene=conv$ensembl_gene_id), FUN = sum)
+row.names(conv) <- conv$Gene
+conv$Gene <- NULL
+# save converted samples
+mRNA.quant <- conv
 # remove tmp
 if (!argv$keep_tmp) {
   unlink("tmp", recursive = T)

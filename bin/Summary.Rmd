@@ -1,0 +1,21 @@
+---
+title: "Pipeline summary"
+output: html_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(argparser)
+
+args = commandArgs(trailingOnly = TRUE)
+args = c("--outdir", "/nfs/home/students/l.schwartz/TGCT/output")
+
+parser <- arg_parser("Argument parser for SPONGE analysis", name = "SPONGE_parser")
+parser <- add_argument(parser, "--outdir", help = "pipeline output directory")
+
+argv <- parse_args(parser, argv = args)
+base <- argv$outdir
+```
+```{r, echo=T}
+cat("Pipeline run analysis for:", base, "\n")
+```
+base

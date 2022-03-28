@@ -342,12 +342,14 @@ process process_psirc {
     output:
     file("quant_circ_expression.tsv") into ch_circRNA_counts_raw_quant
     file("quant_linear_expression.tsv") into gene_expression
+    file("quant_effects.png") into quant_effects
 
     script:
     """
     Rscript "${projectDir}"/bin/quantify_circ_expression.R \
     --circ_counts $circ_counts \
-    --dir "${params.out_dir}/results/psirc/tmp/"
+    --dir "${params.out_dir}/results/psirc/tmp/" \
+    --samplesheet $params.samplesheet
     """
 }
 // choose either quantified or regular circRNA counts for downstream analysis

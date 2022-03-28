@@ -2,15 +2,29 @@
 
 library(Biostrings)
 library(argparser)
+library(DESeq2)
+require(reshape2)
 
 args <- commandArgs(trailingOnly = TRUE)
 
 parser <- arg_parser("Argument parser for circRNA quantification", name = "quant_parser")
 parser <- add_argument(parser, "--circ_counts", help = "circRNA counts file")
+parser <- add_argument(parser, "--samplesheet", help = "Samplesheet of pipeline")
 parser <- add_argument(parser, "--dir", help = "Directory containing all samples with calculated abundances", default = ".")
 parser <- add_argument(parser, "--keep_tmp", help = "Keep temporary files", default = T)
 
 argv <- parse_args(parser, argv = args)
+
+norm <- function(data, samples) {
+  meta <- data.frame(samples)
+  row.names(meta) <- meta$samples 
+  data <- as.matrix(data)
+  
+  dds <- DESeq2::DESeqDataSetFromMatrix(countData = round(data + 1), colData = meta, design = ~ 1)
+  dds <- DESeq2::estimateSizeFactors(dds)
+  
+  return(DESeq2::counts(dds, normalized=TRUE))
+}
 
 
 # read circRNA counts
@@ -100,6 +114,45 @@ o <- "quant_circ_expression.tsv"
 cat("writing output file to ", o, "...\n")
 write.table(circ.quant, file = o, sep = "\t", row.names = T)
 print("done")
+
+# plot estimated counts vs junction reads
+# est counts <- quantification
+# junction reads <- CIRCexplorer2
+samplesheet <- read.table(argv$samplesheet, sep = "\t", header = T)
+samples <- samplesheet$sample
+circ.norm <- circ.counts
+rownames(circ.norm) <- paste(circ.norm$chr, circ.norm$start, circ.norm$stop, circ.norm$strand, circ.norm$gene_symbol, sep = "_")
+circ.norm.quant <- circ.quant
+rownames(circ.norm.quant) <- paste(circ.norm.quant$chr, circ.norm.quant$start, circ.norm.quant$stop, circ.norm.quant$strand, circ.norm.quant$gene_symbol, sep = "_")
+# normalize
+circ.norm <- norm(circ.norm[,samples], samples)
+circ.norm.quant <- norm(circ.norm.quant[,samples], samples)
+
+# compare counts
+circ.norm.sums <- as.data.frame(rowSums(circ.norm))
+circ.norm.quant.sums <- as.data.frame(rowSums(circ.norm.quant))
+
+sums <- merge(circ.norm.sums, circ.norm.quant.sums, by = 0)
+colnames(sums) <- c("id", "count.x", "count.y")
+sums$key <- rownames(sums)
+sums$chr <- sapply(gsub("chr", "", sapply(strsplit(sums$id, "_"), "[", 1)), "[", 1)
+chrOrder <-c((1:22),"X","Y","M")
+sums <- sums[order(factor(sums$chr, levels = chrOrder, ordered = T)),]
+chromosomes <- unique(sums$chr)
+middle.chromosome.pos <- table(sums$chr)/2
+
+psirc.color <- "#3333FF"
+circExplorer2.color <- "#009933"
+
+# plot both
+png("quant_effects.png")
+dev.new(width = 1200, height = 800, unit = "px")
+plot(sums$key, log10(sums$count.y), type = "b", col = psirc.color, xlab = "chromosome", ylab = "circRNA counts over all samples (log10)", xaxt="n")
+axis(1, at = round(seq(1, nrow(sums), nrow(sums)/length(chromosomes)))+middle.chromosome.pos, labels = F)
+text(round(seq(1, nrow(sums), nrow(sums)/length(chromosomes))), par("usr")[3] - 0.2, labels = chromosomes, srt = 45, pos = 1, xpd = TRUE)
+lines(sums$key, log10(sums$count.x), type = "b", lty = 2, col = circExplorer2.color, pch = 18)
+legend("top", inset = c(-0.5, 0), legend = c("CircExplorer2", "psirc-quant"), col = c(circExplorer2.color, psirc.color), lty = c(1,1), cex=0.8)
+dev.off()
 
 # extract counts
 # circ.counts.c <- circ.counts[order(rownames(circ.counts)), -c(1:8)]

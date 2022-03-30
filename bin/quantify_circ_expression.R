@@ -11,7 +11,6 @@ parser <- arg_parser("Argument parser for circRNA quantification", name = "quant
 parser <- add_argument(parser, "--circ_counts", help = "circRNA counts file")
 parser <- add_argument(parser, "--samplesheet", help = "Samplesheet of pipeline")
 parser <- add_argument(parser, "--dir", help = "Directory containing all samples with calculated abundances", default = ".")
-parser <- add_argument(parser, "--count_mode", help = "Either TPM(tpm) or estimated counts(est_counts)", default = "est_counts")
 
 argv <- parse_args(parser, argv = args)
 
@@ -49,35 +48,29 @@ circ.quant <- circ.counts
 mRNA.quant <- data.frame()
 
 abundances <- list.files(path = argv$dir, pattern = "abundance.tsv", recursive = T, full.names = T)
-# use either tpm or est_counts
-mode <- argv$count_mode
 cat("using", mode, "count mode from abundances", "\n")
 n <- length(abundances)
 c <- 0
+# save tpm counts -> log2(tpm+1)
+tpm <- data.frame()
 for (path in abundances) {
   # get sample name
   sample <- basename(dirname(path))
   cat("processing sample", sample, "|", double(c/n), "\r")
   # read created abundances
   abundance <- read.table(normalizePath(path), sep = "\t", header = T)
+  # save tpms
+  tpm[abundance$target_id, sample] <- log2(abundance$tpm + 1)
   # split abundances accoording to circular and linear
   abundance$RNAtype <- ifelse(grepl(key, abundance$target_id), "circular", "linear")
   circ_or_linear <- split(abundance, abundance$RNAtype)
   abundance.circ <- circ_or_linear$circular
   abundance.mRNA <- circ_or_linear$linear
   
-  # set counts to quantified levels
-  if (mode == "tpm") {
-    circ.values <- log2(abundance.circ[,mode] + 1)
-    mRNA.values <- log2(abundance.mRNA[,mode] + 1)
-  } else if (mode == "est_counts") {
-    circ.values <- abundance.circ[,mode]
-    mRNA.values <- abundance.mRNA[,mode]
-  }
   # save circular transcripts
-  circ.quant[abundance.circ$target_id, sample] <- circ.values
+  circ.quant[abundance.circ$target_id, sample] <- abundance.circ$est_counts
   # save linear transcripts
-  mRNA.quant[abundance.mRNA$target_id, sample] <- mRNA.values
+  mRNA.quant[abundance.mRNA$target_id, sample] <- abundance.mRNA$est_counts
   c = c + 1
 }
 

@@ -2,14 +2,13 @@
 library(ggplot2)
 
 args = commandArgs(trailingOnly=TRUE)
-if (length(args)!=5) {
-  stop("Five argument must be supplied", call.=FALSE)
+if (length(args)!=4) {
+  stop("Four argument must be supplied", call.=FALSE)
 }
 expression_norm_path = args[1]
 output_dir = args[2]
 samples_percentage = as.numeric(args[3]) # default 0.2, minimum percentage of samples, a miRNA has to be expressed in is to pass filtering
 read_cutoff = as.numeric(args[4]) # default 5, minimum number of reads, a  miRNA is required to have to pass filtering
-count_mode = args[5] # either use tpm or regular counts
 
 expression_norm <- read.table(expression_norm_path, sep = "\t", header=T, stringsAsFactors = F, check.names = F)
 
@@ -36,13 +35,5 @@ for (i in 1:nrow(expression_norm)){
 }
 filtered_data <- expression_norm[rows_to_keep,]
 
-# convert counts to tpm
-if (count_mode == "tpm"){
-  print("converting counts to tpm...")
-  len <- nrow(filtered_data)
-  X <- filtered_data[,-1]
-  X <- X/len
-  filtered_data[,-1] <- log2(t(t(X)*1e6/colSums(X))+1)
-}
 write.table(filtered_data, paste0("miRNA_counts_filtered.tsv"), quote = F, sep = "\t", row.names = F)
 

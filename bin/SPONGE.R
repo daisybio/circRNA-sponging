@@ -245,6 +245,10 @@ subnetwork <- function(interactions, pattern){
   return(merge(subnetwork, interactions_w_circ, all = T))
 }
 
+counts.to.tpm(data) {
+  
+}
+
 # PROCESS INPUTS ------------------------------------------------
 # check required inputs
 if (notset(argv$gene_expr) || notset(argv$mirna_expr)) {

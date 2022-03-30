@@ -342,6 +342,7 @@ process process_psirc {
     output:
     file("quant_circ_expression.tsv") into ch_circRNA_counts_raw_quant
     file("quant_linear_expression.tsv") into gene_expression
+    file("TPM_map.tsv") into TPM_map
     file("quant_effects.png") into quant_effects
 
     script:
@@ -349,7 +350,6 @@ process process_psirc {
     Rscript "${projectDir}"/bin/quantify_circ_expression.R \
     --circ_counts $circ_counts \
     --dir "${params.out_dir}/results/psirc/tmp/" \
-    --count_mode $params.count_mode \
     --samplesheet $params.samplesheet
     """
 }
@@ -764,7 +764,7 @@ if (!params.circRNA_only) {
 
         script:
         """
-        Rscript "${projectDir}"/bin/miRNA_filtering.R $miRNA_counts_norm $params.out_dir $params.sample_percentage $params.read_threshold $params.count_mode
+        Rscript "${projectDir}"/bin/miRNA_filtering.R $miRNA_counts_norm $params.out_dir $params.sample_percentage $params.read_threshold
         """
     }
 

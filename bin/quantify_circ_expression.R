@@ -65,9 +65,11 @@ for (path in abundances) {
   abundance.mRNA <- circ_or_linear$linear
   
   # set counts to quantified levels
-  circ.quant[abundance.circ$target_id, sample] <- abundance.circ[,mode]
+  circ.value <- abundance.circ[,mode]
+  circ.quant[abundance.circ$target_id, sample] <- ifelse(mode=="tpm", log2(circ.value + 1), circ.value)
   # save linear transcripts
-  mRNA.quant[abundance.mRNA$target_id, sample] <- abundance.mRNA[,mode]
+  mRNA.value <- abundance.mRNA[,mode]
+  mRNA.quant[abundance.mRNA$target_id, sample] <- ifelse(mode=="tpm", log2(mRNA.value + 1), mRNA.value)
 }
 
 print("Converting transcripts to genes...")

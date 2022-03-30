@@ -23,7 +23,7 @@ norm <- function(data, samples) {
   dds <- DESeq2::DESeqDataSetFromMatrix(countData = round(data + 1), colData = meta, design = ~ 1)
   dds <- DESeq2::estimateSizeFactors(dds)
   
-  return(DESeq2::counts(dds, normalized=TRUE))
+  return(DESeq2::counts(dds, normalized=T))
 }
 
 
@@ -139,12 +139,12 @@ print("Calculating quantification effects...")
 samplesheet <- read.table(argv$samplesheet, sep = "\t", header = T)
 samples <- samplesheet$sample
 # convert counts to tpm
-if (count_mode == "tpm"){
+if (mode == "tpm"){
   print("converting circRNA counts to tpm...")
   len <- nrow(circ.counts)
   X <- circ.counts[,samples]
   X <- X/len
-  circ.counts[,samples] <- t(t(X)*1e6/colSums(X))
+  circ.counts[,samples] <- log2(t(t(X)*1e6/colSums(X))+1)
 }
 circ.norm <- circ.counts
 rownames(circ.norm) <- paste(circ.norm$chr, circ.norm$start, circ.norm$stop, circ.norm$strand, circ.norm$gene_symbol, sep = "_")

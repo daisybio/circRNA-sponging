@@ -39,10 +39,10 @@ filtered_data <- expression_norm[rows_to_keep,]
 # convert counts to tpm
 if (count_mode == "tpm"){
   print("converting counts to tpm...")
-  cat(colnames(filtered_data), "\n")
   len <- nrow(filtered_data)
-  filtered_data <- filtered_data/len
-  filtered_data <- t(t(filtered_data)*1e6/colSums(filtered_data))
+  X <- filtered_data[,-1]
+  X <- X/len
+  filtered_data[,-1] <- t(t(X)*1e6/colSums(X))
 }
 write.table(filtered_data, paste0("miRNA_counts_filtered.tsv"), quote = F, sep = "\t", row.names = F)
 

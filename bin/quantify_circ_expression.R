@@ -88,12 +88,14 @@ while(not_done){
     },
     finally={
       not_done = F
+      print("mart sucessfully created")
     }
   )
 }
 
 # convert row names
 transcript.IDs <- sapply(strsplit(row.names(mRNA.quant), "\\."), "[", 1)
+print(head(transcript.IDs))
 rownames(mRNA.quant) <- transcript.IDs
 transcript2gene <- getBM(attributes=c("ensembl_transcript_id","external_gene_name","ensembl_gene_id"),
                          filters = "ensembl_transcript_id",

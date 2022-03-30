@@ -52,20 +52,23 @@ cat("using", mode, "count mode from abundances", "\n")
 n <- length(abundances)
 c <- 0
 # save tpm counts -> log2(tpm+1)
-tpm <- data.frame()
+circ.tpm <- data.frame()
+mRNA.tpm <- data.frame()
 for (path in abundances) {
   # get sample name
   sample <- basename(dirname(path))
   cat("processing sample", sample, "|", double(c/n), "\r")
   # read created abundances
   abundance <- read.table(normalizePath(path), sep = "\t", header = T)
-  # save tpms
-  tpm[abundance$target_id, sample] <- log2(abundance$tpm + 1)
   # split abundances accoording to circular and linear
   abundance$RNAtype <- ifelse(grepl(key, abundance$target_id), "circular", "linear")
   circ_or_linear <- split(abundance, abundance$RNAtype)
   abundance.circ <- circ_or_linear$circular
   abundance.mRNA <- circ_or_linear$linear
+  
+  # save tpms
+  circ.tpm[abundance.circ$target_id, sample] <- log2(abundance.circ$tpm + 1)
+  mRNA.tpm[abundance.mRNA$target_id, sample] <- log2(abundance.mRNA$tpm + 1)
   
   # save circular transcripts
   circ.quant[abundance.circ$target_id, sample] <- abundance.circ$est_counts
@@ -73,7 +76,8 @@ for (path in abundances) {
   mRNA.quant[abundance.mRNA$target_id, sample] <- abundance.mRNA$est_counts
   c = c + 1
 }
-colnames(tpm) <- c("ID", "tpm")
+colnames(circ.tpm) <- c("tpm")
+colnames(mRNA.tpm) <- c("tpm")
 
 print("Converting transcripts to genes...")
 library(biomaRt)
@@ -116,6 +120,19 @@ conv$Gene <- NULL
 # save converted samples
 mRNA.quant <- conv
 
+# aggregate tpms
+mRNA.tpm <- merge(mRNA.tpm, transcript2gene, by.x = 0, by.y = 1)
+mRNA.tpm$Row.names <- NULL
+mRNA.tpm$external_gene_name <- NULL
+mRNA.tpm <- aggregate(mRNA.tpm[,-ncol(mRNA.tpm)], list(Gene=mRNA.tpm$ensembl_gene_id), FUN = sum)
+row.names(mRNA.tpm) <- mRNA.tpm$Gene
+mRNA.tpm$Gene <- NULL
+mRNA.tpm <- mRNA.tpm
+
+# bind and save tpms
+tpms <- rbind(circ.tpm, mRNA.tpm)
+write.table(tpms, file = "TPM_map.tsv", sep = "\t", row.names = T)
+
 # write output to disk
 linear.o <- "quant_linear_expression.tsv"
 cat("writing mRNA output to", linear.o, "\n")
@@ -132,14 +149,7 @@ print("Calculating quantification effects...")
 # junction reads <- CIRCexplorer2
 samplesheet <- read.table(argv$samplesheet, sep = "\t", header = T)
 samples <- samplesheet$sample
-# convert counts to tpm
-if (mode == "tpm"){
-  print("converting circRNA counts to tpm...")
-  len <- nrow(circ.counts)
-  X <- circ.counts[,samples]
-  X <- X/len
-  circ.counts[,samples] <- log2(t(t(X)*1e6/colSums(X))+1)
-}
+
 circ.norm <- circ.counts
 rownames(circ.norm) <- paste(circ.norm$chr, circ.norm$start, circ.norm$stop, circ.norm$strand, circ.norm$gene_symbol, sep = "_")
 circ.norm.quant <- circ.quant

@@ -73,6 +73,7 @@ for (path in abundances) {
   mRNA.quant[abundance.mRNA$target_id, sample] <- abundance.mRNA$est_counts
   c = c + 1
 }
+colnames(tpm) <- c("ID", "tpm")
 
 print("Converting transcripts to genes...")
 library(biomaRt)

@@ -839,6 +839,9 @@ if (!params.circRNA_only) {
             file(target_scan_symbols) from target_scan_symbols
             val(tarpmir) from tarpmir_bp_file
             val(pita) from pita_results
+            val(normalize) from params.normalize ? "--normalize" : ""
+            val(tpm_map) from TPM_map
+            val(tpm) from params.tpm ? "--tpm" : ""
 
             output:
             file("sponge.RData") into sponge_rimage
@@ -858,7 +861,10 @@ if (!params.circRNA_only) {
             --tarpmir_data $tarpmir \\
             --pita_data $pita \\
             --majority_matcher $params.majority_matcher \\
-            --normalize
+            --normalize \\
+            --tpm_map $tpm_map \\
+            $tpm \\
+            $normalize
             """
         }
         /*

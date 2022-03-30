@@ -349,6 +349,7 @@ process process_psirc {
     Rscript "${projectDir}"/bin/quantify_circ_expression.R \
     --circ_counts $circ_counts \
     --dir "${params.out_dir}/results/psirc/tmp/" \
+    --count_mode $params.count_mode \
     --samplesheet $params.samplesheet
     """
 }

@@ -11,6 +11,7 @@ parser <- arg_parser("Argument parser for circRNA quantification", name = "quant
 parser <- add_argument(parser, "--circ_counts", help = "circRNA counts file")
 parser <- add_argument(parser, "--samplesheet", help = "Samplesheet of pipeline")
 parser <- add_argument(parser, "--dir", help = "Directory containing all samples with calculated abundances", default = ".")
+parser <- add_argument(parser, "--count_mode", help = "Either TPM(tpm) or estimated counts(est_counts)", default = "est_counts")
 parser <- add_argument(parser, "--keep_tmp", help = "Keep temporary files", default = T)
 
 argv <- parse_args(parser, argv = args)
@@ -48,7 +49,8 @@ circ.quant <- circ.counts
 mRNA.quant <- data.frame()
 
 abundances <- list.files(path = argv$dir, pattern = "abundance.tsv", recursive = T, full.names = T)
-
+# use either tpm or est_counts
+mode <- argv$count_mode
 for (path in abundances) {
   # get sample name
   sample <- basename(dirname(path))
@@ -61,9 +63,9 @@ for (path in abundances) {
   abundance.mRNA <- circ_or_linear$linear
   
   # set counts to quantified levels
-  circ.quant[abundance.circ$target_id, sample] <- abundance.circ$est_counts
+  circ.quant[abundance.circ$target_id, sample] <- abundance.circ[,mode]
   # save linear transcripts
-  mRNA.quant[abundance.mRNA$target_id, sample] <- abundance.mRNA$est_counts
+  mRNA.quant[abundance.mRNA$target_id, sample] <- abundance.mRNA[,mode]
 }
 
 library(biomaRt)

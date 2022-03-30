@@ -153,8 +153,7 @@ psirc.color <- "#3333FF"
 circExplorer2.color <- "#009933"
 
 # plot both
-png("quant_effects.png")
-dev.new(width = 1200, height = 800, unit = "px")
+png("quant_effects.png", width = 1200, height = 800, units = "px")
 plot(sums$key, log10(sums$count.y), type = "b", col = psirc.color, xlab = "chromosome", ylab = "circRNA counts over all samples (log10)", xaxt="n")
 axis(1, at = round(seq(1, nrow(sums), nrow(sums)/length(chromosomes)))+middle.chromosome.pos, labels = F)
 text(round(seq(1, nrow(sums), nrow(sums)/length(chromosomes))), par("usr")[3] - 0.2, labels = chromosomes, srt = 45, pos = 1, xpd = TRUE)

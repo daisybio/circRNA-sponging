@@ -37,7 +37,7 @@ for (i in 1:nrow(expression_norm)){
 filtered_data <- expression_norm[rows_to_keep,]
 
 # convert counts to tpm
-if (count_mode == "tpm"){#
+if (count_mode == "tpm"){
   print("converting counts to tpm...")
   len <- nrow(filtered_data)
   filtered_data <- filtered_data/len

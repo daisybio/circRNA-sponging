@@ -52,10 +52,12 @@ abundances <- list.files(path = argv$dir, pattern = "abundance.tsv", recursive =
 # use either tpm or est_counts
 mode <- argv$count_mode
 cat("using", mode, "count mode from abundances", "\n")
+n <- length(abundances)
+c <- 0
 for (path in abundances) {
   # get sample name
   sample <- basename(dirname(path))
-  cat("processing sample", sample, "\n")
+  cat("processing sample", sample, "|", double(c/n), "\r")
   # read created abundances
   abundance <- read.table(normalizePath(path), sep = "\t", header = T)
   # split abundances accoording to circular and linear
@@ -76,6 +78,7 @@ for (path in abundances) {
   circ.quant[abundance.circ$target_id, sample] <- circ.values
   # save linear transcripts
   mRNA.quant[abundance.mRNA$target_id, sample] <- mRNA.values
+  c = c + 1
 }
 
 print("Converting transcripts to genes...")

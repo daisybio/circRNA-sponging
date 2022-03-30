@@ -8,6 +8,7 @@ library(ggplot2)
 library(reshape2)
 library(stringr)
 library(VennDiagram)
+library(Biostrings)
 
 args = commandArgs(trailingOnly = TRUE)
 
@@ -15,6 +16,7 @@ parser <- arg_parser("Argument parser for SPONGE analysis", name = "SPONGE_parse
 parser <- add_argument(parser, "--gene_expr", help = "Gene expression file in tsv format as given by DeSeq2")
 parser <- add_argument(parser, "--circ_rna", help = "circRNA expression file in tsv format as given by pipeline")
 parser <- add_argument(parser, "--mirna_expr", help = "miRNA expression file in tsv format")
+parser <- add_argument(parser, "--mir_fasta", help = "miRNA fasta file")
 # add all target scan symbol options to be included -> will generate final target scan symbols
 parser <- add_argument(parser, "--output_dir", help = "Output directory", default = getwd())
 parser <- add_argument(parser, "--fdr", help = "FDR rate for ceRNA networks", default = 0.01)
@@ -24,7 +26,10 @@ parser <- add_argument(parser, "--miranda_data", help = "miRanda default output 
 parser <- add_argument(parser, "--tarpmir_data", help = "default tarpmir output file in tsv", default = "null")
 parser <- add_argument(parser, "--pita_data", help = "Default PITA output", default = "null")
 parser <- add_argument(parser, "--majority_matcher", help = "Majority match setting, choose between (start, end, complete)", default = "end")
+parser <- add_argument(parser, "--tpm_map", help = "TPM map of circular and linear transcripts provided by pipeline")
+# FLAGS
 parser <- add_argument(parser, "--normalize", help = "Normalize given gene expression before analysis", flag = T)
+parser <- add_argument(parser, "--tpm", help = "Use TPM instead of counts", flag = T)
 
 argv <- parse_args(parser, argv = args)
 
@@ -245,10 +250,6 @@ subnetwork <- function(interactions, pattern){
   return(merge(subnetwork, interactions_w_circ, all = T))
 }
 
-counts.to.tpm(data) {
-  
-}
-
 # PROCESS INPUTS ------------------------------------------------
 # check required inputs
 if (notset(argv$gene_expr) || notset(argv$mirna_expr)) {
@@ -270,7 +271,7 @@ target_scan_symbols_counts <- create_target_scan_symbols(merged_data = argv$targ
                                                         pita = argv$pita)
 # SET MIRNA EXPRESSION
 print("reading miRNA expression...")
-mi_rna_expr <- t(data.frame(read.table(file = argv$mirna_expr, header = T, sep = "\t"), row.names = 1))
+mi_rna_expr <- data.frame(read.table(file = argv$mirna_expr, header = T, sep = "\t"), row.names = 1)
 # SET GENE EXPRESSION
 print("reading gene expression...")
 gene_expr <- as.data.frame(t(read.table(file = argv$gene_expr, header = T, sep = "\t")))
@@ -292,17 +293,19 @@ print("adding circRNA expression...")
 circ_RNAs <- as.data.frame(read.table(file = argv$circ_rna, header = T, sep = "\t"))
 # use given annotation if possible
 annotation <- "circBaseID" %in% colnames(circ_RNAs)
+# TODO: annotate when plotting
 if (annotation) {
   circ_RNA_annotation <- ifelse(circ_RNAs$circBaseID != "None", 
                                 circ_RNAs$circBaseID, 
-                                paste0(circ_RNAs$chr, ":", circ_RNAs$start, ":", circ_RNAs$stop, ":", circ_RNAs$strand))
+                                paste0(circ_RNAs$chr, ":", circ_RNAs$start, "-", circ_RNAs$stop, "_", circ_RNAs$strand))
   # cut table and annotate rownames
   circ_filtered <- circ_RNAs[,-c(1:8)]
 } else {
-  circ_RNA_annotation <- paste0(circ_RNAs$chr, ":", circ_RNAs$start, ":", circ_RNAs$stop, ":", circ_RNAs$strand)
+  circ_RNA_annotation <- paste0(circ_RNAs$chr, ":", circ_RNAs$start, "-", circ_RNAs$stop, "_", circ_RNAs$strand)
   # cut table and annotate row names
   circ_filtered <- circ_RNAs[,-c(1:7)]
 }
+circ_RNA_annotation <- paste0(circ_RNAs$chr, ":", circ_RNAs$start, "-", circ_RNAs$stop, "_", circ_RNAs$strand)
 rownames(circ_filtered) <- circ_RNA_annotation
 
 circ_filtered <- circ_filtered[complete.cases(circ_filtered),]
@@ -317,15 +320,30 @@ print("miRNA expr samples:")
 dim(mi_rna_expr)
 print("target scan symbols samples:")
 dim(target_scan_symbols_counts)
-gene_expr <- gene_expr[rownames(mi_rna_expr),]
+gene_expr <- gene_expr[colnames(mi_rna_expr),]
 print("using gene_expr samples:")
 dim(gene_expr)
 # transform for sponge
 gene_expr[is.na(gene_expr)] <- 0
 gene_expr <- as.matrix(gene_expr)
 mi_rna_expr[is.na(mi_rna_expr)] <- 0
-mi_rna_expr <- as.matrix(mi_rna_expr)
+
 target_scan_symbols_counts <- as.matrix(target_scan_symbols_counts)
+
+# use tpms instead of counts
+if (argv$tpm) {
+  # convert circRNA and linear expression
+  TPM.map <- read.table(argv$tpm_map, header = T, sep = "\t")
+  gene_expr <- TPM.map[colnames(gene_expr), rownames(gene_expr)]
+  # convert miRNA expression
+  mir_fasta <- readDNAStringSet(argv$mir_fasta)
+  mi_rna_expr <- mi_rna_expr[names(mir_fasta)%in%rownames(mi_rna_expr),]
+  lengths <- mir_fasta[names(mir_fasta)%in%rownames(mi_rna_expr)]@ranges@width
+  mi_rna_expr <- mi_rna_expr/lengths
+  mi_rna_expr <- log2(t(t(mi_rna_expr)*1e6/colSums(mi_rna_expr))+1)
+}
+
+mi_rna_expr <- as.matrix(t(mi_rna_expr))
 
 print("Gene expression:")
 print(gene_expr[1:5, 1:5])

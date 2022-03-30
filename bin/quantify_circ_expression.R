@@ -50,14 +50,14 @@ mRNA.quant <- data.frame()
 abundances <- list.files(path = argv$dir, pattern = "abundance.tsv", recursive = T, full.names = T)
 
 n <- length(abundances)
-c <- 0
+c <- 1
 # save tpm counts -> log2(tpm+1)
 circ.tpm <- data.frame()
 mRNA.tpm <- data.frame()
 for (path in abundances) {
   # get sample name
   sample <- basename(dirname(path))
-  cat("processing sample", sample, "|", c/n, "%\r")
+  cat("processing sample", sample, "|", round(c/n*100), "%\r")
   # read created abundances
   abundance <- read.table(normalizePath(path), sep = "\t", header = T)
   # split abundances accoording to circular and linear
@@ -76,10 +76,6 @@ for (path in abundances) {
   mRNA.quant[abundance.mRNA$target_id, sample] <- abundance.mRNA$est_counts
   c = c + 1
 }
-colnames(circ.tpm) <- c("tpm")
-colnames(mRNA.tpm) <- c("tpm")
-
-head(mRNA.tpm)
 
 print("Converting transcripts to genes...")
 library(biomaRt)
@@ -99,7 +95,7 @@ while(not_done){
     },
     finally={
       not_done = F
-      print("mart sucessfully created")
+      print("mart successfully created")
     }
   )
 }
@@ -123,6 +119,7 @@ conv$Gene <- NULL
 mRNA.quant <- conv
 
 # aggregate tpms
+rownames(mRNA.tpm) <- transcript.IDs
 mRNA.tpm <- merge(mRNA.tpm, transcript2gene, by.x = 0, by.y = 1)
 mRNA.tpm$Row.names <- NULL
 mRNA.tpm$external_gene_name <- NULL

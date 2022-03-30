@@ -48,7 +48,7 @@ circ.quant <- circ.counts
 mRNA.quant <- data.frame()
 
 abundances <- list.files(path = argv$dir, pattern = "abundance.tsv", recursive = T, full.names = T)
-cat("using", mode, "count mode from abundances", "\n")
+
 n <- length(abundances)
 c <- 0
 # save tpm counts -> log2(tpm+1)

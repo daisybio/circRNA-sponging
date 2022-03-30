@@ -12,7 +12,6 @@ parser <- add_argument(parser, "--circ_counts", help = "circRNA counts file")
 parser <- add_argument(parser, "--samplesheet", help = "Samplesheet of pipeline")
 parser <- add_argument(parser, "--dir", help = "Directory containing all samples with calculated abundances", default = ".")
 parser <- add_argument(parser, "--count_mode", help = "Either TPM(tpm) or estimated counts(est_counts)", default = "est_counts")
-parser <- add_argument(parser, "--keep_tmp", help = "Keep temporary files", default = T)
 
 argv <- parse_args(parser, argv = args)
 
@@ -29,6 +28,7 @@ norm <- function(data, samples) {
 
 
 # read circRNA counts
+print("reading circRNA raw counts")
 circ.counts <- read.table(argv$circ_counts, header = T, sep = "\t", stringsAsFactors = F, check.names = F)
 
 # determine annotation
@@ -51,9 +51,11 @@ mRNA.quant <- data.frame()
 abundances <- list.files(path = argv$dir, pattern = "abundance.tsv", recursive = T, full.names = T)
 # use either tpm or est_counts
 mode <- argv$count_mode
+cat("using", mode, "count mode from abundances", "\n")
 for (path in abundances) {
   # get sample name
   sample <- basename(dirname(path))
+  cat("processing sample", sample, "\n")
   # read created abundances
   abundance <- read.table(normalizePath(path), sep = "\t", header = T)
   # split abundances accoording to circular and linear
@@ -68,6 +70,7 @@ for (path in abundances) {
   mRNA.quant[abundance.mRNA$target_id, sample] <- abundance.mRNA[,mode]
 }
 
+print("Converting transcripts to genes...")
 library(biomaRt)
 # convert transcript ids to gene ids
 mart <- NULL
@@ -104,10 +107,7 @@ row.names(conv) <- conv$Gene
 conv$Gene <- NULL
 # save converted samples
 mRNA.quant <- conv
-# remove tmp
-if (!argv$keep_tmp) {
-  unlink("tmp", recursive = T)
-}
+
 # write output to disk
 linear.o <- "quant_linear_expression.tsv"
 cat("writing mRNA output to", linear.o, "\n")
@@ -116,6 +116,8 @@ o <- "quant_circ_expression.tsv"
 cat("writing output file to ", o, "...\n")
 write.table(circ.quant, file = o, sep = "\t", row.names = T)
 print("done")
+
+print("Calculating quantification effects...")
 
 # plot estimated counts vs junction reads
 # est counts <- quantification

@@ -40,6 +40,7 @@ filtered_data <- expression_norm[rows_to_keep,]
 if (count_mode == "tpm"){
   print("converting counts to tpm...")
   len <- nrow(filtered_data)
+  print(len)
   filtered_data <- filtered_data/len
   filtered_data <- t(t(filtered_data)*1e6/colSums(filtered_data))
 }

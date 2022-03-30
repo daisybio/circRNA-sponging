@@ -39,7 +39,7 @@ filtered_data <- expression_norm[rows_to_keep,]
 # convert counts to tpm
 if (count_mode == "tpm"){
   print("converting counts to tpm...")
-  colnames(filtered_data)
+  cat(colnames(filtered_data), "\n")
   len <- nrow(filtered_data)
   filtered_data <- filtered_data/len
   filtered_data <- t(t(filtered_data)*1e6/colSums(filtered_data))

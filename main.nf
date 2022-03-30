@@ -764,7 +764,7 @@ if (!params.circRNA_only) {
 
         script:
         """
-        Rscript "${projectDir}"/bin/miRNA_filtering.R $miRNA_counts_norm $params.out_dir $params.sample_percentage $params.read_threshold
+        Rscript "${projectDir}"/bin/miRNA_filtering.R $miRNA_counts_norm $params.out_dir $params.sample_percentage $params.read_threshold $params.count_mode
         """
     }
 

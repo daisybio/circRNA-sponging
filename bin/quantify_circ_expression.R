@@ -97,7 +97,6 @@ while(not_done){
 
 # convert row names
 transcript.IDs <- sapply(strsplit(row.names(mRNA.quant), "\\."), "[", 1)
-print(head(transcript.IDs))
 rownames(mRNA.quant) <- transcript.IDs
 transcript2gene <- getBM(attributes=c("ensembl_transcript_id","external_gene_name","ensembl_gene_id"),
                          filters = "ensembl_transcript_id",
@@ -106,6 +105,8 @@ transcript2gene <- getBM(attributes=c("ensembl_transcript_id","external_gene_nam
 conv <- merge(mRNA.quant, transcript2gene, by.x = 0, by.y = 1)
 conv$Row.names <- NULL
 conv$external_gene_name <- NULL
+# summarizing transcripts that map to same gene
+print("Summarizing transcripts of same gene...")
 conv <- aggregate(conv[,-ncol(conv)], list(Gene=conv$ensembl_gene_id), FUN = sum)
 row.names(conv) <- conv$Gene
 conv$Gene <- NULL

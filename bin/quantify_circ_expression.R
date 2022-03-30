@@ -57,7 +57,7 @@ mRNA.tpm <- data.frame()
 for (path in abundances) {
   # get sample name
   sample <- basename(dirname(path))
-  cat("processing sample", sample, "|", double(c/n), "\r")
+  cat("processing sample", sample, "|", c/n, "\r")
   # read created abundances
   abundance <- read.table(normalizePath(path), sep = "\t", header = T)
   # split abundances accoording to circular and linear

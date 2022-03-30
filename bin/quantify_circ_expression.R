@@ -78,7 +78,7 @@ not_done <- T
 while(not_done){
   tryCatch(
     {
-      mart <- useEnsembl(biomart = "ensembl", "hsapiens_gene_ensembl")
+      mart <- useEnsembl(biomart = "ENSEMBL_MART_ENSEMBL", "hsapiens_gene_ensembl")
     },
     error=function(cond) {
       message(cond)

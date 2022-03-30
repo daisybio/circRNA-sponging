@@ -13,7 +13,7 @@ args = commandArgs(trailingOnly = TRUE)
 
 parser <- arg_parser("Argument parser for SPONGE analysis", name = "SPONGE_parser")
 parser <- add_argument(parser, "--gene_expr", help = "Gene expression file in tsv format as given by DeSeq2")
-parser <- add_argument(parser, "--circ_rna", help = "Path to circ_rna detection results containing gene ids in tsv")
+parser <- add_argument(parser, "--circ_rna", help = "circRNA expression file in tsv format as given by pipeline")
 parser <- add_argument(parser, "--mirna_expr", help = "miRNA expression file in tsv format")
 # add all target scan symbol options to be included -> will generate final target scan symbols
 parser <- add_argument(parser, "--output_dir", help = "Output directory", default = getwd())
@@ -23,7 +23,7 @@ parser <- add_argument(parser, "--target_scan_symbols", help = "Contingency matr
 parser <- add_argument(parser, "--miranda_data", help = "miRanda default output in tsv", default = "null")
 parser <- add_argument(parser, "--tarpmir_data", help = "default tarpmir output file in tsv", default = "null")
 parser <- add_argument(parser, "--pita_data", help = "Default PITA output", default = "null")
-parser <- add_argument(parser, "--majority_matcher", help = "Majority match setting", default = "complete")
+parser <- add_argument(parser, "--majority_matcher", help = "Majority match setting, choose between (start, end, complete)", default = "end")
 parser <- add_argument(parser, "--normalize", help = "Normalize given gene expression before analysis", flag = T)
 
 argv <- parse_args(parser, argv = args)

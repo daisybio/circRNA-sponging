@@ -138,6 +138,14 @@ print("Calculating quantification effects...")
 # junction reads <- CIRCexplorer2
 samplesheet <- read.table(argv$samplesheet, sep = "\t", header = T)
 samples <- samplesheet$sample
+# convert counts to tpm
+if (count_mode == "tpm"){
+  print("converting circRNA counts to tpm...")
+  len <- nrow(circ.counts)
+  X <- circ.counts[,samples]
+  X <- X/len
+  circ.counts[,samples] <- t(t(X)*1e6/colSums(X))
+}
 circ.norm <- circ.counts
 rownames(circ.norm) <- paste(circ.norm$chr, circ.norm$start, circ.norm$stop, circ.norm$strand, circ.norm$gene_symbol, sep = "_")
 circ.norm.quant <- circ.quant

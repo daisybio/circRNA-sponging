@@ -42,7 +42,7 @@ if (count_mode == "tpm"){
   len <- nrow(filtered_data)
   X <- filtered_data[,-1]
   X <- X/len
-  filtered_data[,-1] <- t(t(X)*1e6/colSums(X))
+  filtered_data[,-1] <- log2(t(t(X)*1e6/colSums(X))+1)
 }
 write.table(filtered_data, paste0("miRNA_counts_filtered.tsv"), quote = F, sep = "\t", row.names = F)
 

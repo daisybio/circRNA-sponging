@@ -351,6 +351,7 @@ if (argv$normalize) {
 }
 
 mi_rna_expr <- as.matrix(t(mi_rna_expr))
+gene_expr <- t(gene_expr)
 
 print("Gene expression:")
 print(gene_expr[1:5, 1:5])

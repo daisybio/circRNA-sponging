@@ -151,7 +151,7 @@ majority_vote <- function(miranda, tarpmir, pita, match) {
   myCol <- brewer.pal(3, "Pastel2")
   venn.diagram(x = list(miranda.keys, tarpmir.keys, pita.keys), 
                category.names = c("miRanda", "TarPmiR", "PITA"), 
-               filename = "plots/binding_sites.png", output = T,
+               filename = file.path(out, "plots/binding_sites.png"), output = T,
                imagetype="png",
                height = 800, 
                width = 1200, 

@@ -250,6 +250,17 @@ subnetwork <- function(interactions, pattern){
   return(merge(subnetwork, interactions_w_circ, all = T))
 }
 
+# Normalize
+normalize.data <- function(data){
+  samples <- colnames(data)
+  meta <- data.frame(samples)
+  row.names(meta) <- meta$samples 
+  data <- as.matrix(data)
+  dds <- DESeq2::DESeqDataSetFromMatrix(countData = round(data + 1), colData = meta, design = ~ 1)
+  dds <- DESeq2::estimateSizeFactors(dds)
+  return(DESeq2::counts(dds, normalized=T))
+}
+
 # PROCESS INPUTS ------------------------------------------------
 # check required inputs
 if (notset(argv$gene_expr) || notset(argv$mirna_expr)) {
@@ -275,18 +286,6 @@ mi_rna_expr <- data.frame(read.table(file = argv$mirna_expr, header = T, sep = "
 # SET GENE EXPRESSION
 print("reading gene expression...")
 gene_expr <- as.data.frame(t(read.table(file = argv$gene_expr, header = T, sep = "\t")))
-# normalize expressions if not already done
-if (argv$normalize) {
-  print("normalizing gene expression")
-  # normalize gene expr
-  samples <- colnames(gene_expr)
-  meta <- data.frame(samples)
-  row.names(meta) <- meta$samples 
-  data <- as.matrix(gene_expr)
-  dds <- DESeq2::DESeqDataSetFromMatrix(countData = round(data + 1), colData = meta, design = ~ 1)
-  dds <- DESeq2::estimateSizeFactors(dds)
-  gene_expr <- DESeq2::counts(dds, normalized=T)
-}
 
 # READ CIRC_RNA EXPRESSION AND COMBINE THEM
 print("adding circRNA expression...")
@@ -337,10 +336,18 @@ if (argv$tpm) {
   gene_expr <- TPM.map[colnames(gene_expr), rownames(gene_expr)]
   # convert miRNA expression
   mir_fasta <- readDNAStringSet(argv$mir_fasta)
-  mi_rna_expr <- mi_rna_expr[names(mir_fasta)%in%rownames(mi_rna_expr),]
+  mi_rna_expr <- mi_rna_expr[rownames(mi_rna_expr) %in% names(mir_fasta),]
   lengths <- mir_fasta[names(mir_fasta)%in%rownames(mi_rna_expr)]@ranges@width
   mi_rna_expr <- mi_rna_expr/lengths
   mi_rna_expr <- log2(t(t(mi_rna_expr)*1e6/colSums(mi_rna_expr))+1)
+}
+
+# normalize expressions if not already done
+if (argv$normalize) {
+  print("normalizing gene expression")
+  gene_expr <- normalize.data(gene_expr)
+  print("normalizing miRNA expression")
+  mi_rna_expr <- normalize.data(mi_rna_expr)
 }
 
 mi_rna_expr <- as.matrix(t(mi_rna_expr))

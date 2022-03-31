@@ -290,7 +290,6 @@ gene_expr <- as.data.frame(read.table(file = argv$gene_expr, header = T, sep = "
 # READ CIRC_RNA EXPRESSION AND COMBINE THEM
 print("adding circRNA expression...")
 circ_RNAs <- as.data.frame(read.table(file = argv$circ_rna, header = T, sep = "\t"))
-rownames(circ_filtered) <- paste0(circ_RNAs$chr, ":", circ_RNAs$start, "-", circ_RNAs$stop, "_", circ_RNAs$strand)
 
 # use given annotation if possible
 annotation <- "circBaseID" %in% colnames(circ_RNAs)
@@ -305,6 +304,7 @@ if (annotation) {
   # cut table and annotate row names
   circ_filtered <- circ_RNAs[,-c(1:7)]
 }
+rownames(circ_filtered) <- paste0(circ_RNAs$chr, ":", circ_RNAs$start, "-", circ_RNAs$stop, "_", circ_RNAs$strand)
 
 circ_filtered <- circ_filtered[complete.cases(circ_filtered),]
 

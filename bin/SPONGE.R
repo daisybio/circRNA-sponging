@@ -118,7 +118,7 @@ majority_vote <- function(miranda, tarpmir, pita, match) {
   colnames(pita_data) <- c("UTR", "microRNA", "end", "start")
   
   print("creating keys...")
-  cat("using", match, "for matching binding sites")
+  cat("using", match, "for matching binding sites\n")
   
   if (match=="complete") {
     miranda.keys <- paste(miranda.bp$miRNA, miranda.bp$Target, miranda.bp$start, miranda.bp$end, sep="|")

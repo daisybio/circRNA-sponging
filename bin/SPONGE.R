@@ -290,22 +290,21 @@ gene_expr <- as.data.frame(read.table(file = argv$gene_expr, header = T, sep = "
 # READ CIRC_RNA EXPRESSION AND COMBINE THEM
 print("adding circRNA expression...")
 circ_RNAs <- as.data.frame(read.table(file = argv$circ_rna, header = T, sep = "\t"))
+rownames(circ_filtered) <- paste0(circ_RNAs$chr, ":", circ_RNAs$start, "-", circ_RNAs$stop, "_", circ_RNAs$strand)
+
 # use given annotation if possible
 annotation <- "circBaseID" %in% colnames(circ_RNAs)
-# TODO: annotate when plotting
 if (annotation) {
   circ_RNA_annotation <- ifelse(circ_RNAs$circBaseID != "None", 
                                 circ_RNAs$circBaseID, 
-                                paste0(circ_RNAs$chr, ":", circ_RNAs$start, "-", circ_RNAs$stop, "_", circ_RNAs$strand))
+                                paste(circ_RNAs$chr, circ_RNAs$start, circ_RNAs$stop, circ_RNAs$strand, sep = ":"))
   # cut table and annotate rownames
   circ_filtered <- circ_RNAs[,-c(1:8)]
 } else {
-  circ_RNA_annotation <- paste0(circ_RNAs$chr, ":", circ_RNAs$start, "-", circ_RNAs$stop, "_", circ_RNAs$strand)
+  circ_RNA_annotation <- paste(circ_RNAs$chr, circ_RNAs$start, circ_RNAs$stop, circ_RNAs$strand, sep = ":")
   # cut table and annotate row names
   circ_filtered <- circ_RNAs[,-c(1:7)]
 }
-circ_RNA_annotation <- paste0(circ_RNAs$chr, ":", circ_RNAs$start, "-", circ_RNAs$stop, "_", circ_RNAs$strand)
-rownames(circ_filtered) <- circ_RNA_annotation
 
 circ_filtered <- circ_filtered[complete.cases(circ_filtered),]
 
@@ -346,6 +345,11 @@ if (argv$normalize) {
   gene_expr <- normalize.data(gene_expr)
   print("normalizing miRNA expression")
   mi_rna_expr <- normalize.data(mi_rna_expr)
+}
+
+# annotate circRNAs
+if (annotation){
+  rownames(gene_expr)[grepl("c", rownames(gene_expr))] <- circ_RNA_annotation
 }
 
 # transpose for SPONGE

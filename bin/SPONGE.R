@@ -285,7 +285,7 @@ print("reading miRNA expression...")
 mi_rna_expr <- data.frame(read.table(file = argv$mirna_expr, header = T, sep = "\t"), row.names = 1)
 # SET GENE EXPRESSION
 print("reading gene expression...")
-gene_expr <- as.data.frame(t(read.table(file = argv$gene_expr, header = T, sep = "\t")))
+gene_expr <- as.data.frame(read.table(file = argv$gene_expr, header = T, sep = "\t"))
 
 # READ CIRC_RNA EXPRESSION AND COMBINE THEM
 print("adding circRNA expression...")
@@ -308,9 +308,8 @@ circ_RNA_annotation <- paste0(circ_RNAs$chr, ":", circ_RNAs$start, "-", circ_RNA
 rownames(circ_filtered) <- circ_RNA_annotation
 
 circ_filtered <- circ_filtered[complete.cases(circ_filtered),]
-circ_filtered <- as.data.frame(t(circ_filtered))
 
-gene_expr <- cbind(gene_expr, circ_filtered)
+gene_expr <- rbind(gene_expr, circ_filtered)
 
 # filter for matching samples
 print("gene_expr samples:")
@@ -319,12 +318,11 @@ print("miRNA expr samples:")
 dim(mi_rna_expr)
 print("target scan symbols samples:")
 dim(target_scan_symbols_counts)
-gene_expr <- gene_expr[colnames(mi_rna_expr),]
+gene_expr <- gene_expr[,colnames(mi_rna_expr)]
 print("using gene_expr samples:")
 dim(gene_expr)
 # transform for sponge
 gene_expr[is.na(gene_expr)] <- 0
-gene_expr <- as.matrix(gene_expr)
 mi_rna_expr[is.na(mi_rna_expr)] <- 0
 
 target_scan_symbols_counts <- as.matrix(target_scan_symbols_counts)
@@ -333,7 +331,7 @@ target_scan_symbols_counts <- as.matrix(target_scan_symbols_counts)
 if (argv$tpm) {
   # convert circRNA and linear expression
   TPM.map <- read.table(argv$tpm_map, header = T, sep = "\t")
-  gene_expr <- TPM.map[colnames(gene_expr), rownames(gene_expr)]
+  gene_expr <- TPM.map[rownames(gene_expr), colnames(gene_expr)]
   # convert miRNA expression
   mir_fasta <- readDNAStringSet(argv$mir_fasta)
   mi_rna_expr <- mi_rna_expr[rownames(mi_rna_expr) %in% names(mir_fasta),]
@@ -350,8 +348,9 @@ if (argv$normalize) {
   mi_rna_expr <- normalize.data(mi_rna_expr)
 }
 
+# transpose for SPONGE
 mi_rna_expr <- as.matrix(t(mi_rna_expr))
-gene_expr <- t(gene_expr)
+gene_expr <- as.matrix(t(gene_expr))
 
 print("Gene expression:")
 print(gene_expr[1:5, 1:5])

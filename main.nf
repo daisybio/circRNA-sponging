@@ -455,7 +455,7 @@ process circ_fastas{
 if (params.differential_expression){
     process differential_expression {
         label 'process_medium'
-        publishDir "${params.out_dir}/results/gene_expression/differential_expression", mode: params.publish_dir_mode
+        publishDir "${params.out_dir}/results/differential_expression", mode: params.publish_dir_mode
         errorStrategy 'ignore'
 
         input:

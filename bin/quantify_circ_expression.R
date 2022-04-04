@@ -10,6 +10,7 @@ args <- commandArgs(trailingOnly = TRUE)
 parser <- arg_parser("Argument parser for circRNA quantification", name = "quant_parser")
 parser <- add_argument(parser, "--circ_counts", help = "circRNA counts file")
 parser <- add_argument(parser, "--samplesheet", help = "Samplesheet of pipeline")
+parser <- add_argument(parser, "--pseudocount", help = "Pseudocount to use for tpms", default = 1e-3)
 parser <- add_argument(parser, "--dir", help = "Directory containing all samples with calculated abundances", default = ".")
 
 argv <- parse_args(parser, argv = args)
@@ -67,8 +68,8 @@ for (path in abundances) {
   abundance.mRNA <- circ_or_linear$linear
   
   # save tpms
-  circ.tpm[abundance.circ$target_id, sample] <- log2(abundance.circ$tpm + 1)
-  mRNA.tpm[abundance.mRNA$target_id, sample] <- log2(abundance.mRNA$tpm + 1)
+  circ.tpm[abundance.circ$target_id, sample] <- log2(abundance.circ$tpm + argv$pseudocount)
+  mRNA.tpm[abundance.mRNA$target_id, sample] <- log2(abundance.mRNA$tpm + argv$pseudocount)
   
   # save circular transcripts
   circ.quant[abundance.circ$target_id, sample] <- abundance.circ$est_counts

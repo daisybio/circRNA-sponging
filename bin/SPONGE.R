@@ -250,6 +250,11 @@ subnetwork <- function(interactions, pattern){
   return(merge(subnetwork, interactions_w_circ, all = T))
 }
 
+circ.mRNA.subnetwork <- function(interactions, pattern) {
+  return(interactions[(grepl(pattern, interactions$geneA) & grepl("EN", interactions$geneB)) | 
+                 (grepl(pattern, interactions$geneB) & grepl("EN", interactions$geneA)),])
+}
+
 # Normalize
 normalize.data <- function(data){
   samples <- colnames(data)
@@ -404,7 +409,7 @@ ceRNA_interactions_sign <- sponge_compute_p_values(sponge_result = ceRNA_interac
 print("building ceRNA network...")
 # (D) ceRNA interaction network
 fdr <- as.double(argv$fdr)
-min.interactions <- 100
+min.interactions <- 5000
 ceRNA_interactions_fdr <- ceRNA_interactions_sign[which(ceRNA_interactions_sign$p.adj < fdr),]
 if (nrow(ceRNA_interactions_fdr)<min.interactions) {
   print("Warning: fdr setting too strict, no significant interactions detected; min of padj is:")
@@ -461,6 +466,8 @@ write.table(ceRNA_strongest, "total/strongest_linear_ceRNAs.tsv", sep = "\t", ro
 
 # CIRC RNA ONLY
 ceRNA_interactions_all_circ <- subnetwork(ceRNA_interactions_fdr, pattern = "c")
+# CIRC RNA MRNA ONLY
+circ.mRNA.only <- circ.mRNA.subnetwork(ceRNA_interactions_fdr, "c")
 
 # add scores
 circRNA_network_plot <- sponge_plot_network(ceRNA_interactions_all_circ, genes_miRNA_candidates, )

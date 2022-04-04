@@ -19,10 +19,10 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   
   conditions <- unique(df[,marker])
   
-  results <- results(d,
-                     contrast = c(marker, as.vector(conditions)))
-  results <- lfcShrink(d,
-                       contrast = c(marker, as.vector(conditions)), res=results, type = 'normal')
+  # results <- results(d,
+  #                   contrast = c(marker, as.vector(conditions)))
+  # results <- lfcShrink(d,
+  #                     contrast = c(marker, as.vector(conditions)), res=results, type = 'normal')
   # write data to disk
   write.table(results, file = file.path(out, paste(out, "tsv", sep = ".")), quote = FALSE, sep = "\t", col.names = NA)
   
@@ -76,7 +76,8 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   m <- 5 / max(d)
   # set colors
   colors <- c(colorRampPalette(c("blue", "orange"))(100), colorRampPalette(c("orange", "red"))(100))
-  annotation.colors <- list(condition = c("Seminoma" = "#339300", "Non-Seminoma" = "#CC0000"))
+  # annotation.colors <- list(condition = c("Seminoma" = "#339300", "Non-Seminoma" = "#CC0000"))
+
   row.names(df) <- df$sample
   df <- df[, "condition", drop = F]
   pheatmap::pheatmap(filtered, cluster_rows=T, show_rownames=F,
@@ -84,13 +85,17 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
            filename = file.path(out, paste("HMAP", "png", sep = ".")),
            height = 15, width = 25, legend = T, annotation_legend = T,
            show_colnames = F, color = colors, annotation_names_col = F, main = out,
-           treeheight_row = 0, treeheight_col = 0, annotation_colors = annotation.colors, fontsize = 25)
+           treeheight_row = 0, treeheight_col = 0, 
+           #annotation_colors = annotation.colors, 
+           fontsize = 25)
   # top n
   pheatmap::pheatmap(filtered.top, cluster_rows=T, show_rownames=T,
                      cluster_cols=T, annotation_col=df,
                      filename = file.path(out, paste("HMAP_top", "png", sep = ".")),
                      height = 15, width = 25, legend = T,
-                     color = colors, annotation_colors = annotation.colors)
+                     color = colors, 
+                     #annotation_colors = annotation.colors
+                     )
 }
 
 # read gene expression and add pseudocount
@@ -113,7 +118,7 @@ DESeq2::summary(res)
 
 # WRITE OUTPUTS GENE EXPRESSION
 # total_RNA
-create_outputs(d = dds, results = res, marker = "condition", out = "total_rna")
+create_outputs(d = dds, results = res, marker = "condition", out = "total_rna", nsub = 100)
 
 # circRNAs filtered
 circ_RNAs <- read.table(file = args[3], sep = "\t", header = T, stringsAsFactors = F, check.names = F)
@@ -151,7 +156,7 @@ res.circ <- res.circ[order(res.circ$padj),]
 # create summary
 DESeq2::summary(res.circ)
 
-create_outputs(dds.circ, res.circ, marker = "condition", out = "circ_rna_DE", nsub = 100, pseudocount = 0, log2FC = 0)
+create_outputs(dds.circ, res.circ, marker = "condition", out = "circ_rna_DE", nsub = 100)
 
 # save R image
 save.image(file = "DESeq2.RData")

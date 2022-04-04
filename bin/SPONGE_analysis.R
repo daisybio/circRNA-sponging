@@ -30,10 +30,10 @@ while(not_done){
     },
     finally={
       not_done = F
+      print("SUCCESS")
     }
   )
 }
-print("SUCCESS")
 
 # get all differentially expressed circRNAs that act as ceRNAs
 # build network for all DE circRNAs

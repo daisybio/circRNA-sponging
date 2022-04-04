@@ -149,27 +149,7 @@ process generate_star_index{
     """
 }
 
-/*
-* GENERATE SALMON INDEX FOR GIVEN ORGANISM
-*/
-process generate_salmon_index {
-    label 'process_high'
-    publishDir "${params.out_dir}/", mode: params.publish_dir_mode
-
-    output:
-    file("salmon_index") into generated_salmon_index
-
-    when: (params.SALMON_index == null && params.transcriptome != null)
-
-    script:
-    """
-    salmon index -t $params.transcriptome -i salmon_index
-    """
-}
-
 ch_star_index = params.STAR_index ? Channel.value(file(params.STAR_index)) : generated_star_index
-
-ch_salmon_index = params.SALMON_index ? Channel.value(file(params.SALMON_index)) : generated_salmon_index
 
 /*
 * PERFORM READ MAPPING OF totalRNA SAMPLES USING STAR

@@ -26,6 +26,13 @@ norm <- function(data, samples) {
   return(DESeq2::counts(dds, normalized=T))
 }
 
+remove.duplicates <- function(data, split) {
+  data$key <- sapply(strsplit(rownames(data), split), "[", 1)
+  data <- data[!duplicated(data$key),]
+  data$key <- NULL
+  return(data)
+}
+
 
 # read circRNA counts
 print("reading circRNA raw counts")
@@ -78,9 +85,8 @@ for (path in abundances) {
   c = c + 1
 }
 # remove duplicate transcript versions etc
-mRNA.quant$key <- sapply(strsplit(rownames(mRNA.quant), "\\."), "[", 1)
-mRNA.quant <- mRNA.quant[!duplicated(mRNA.quant$key),]
-mRNA.quant$key <- NULL
+mRNA.quant <- remove.duplicates(mRNA.quant, "\\.")
+mRNA.tpm <- remove.duplicates(mRNA.tpm, "\\.")
 
 print("Converting transcripts to genes...")
 library(biomaRt)

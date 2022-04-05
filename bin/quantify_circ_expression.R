@@ -77,6 +77,10 @@ for (path in abundances) {
   mRNA.quant[abundance.mRNA$target_id, sample] <- abundance.mRNA$est_counts
   c = c + 1
 }
+# remove duplicate transcript versions etc
+mRNA.quant$key <- sapply(strsplit(rownames(mRNA.quant), "\\."), "[", 1)
+mRNA.quant <- mRNA.quant[!duplicated(mRNA.quant$key),]
+mRNA.quant$key <- NULL
 
 print("Converting transcripts to genes...")
 library(biomaRt)

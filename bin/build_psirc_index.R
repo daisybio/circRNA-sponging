@@ -36,5 +36,5 @@ if (!file.exists(index)) {
   # write combined file to disk
   writeXStringSet(all.fasta, filepath = out)
   # build psirc index with combined fasta file
-  system(paste(c(argv$psirc_quant, "index -i", index, out), collapse = " "))
+  system(paste(c(argv$psirc_quant, "index", "-i", index, "--make-unique", out), collapse = " "))
 }

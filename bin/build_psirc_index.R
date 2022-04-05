@@ -32,6 +32,8 @@ if (!file.exists(index)) {
   names(circ.fasta) <- paste0(names(circ.fasta), "\tC")
   # concat circRNAs with transcriptome
   all.fasta <- c(transcriptome, circ.fasta)
+  # remove duplicates
+  all.fasta <- all.fasta[!duplicated(names(all.fasta))]
   out <- "cDNA_circRNA.fa"
   # write combined file to disk
   writeXStringSet(all.fasta, filepath = out)

@@ -9,8 +9,19 @@ library(EnhancedVolcano)
 
 args = commandArgs(trailingOnly = TRUE)
 
+parser <- arg_parser("Argument parser for SPONGE analysis", name = "SPONGE_parser")
+parser <- add_argument(parser, "--gene_expr", help = "Gene expression file in tsv format as given by DeSeq2")
+parser <- add_argument(parser, "--samplesheet", help = "Meta data for expressions in tsv")
+parser <- add_argument(parser, "--circ_filtered", help = "circRNA filtered expression file in tsv format as given by pipeline")
+parser <- add_argument(parser, "--circ_raw", help = "circRNA raw expression file in tsv format as given by pipeline")
+parser <- add_argument(parser, "--tpm_map", help = "TPM map of circular and linear transcripts provided by pipeline")
+# FLAGS
+parser <- add_argument(parser, "--tpm", help = "Use TPM instead of counts", flag = T)
+
+argv <- parse_args(parser, argv = args)
+
 # create output data and plots
-create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.1, log2FC = 0, pseudocount = 0, filter = NULL) {
+create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.1, log2FC = 0, pseudocount = 0, filter = NULL, isLogFransformed = T) {
   # create dirs in cwd
   dir.create(out, showWarnings = FALSE)
   # col data
@@ -56,19 +67,15 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   
   write.table(signif.hits, file = file.path(out, paste(out, "signif", "tsv", sep = ".")), quote = FALSE, sep = "\t", col.names = NA)
   
-  signif.top <- head(signif.hits[order(signif.hits$padj),], n)
-  
   # select all
   # PSEUDOCOUNTS
   selected <- rownames(signif.hits)
   counts <- counts(d, normalized = T)[rownames(d) %in% selected,]+pseudocount
-  filtered <- as.data.frame(log10(counts))
+  if (!isLogFransformed) {
+    counts <- log2(counts)
+  }
+  filtered <- as.data.frame(counts)
   filtered <- filtered[, df$sample]
-  # select top n
-  selected.top <- rownames(signif.top)
-  counts.top <- counts(d, normalized = T)[rownames(d) %in% selected.top,]+pseudocount
-  filtered.top <- as.data.frame(log2(counts.top))
-  filtered.top <- filtered.top[, df$sample]
 
   # set output file loc
   # plot heatmap
@@ -76,7 +83,7 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   m <- 5 / max(d)
   # set colors
   colors <- c(colorRampPalette(c("blue", "orange"))(100), colorRampPalette(c("orange", "red"))(100))
-  # annotation.colors <- list(condition = c("Seminoma" = "#339300", "Non-Seminoma" = "#CC0000"))
+  annotation.colors <- list(condition = c("Seminoma" = "#339300", "Non-Seminoma" = "#CC0000"))
 
   row.names(df) <- df$sample
   df <- df[, "condition", drop = F]
@@ -86,45 +93,21 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
            height = 15, width = 25, legend = T, annotation_legend = T,
            show_colnames = F, color = colors, annotation_names_col = F, main = out,
            treeheight_row = 0, treeheight_col = 0, 
-           #annotation_colors = annotation.colors, 
+           annotation_colors = annotation.colors, 
            fontsize = 25)
-  # top n
-  pheatmap::pheatmap(filtered.top, cluster_rows=T, show_rownames=T,
-                     cluster_cols=T, annotation_col=df,
-                     filename = file.path(out, paste("HMAP_top", "png", sep = ".")),
-                     height = 15, width = 25, legend = T,
-                     color = colors, 
-                     #annotation_colors = annotation.colors
-                     )
 }
 
 # read gene expression and add pseudocount
-gene_expression <- as.matrix(read.table(file = args[1], header = T, sep = "\t", stringsAsFactors = F, check.names = F)) + 1
+gene_expression <- as.matrix(read.table(file = argv$gene_expr, header = T, sep = "\t", stringsAsFactors = F, check.names = F))
 
 # metadata
-samplesheet <- read.table(file = args[2], sep = "\t", header = T)
-
-dds <- DESeq2::DESeqDataSetFromMatrix(countData = round(gene_expression),
-                                           colData = samplesheet,
-                                           design = ~ condition)
-# differential expression analysis
-dds <- DESeq2::DESeq(dds)
-# results
-res <- DESeq2::results(dds)
-# sort by p-value
-res <- res[order(res$padj),]
-# create summary
-DESeq2::summary(res)
-
-# WRITE OUTPUTS GENE EXPRESSION
-# total_RNA
-create_outputs(d = dds, results = res, marker = "condition", out = "total_rna", nsub = 100)
+samplesheet <- read.table(file = argv$samplesheet, sep = "\t", header = T)
 
 # circRNAs filtered
-circ_RNAs <- read.table(file = args[3], sep = "\t", header = T, stringsAsFactors = F, check.names = F)
+circ_RNAs <- read.table(file = argv$circ_filtered, sep = "\t", header = T, stringsAsFactors = F, check.names = F)
 filtered.circs <- paste0(circ_RNAs$chr, ":", circ_RNAs$start, "-", circ_RNAs$stop, ":", circ_RNAs$strand)
 # raw circRNA expression
-circ.raw <- read.table(file = args[4], sep = "\t", header = T, stringsAsFactors = F, check.names = F)
+circ.raw <- read.table(file = argv$circ_raw, sep = "\t", header = T, stringsAsFactors = F, check.names = F)
 circ.raw$key <- paste0(circ.raw$chr, ":", circ.raw$start, "-", circ.raw$stop, ":", circ.raw$strand)
 
 annotation <- "circBaseID" %in% colnames(circ_RNAs)
@@ -140,11 +123,35 @@ if (annotation) {
 } else {
   circ_RNA_annotation <- paste0(circ_RNAs$chr, ":", circ_RNAs$start, ":", circ_RNAs$stop, ":", circ_RNAs$strand)
 }
+
 # get raw expression values for filtered circRNAs and samples
 circ_expr <- circ.raw[circ.raw$key %in% filtered.circs, samples]
 rownames(circ_expr) <- circ_RNA_annotation
-# add pseudo counts
-circ_expr <- as.matrix(circ_expr) + 1
+
+pseudocount = 1
+# use tpms instead of counts
+if (argv$tpm) {
+  # convert circRNA and linear expression
+  TPM.map <- read.table(argv$tpm_map, header = T, sep = "\t")
+  gene_expression <- TPM.map[rownames(gene_expression), colnames(gene_expression)]
+  circ_expr <- TPM.map[rownames(circ_expr), colnames(circ_expr)]
+} else {
+  gene_expression <- gene_expression + pseudocount
+  circ_expr <- as.matrix(circ_expr) + pseudocount
+}
+
+# TOTAL RNA
+dds <- DESeq2::DESeqDataSetFromMatrix(countData = round(gene_expression),
+                                      colData = samplesheet,
+                                      design = ~ condition)
+dds <- DESeq2::DESeq(dds)
+res <- DESeq2::results(dds)
+# sort by p-value
+res <- res[order(res$padj),]
+DESeq2::summary(res)
+
+create_outputs(d = dds, results = res, marker = "condition", out = "total_rna", nsub = 100, isLogFransformed = argv$tpm)
+# CIRCULAR RNA
 
 dds.circ <- DESeq2::DESeqDataSetFromMatrix(countData = round(circ_expr),
                                            colData = samplesheet,
@@ -155,8 +162,7 @@ res.circ <- DESeq2::results(dds.circ)
 res.circ <- res.circ[order(res.circ$padj),]
 # create summary
 DESeq2::summary(res.circ)
-
-create_outputs(dds.circ, res.circ, marker = "condition", out = "circ_rna_DE", nsub = 100)
+create_outputs(dds.circ, res.circ, marker = "condition", out = "circ_rna_DE", nsub = 100, isLogFransformed = argv$tpm)
 
 # save R image
 save.image(file = "DESeq2.RData")

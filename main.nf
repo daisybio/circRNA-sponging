@@ -442,6 +442,8 @@ if (params.differential_expression){
         file(circRNA_counts) from ch_circRNA_counts_filtered2
         file(circRNA_raw) from ch_circRNA_counts2
         file(gene_expression) from gene_expression
+        val(tpm_map) from TPM_map
+        val(tpm) from params.tpm ? "--tpm" : ""
 
         output:
         file("total_rna/total_rna.tsv") into deseq_total_rna
@@ -454,7 +456,13 @@ if (params.differential_expression){
 
         script:
         """
-        Rscript "${projectDir}"/bin/differentialExpression.R $gene_expression $params.samplesheet $circRNA_counts $circRNA_raw
+        Rscript "${projectDir}"/bin/differentialExpression.R \\
+            --gene_expr $gene_expression \\
+            --samplesheet $params.samplesheet \\
+            --circ_filtered $circRNA_counts \\
+            --circ_raw $circRNA_raw \\
+            --tpm_map \\
+            $tpm
         """
     }
 }

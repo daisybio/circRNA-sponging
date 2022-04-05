@@ -341,7 +341,7 @@ if (argv$tpm) {
   mi_rna_expr <- mi_rna_expr[rownames(mi_rna_expr) %in% names(mir_fasta),]
   lengths <- mir_fasta[names(mir_fasta)%in%rownames(mi_rna_expr)]@ranges@width
   mi_rna_expr <- mi_rna_expr/lengths
-  mi_rna_expr <- log2(t(t(mi_rna_expr)*1e6/colSums(mi_rna_expr))+1)
+  mi_rna_expr <- log2(t(t(mi_rna_expr)*1e6/colSums(mi_rna_expr))+1e-3)
 }
 
 # normalize expressions if not already done

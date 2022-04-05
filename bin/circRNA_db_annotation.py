@@ -290,6 +290,7 @@ def submit(tsv_data):
     except TimeoutException:
         logging.error("Timeout: circBase did not respond within " + str(delay) + " seconds")
         exit(1)
+    driver.quit()
     # process response
     return read_html(driver.page_source)
 

@@ -132,9 +132,9 @@ pseudocount = 1
 # use tpms instead of counts
 if (argv$tpm) {
   # convert circRNA and linear expression
-  TPM.map <- read.table(argv$tpm_map, header = T, sep = "\t")
-  gene_expression <- TPM.map[rownames(gene_expression), colnames(gene_expression)]
-  circ_expr <- TPM.map[rownames(circ_expr), colnames(circ_expr)]
+  TPM.map <- read.table(argv$tpm_map, header = T, sep = "\t", stringsAsFactors = F, check.names = F)
+  gene_expression <- as.matrix(TPM.map[rownames(gene_expression), colnames(gene_expression)])
+  circ_expr <- as.matrix(TPM.map[rownames(circ_expr), colnames(circ_expr)])
 } else {
   gene_expression <- gene_expression + pseudocount
   circ_expr <- as.matrix(circ_expr) + pseudocount

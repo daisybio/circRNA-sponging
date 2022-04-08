@@ -285,53 +285,60 @@ if(!file(psirc_index_path).exists()) {
 /*
 * QUANTIFY EXPRESSIONS USING PSIRC
 */
-process psirc_quant {
-    label 'process_medium'
-    publishDir "${params.out_dir}/results/psirc/tmp/", mode: params.publish_dir_mode
+psirc_out = params.out_dir + "/results/psirc/"
+if (!file(psirc_out + "quant_linear_expression.tsv").exists()) {
+    process psirc_quant {
+        label 'process_medium'
+        publishDir "${params.out_dir}/results/psirc/tmp/", mode: params.publish_dir_mode
 
-    input:
-    set val(sampleID), file(reads) from ch_totalRNA_reads2
-    val(psirc_quant) from psirc
-    val(psirc_index) from psirc_index
+        input:
+        set val(sampleID), file(reads) from ch_totalRNA_reads2
+        val(psirc_quant) from psirc
+        val(psirc_index) from psirc_index
 
-    output:
-    file("${sampleID}/abundance.tsv") into psirc_outputs
+        output:
+        file("${sampleID}/abundance.tsv") into psirc_outputs
 
-    script:
-    if (params.single_end)
+        script:
+        if (params.single_end)
+            """
+            $psirc_quant quant -i $psirc_index -o $sampleID --single -l 76 -s 20 $reads
+            """
+        else
+            """
+            $psirc_quant quant -i $psirc_index -o $sampleID $reads
+            """
+    }
+
+    /*
+    * COMBINE PSIRC OUTPUTS -> quantified linear and circular expression for each sample
+    */
+    process process_psirc {
+        label 'process_medium'
+        publishDir "${params.out_dir}/results/psirc/", mode: params.publish_dir_mode
+
+        input:
+        file(circ_counts) from ch_circRNA_counts_raw2
+        file("abundance.tsv") from psirc_outputs.collect()
+
+        output:
+        file("quant_circ_expression.tsv") into ch_circRNA_counts_raw_quant
+        file("quant_linear_expression.tsv") into gene_expression
+        file("TPM_map.tsv") into TPM_map
+        file("quant_effects.png") into quant_effects
+
+        script:
         """
-        $psirc_quant quant -i $psirc_index -o $sampleID --single -l 76 -s 20 $reads
+        Rscript "${projectDir}"/bin/quantify_circ_expression.R \
+        --circ_counts $circ_counts \
+        --dir "${params.out_dir}/results/psirc/tmp/" \
+        --samplesheet $params.samplesheet
         """
-    else
-        """
-        $psirc_quant quant -i $psirc_index -o $sampleID $reads
-        """
-}
-
-/*
-* COMBINE PSIRC OUTPUTS -> quantified linear and circular expression for each sample
-*/
-process process_psirc {
-    label 'process_medium'
-    publishDir "${params.out_dir}/results/psirc/", mode: params.publish_dir_mode
-
-    input:
-    file(circ_counts) from ch_circRNA_counts_raw2
-    file("abundance.tsv") from psirc_outputs.collect()
-
-    output:
-    file("quant_circ_expression.tsv") into ch_circRNA_counts_raw_quant
-    file("quant_linear_expression.tsv") into gene_expression
-    file("TPM_map.tsv") into TPM_map
-    file("quant_effects.png") into quant_effects
-
-    script:
-    """
-    Rscript "${projectDir}"/bin/quantify_circ_expression.R \
-    --circ_counts $circ_counts \
-    --dir "${params.out_dir}/results/psirc/tmp/" \
-    --samplesheet $params.samplesheet
-    """
+    }
+} else {
+    Channel.fromPath(psirc_out + "quant_circ_expression.tsv").into{ ch_circRNA_counts_raw_quant }
+    Channel.fromPath(psirc_out + "quant_linear_expression.tsv").into{ gene_expression }
+    Channel.fromPath(psirc_out + "TPM_map.tsv").into{ TPM_map }
 }
 // choose either quantified or regular circRNA counts for downstream analysis
 if (params.quantification){

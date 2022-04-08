@@ -34,6 +34,7 @@ def helpMessage() {
       --mature_fasta [file]		Path to mature miRNA fasta (must be surrounded with quotes)
       --mature_other_fasta [file]	Path to mature miRNA fasta of related species (must be surrounded with quotes)
       --hairpin_fasta [file]		Path to miRNA hairpin fasta (must be surrounded with quotes)
+      --transcriptome [file]        Path to transcriptome fasta (must be surrounded with quotes)
 
     Options:
       --miRNA_raw_counts [file]		Path to tabulated raw miRNA counts (must be surrounded with quotes)

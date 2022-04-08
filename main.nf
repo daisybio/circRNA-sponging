@@ -332,7 +332,8 @@ if (!file(psirc_out + "quant_linear_expression.tsv").exists()) {
         Rscript "${projectDir}"/bin/quantify_circ_expression.R \
         --circ_counts $circ_counts \
         --dir "${params.out_dir}/results/psirc/tmp/" \
-        --samplesheet $params.samplesheet
+        --samplesheet $params.samplesheet \
+        --pseudocount $params.pseudocount
         """
     }
 } else {

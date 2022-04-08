@@ -23,7 +23,7 @@ def helpMessage() {
       --samplesheet [file]		Path to samplesheet (must be surrounded with quotes)
       --out_dir [file]			The output directory where the results will be saved
       --species [str]			Species name in 3 letter code (hsa for human, mmu for mouse)
-      --genome_version [str]    Genome version that will be used for mapping e.g. for human hg19 or hg38
+      --genome_version [str]    Genome version that will be used for mapping e.g. for human hg38
       --miRNA_adapter [str] 		miRNA adapter used for trimming
       -profile [str]           	 	Configuration profile to use. Can use multiple (comma separated)
                                       	Available: conda, docker, singularity, test, awsbatch, <institute> and more
@@ -34,14 +34,6 @@ def helpMessage() {
       --mature_fasta [file]		Path to mature miRNA fasta (must be surrounded with quotes)
       --mature_other_fasta [file]	Path to mature miRNA fasta of related species (must be surrounded with quotes)
       --hairpin_fasta [file]		Path to miRNA hairpin fasta (must be surrounded with quotes)
-      if SPONGE is enabled:
-        Supply at least one of the following target scan symbols:
-            --target_scan_symbols [file]    Path to target scan symbols in tsv and SPONGE format (rows=GENE,cols=miRNA,data=counts)
-            --lncBaseData    [file]     Path to lncBase targets in tsv
-            --miRTarBaseData [file]     Path to miRTarBase targets in tsv
-            --TargetScanData [file]     Path to TargetScan targets in tsv
-            --miRDB_data     [file]     Path to miRDB targets in tsv
-        --fdr   [real]     False discovery rate (default: 0.1)
 
     Options:
       --miRNA_raw_counts [file]		Path to tabulated raw miRNA counts (must be surrounded with quotes)
@@ -50,15 +42,22 @@ def helpMessage() {
       --read_threshold [real]		Positive. Read counts under this threshold are considered to be low expressed
       --sample_percentage [real]	Between 0 and 1. Minimum percentage of samples that should have no low expression
       --circRNA_only [bool]  		Run only circRNA analysis, don't run miRNA analysis
+      --splitter [int]          Number of fasta circRNA entries to use for each miRNA target prediction run
+      --quantification [bool]       Use psirc-quant quantified circRNA expression for downstream analysis (default: true)
       --database_annotation [bool]  Annotate circRNA hits with circBase data
+        --annotated_only [bool]      Only use circRNAs that could be annotated by CircBase for downstream analysis (default: false)
         --offline_circ_db [file]      File containing downloaded circBase entries for offline access to the database
       --differential_expression [bool]  Enable differential expression analysis using DESeq2 on all given RNA-seq data and circRNA only
       --tarpmir [bool]   Wheather to use tarpmir for bindsite prediction (may take significantly longer)
         --model [pkl]       Path to a specific tarpmir model as pickle (default model is Human_sklearn_0.22.pkl, located in data directory)
-        --p     [real]      Double between 0 and 1 specifing cutoff for tarpmir
-        --threads [int]     Number of threads to use for tarpmir
-        --splitter [int]    Number of fasta circRNA entries to use for each tarpmir run
-      --sponge [bool]   Wheather to perform SPONGE ceRNA network analysis          
+        --p     [real]      Double between 0 and 1 specifing cutoff for tarpmir (default: 0.8)
+        --threads [int]     Number of threads to use for tarpmir (default: 2)
+      --sponge [bool]   Wheather to perform SPONGE ceRNA network analysis    
+        --target_scan_symbols [file]    Path to target scan symbols matrix in tsv and SPONGE format (rows=ENSG,cols=miRNA,data=counts)
+        --tpm [bool]     Use log(TPM + 1e-3) expressions
+        --normalize [bool]   Normalize all expressions
+        --fdr [real]     False discovery rate (default: 0.01)  
+        --majority_matcher [start|end|complete]     Matching criteria for bindingsite majority vote (only usefull if miRanda, TarPmiR and PITA is enabled)    
    """.stripIndent()
 }
 

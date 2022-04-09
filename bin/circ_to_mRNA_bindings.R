@@ -12,12 +12,9 @@ args = commandArgs(trailingOnly = TRUE)
 
 parser <- arg_parser("Argument parser for circRNA quantification", name = "quant_parser")
 # ARGS
-parser <- add_argument(parser, "--miranda", help = "Miranda targets file from pipeline")
-parser <- add_argument(parser, "--tarpmir", help = "Tarpmir targets file as from pipeline but only pairs")
-parser <- add_argument(parser, "--mRNA3UTR", help = "mRNA 3UTR targets file as table in tsv format")
-parser <- add_argument(parser, "--mRNA5UTR", help = "mRNA 5UTR targets file as table in tsv format")
-parser <- add_argument(parser, "--CDS", help = "mRNA CDS targets file as table in tsv format")
-parser <- add_argument(parser, "--circ_annotation", help = "circRNA annotation file")
+parser <- add_argument(parser, "--circ_targets", help = "circRNA targets as table in tsv format")
+parser <- add_argument(parser, "--circ_fasta", help = "circRNA fasta file")
+parser <- add_argument(parser, "--linear_targets", help = "mRNA 3UTR targets file as table in tsv format")
 parser <- add_argument(parser, "--organism", help = "Organsim in three letter code e.g. hsa for Human")
 
 argv <- parse_args(parser, argv = args)
@@ -51,22 +48,44 @@ plot_bindsites <- function(mRNA, circ, name){
   dev.off()
 }
 
-# load targets
-print("reading miranda targets")
-miranda.targets <- read.table(argv$miranda, sep = "\t", header = T)
-miranda.targets <- as.data.frame.matrix(table(miranda.targets$Target, miranda.targets$miRNA))
-miranda.scores <- rowSums(miranda.targets)
-print("reading tarpmir targets")
-tarpmir.targets <- read.table(argv$tarpmir, sep = "\t", header = F)
-tarpmir.targets <- as.data.frame.matrix(table(tarpmir.targets$V2, tarpmir.targets$V1))
-tarpmir.scores <- rowSums(tarpmir.targets)
-# combine scores
-circ.targets <- merge(miranda.scores, tarpmir.scores, by = 0)
-colnames(circ.targets) <- c("circRNA.ID", "miranda_targets", "tarpmir_targets")
+safe.mart.ensembl <- function(mart.type){
+  mart <- 0
+  not_done=TRUE
+  while(not_done)
+  {
+    tryCatch({
+      mart <- useEnsembl(mart.type)
+      not_done=FALSE
+    }, warning = function(w) {
+      print("WARNING SECTION")
+      print(w)
+    }, error = function(e) {
+      print("ERROR SECTION")
+      print(e)
+    }, finally = {
+    })
+  }
+  print("SUCCESS")
+  return(mart)
+}
 
-# TODO: save converted counts to disk
-print("reading mirWalk targets")
-mirWalk.targets <- read.table(argv$mRNA3UTR, sep = "\t", header = T)
+# load targets
+print("reading circRNA targets")
+circ.targets <- read.table(argv$circ_targets, sep = "\t", header = F)
+# calculate total n of targets for circRNAs over all samples
+circ.targets <- rowSums(circ.targets)
+
+print("reading linear targets")
+linear.targets <- read.table(argv$linear_targets, sep = "\t", header = T)
+linear.targets <- rowSums(linear.targets)
+# load biomaRt to get gene lengths
+mart <- safe.mart.ensembl("genes")
+transcript.lengths <- getBM(attributes = c("ensembl_gene_id", "transcript_length"),
+                            filter = "ensembl_gene_id",
+                            values = rownames(linear.targets),
+                            mart = mart)
+
+
 mRNA.3UTR.sums <- rowSums(mirWalk.targets)
 mRNA.5UTR.sums.df <- read.table(argv$mRNA5UTR, sep = "\t", header = T)
 mRNA.5UTR.sums.df <- as.data.frame.matrix(table(mRNA.5UTR.sums.df$mRNA, mRNA.5UTR.sums.df$miRNA))
@@ -76,23 +95,7 @@ mRNA.CDS.sums.df <- as.data.frame.matrix(table(mRNA.CDS.sums.df$mRNA, mRNA.CDS.s
 mRNA.CDS.sums.df <- data.frame(rowSums(mRNA.CDS.sums.df))
 
 # convert genebank to ENSIDs
-mart <- 0
-not_done=TRUE
-while(not_done)
-{
-  tryCatch({
-    mart <- useDataset("hsapiens_gene_ensembl", useMart("ensembl"))
-    not_done=FALSE
-  }, warning = function(w) {
-    print("WARNING SECTION")
-    print(w)
-  }, error = function(e) {
-    print("ERROR SECTION")
-    print(e)
-  }, finally = {
-  })
-}
-print("SUCCESS")
+
 gene.ens.all <- biomaRt::getBM(attributes = c("ensembl_gene_id", "refseq_mrna", "refseq_ncrna"),
                                filter = "refseq_mrna",
                                values=unique(c(names(mRNA.5UTR.sums.df), names(mRNA.CDS.sums.df))),

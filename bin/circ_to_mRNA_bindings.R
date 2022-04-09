@@ -39,14 +39,15 @@ gen_counts <- function(sums, mRNA.all){
 plot_bindsites <- function(mRNA, circ, name){
   bindsites.to.length.plot <- ggplot() + 
     geom_point(data = mRNA, aes(x = length, y = bindsites, colour = "mRNA"), shape = 4) +
-    geom_smooth(method = "lm", se = FALSE) +
-    geom_point(data = circ, aes(x = length, y = bindsites, colour = "circRNA"), shape = 2) + scale_y_log10() + 
-    geom_smooth(method = "lm", se = FALSE) +
+    geom_smooth(data = mRNA, aes(x = length, y = bindsites, colour = "mRNAregression"), method = "lm", col = "darkorchid3") +
+    geom_point(data = circ, aes(x = length, y = bindsites, colour = "circRNA"), shape = 2) +
+    geom_smooth(data = circ, aes(x = length, y = bindsites, colour = "circRNAregression"), method = "lm", col = "darkorange3") +
+    scale_y_log10() + 
     scale_x_log10() + 
-    labs(x = "length (log10)", y = "bindsites (log10)", color = "Legend", title = name) +
-    scale_colour_manual("", 
-                        breaks = c("mRNA", "circRNA"),
-                        values = c("#0066CC", "#006033")) +
+    labs(x = "length (log10)", y = "bindsites (log10)", colour = "Legend", title = name) +
+    scale_colour_manual("",
+                        breaks = c("mRNA", "circRNA", "mRNAregression", "circRNAregression"),
+                        values = c("#0066CC", "#006033", "darkorchid3", "darkorange3")) +
     theme(text = element_text(size=20))
   png(paste(name, "png", sep = "."))
   plot(bindsites.to.length.plot)

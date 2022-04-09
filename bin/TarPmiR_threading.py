@@ -628,7 +628,7 @@ def thread(i, file_loc, mir_info, RR, pb_cut, counter):
 		#pdb.set_trace()
 		out+=out_bs
 	out=['\t'.join(item) for item in out]
-	out='\n'.join(out)
+	out='\n'.join(out) + '\n'
 	write_to_file(file_loc=file_loc, data=out)
 	# inc counter
 	counter.increment()

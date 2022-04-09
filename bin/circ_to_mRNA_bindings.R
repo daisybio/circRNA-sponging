@@ -5,6 +5,8 @@ library(AnnotationHub)
 library(argparser)
 library(ggplot2)
 library(biomaRt)
+library(ensembldb)
+library(Biostrings)
 
 ah <- AnnotationHub(ask = F)
 
@@ -15,7 +17,9 @@ parser <- arg_parser("Argument parser for circRNA quantification", name = "quant
 parser <- add_argument(parser, "--circ_targets", help = "circRNA targets as table in tsv format")
 parser <- add_argument(parser, "--circ_fasta", help = "circRNA fasta file")
 parser <- add_argument(parser, "--linear_targets", help = "mRNA 3UTR targets file as table in tsv format")
+parser <- add_argument(parser, "--type", help = "Type of linear RNAs: CDS, 3UTR or 5UTR")
 parser <- add_argument(parser, "--organism", help = "Organsim in three letter code e.g. hsa for Human")
+parser <- add_argument(parser, "--type", help = "CDS, 3UTR or 5UTR")
 
 argv <- parse_args(parser, argv = args)
 
@@ -33,10 +37,11 @@ gen_counts <- function(sums, mRNA.all){
 }
 
 plot_bindsites <- function(mRNA, circ, name){
-  # plot bindsites to length for mRNA3UTR and circRNA
   bindsites.to.length.plot <- ggplot() + 
     geom_point(data = mRNA, aes(x = length, y = bindsites, colour = "mRNA"), shape = 4) +
-    geom_point(data = circ, aes(x = spliced.length, y = bindsites, colour = "circRNA"), shape = 2) + scale_y_log10()+     
+    geom_smooth(method = "lm", se = FALSE) +
+    geom_point(data = circ, aes(x = length, y = bindsites, colour = "circRNA"), shape = 2) + scale_y_log10() + 
+    geom_smooth(method = "lm", se = FALSE) +
     scale_x_log10() + 
     labs(x = "length (log10)", y = "bindsites (log10)", color = "Legend", title = name) +
     scale_colour_manual("", 
@@ -48,13 +53,13 @@ plot_bindsites <- function(mRNA, circ, name){
   dev.off()
 }
 
-safe.mart.ensembl <- function(mart.type){
+safe.mart.ensembl <- function(data.set){
   mart <- 0
   not_done=TRUE
   while(not_done)
   {
     tryCatch({
-      mart <- useEnsembl(mart.type)
+      mart <- useEnsembl(biomart = "ensembl", dataset = data.set)
       not_done=FALSE
     }, warning = function(w) {
       print("WARNING SECTION")
@@ -71,28 +76,25 @@ safe.mart.ensembl <- function(mart.type){
 
 # load targets
 print("reading circRNA targets")
-circ.targets <- read.table(argv$circ_targets, sep = "\t", header = F)
+circ.targets <- read.table(argv$circ_targets, sep = "\t", header = T)
 # calculate total n of targets for circRNAs over all samples
 circ.targets <- rowSums(circ.targets)
+print("reading circRNA fasta")
+circ.fasta <- readDNAStringSet(argv$circ_fasta)
+circ.fasta <- data.frame(names(circ.fasta), circ.fasta@ranges@width, row.names = 1)
+
+circ.all <- data.frame(row.names = 1, merge(circ.targets, circ.fasta, by = 0))
+colnames(circ.all) <- c("bindsites", "length")
 
 print("reading linear targets")
 linear.targets <- read.table(argv$linear_targets, sep = "\t", header = T)
 linear.targets <- rowSums(linear.targets)
 # load biomaRt to get gene lengths
-mart <- safe.mart.ensembl("genes")
+mart <- safe.mart.ensembl("hsapiens_gene_ensembl")
 transcript.lengths <- getBM(attributes = c("ensembl_gene_id", "transcript_length"),
                             filter = "ensembl_gene_id",
-                            values = rownames(linear.targets),
+                            values = names(linear.targets),
                             mart = mart)
-
-
-mRNA.3UTR.sums <- rowSums(mirWalk.targets)
-mRNA.5UTR.sums.df <- read.table(argv$mRNA5UTR, sep = "\t", header = T)
-mRNA.5UTR.sums.df <- as.data.frame.matrix(table(mRNA.5UTR.sums.df$mRNA, mRNA.5UTR.sums.df$miRNA))
-mRNA.5UTR.sums.df <- data.frame(rowSums(mRNA.5UTR.sums.df))
-mRNA.CDS.sums.df <- read.table(argv$CDS, sep = "\t", header = T)
-mRNA.CDS.sums.df <- as.data.frame.matrix(table(mRNA.CDS.sums.df$mRNA, mRNA.CDS.sums.df$miRNA))
-mRNA.CDS.sums.df <- data.frame(rowSums(mRNA.CDS.sums.df))
 
 # convert genebank to ENSIDs
 
@@ -139,10 +141,17 @@ mRNA.CDS.regions.df <- as.data.frame(mRNA.CDS.regions)
 mRNA.3UTR.all <- merge(mRNA.3UTR.df, genes.df, by.x = "group_name", by.y = "canonical_transcript")
 mRNA.5UTR.all <- merge(mRNA.5UTR.df, genes.df, by.x = "group_name", by.y = "canonical_transcript")
 mRNA.CDS.regions.all <- merge(mRNA.CDS.regions.df, genes.df, by.x = "group_name", by.y = "canonical_transcript")
+mRNA.3UTR <- data.frame(row.names = 1, mRNA.3UTR.all[!duplicated(mRNA.3UTR.all$gene_id),c("gene_id", "width.x")])
+mRNA.5UTR <- data.frame(row.names = 1, mRNA.5UTR.all[!duplicated(mRNA.5UTR.all$gene_id),c("gene_id", "width.x")])
+mRNA.CDS <- data.frame(row.names = 1, mRNA.CDS.regions.all[!duplicated(mRNA.CDS.regions.all$gene_id),c("gene_id", "width.x")])
 # get counts
-mRNA.3UTR.final <- gen_counts(mRNA.3UTR.sums, mRNA.3UTR.all)
-mRNA.5UTR.final <- gen_counts(mRNA.5UTR.sums.df, mRNA.5UTR.all)
-mRNA.CDS.final <- gen_counts(mRNA.CDS.sums.df, mRNA.CDS.regions.all)
+mRNA.3UTR.final <- data.frame(row.names = 1, colnames = c("bindsites", "length"), merge(linear.targets, mRNA.3UTR, by = 0))
+colnames(mRNA.3UTR.final) <- c("bindsites", "length")
+
+# plot comparison
+plot_bindsites(mRNA.3UTR.final, circ.all, "3utr")
+# mRNA.5UTR.final <- gen_counts(mRNA.5UTR.sums.df, mRNA.5UTR.all)
+# mRNA.CDS.final <- gen_counts(mRNA.CDS.sums.df, mRNA.CDS.regions.all)
 
 # get scores for circRNAs
 circ.annotations <- merge(circ.annotations, circ.targets)

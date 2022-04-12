@@ -10,7 +10,7 @@ library(argparser)
 
 args = commandArgs(trailingOnly = TRUE)
 
-parser <- arg_parser("Argument parser for SPONGE analysis", name = "SPONGE_parser")
+parser <- arg_parser("Argument parser for differenial expression analysis", name = "DE_parser")
 parser <- add_argument(parser, "--gene_expr", help = "Gene expression file in tsv format as given by DeSeq2")
 parser <- add_argument(parser, "--samplesheet", help = "Meta data for expressions in tsv")
 parser <- add_argument(parser, "--circ_filtered", help = "circRNA filtered expression file in tsv format as given by pipeline")

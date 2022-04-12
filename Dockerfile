@@ -4,6 +4,7 @@ LABEL authors="Octavia Ciora" \
 
 # Install the conda environment
 # All conda/bioconda dependencies are listed there
+# TODO: UPDATE and FILTER
 COPY environment.yml /
 
 RUN conda env create --quiet -f /environment.yml && conda clean -a
@@ -20,4 +21,8 @@ RUN touch .Renviron
 
 COPY package_check.R /
 RUN Rscript package_check.R
+
+# install psirc from git repository
+COPY install_psirc.sh /
+RUN bash install_psirc.sh
 

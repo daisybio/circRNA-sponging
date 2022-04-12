@@ -255,7 +255,7 @@ process extract_circRNA_sequences {
 /*
 * CREATE PSIRC INDEX IF NOT ALREADY PRESENT/ GIVEN
 */
-psirc = params.psirc_exc ? params.psirc_exc : projectDir + "/ext/psirc-quant"
+psirc = params.psirc_exc ? params.psirc_exc : projectDir + "/ext/psirc/psirc-quant/release/src/psirc-quant"
 psirc_index_path = params.psirc_index ? params.psirc_index : params.out_dir + "/results/psirc/psirc.index"
 if(!file(psirc_index_path).exists()) {
     process psirc_index {

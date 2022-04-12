@@ -2,6 +2,10 @@ FROM nfcore/base:1.12.1
 LABEL authors="Octavia Ciora" \
       description="Docker image containing all software requirements for the nf-core/circrnasponging pipeline"
 
+# install psirc from git repository
+COPY install_psirc.sh /
+RUN bash install_psirc.sh
+
 # Install the conda environment
 # All conda/bioconda dependencies are listed there
 # TODO: UPDATE and FILTER
@@ -21,8 +25,3 @@ RUN touch .Renviron
 
 COPY package_check.R /
 RUN Rscript package_check.R
-
-# install psirc from git repository
-COPY install_psirc.sh /
-RUN bash install_psirc.sh
-

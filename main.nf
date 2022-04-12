@@ -727,92 +727,103 @@ if (!params.circRNA_only) {
     /*
     * NORMALIZE RAW miRNA COUNT USING LIBRARY SIZE ESTIMATION
     */
-    process normalize_miRNAs{
-        label 'process_low'
+    if (params.miRNA_normalization){
+        process normalize_miRNAs{
+            label 'process_low'
 
-        publishDir "${params.out_dir}/results/miRNA/", mode: params.publish_dir_mode
-        
-        input:
-        file(miRNA_counts_raw) from ch_miRNA_counts_raw
+            publishDir "${params.out_dir}/results/miRNA/", mode: params.publish_dir_mode
+            
+            input:
+            file(miRNA_counts_raw) from ch_miRNA_counts_raw
 
-        output:
-        file("miRNA_counts_normalized.tsv") into (ch_miRNA_counts_norm1, ch_miRNA_counts_norm2)
+            output:
+            file("miRNA_counts_normalized.tsv") into (ch_miRNA_counts_norm1, ch_miRNA_counts_norm2)
 
-        script:
-        """
-        Rscript "${projectDir}"/bin/miRNA_results_LibrarySizeEstimation.R $miRNA_counts_raw $params.out_dir
-        """
+            script:
+            """
+            Rscript "${projectDir}"/bin/miRNA_results_LibrarySizeEstimation.R $miRNA_counts_raw $params.out_dir
+            """
+        }
+    } else {
+        ch_miRNA_counts_raw.into{ ch_miRNA_counts_norm1; ch_miRNA_counts_norm2 }
     }
+    
 
     /*
     * FILTER miRNAs TO REDUCE LOW EXPRESSED ONES
     */
-    process filter_miRNAs{
-        label 'process_medium'
+    if (params.miRNA_filtering) {
+        process filter_miRNAs{
+            label 'process_medium'
 
-        publishDir "${params.out_dir}/results/miRNA/", mode: params.publish_dir_mode
-        
-        input:
-        file(miRNA_counts_norm) from ch_miRNA_counts_norm1
+            publishDir "${params.out_dir}/results/miRNA/", mode: params.publish_dir_mode
+            
+            input:
+            file(miRNA_counts_norm) from ch_miRNA_counts_norm1
 
-        output:
-        file("miRNA_counts_filtered.tsv") into (ch_miRNA_counts_filtered1, ch_miRNA_counts_filtered2, ch_miRNA_counts_filtered3)
+            output:
+            file("miRNA_counts_filtered.tsv") into (ch_miRNA_counts_filtered1, ch_miRNA_counts_filtered2, ch_miRNA_counts_filtered3)
 
-        script:
-        """
-        Rscript "${projectDir}"/bin/miRNA_filtering.R $miRNA_counts_norm $params.out_dir $params.sample_percentage $params.read_threshold
-        """
+            script:
+            """
+            Rscript "${projectDir}"/bin/miRNA_filtering.R $miRNA_counts_norm $params.out_dir $params.sample_percentage $params.read_threshold
+            """
+        }
+    } else {
+        ch_miRNA_counts_norm1.into{ch_miRNA_counts_filtered1; ch_miRNA_counts_filtered2; ch_miRNA_counts_filtered3}
     }
-
-
+    
     /*
     * FOR ALL POSSIBLE circRNA-miRNA PAIRS COMPUTE PEARSON CORRELATION
+    * USES ONLY miRanda bindsites
     */
-    process compute_correlations{
-        label 'process_high'
+    if (params.correlations){
+        process compute_correlations{
+            label 'process_high'
 
-        publishDir "${params.out_dir}/results/sponging/", mode: params.publish_dir_mode
-        
-        input:
-        file(miRNA_counts_filtered) from ch_miRNA_counts_filtered1
-        file(circRNA_counts_filtered) from ch_circRNA_counts_filtered3
-        file(filtered_bindsites) from ch_bindsites_filtered1
+            publishDir "${params.out_dir}/results/sponging/", mode: params.publish_dir_mode
+            
+            input:
+            file(miRNA_counts_filtered) from ch_miRNA_counts_filtered1
+            file(circRNA_counts_filtered) from ch_circRNA_counts_filtered3
+            file(filtered_bindsites) from ch_bindsites_filtered1
 
-        output:
-        file("filtered_circRNA_miRNA_correlation.tsv") into ch_correlations
+            output:
+            file("filtered_circRNA_miRNA_correlation.tsv") into ch_correlations
 
-        script:
-        """
-        Rscript "${projectDir}"/bin/compute_correlations.R $params.samplesheet $miRNA_counts_filtered $circRNA_counts_filtered $filtered_bindsites
-        """
-    }
+            script:
+            """
+            Rscript "${projectDir}"/bin/compute_correlations.R $params.samplesheet $miRNA_counts_filtered $circRNA_counts_filtered $filtered_bindsites
+            """
+        }
 
-    /*
-    * ANALYZE THE CORRELATION OF ALL PAIRS AND DETERMINE OVERALL DISTRIBUTION
-    * USING BINDING SITES INFORMATION. COMPUTE STATISTICS AND PLOTS
-    */
-    process correlation_analysis{
-        label 'process_high'
+        /*
+        * ANALYZE THE CORRELATION OF ALL PAIRS AND DETERMINE OVERALL DISTRIBUTION
+        * USING BINDING SITES INFORMATION. COMPUTE STATISTICS AND PLOTS
+        */
+        process correlation_analysis{
+            label 'process_high'
 
-        publishDir "${params.out_dir}/results/sponging/", mode: params.publish_dir_mode
-        
-        input:
-        file(correlations) from ch_correlations
-        file(miRNA_counts_filtered) from ch_miRNA_counts_filtered2
-        file(circRNA_counts_filtered) from ch_circRNA_counts_filtered4
-        file(miRNA_counts_norm) from ch_miRNA_counts_norm2
-        file(circRNA_counts_norm) from ch_circRNA_counts_norm2
+            publishDir "${params.out_dir}/results/sponging/", mode: params.publish_dir_mode
+            
+            input:
+            file(correlations) from ch_correlations
+            file(miRNA_counts_filtered) from ch_miRNA_counts_filtered2
+            file(circRNA_counts_filtered) from ch_circRNA_counts_filtered4
+            file(miRNA_counts_norm) from ch_miRNA_counts_norm2
+            file(circRNA_counts_norm) from ch_circRNA_counts_norm2
 
 
-        output:
-        file("sponging_statistics.txt") into ch_sponging_statistics
-        file("plots/*.png") into ch_plots
+            output:
+            file("sponging_statistics.txt") into ch_sponging_statistics
+            file("plots/*.png") into ch_plots
 
-        script:
-        """
-        mkdir -p "${params.out_dir}/results/sponging/plots/"
-        Rscript "${projectDir}"/bin/correlation_analysis.R $params.samplesheet $miRNA_counts_filtered $circRNA_counts_filtered $correlations $params.out_dir $params.sample_group $miRNA_counts_norm $circRNA_counts_norm
-        """
+            script:
+            """
+            mkdir -p "${params.out_dir}/results/sponging/plots/"
+            Rscript "${projectDir}"/bin/correlation_analysis.R $params.samplesheet $miRNA_counts_filtered $circRNA_counts_filtered $correlations $params.out_dir $params.sample_group $miRNA_counts_norm $circRNA_counts_norm
+            """
+        }
     }
 
     /*

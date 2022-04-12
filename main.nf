@@ -31,8 +31,8 @@ def helpMessage() {
       --fasta [file] 			Path to genome fasta (must be surrounded with quotes)
       --gtf [file]			Path to gtf file (must be surrounded with quotes)
       --gene_pred [file]		Path to gene annotation (must be surrounded with quotes)
-      --mature_fasta [file]		Path to mature miRNA fasta (must be surrounded with quotes)
-      --mature_other_fasta [file]	Path to mature miRNA fasta of related species (must be surrounded with quotes)
+      --miRNA_fasta [file]		Path to mature miRNA fasta (must be surrounded with quotes)
+      --miRNA_related_fasta [file]	Path to mature miRNA fasta of related species (must be surrounded with quotes)
       --hairpin_fasta [file]		Path to miRNA hairpin fasta (must be surrounded with quotes)
       --transcriptome [file]        Path to transcriptome fasta (must be surrounded with quotes)
 
@@ -494,7 +494,7 @@ if (!file(miranda_output).exists()) {
 
         script:
         """
-        miranda $params.mature_fasta $circRNA_fasta -out "bind_sites_raw.out" -quiet
+        miranda $params.miRNA_fasta $circRNA_fasta -out "bind_sites_raw.out" -quiet
         """
     }
     // combine files to one
@@ -564,7 +564,7 @@ if (params.tarpmir) {
         script:
         """
         python3 "${projectDir}/bin/TarPmiR_threading.py" \\
-        -a $params.mature_fasta \\
+        -a $params.miRNA_fasta \\
         -b $mRNA_fasta \\
         -m $model \\
         -p $params.p \\
@@ -599,7 +599,7 @@ if (params.pita) {
 
         script:
         """
-        perl $params.pita_path/pita_prediction.pl -utr $circ_fasta -mir $params.mature_fasta -prefix circRNA
+        perl $params.pita_path/pita_prediction.pl -utr $circ_fasta -mir $params.miRNA_fasta -prefix circRNA
         """
     }
 
@@ -699,7 +699,7 @@ if (!params.circRNA_only) {
 
             script:
             """
-            miRDeep2.pl $reads_collapsed_fa $fasta $reads_vs_ref_arf $params.mature_fasta $params.mature_other_fasta $params.hairpin_fasta -t $params.species -d -v 
+            miRDeep2.pl $reads_collapsed_fa $fasta $reads_vs_ref_arf $params.miRNA_fasta $params.miRNA_related_fasta $params.hairpin_fasta -t $params.species -d -v 
             """
         }
 
@@ -862,7 +862,7 @@ if (!params.circRNA_only) {
             --gene_expr $gene_expression \\
             --circ_rna $circRNA_counts_filtered \\
             --mirna_expr $mirna_expression \\
-            --mir_fasta $params.mature_fasta \\
+            --mir_fasta $params.miRNA_fasta \\
             --fdr $params.fdr \\
             --target_scan_symbols $target_scan_symbols \\
             --miranda_data $miranda_bind_sites \\

@@ -22,6 +22,3 @@ RUN conda env export --name nf-core-circrnasponging > nf-core-circrnasponging.ym
 # Instruct R processes to use these empty files instead of clashing with a local version
 RUN touch .Rprofile
 RUN touch .Renviron
-
-COPY package_check.R /
-RUN Rscript package_check.R

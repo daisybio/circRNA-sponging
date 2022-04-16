@@ -169,12 +169,12 @@ To enable differential expression, set
 and add condition labels to samplesheet:
 
 ```
-   sample  |             totalRNA1               |             smallRNA       | condition |
+   sample  |             totalRNA1               |             smallRNA                | condition |
 -----------|-------------------------------------|------------------------------------ |-----------|
   sample1  | path/to/<totalRNA_sample1>.fastq.gz | path/to/<smallRNA_sample1>.fastq.gz |  treated  |
   sample2  | path/to/<totalRNA_sample2>.fastq.gz | path/to/<smallRNA_sample2>.fastq.gz |  control  |
   sample3  | path/to/<totalRNA_sample3>.fastq.gz | path/to/<smallRNA_sample3>.fastq.gz |  treated  |
-    ...    |                ...                  |               ...		      |    ...    |
+    ...    |                ...                  |               ...                   |    ...    |
 ```
 
 #### SPONGE

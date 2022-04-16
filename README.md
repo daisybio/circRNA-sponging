@@ -50,8 +50,8 @@ By default, the pipeline currently performs the following:
   + aggregation of identified miRNAs over all samples, normalization and filtering
 * circRNA-miRNA binding sites:
   + binding sites processing and filtering (`miranda`)
-  + (`TarPmiR`)
-  + (`PITA`)
+  + `TarPmiR`
+  + `PITA`
   + majority vote (2/3) for downstream analyses
 * sponging analyses:
   + Correlation analysis between circRNA and miRNA expression (using `miranda`)

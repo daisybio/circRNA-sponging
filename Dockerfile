@@ -3,8 +3,26 @@ LABEL authors="Octavia Ciora" \
       description="Docker image containing all software requirements for the nf-core/circrnasponging pipeline"
 
 # install psirc from git repository
-COPY install_psirc.sh /
-RUN bash install_psirc.sh
+WORKDIR /ext
+RUN git clone https://github.com/Christina-hshi/psirc.git
+WORKDIR /ext/psirc
+WORKDIR /ext/psirc/psirc-quant
+# you may need to compile htslib under "ext/htslib" by following the README there ("make install" is optional and only possible with admin permissions)
+WORKDIR /ext/psirc/psirc-quant/ext/htslib/
+RUN autoheader
+RUN autoconf
+RUN ./configure
+RUN make
+RUN make install
+WORKDIR /ext/psirc/psirc-quant
+# make release
+RUN mkdir release
+WORKDIR /ext/psirc/psirc-quant/release
+RUN cmake ..
+RUN make psirc-quant
+# the psirc-quant program can be found at "src/psirc-quant"
+RUN make install
+
 # install PITA
 WORKDIR /ext/PITA
 RUN wget --no-check-certificate "https://genie.weizmann.ac.il/pubs/mir07/64bit_exe_pita_prediction.tar.gz"

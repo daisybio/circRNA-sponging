@@ -11,6 +11,7 @@
 [![Get help on Slack](http://img.shields.io/badge/slack-nf--core%20%23circrnasponging-4A154B?logo=slack)](https://nfcore.slack.com/channels/circrnasponging)-->
 
 This pipeline was implemented by Octavia Ciora as part of her Advanced Lab Course Bioinformatics under the supervision of Dr. Markus List.
+It was extended by Leon Schwartz as part of his Bachelor's Thesis under the supervision of Markus Hoffmann and Dr. Markus List.
 
 ## Table of Contents
 
@@ -25,7 +26,7 @@ This pipeline was implemented by Octavia Ciora as part of her Advanced Lab Cours
 
 ## Introduction
 
-**nf-core/circrnasponging** is a pipeline for the systematical analysis of circRNAs that act as sponges for miRNAs. It requires total RNA and small RNA sequencing data and is based on the hypothesis that the negatively correlating expression of miRNAs and circRNAs (having miRNA binding sites) is an indicator of sponging.
+**nf-core/circrnasponging** is a pipeline for the systematical analysis of circRNAs, their differential expression and miRNA sponging activities. It requires total RNA and small RNA sequencing data and is based on the hypothesis that the negatively correlating expression of miRNAs and circRNAs (having miRNA binding sites) is an indicator of sponging.
 
 The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It comes with docker containers making installation trivial and results highly reproducible.
 
@@ -34,18 +35,28 @@ The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool
 By default, the pipeline currently performs the following:
 <!-- TODO nf-core: Fill in short bullet-pointed list of default steps of pipeline -->
 * circRNA analysis:
-  + totalRNA read mapping (using `STAR`)
-  + circRNA detection and quantification (using `circExplorer2`)
+  + totalRNA back-splicing-junction (BSJ) mapping (using `STAR`)
+  + circRNA detection (using `circExplorer2`)
   + aggregation of detected circRNAs over all samples, normalization and filtering
+  + linear and circular quantification (using `psirc` and `kallisto`)
   + extraction of fasta sequences for filtered circRNAs
+  + database annotation (using `circBase`)
+* differential expression analysis:
+  + linear RNAs
+  + circular RNAs
+  + Heatmaps, Volcano and PCA plots
 * miRNA analysis:
   + smRNA read mapping and quantification (using `miRDeep2`)
   + aggregation of identified miRNAs over all samples, normalization and filtering
-* Binding sites:
-  + miRNA binding sites detection on quantified circRNAs (`miranda`)
-  + binding sites processing and filtering
-* Correlation analysis between circRNAs and miRNAs expression
-* Overall results summaries and plots
+* circRNA-miRNA binding sites:
+  + binding sites processing and filtering (`miranda`)
+  + (`TarPmiR`)
+  + (`PITA`)
+  + majority vote (2/3) for downstream analyses
+* sponging analyses:
+  + Correlation analysis between circRNA and miRNA expression (using `miranda`)
+  + mRNA-circRNA-miRNA networks (using majority vote with `SPONGE`)
+  + Analysis of networks and plotting
 
 <img src="images/workflow.PNG" width = "700">
 
@@ -90,7 +101,7 @@ The pipeline requires a tab-separated samplesheet file containing the sample nam
 ```
 
 #### Reference Files
-Besides the genome fasta, gtf and annotation files, some miRNA references are required:mature and hairpin miRNA sequences for the organism used in the analysis, e.g.  mouseand mature miRNA sequences from related species, e.g.  rat and human.  Instructions forgenerating the miRNA reference files can be found in the [`miRDeep2 tutorial`](https://drmirdeep.github.io/mirdeep2_tutorial.html).
+Besides the genome fasta, transcriptome, gtf and annotation files, some miRNA references are required: mature and hairpin miRNA sequences for the organism used in the analysis, e.g.  mouse and mature miRNA sequences from related species, e.g. rat and human.  Instructions forgenerating the miRNA reference files can be found in the [`miRDeep2 tutorial`](https://drmirdeep.github.io/mirdeep2_tutorial.html).
 
 ### Additional Features and Advanced Options
 #### Skip miRNA Quantification
@@ -129,6 +140,53 @@ In addition, the samplesheet should be adapted to match the following structure:
   sample3  | path/to/<totalRNA_sample3>.fastq.gz | path/to/<smallRNA_sample3>.fastq.gz
     ...    |                ...                  |               ...
 ```
+
+#### psirc quantification
+psirc requires the input of a linearRNA transcriptome (can be gzipped). It is recommended to use an Ensembl transcriptome as it is default for generating kallisto indices (available under https://ftp.ensembl.org/pub/). 
+Linear and circular quantification is enabled by default but can be switched off by:
+
+```
+--quantification false
+```
+
+#### Database annotation
+Database annotation is enabled by default, but can be turned off using:
+
+```
+--database_annotation false
+```
+To exclusively analyse annotated circRNAs use the switch:
+
+```
+--annotated_only true
+```
+
+#### Differential expression
+To enable differential expression, set
+```
+--differential_expression true
+```
+and add condition labels to samplesheet:
+
+```
+   sample  |             totalRNA1               |             smallRNA		             | condition |
+-----------|-------------------------------------|------------------------------------ |-----------|
+  sample1  | path/to/<totalRNA_sample1>.fastq.gz | path/to/<smallRNA_sample1>.fastq.gz |  treated  |
+  sample2  | path/to/<totalRNA_sample2>.fastq.gz | path/to/<smallRNA_sample2>.fastq.gz |  control  |
+  sample3  | path/to/<totalRNA_sample3>.fastq.gz | path/to/<smallRNA_sample3>.fastq.gz |  treated  |
+    ...    |                ...                  |               ...		               |    ...    |
+```
+
+#### SPONGE
+SPONGE also requires condition labeling (see Differential expression).
+Additionally one can select the miRNA binding sites tools to use from `miranda`, `TarPmiR` and `PITA`.
+Miranda is enabled per default, but TarPmiR and PITA must be enabled manually with:
+```
+--tarpmir true
+--pita true
+```
+The majority vote function only works with all three methods enabled.
+Else all remaining binding sites are merged.
 
 #### Sample Grouping for Better Visualization
 This feature should be used if the samples belong to different groups. If a grouping is specified, the samples will be colored accordingly in the plots showing sponging candidates, facilitating a better visualization and results interpretation. The file containing the sample grouping should be structured as shown below and specified using the parameter:
@@ -171,6 +229,7 @@ The output folder is structured as shown below. The circRNA/miRNA results for ea
 |   |   |─── circRNA
 |   |   |   |─── circRNA_counts_raw.tsv
 |   |   |   └─── circRNA_counts_filtered.tsv
+|   |   |   └─── circRNA_counts_annotated.tsv
 |   |   |─── miRNA
 |   |   |   |─── miRNA_counts_raw.tsv
 |   |   |   └─── miRNA_counts_filtered.tsv

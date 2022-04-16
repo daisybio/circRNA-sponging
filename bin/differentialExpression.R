@@ -136,6 +136,29 @@ if (argv$tpm) {
   TPM.map <- read.table(argv$tpm_map, header = T, sep = "\t", stringsAsFactors = F, check.names = F)
   gene_expression <- as.matrix(TPM.map[rownames(gene_expression), colnames(gene_expression)])
   circ_expr <- as.matrix(TPM.map[rownames(circ_expr), colnames(circ_expr)])
+  
+  dds <- DESeq2::DESeqDataSetFromMatrix(countData = round(gene_expression),
+                                        colData = samplesheet,
+                                        design = ~ condition)
+  dds <- DESeq2::DESeq(dds)
+  res <- DESeq2::results(dds)
+  # sort by p-value
+  res <- res[order(res$padj),]
+  DESeq2::summary(res)
+  
+  create_outputs(d = dds, results = res, marker = "condition", out = "total_rna_tpm", nsub = 100, isLogFransformed = argv$tpm)
+  # CIRCULAR RNA
+  
+  dds.circ <- DESeq2::DESeqDataSetFromMatrix(countData = round(circ_expr),
+                                             colData = samplesheet,
+                                             design = ~ condition)
+  dds.circ <- DESeq2::DESeq(dds.circ)
+  res.circ <- DESeq2::results(dds.circ)
+  # sort by p-value
+  res.circ <- res.circ[order(res.circ$padj),]
+  # create summary
+  DESeq2::summary(res.circ)
+  create_outputs(dds.circ, res.circ, marker = "condition", out = "circ_rna_DE_tpm", nsub = 100, isLogFransformed = argv$tpm)
 } else {
   gene_expression <- gene_expression + pseudocount
   circ_expr <- as.matrix(circ_expr) + pseudocount

@@ -178,7 +178,11 @@ and add condition labels to samplesheet:
 ```
 
 #### SPONGE
-SPONGE also requires condition labeling (see Differential expression).
+SPONGE also requires condition labeling (see Differential expression). To perform SPONGE analysis include:
+```
+--sponge true
+```
+### miRNA-circRNA binding sites
 Additionally one can select the miRNA binding sites tools to use from `miranda`, `TarPmiR` and `PITA`.
 Miranda is enabled per default, but TarPmiR and PITA must be enabled manually with:
 ```
@@ -188,19 +192,19 @@ Miranda is enabled per default, but TarPmiR and PITA must be enabled manually wi
 The majority vote function only works with all three methods enabled.
 Else all remaining binding sites are merged.
 
-#### Sample Grouping for Better Visualization
-This feature should be used if the samples belong to different groups. If a grouping is specified, the samples will be colored accordingly in the plots showing sponging candidates, facilitating a better visualization and results interpretation. The file containing the sample grouping should be structured as shown below and specified using the parameter:
+### miRNA-mRNA binding sites
+SPONGE analysis also requires miRNA-mRNA binding sites for which the pipeline will, per default, use the precomputed data from MirWalk2.0 Human combined with lncBase. Custom binding sites can be provided using:
 ```
-  --sample_group [path/to/sample.group.tsv]
+--target_scan_symbols path/to/targets.tsv
 ```
+Format specification:
 ```
-  sample | group   
----------|-------
- sample1 | group1
- sample2 | group1
- sample3 | group2
- sample4 | group3
-   ...   |  ...  
+  EnsgID   |  miRNA-1 | miRNA-2 | miRNA-3 | ...
+-----------|----------|---------|---------|
+  ENSG..1  |    2     |    3    |    8    |
+  ENSG..2  |    3     |    0    |    1    |
+  ENSG..3  |    1     |    3    |    5    |
+    ...
 ```
 #### Advanced Filtering
 After normalizing the raw read counts for both circRNAs and miRNAs, the pipeline filters out entries which have a low expression level. By default, only entries having at least 5 reads in at least 20% of samples are used in the downstream analysis. The parameter values can be changed with the options:
@@ -233,11 +237,22 @@ The output folder is structured as shown below. The circRNA/miRNA results for ea
 |   |   |─── miRNA
 |   |   |   |─── miRNA_counts_raw.tsv
 |   |   |   └─── miRNA_counts_filtered.tsv
+|   |   |─── differential_expression
+|   |   |   └─── totalRNA
+|   |   |   └─── circRNA_DE
 |   |   |─── binding_sites
+|   |   |   └─── PITA
+|   |   |   └─── TarPmiR
+|   |   |   └─── miRanda
 |   |   |─── sponging
 |   |   |   |─── sponging_statistics.txt
 |   |   |   |─── filtered_circRNA_miRNA_correlation.tsv
 |   |   |   └─── plots
+|   |   |   └─── SPONGE
+|   |   |   |   └─── plots
+|   |   |   |   └─── circRNA
+|   |   |   |   └─── total
+|   |   |   |   └─── sponge.RData
 └── └── └── 
 ```
 

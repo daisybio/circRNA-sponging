@@ -529,7 +529,7 @@ process binding_sites_processing {
 */
 process binding_sites_filtering {
     label 'process_medium'
-    publishDir "${params.out_dir}/results/binding_sites/output/miranda", mode: params.publish_dir_mode
+    publishDir "${params.out_dir}/results/binding_sites/output/miRanda", mode: params.publish_dir_mode
     
     input:
     file(bind_sites_proc) from bind_sites_processed
@@ -548,7 +548,7 @@ process binding_sites_filtering {
 */
 if (params.tarpmir) {
     model = params.model ? Channel.value(file(params.model)) : Channel.value(file(projectDir + "/data/tarpmir_models/Human_sklearn_0.22.pkl"))
-    tarpmir_tmp = "${params.out_dir}/results/binding_sites/output/tarpmir/tmp"
+    tarpmir_tmp = "${params.out_dir}/results/binding_sites/output/TarPmiR/tmp"
     // RUN TARPMIR ON CHUNKED MRNA FASTAS
     process tarpmir {
         label 'process_medium'

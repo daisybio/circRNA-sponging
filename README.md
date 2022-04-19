@@ -199,7 +199,7 @@ SPONGE analysis also requires miRNA-mRNA binding sites for which the pipeline wi
 ```
 Format specification:
 ```
-  EnsgID   |  miRNA-1 | miRNA-2 | miRNA-3 | ...
+           |  miRNA-1 | miRNA-2 | miRNA-3 | ...
 -----------|----------|---------|---------|
   ENSG..1  |    2     |    3    |    8    |
   ENSG..2  |    3     |    0    |    1    |
@@ -240,6 +240,7 @@ The output folder is structured as shown below. The circRNA/miRNA results for ea
 |   |   |─── differential_expression
 |   |   |   └─── totalRNA
 |   |   |   └─── circRNA_DE
+|   |   |   └─── RData
 |   |   |─── binding_sites
 |   |   |   └─── PITA
 |   |   |   └─── TarPmiR
@@ -252,7 +253,7 @@ The output folder is structured as shown below. The circRNA/miRNA results for ea
 |   |   |   |   └─── plots
 |   |   |   |   └─── circRNA
 |   |   |   |   └─── total
-|   |   |   |   └─── sponge.RData
+|   |   |   |   └─── RData
 └── └── └── 
 ```
 

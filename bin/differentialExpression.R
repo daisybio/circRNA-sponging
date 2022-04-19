@@ -134,10 +134,10 @@ pseudocount = 1
 if (argv$tpm) {
   # convert circRNA and linear expression
   TPM.map <- read.table(argv$tpm_map, header = T, sep = "\t", stringsAsFactors = F, check.names = F)
-  gene_expression <- as.matrix(TPM.map[rownames(gene_expression), colnames(gene_expression)])
-  circ_expr <- as.matrix(TPM.map[rownames(circ_expr), colnames(circ_expr)])
+  gene_expression_tpm <- as.matrix(TPM.map[rownames(gene_expression), colnames(gene_expression)])
+  circ_expr_tpm <- as.matrix(TPM.map[rownames(circ_expr), colnames(circ_expr)])
   
-  dds <- DESeq2::DESeqDataSetFromMatrix(countData = round(gene_expression),
+  dds <- DESeq2::DESeqDataSetFromMatrix(countData = round(gene_expression_tpm),
                                         colData = samplesheet,
                                         design = ~ condition)
   dds <- DESeq2::DESeq(dds)
@@ -149,7 +149,7 @@ if (argv$tpm) {
   create_outputs(d = dds, results = res, marker = "condition", out = "total_rna_tpm", nsub = 100, isLogFransformed = argv$tpm)
   # CIRCULAR RNA
   
-  dds.circ <- DESeq2::DESeqDataSetFromMatrix(countData = round(circ_expr),
+  dds.circ <- DESeq2::DESeqDataSetFromMatrix(countData = round(circ_expr_tpm),
                                              colData = samplesheet,
                                              design = ~ condition)
   dds.circ <- DESeq2::DESeq(dds.circ)

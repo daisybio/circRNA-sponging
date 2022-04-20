@@ -22,7 +22,7 @@ parser <- add_argument(parser, "--tpm", help = "Use TPM instead of counts", flag
 argv <- parse_args(parser, argv = args)
 
 # create output data and plots
-create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.1, log2FC = 0, pseudocount = 0, filter = NULL, isLogFransformed = T) {
+create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.1, log2FC = 0, pseudocount = 0, filter = NULL, isLogFransformed = F) {
   # create dirs in cwd
   dir.create(out, showWarnings = FALSE)
   # col data

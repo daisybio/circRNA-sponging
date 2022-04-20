@@ -129,7 +129,6 @@ if (annotation) {
 circ_expr <- circ.raw[circ.raw$key %in% filtered.circs, samples]
 rownames(circ_expr) <- circ_RNA_annotation
 
-pseudocount = 1
 # use tpms instead of counts
 if (argv$tpm) {
   # convert circRNA and linear expression
@@ -159,10 +158,10 @@ if (argv$tpm) {
   # create summary
   DESeq2::summary(res.circ)
   create_outputs(dds.circ, res.circ, marker = "condition", out = "circ_rna_DE_tpm", nsub = 100, isLogFransformed = argv$tpm)
-} else {
-  gene_expression <- gene_expression + pseudocount
-  circ_expr <- as.matrix(circ_expr) + pseudocount
 }
+pseudocount = 1
+gene_expression <- gene_expression + pseudocount
+circ_expr <- as.matrix(circ_expr) + pseudocount
 
 # TOTAL RNA
 dds <- DESeq2::DESeqDataSetFromMatrix(countData = round(gene_expression),
@@ -174,7 +173,7 @@ res <- DESeq2::results(dds)
 res <- res[order(res$padj),]
 DESeq2::summary(res)
 
-create_outputs(d = dds, results = res, marker = "condition", out = "total_rna", nsub = 100, isLogFransformed = argv$tpm)
+create_outputs(d = dds, results = res, marker = "condition", out = "total_rna", nsub = 100)
 # CIRCULAR RNA
 
 dds.circ <- DESeq2::DESeqDataSetFromMatrix(countData = round(circ_expr),
@@ -186,7 +185,7 @@ res.circ <- DESeq2::results(dds.circ)
 res.circ <- res.circ[order(res.circ$padj),]
 # create summary
 DESeq2::summary(res.circ)
-create_outputs(dds.circ, res.circ, marker = "condition", out = "circ_rna_DE", nsub = 100, isLogFransformed = argv$tpm)
+create_outputs(dds.circ, res.circ, marker = "condition", out = "circ_rna_DE", nsub = 100)
 
 # save R image
 save.image(file = "DESeq2.RData")

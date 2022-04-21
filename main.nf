@@ -323,7 +323,7 @@ if (!file(psirc_out + "quant_linear_expression.tsv").exists()) {
 
         output:
         file("quant_circ_expression.tsv") into ch_circRNA_counts_raw_quant
-        file("quant_linear_expression.tsv") into gene_expression
+        file("quant_linear_expression.tsv") into (gene_expression1, gene_expression2)
         file("TPM_map.tsv") into TPM_map
         file("quant_effects.png") into quant_effects
 
@@ -338,7 +338,7 @@ if (!file(psirc_out + "quant_linear_expression.tsv").exists()) {
     }
 } else {
     Channel.fromPath(psirc_out + "quant_circ_expression.tsv").into{ ch_circRNA_counts_raw_quant }
-    Channel.fromPath(psirc_out + "quant_linear_expression.tsv").into{ gene_expression }
+    Channel.fromPath(psirc_out + "quant_linear_expression.tsv").into{ gene_expression1; gene_expression2 }
     Channel.fromPath(psirc_out + "TPM_map.tsv").into{ TPM_map }
 }
 // choose either quantified or regular circRNA counts for downstream analysis
@@ -449,7 +449,7 @@ if (params.differential_expression){
         input:
         file(circRNA_counts) from ch_circRNA_counts_filtered2
         file(circRNA_raw) from ch_circRNA_counts2
-        file(gene_expression) from gene_expression
+        file(gene_expression) from gene_expression1
         val(tpm_map) from TPM_map
         val(tpm) from params.tpm ? "--tpm" : ""
 
@@ -839,7 +839,7 @@ if (!params.circRNA_only) {
             publishDir "${params.out_dir}/results/sponging/SPONGE", mode: params.publish_dir_mode
 
             input:
-            file(gene_expression) from gene_expression
+            file(gene_expression) from gene_expression2
             file(circRNA_counts_filtered) from ch_circRNA_counts_filtered5
             file(mirna_expression) from ch_miRNA_counts_filtered3
             file(miranda_bind_sites) from ch_bindsites_filtered2

@@ -324,7 +324,7 @@ if (!file(psirc_out + "quant_linear_expression.tsv").exists()) {
         output:
         file("quant_circ_expression.tsv") into ch_circRNA_counts_raw_quant
         file("quant_linear_expression.tsv") into (gene_expression1, gene_expression2)
-        file("TPM_map.tsv") into TPM_map
+        file("TPM_map.tsv") into (TPM_map1, TPM_map2)
         file("quant_effects.png") into quant_effects
 
         script:
@@ -339,7 +339,7 @@ if (!file(psirc_out + "quant_linear_expression.tsv").exists()) {
 } else {
     Channel.fromPath(psirc_out + "quant_circ_expression.tsv").into{ ch_circRNA_counts_raw_quant }
     Channel.fromPath(psirc_out + "quant_linear_expression.tsv").into{ gene_expression1; gene_expression2 }
-    Channel.fromPath(psirc_out + "TPM_map.tsv").into{ TPM_map }
+    Channel.fromPath(psirc_out + "TPM_map.tsv").into{ TPM_map1; TPM_map2 }
 }
 // choose either quantified or regular circRNA counts for downstream analysis
 if (params.quantification){
@@ -450,7 +450,7 @@ if (params.differential_expression){
         file(circRNA_counts) from ch_circRNA_counts_filtered2
         file(circRNA_raw) from ch_circRNA_counts2
         file(gene_expression) from gene_expression1
-        val(tpm_map) from TPM_map
+        val(tpm_map) from TPM_map1
         val(tpm) from params.tpm ? "--tpm" : ""
 
         output:
@@ -847,7 +847,7 @@ if (!params.circRNA_only) {
             val(tarpmir) from tarpmir_bp_file
             val(pita) from pita_results
             val(normalize) from params.normalize ? "--normalize" : ""
-            val(tpm_map) from TPM_map
+            val(tpm_map) from TPM_map2
             val(tpm) from params.tpm ? "--tpm" : ""
 
             output:

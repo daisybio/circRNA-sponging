@@ -574,7 +574,7 @@ if (params.tarpmir) {
     }
 
     // combine files to one
-    bp_files.collectFile(name: "${params.out_dir}/results/binding_sites/output/tarpmir/tarpmir_bp.tsv", newLine: true).into{ tarpmir_bp_file }
+    bp_files.collectFile(name: "${params.out_dir}/results/binding_sites/output/TarPmiR/tarpmir_bp.tsv", newLine: true).into{ tarpmir_bp_file }
     // delete tmp files
     file(tarpmir_tmp).deleteDir()
 } else {

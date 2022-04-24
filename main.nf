@@ -479,9 +479,9 @@ if (params.differential_expression){
 * DETERMINE miRNA BINDING SITES ON THE PREVIOUSLY DETECTED circRNAs USING miranda
 run only if file is not already present
 */
-miranda_output = params.out_dir + "/results/binding_sites/output/miranda/bind_sites_raw.out"
+miranda_output = params.out_dir + "/results/binding_sites/output/miRanda/bind_sites_raw.out"
 if (!file(miranda_output).exists()) {
-    miranda_tmp = "${params.out_dir}/results/binding_sites/output/miranda/tmp"
+    miranda_tmp = "${params.out_dir}/results/binding_sites/output/miRanda/tmp"
     process miranda {
         label 'process_medium'
         publishDir miranda_tmp, mode: params.publish_dir_mode

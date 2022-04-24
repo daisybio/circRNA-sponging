@@ -548,35 +548,41 @@ process binding_sites_filtering {
 */
 if (params.tarpmir) {
     model = params.model ? Channel.value(file(params.model)) : Channel.value(file(projectDir + "/data/tarpmir_models/Human_sklearn_0.22.pkl"))
-    tarpmir_tmp = "${params.out_dir}/results/binding_sites/output/TarPmiR/tmp"
+    tarpmir_path = "${params.out_dir}/results/binding_sites/output/TarPmiR"
+    tarpmir_tmp = "${tarpmir_path}/tmp"
     // RUN TARPMIR ON CHUNKED MRNA FASTAS
-    process tarpmir {
-        label 'process_medium'
-        publishDir tarpmir_tmp, mode: params.publish_dir_mode
+    tarpmir_out = tarpmir_path + "/TarPmiR_bp.tsv"
+    if (!file(tarpmir_out).exists()) {
+        process TarPmiR {
+            label 'process_medium'
+            publishDir tarpmir_tmp, mode: params.publish_dir_mode
 
-        input:
-        file(model) from model
-        file(mRNA_fasta) from circRNAs_fasta2.splitFasta( by: params.splitter, file: true )
+            input:
+            file(model) from model
+            file(mRNA_fasta) from circRNAs_fasta2.splitFasta( by: params.splitter, file: true )
 
-        output:
-        file("bindings.bp") into bp_files
+            output:
+            file("bindings.bp") into bp_files
 
-        script:
-        """
-        python3 "${projectDir}/bin/TarPmiR_threading.py" \\
-        -a $params.miRNA_fasta \\
-        -b $mRNA_fasta \\
-        -m $model \\
-        -p $params.p \\
-        -t $params.threads \\
-        -o "bindings.bp"
-        """
+            script:
+            """
+            python3 "${projectDir}/bin/TarPmiR_threading.py" \\
+            -a $params.miRNA_fasta \\
+            -b $mRNA_fasta \\
+            -m $model \\
+            -p $params.p \\
+            -t $params.threads \\
+            -o "bindings.bp"
+            """
+        }
+
+        // combine files to one
+        bp_files.collectFile(name: tarpmir_out, newLine: true).into{ tarpmir_bp_file }
+        // delete tmp files
+        file(tarpmir_tmp).deleteDir()
+    } else {
+        Channel.fromPath(tarpmir_out).into{ tarpmir_bp_file }
     }
-
-    // combine files to one
-    bp_files.collectFile(name: "${params.out_dir}/results/binding_sites/output/TarPmiR/tarpmir_bp.tsv", newLine: true).into{ tarpmir_bp_file }
-    // delete tmp files
-    file(tarpmir_tmp).deleteDir()
 } else {
     Channel.of( 'null' ).into{ tarpmir_bp_file }
 }
@@ -586,27 +592,32 @@ if (params.tarpmir) {
  */
 if (params.pita) {
     pita_tmp = "${params.out_dir}/results/binding_sites/output/PITA/tmp"
-    process PITA {
-        label 'process_long'
-        publishDir pita_tmp, mode: params.publish_dir_mode
-        errorStrategy 'retry'
+    pita_out = "${params.out_dir}/results/binding_sites/output/PITA/circRNA_pita_results.tsv"
+    if(!file(pita_out).exists()){
+        process PITA {
+            label 'process_long'
+            publishDir pita_tmp, mode: params.publish_dir_mode
+            errorStrategy 'retry'
 
-        input:
-        file(circ_fasta) from circRNAs_fasta3.splitFasta( by: params.splitter, file: true )
+            input:
+            file(circ_fasta) from circRNAs_fasta3.splitFasta( by: params.splitter, file: true )
 
-        output:
-        file("circRNA_pita_results.tab") into pita_splits
+            output:
+            file("circRNA_pita_results.tab") into pita_splits
 
-        script:
-        """
-        perl $params.pita_path/pita_prediction.pl -utr $circ_fasta -mir $params.miRNA_fasta -prefix circRNA
-        """
+            script:
+            """
+            perl $params.pita_path/pita_prediction.pl -utr $circ_fasta -mir $params.miRNA_fasta -prefix circRNA
+            """
+        }
+
+        // collect all PITA splits
+        pita_splits.collectFile(name: pita_out, newLine: true).into{ pita_results }
+        // delete tmp directory
+        file(pita_tmp).deleteDir()
+    } else {
+        Channel.fromPath(pita_out).into{ pita_results }
     }
-
-    // collect all PITA splits
-    pita_splits.collectFile(name: "${params.out_dir}/results/binding_sites/output/PITA/circRNA_pita_results.tsv", newLine: true).into{ pita_results }
-    // delete tmp directory
-    file(pita_tmp).deleteDir()
 } else {
     Channel.of( 'null' ).into{ pita_results }
 }

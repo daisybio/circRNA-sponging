@@ -479,9 +479,10 @@ if (params.differential_expression){
 * DETERMINE miRNA BINDING SITES ON THE PREVIOUSLY DETECTED circRNAs USING miranda
 run only if file is not already present
 */
-miranda_output = params.out_dir + "/results/binding_sites/output/miRanda/bind_sites_raw.out"
+miranda_path = params.out_dir + "/results/binding_sites/output/miRanda"
+miranda_output = miranda_path + "/bind_sites_raw.out"
 if (!file(miranda_output).exists()) {
-    miranda_tmp = "${params.out_dir}/results/binding_sites/output/miRanda/tmp"
+    miranda_tmp = miranda_path + "/tmp"
     process miranda {
         label 'process_medium'
         publishDir miranda_tmp, mode: params.publish_dir_mode
@@ -549,7 +550,7 @@ process binding_sites_filtering {
 if (params.tarpmir) {
     model = params.model ? Channel.value(file(params.model)) : Channel.value(file(projectDir + "/data/tarpmir_models/Human_sklearn_0.22.pkl"))
     tarpmir_path = "${params.out_dir}/results/binding_sites/output/TarPmiR"
-    tarpmir_tmp = "${tarpmir_path}/tmp"
+    tarpmir_tmp = tarpmir_path + "/tmp"
     // RUN TARPMIR ON CHUNKED MRNA FASTAS
     tarpmir_out = tarpmir_path + "/TarPmiR_bp.tsv"
     if (!file(tarpmir_out).exists()) {

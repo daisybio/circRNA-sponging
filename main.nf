@@ -392,26 +392,33 @@ process filter_circRNAs{
 * DATABASE ANNOTATION USING LIFTOVER FOR GENOMIC COORDINATE CONVERSION AND CIRCBASE
 */
 if (params.database_annotation){
-    process database_annotation{
-    label 'process_medium'
+    circ_annotation = params.out_dir + "/results/circRNA/circRNAs_annotated.tsv"
+    circ_counts_annotated_path = params.out_dir + "/results/circRNA/circRNA_counts_annotated.tsv"
+    if (!file().exists(circ_counts_annotated_path)) {
+        process database_annotation{
+        label 'process_medium'
 
-    publishDir "${params.out_dir}/results/circRNA/", mode: params.publish_dir_mode
+        publishDir "${params.out_dir}/results/circRNA/", mode: params.publish_dir_mode
 
-    input:
-    file(circRNAs_filtered) from ch_circRNA_counts_filtered
+        input:
+        file(circRNAs_filtered) from ch_circRNA_counts_filtered
 
-    output:
-    file("circRNAs_annotated.tsv") into circRNAs_annotated
-    file("circRNA_counts_annotated.tsv") into (ch_circRNA_counts_filtered1, ch_circRNA_counts_filtered2, ch_circRNA_counts_filtered3, ch_circRNA_counts_filtered4, ch_circRNA_counts_filtered5)
-    script:
-    if( params.offline_circ_db == null )
-        """
-        python3 "${projectDir}"/bin/circRNA_db_annotation.py -o $params.species -gv $params.genome_version -d $circRNAs_filtered -ao $params.annotated_only
-        """
-    else
-        """
-        python3 "${projectDir}"/bin/circRNA_db_annotation.py -o $params.species -gv $params.genome_version -d $circRNAs_filtered -off $params.offline_circ_db -ao $params.annotated_only
-        """
+        output:
+        file("circRNAs_annotated.tsv") into circRNAs_annotated
+        file("circRNA_counts_annotated.tsv") into (ch_circRNA_counts_filtered1, ch_circRNA_counts_filtered2, ch_circRNA_counts_filtered3, ch_circRNA_counts_filtered4, ch_circRNA_counts_filtered5)
+        script:
+        if( params.offline_circ_db == null )
+            """
+            python3 "${projectDir}"/bin/circRNA_db_annotation.py -o $params.species -gv $params.genome_version -d $circRNAs_filtered -ao $params.annotated_only
+            """
+        else
+            """
+            python3 "${projectDir}"/bin/circRNA_db_annotation.py -o $params.species -gv $params.genome_version -d $circRNAs_filtered -off $params.offline_circ_db -ao $params.annotated_only
+            """
+        }
+    } else {
+        Channel.fromPath(circ_annotation).into{ circRNAs_annotated }
+        Channel.fromPath(circ_counts_annotated_path).into{ ch_circRNA_counts_filtered1; ch_circRNA_counts_filtered2; ch_circRNA_counts_filtered3; ch_circRNA_counts_filtered4; ch_circRNA_counts_filtered5 }
     }
 } else {
     ch_circRNA_counts_filtered.into{ ch_circRNA_counts_filtered1; ch_circRNA_counts_filtered2; ch_circRNA_counts_filtered3; ch_circRNA_counts_filtered4; ch_circRNA_counts_filtered5 }

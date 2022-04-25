@@ -724,7 +724,7 @@ if (!params.circRNA_only) {
             publishDir "${params.out_dir}/results/miRNA/", mode: params.publish_dir_mode
         
             input:
-            file(miRNAs_expressed) from ch_miRNA_expression_files.collect()
+            file(miRNAs_expressed) from ch_miRNA_expression_files.toList()
 
             output:
             file("miRNA_counts_raw.tsv") into ch_miRNA_counts_raw
@@ -863,7 +863,7 @@ if (!params.circRNA_only) {
             val(tpm) from params.tpm ? "--tpm" : ""
 
             output:
-            file("sponge.RData") into sponge_rimage
+            file("sponge.RData") into (sponge_rimage1, sponge_rimage2)
             file("plots/*.png") into plots
             file("circRNA/*") into circResults
             file("total/*") into totalResults
@@ -898,7 +898,7 @@ if (!params.circRNA_only) {
                 publishDir "${params.out_dir}/results/sponging/SPONGE/DE_analysis", mode: params.publish_dir_mode
 
                 input:
-                file(sponge_data) from sponge_rimage
+                file(sponge_data) from sponge_rimage1
                 file(circ_signif_DE) from DE_circ_signif
                 file(mRNA_signif_DE) from DE_mRNA_signif
 
@@ -911,6 +911,28 @@ if (!params.circRNA_only) {
                 $sponge_data \\
                 $circ_signif_DE \\
                 $mRNA_signif_DE
+                """
+            }
+        }
+        /*
+        * RUN spongEffects ON SPONGE RESULTS
+        */
+        if (params.spongEffects) {
+            process spongEffects {
+                label 'process_high'
+                errorStrategy 'ignore'
+
+                publishDir "${params.out_dir}/results/sponging/SPONGE/spongEffects", mode: params.publish_dir_mode
+
+                input:
+                file(sponge_data) from sponge_rimage2
+
+                output:
+                file("*") into spongEffectsResults
+
+                script:
+                """
+                Rscript "${projectDir}"/bin/spongEffects.R
                 """
             }
         }

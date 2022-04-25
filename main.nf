@@ -394,7 +394,7 @@ process filter_circRNAs{
 if (params.database_annotation){
     circ_annotation = params.out_dir + "/results/circRNA/circRNAs_annotated.tsv"
     circ_counts_annotated_path = params.out_dir + "/results/circRNA/circRNA_counts_annotated.tsv"
-    if (!file().exists(circ_counts_annotated_path)) {
+    if (!file(circ_counts_annotated_path).exists()) {
         process database_annotation{
         label 'process_medium'
 

@@ -724,7 +724,7 @@ if (!params.circRNA_only) {
             publishDir "${params.out_dir}/results/miRNA/", mode: params.publish_dir_mode
         
             input:
-            file(miRNAs_expressed) from ch_miRNA_expression_files.collectFile()
+            file(miRNAs_expressed) from ch_miRNA_expression_files.unique()
 
             output:
             file("miRNA_counts_raw.tsv") into ch_miRNA_counts_raw

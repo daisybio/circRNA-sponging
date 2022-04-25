@@ -76,7 +76,8 @@ for (path in abundances) {
   
   # save tpms
   circ.tpm[abundance.circ$target_id, sample] <- log2(abundance.circ$tpm + argv$pseudocount)
-  mRNA.tpm[abundance.mRNA$target_id, sample] <- log2(abundance.mRNA$tpm + argv$pseudocount)
+  # add pseudocount later because of aggregate
+  mRNA.tpm[abundance.mRNA$target_id, sample] <- abundance.mRNA$tpm
   
   # save circular transcripts
   circ.quant[abundance.circ$target_id, sample] <- abundance.circ$est_counts
@@ -137,7 +138,7 @@ mRNA.tpm$external_gene_name <- NULL
 mRNA.tpm <- aggregate(mRNA.tpm[,-ncol(mRNA.tpm)], list(Gene=mRNA.tpm$ensembl_gene_id), FUN = sum)
 row.names(mRNA.tpm) <- mRNA.tpm$Gene
 mRNA.tpm$Gene <- NULL
-mRNA.tpm <- mRNA.tpm
+mRNA.tpm <- log2(mRNA.tpm + argv$pseudocount)
 
 # bind and save tpms
 tpms <- rbind(circ.tpm, mRNA.tpm)

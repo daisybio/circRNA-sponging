@@ -322,8 +322,11 @@ print("miRNA expr samples:")
 dim(mi_rna_expr)
 print("target scan symbols samples:")
 dim(target_scan_symbols_counts)
-gene_expr <- gene_expr[,colnames(mi_rna_expr)]
-print("using gene_expr samples:")
+# shared samples
+shared.samples <- intersect(colnames(gene_expr), colnames(mi_rna_expr))
+cat("gene expression and miRNA expression share", length(shared.samples), "samples\n")
+gene_expr <- gene_expr[,shared.samples]
+mi_rna_expr <- mi_rna_expr[,shared.samples]
 dim(gene_expr)
 # transform for sponge
 gene_expr[is.na(gene_expr)] <- 0

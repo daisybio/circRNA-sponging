@@ -2,8 +2,6 @@ FROM nfcore/base:1.12.1
 LABEL authors="Octavia Ciora, Leon Schwartz, Markus Hoffmann" \
       description="Docker image containing all software requirements for the nf-core/circrnasponging pipeline"
 
-RUN set apt-get -y autoconf
-
 # install psirc from git repository
 WORKDIR /ext
 RUN git clone https://github.com/Christina-hshi/psirc.git
@@ -12,6 +10,7 @@ WORKDIR /ext/psirc/psirc-quant
 # you may need to compile htslib under "ext/htslib" by following the README there ("make install" is optional and only possible with admin permissions)
 WORKDIR /ext/psirc/psirc-quant/ext/htslib/
 RUN set autoheader \
+      && apt-get -y autoconf \
       && autoconf \ 
       && ./configure \ 
       && make \

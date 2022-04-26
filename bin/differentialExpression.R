@@ -87,7 +87,7 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   names(annotation.colors) <- conditions
   annotation.colors <- list(condition = annotation.colors)
   
-  averages <- sapply(split(df, df$condition), function(x) sum(expr[,x[,"sample"]])/nrow(x))
+  averages <- sapply(split(df, df$condition), function(x) sum(counts(d, normalized = T)[,x[,"sample"]])/nrow(x))
   png(file.path(out, "average_circ_expr.png"))
   barplot(averages, ylab = "average sum of detected circRNAs", col = annotation.colors)
   dev.off()

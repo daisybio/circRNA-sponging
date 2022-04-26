@@ -83,7 +83,7 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   colors <- c(colorRampPalette(c("blue", "orange"))(100), colorRampPalette(c("orange", "red"))(100))
   #colors <- hcl.colors(101, rev = T)
   #annotation.colors <- hcl.colors(length(conditions), palette = hcl.pals(type = "diverging")[12])
-  annotation.colors <- met.brewer(palette, n = length(conditions))
+  annotation.colors <- met.brewer(palette, n = length(conditions), type = "discrete")
   names(annotation.colors) <- conditions
   annotation.colors <- list(condition = annotation.colors)
   

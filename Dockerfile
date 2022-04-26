@@ -2,6 +2,10 @@ FROM nfcore/base:1.12.1
 LABEL authors="Octavia Ciora, Leon Schwartz, Markus Hoffmann" \
       description="Docker image containing all software requirements for the nf-core/circrnasponging pipeline"
 
+RUN set -e \
+      && apt-get -y autoheader \
+      && apt-get -y autoconf
+
 # install psirc from git repository
 WORKDIR /ext
 RUN git clone https://github.com/Christina-hshi/psirc.git

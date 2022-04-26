@@ -11,7 +11,7 @@ WORKDIR /ext/psirc/psirc-quant
 WORKDIR /ext/psirc/psirc-quant/ext/htslib/
 RUN set apt-get install autoconf
 RUN set autoheader \
-      && autoconf \ 
+      && set autoconf \ 
       && ./configure \ 
       && make \
       && make install

@@ -18,16 +18,16 @@ WORKDIR /ext/psirc/psirc-quant
 # make release
 RUN mkdir release
 WORKDIR /ext/psirc/psirc-quant/release
-RUN cmake .. \
-      && make psirc-quant \
-      && make install
+RUN set cmake .. \
+      && set make psirc-quant \
+      && set make install
 # the psirc-quant program can be found at "src/psirc-quant"
 
 # install PITA
 WORKDIR /ext/PITA
-RUN wget --no-check-certificate "https://genie.weizmann.ac.il/pubs/mir07/64bit_exe_pita_prediction.tar.gz"
-RUN tar xvfz *pita_prediction.tar.gz
-RUN make install
+RUN set wget --no-check-certificate "https://genie.weizmann.ac.il/pubs/mir07/64bit_exe_pita_prediction.tar.gz"
+RUN set tar xvfz *pita_prediction.tar.gz
+RUN set make install
 # make script compatible with newer perl versions
 RUN set sed -i -E "s/(=~\s\S+)\{HOME\}(.\S+)/\1\\\{HOME\\\}\2/" lib/libfile.pl \
       && sed -i -E "s/(if\()defined\((@\S+)\)(.*)/\1\2\3/" lib/join.pl

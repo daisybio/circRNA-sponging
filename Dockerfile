@@ -20,7 +20,7 @@ RUN mkdir release
 WORKDIR /ext/psirc/psirc-quant/release
 RUN cmake .. \
       && make psirc-quant \
-      && make install \
+      && make install
 # the psirc-quant program can be found at "src/psirc-quant"
 
 # install PITA

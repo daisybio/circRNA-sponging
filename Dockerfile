@@ -9,19 +9,19 @@ WORKDIR /ext/psirc
 WORKDIR /ext/psirc/psirc-quant
 # you may need to compile htslib under "ext/htslib" by following the README there ("make install" is optional and only possible with admin permissions)
 WORKDIR /ext/psirc/psirc-quant/ext/htslib/
-RUN autoheader
-RUN autoconf
-RUN ./configure
-RUN make
-RUN make install
+RUN set autoheader \
+      && autoconf \ 
+      && ./configure \ 
+      && make \
+      && make install
 WORKDIR /ext/psirc/psirc-quant
 # make release
 RUN mkdir release
 WORKDIR /ext/psirc/psirc-quant/release
-RUN cmake ..
-RUN make psirc-quant
+RUN cmake .. \
+      && make psirc-quant \
+      && make install \
 # the psirc-quant program can be found at "src/psirc-quant"
-RUN make install
 
 # install PITA
 WORKDIR /ext/PITA
@@ -29,8 +29,8 @@ RUN wget --no-check-certificate "https://genie.weizmann.ac.il/pubs/mir07/64bit_e
 RUN tar xvfz *pita_prediction.tar.gz
 RUN make install
 # make script compatible with newer perl versions
-RUN sed -i -E "s/(=~\s\S+)\{HOME\}(.\S+)/\1\\\{HOME\\\}\2/" lib/libfile.pl
-RUN sed -i -E "s/(if\()defined\((@\S+)\)(.*)/\1\2\3/" lib/join.pl
+RUN set sed -i -E "s/(=~\s\S+)\{HOME\}(.\S+)/\1\\\{HOME\\\}\2/" lib/libfile.pl \
+      && sed -i -E "s/(if\()defined\((@\S+)\)(.*)/\1\2\3/" lib/join.pl
 
 # Install the conda environment
 # All conda/bioconda dependencies are listed there

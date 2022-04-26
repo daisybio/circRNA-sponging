@@ -28,7 +28,7 @@ WORKDIR /ext/PITA
 RUN set wget --no-check-certificate "https://genie.weizmann.ac.il/pubs/mir07/64bit_exe_pita_prediction.tar.gz"
 RUN set tar xvfz *pita_prediction.tar.gz
 RUN set make install
-COPY lib/* /
+COPY /ext/PITA/lib/* /
 # make script compatible with newer perl versions
 RUN set sed -i -E "s/(=~\s\S+)\{HOME\}(.\S+)/\1\\\{HOME\\\}\2/" /libfile.pl
 RUN sed -i -E "s/(if\()defined\((@\S+)\)(.*)/\1\2\3/" //join.pl

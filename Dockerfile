@@ -9,12 +9,11 @@ WORKDIR /ext/psirc
 WORKDIR /ext/psirc/psirc-quant
 # you may need to compile htslib under "ext/htslib" by following the README there ("make install" is optional and only possible with admin permissions)
 WORKDIR /ext/psirc/psirc-quant/ext/htslib/
-RUN set apt-get install autoconf
 RUN set autoheader \
       && set autoconf \ 
-      && ./configure \ 
-      && make \
-      && make install
+      && set ./configure \ 
+      && set make \
+      && set make install
 WORKDIR /ext/psirc/psirc-quant
 # make release
 RUN mkdir release

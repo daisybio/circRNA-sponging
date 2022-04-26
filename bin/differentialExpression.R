@@ -23,7 +23,7 @@ parser <- add_argument(parser, "--tpm", help = "Use TPM instead of counts", flag
 argv <- parse_args(parser, argv = args)
 
 # create output data and plots
-create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.1, log2FC = 0, pseudocount = 0, filter = NULL, isLogFransformed = F) {
+create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.1, log2FC = 0, pseudocount = 0, filter = NULL, isLogFransformed = F, palette = "Renoir") {
   # create dirs in cwd
   dir.create(out, showWarnings = FALSE)
   # col data
@@ -83,7 +83,7 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   colors <- c(colorRampPalette(c("blue", "orange"))(100), colorRampPalette(c("orange", "red"))(100))
   #colors <- hcl.colors(101, rev = T)
   #annotation.colors <- hcl.colors(length(conditions), palette = hcl.pals(type = "diverging")[12])
-  annotation.colors <- met.brewer("Veronese", n = length(conditions))
+  annotation.colors <- met.brewer(palette, n = length(conditions))
   names(annotation.colors) <- conditions
   annotation.colors <- list(condition = annotation.colors)
   

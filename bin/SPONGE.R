@@ -351,8 +351,6 @@ if (argv$tpm) {
 if (argv$normalize) {
   print("normalizing gene expression")
   gene_expr <- normalize.data(gene_expr)
-  print("normalizing miRNA expression")
-  mi_rna_expr <- normalize.data(mi_rna_expr)
 }
 
 # annotate circRNAs

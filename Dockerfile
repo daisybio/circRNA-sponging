@@ -30,7 +30,7 @@ RUN set tar xvfz *pita_prediction.tar.gz
 RUN set make install
 # make script compatible with newer perl versions
 RUN set sed -i -E "s/(=~\s\S+)\{HOME\}(.\S+)/\1\\\{HOME\\\}\2/" /lib/libfile.pl
-RUN sed -i -E "s/(if\()defined\((@\S+)\)(.*)/\1\2\3/" /lib/join.pl
+RUN set sed -i -E "s/(if\()defined\((@\S+)\)(.*)/\1\2\3/" /lib/join.pl
 
 # Install the conda environment
 # All conda/bioconda dependencies are listed there

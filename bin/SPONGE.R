@@ -342,6 +342,8 @@ if (argv$tpm) {
   lengths <- mir_fasta[names(mir_fasta)%in%rownames(mi_rna_expr)]@ranges@width
   mi_rna_expr <- mi_rna_expr/lengths
   mi_rna_expr <- log2(t(t(mi_rna_expr)*1e6/colSums(mi_rna_expr))+1e-3)
+  print("normalizing miRNA tpm expression")
+  mi_rna_expr <- normalize.data(mi_rna_expr)
 }
 
 # transform for sponge

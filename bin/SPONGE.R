@@ -328,9 +328,6 @@ cat("gene expression and miRNA expression share", length(shared.samples), "sampl
 gene_expr <- gene_expr[,shared.samples]
 mi_rna_expr <- mi_rna_expr[,shared.samples]
 dim(gene_expr)
-# transform for sponge
-gene_expr[is.na(gene_expr)] <- 0
-mi_rna_expr[is.na(mi_rna_expr)] <- 0
 
 target_scan_symbols_counts <- as.matrix(target_scan_symbols_counts)
 
@@ -346,6 +343,10 @@ if (argv$tpm) {
   mi_rna_expr <- mi_rna_expr/lengths
   mi_rna_expr <- log2(t(t(mi_rna_expr)*1e6/colSums(mi_rna_expr))+1e-3)
 }
+
+# transform for sponge
+gene_expr[is.na(gene_expr)] <- 0
+mi_rna_expr[is.na(mi_rna_expr)] <- 0
 
 save.image(file = file.path(out, "sponge.RData"))
 

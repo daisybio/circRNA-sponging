@@ -347,6 +347,8 @@ if (argv$tpm) {
   mi_rna_expr <- log2(t(t(mi_rna_expr)*1e6/colSums(mi_rna_expr))+1e-3)
 }
 
+save.image(file = file.path(out, "sponge.RData"))
+
 # normalize expressions if not already done
 if (argv$normalize) {
   print("normalizing gene expression")

@@ -20,6 +20,7 @@ parser <- add_argument(parser, "--mir_fasta", help = "miRNA fasta file")
 # add all target scan symbol options to be included -> will generate final target scan symbols
 parser <- add_argument(parser, "--output_dir", help = "Output directory", default = getwd())
 parser <- add_argument(parser, "--fdr", help = "FDR rate for ceRNA networks", default = 0.01)
+parser <- add_argument(parser, "--pseudocount", help = "Pseudocounts to use", default = 1e-3)
 parser <- add_argument(parser, "--cpus", help = "Number of cores to use for paralellization", default = 25)
 parser <- add_argument(parser, "--target_scan_symbols", help = "Contingency matrix of target scan symbols provided as tsv", default = "null")
 parser <- add_argument(parser, "--miranda_data", help = "miRanda default output in tsv", default = "null")
@@ -331,6 +332,10 @@ dim(gene_expr)
 
 target_scan_symbols_counts <- as.matrix(target_scan_symbols_counts)
 
+# transform for sponge
+gene_expr[is.na(gene_expr)] <- 0
+mi_rna_expr[is.na(mi_rna_expr)] <- 0
+
 # use tpms instead of counts
 if (argv$tpm) {
   # convert circRNA and linear expression
@@ -341,22 +346,18 @@ if (argv$tpm) {
   mi_rna_expr <- mi_rna_expr[rownames(mi_rna_expr) %in% names(mir_fasta),]
   lengths <- mir_fasta[names(mir_fasta)%in%rownames(mi_rna_expr)]@ranges@width
   mi_rna_expr <- mi_rna_expr/lengths
-  mi_rna_expr <- log2(t(t(mi_rna_expr)*1e6/colSums(mi_rna_expr))+1e-3)
-  print("normalizing miRNA tpm expression")
-  mi_rna_expr <- normalize.data(mi_rna_expr)
-}
-
-# transform for sponge
-gene_expr[is.na(gene_expr)] <- 0
-mi_rna_expr[is.na(mi_rna_expr)] <- 0
-
-save.image(file = file.path(out, "sponge.RData"))
-
-# normalize expressions if not already done
-if (argv$normalize) {
+  mi_rna_expr <- log2(t(t(mi_rna_expr)*1e6/colSums(mi_rna_expr)) + argv$pseudocount)
+  
+  # transform for sponge
+  gene_expr[is.na(gene_expr)] <- 0
+  mi_rna_expr[is.na(mi_rna_expr)] <- 0
+} else if (argv$normalize) {
+  # normalize expressions if not already done
   print("normalizing gene expression")
   gene_expr <- normalize.data(gene_expr)
 }
+
+save.image(file = file.path(out, "sponge.RData"))
 
 # annotate circRNAs
 if (annotation){

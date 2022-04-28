@@ -888,6 +888,7 @@ if (!params.circRNA_only) {
             --tarpmir_data $tarpmir \\
             --pita_data $pita \\
             --majority_matcher $params.majority_matcher \\
+            --pseudocount $params.pseudocount \\
             --tpm_map $tpm_map \\
             $tpm \\
             $normalize

@@ -92,11 +92,14 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   # plot total counts per sample
   cons <- split(df, df[,marker])
   counts.per.condition <- colSums(counts(d, normalized = T)[,cons$sample] != 1)
-  matplot(counts.per.condition, type = "l", xaxt="n", yaxt="n", ylab = NA, main = "detected counts per sample")
+  matplot(counts.per.condition, type = "l", xaxt="n", yaxt="n", ylab = NA, main = "detected counts per sample", lty = 1, col = annotation.colors, lwd = 2)
   axis(1, at=1:nrow(counts.per.condition), labels = rownames(counts.per.condition), las = 2)
   axis(2, las = 2, at = seq(min(counts.per.condition), max(counts.per.condition), 1000))
+  par(xpd=F)
   abline(v = 1:nrow(counts.per.condition), lty = 2, col = "grey")
   abline(h = seq(min(counts.per.condition), max(counts.per.condition), 1000), lty = 2, col = "grey")
+  par(xpd=T)
+  legend("topright", legend = colnames(counts.per.condition), col = annotation.colors, lty = c(1,1), cex=0.8, lwd = 2, inset = c(-0.2, 0))
   
   row.names(df) <- df$sample
   df <- df[, marker, drop = F]

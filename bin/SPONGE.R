@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 
 install.packages("pacman")
-pacman::p_load(SPONGE, argparser, data.table, dplyr, ggplot2, reshape2, stringr, VennDiagram, Biostrings)
+pacman::p_load(SPONGE, argparser, data.table, dplyr, ggplot2, reshape2, stringr, VennDiagram, Biostrings, MetBrewer)
 
 args = commandArgs(trailingOnly = TRUE)
 
@@ -171,6 +171,11 @@ majority_vote <- function(miranda, tarpmir, pita, match) {
                cat.fontfamily = "sans",
                rotation = 1)
   return(majority.vote)
+}
+
+# plot circRNA vs linearRNA binding sites
+circ.vs.linear.bs <- function(circ.targets, linear.targets){
+  
 }
 
 # use pipeline outputs to create target scan symbols

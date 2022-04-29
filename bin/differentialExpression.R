@@ -89,7 +89,7 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   cons <- split(df, df[,marker])
   counts.per.condition <- as.data.frame(lapply(cons, function(x) colSums(counts(d)[,x[["sample"]]] != 1)))
   par(mar=c(5,4,4,5), xpd = T)
-  matplot(counts.per.condition, type = "l", xaxt="n", yaxt="n", ylab = NA, main = "detected counts per sample", lty = 1, col = annotation.colors, lwd = 2)
+  matplot(counts.per.condition, type = "l", xaxt="n", yaxt="n", ylab = NA, main = "unique RNAs per sample", lty = 1, col = annotation.colors, lwd = 2)
   axis(1, at=1:nrow(counts.per.condition), labels = rownames(counts.per.condition), las = 2)
   axis(2, las = 2, at = seq(min(counts.per.condition), max(counts.per.condition), 1000))
   legend("topright", legend = colnames(counts.per.condition), col = annotation.colors, lty = c(1,1), cex=0.8, lwd = 2, inset = c(-0.2, 0))

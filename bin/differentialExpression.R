@@ -81,18 +81,13 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   #annotation.colors <- hcl.colors(length(conditions), palette = hcl.pals(type = "diverging")[12])
   annotation.colors <- met.brewer(palette, n = length(conditions), type = "continuous")
   
-  averages <- sapply(split(df, df$condition), function(x) sum(counts(d, normalized = T)[,x[,"sample"]])/nrow(x))
-  png(file.path(out, "average_circ_expr.png"))
-  barplot(averages, ylab = "average sum of detected circRNAs", col = annotation.colors)
-  dev.off()
-  
   names(annotation.colors) <- conditions
   annotation.colors <- list(condition = annotation.colors)
   
   # plot total counts per sample
   png(filename = file.path(out, "counts.per.sample.png"), res = 200, width = 1024, height = 800)
   cons <- split(df, df[,marker])
-  counts.per.condition <- colSums(counts(d, normalized = T)[,cons$sample] != 1)
+  counts.per.condition <- as.data.frame(lapply(cons, function(x) colSums(counts(d)[,x[["sample"]]] != 1)))
   matplot(counts.per.condition, type = "l", xaxt="n", yaxt="n", ylab = NA, main = "detected counts per sample", lty = 1, col = annotation.colors, lwd = 2)
   axis(1, at=1:nrow(counts.per.condition), labels = rownames(counts.per.condition), las = 2)
   axis(2, las = 2, at = seq(min(counts.per.condition), max(counts.per.condition), 1000))

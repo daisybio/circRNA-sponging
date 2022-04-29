@@ -1,13 +1,7 @@
 #!/usr/bin/env Rscript
 
-library(ggplot2)
-library(ensembldb)
-library(pheatmap)
-library(DESeq2)
-library(data.table)
-library(EnhancedVolcano)
-library(argparser)
-library(MetBrewer)
+install.packages("pacman")
+pacman::p_load("ggplot2", "ensembldb", "pheatmap", "DESeq2", "data.table", "EnhancedVolcano", "argparser", "MetBrewer") 
 
 args = commandArgs(trailingOnly = TRUE)
 
@@ -29,6 +23,8 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   # col data
   df <- as.data.frame(colData(d))
   df <- df[,c("sample", marker)]
+  
+  conditions <- split(df, df[,marker])
   
   conditions <- unique(df[,marker])
   
@@ -92,6 +88,15 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   
   names(annotation.colors) <- conditions
   annotation.colors <- list(condition = annotation.colors)
+  
+  # plot total counts per sample
+  cons <- split(df, df[,marker])
+  counts.per.condition <- colSums(counts(d, normalized = T)[,cons$sample] != 1)
+  matplot(counts.per.condition, type = "l", xaxt="n", yaxt="n", ylab = NA, main = "detected counts per sample")
+  axis(1, at=1:nrow(counts.per.condition), labels = rownames(counts.per.condition), las = 2)
+  axis(2, las = 2, at = seq(min(counts.per.condition), max(counts.per.condition), 1000))
+  abline(v = 1:nrow(counts.per.condition), lty = 2, col = "grey")
+  abline(h = seq(min(counts.per.condition), max(counts.per.condition), 1000), lty = 2, col = "grey")
   
   row.names(df) <- df$sample
   df <- df[, marker, drop = F]

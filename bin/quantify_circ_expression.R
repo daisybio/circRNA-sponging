@@ -1,9 +1,8 @@
 #!/usr/bin/env Rscript
 
-library(Biostrings)
-library(argparser)
-library(DESeq2)
-require(reshape2)
+install.packages("pacman")
+pacman::p_load(Biostrings, argparser, DESeq2, reshape2)
+
 
 args <- commandArgs(trailingOnly = TRUE)
 

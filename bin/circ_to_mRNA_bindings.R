@@ -1,12 +1,8 @@
 #!/usr/bin/env Rscript
 
-library(BSgenome)
-library(AnnotationHub)
-library(argparser)
-library(ggplot2)
-library(biomaRt)
-library(ensembldb)
-library(Biostrings)
+install.packages("pacman")
+pacman::p_load(BSgenome, AnnotationHub, argparser, ggplot2, biomaRt, ensembldb, Biostrings)
+
 
 ah <- AnnotationHub(ask = F)
 

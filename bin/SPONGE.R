@@ -1,14 +1,7 @@
 #!/usr/bin/env Rscript
 
-library(SPONGE)
-library(argparser)
-library(data.table)
-library(dplyr)
-library(ggplot2)
-library(reshape2)
-library(stringr)
-library(VennDiagram)
-library(Biostrings)
+install.packages("pacman")
+pacman::p_load(SPONGE, argparser, data.table, dplyr, ggplot2, reshape2, stringr, VennDiagram, Biostrings)
 
 args = commandArgs(trailingOnly = TRUE)
 

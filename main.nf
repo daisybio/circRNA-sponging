@@ -939,7 +939,7 @@ if (!params.circRNA_only) {
 
                 script:
                 """
-                Rscript "${projectDir}"/bin/spongEffects.R
+                Rscript "${projectDir}"/bin/spongEffects.R --spongeData $sponge_data
                 """
             }
         }

@@ -1,10 +1,8 @@
 #!/usr/bin/env Rscript
 
-library(BSgenome)
-library(Biostrings)
-library(GenomicRanges)
-library(GenomicFeatures)
-library(seqinr)
+install.packages("pacman")
+pacman::p_load(BSgenome, Biostrings, GenomicRanges, GenomicFeatures, seqinr)
+
 
 args = commandArgs(trailingOnly = TRUE)
 

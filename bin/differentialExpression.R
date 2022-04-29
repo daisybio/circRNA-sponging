@@ -85,7 +85,7 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   annotation.colors <- list(condition = annotation.colors)
   
   # plot total counts per sample
-  png(filename = file.path(out, "counts.per.sample.png"), res = 200, width = 1024, height = 800)
+  png(filename = file.path(out, "hits.per.sample.png"), res = 200, width = 1024, height = 800)
   cons <- split(df, df[,marker])
   counts.per.condition <- as.data.frame(lapply(cons, function(x) colSums(counts(d)[,x[["sample"]]] != 1)))
   matplot(counts.per.condition, type = "l", xaxt="n", yaxt="n", ylab = NA, main = "detected counts per sample", lty = 1, col = annotation.colors, lwd = 2)
@@ -94,7 +94,7 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   par(xpd=F)
   abline(v = 1:nrow(counts.per.condition), lty = 2, col = "grey")
   abline(h = seq(min(counts.per.condition), max(counts.per.condition), 1000), lty = 2, col = "grey")
-  par(xpd=T, mar=c(5,4,4,8))
+  par(mar=c(5,4,4,8), xpd = T)
   legend("topright", legend = colnames(counts.per.condition), col = annotation.colors, lty = c(1,1), cex=0.8, lwd = 2, inset = c(-0.2, 0))
   dev.off()
   

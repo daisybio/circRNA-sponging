@@ -94,7 +94,7 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   par(xpd=F)
   abline(v = 1:nrow(counts.per.condition), lty = 2, col = "grey")
   abline(h = seq(min(counts.per.condition), max(counts.per.condition), 1000), lty = 2, col = "grey")
-  par(xpd=T)
+  par(xpd=T, mar=c(5,4,4,8))
   legend("topright", legend = colnames(counts.per.condition), col = annotation.colors, lty = c(1,1), cex=0.8, lwd = 2, inset = c(-0.2, 0))
   dev.off()
   

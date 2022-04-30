@@ -173,11 +173,6 @@ majority_vote <- function(miranda, tarpmir, pita, match) {
   return(majority.vote)
 }
 
-# plot circRNA vs linearRNA binding sites
-circ.vs.linear.bs <- function(circ.targets, linear.targets){
-  
-}
-
 # use pipeline outputs to create target scan symbols
 create_target_scan_symbols <- function(merged_data, majority, miranda, tarpmir, pita) {
   print("CREATING TARGET SCAN SYMBOLS")

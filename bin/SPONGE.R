@@ -318,7 +318,10 @@ print("target scan symbols samples:")
 dim(target_scan_symbols_counts)
 # shared samples
 shared.samples <- intersect(colnames(gene_expr), colnames(mi_rna_expr))
-cat("gene expression and miRNA expression share", length(shared.samples), "samples\n")
+all.samples <- unique(c(colnames(gene_expr), colnames(mi_rna_expr)))
+if (length(shared.samples) < all.samples) {
+  cat("Discarding samples", all.samples[!all.samples %in% shared.samples], "because they are missing in either gene or miRNA expression")
+}
 gene_expr <- gene_expr[,shared.samples]
 mi_rna_expr <- mi_rna_expr[,shared.samples]
 dim(gene_expr)

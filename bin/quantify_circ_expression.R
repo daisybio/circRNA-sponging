@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 
-install.packages("pacman")
+install.packages("pacman", repos = "http://cran.us.r-project.org")
 pacman::p_load(Biostrings, argparser, DESeq2, reshape2)
 
 

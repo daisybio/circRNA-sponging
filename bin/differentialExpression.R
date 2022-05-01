@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 
-install.packages("pacman")
+install.packages("pacman", repos = "http://cran.us.r-project.org")
 pacman::p_load("ggplot2", "ensembldb", "pheatmap", "DESeq2", "data.table", "EnhancedVolcano", "argparser", "MetBrewer") 
 
 args = commandArgs(trailingOnly = TRUE)

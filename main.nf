@@ -517,7 +517,7 @@ if (!file(miranda_output).exists()) {
 */
 process binding_sites_processing {
     label 'process_medium'
-    publishDir "${params.out_dir}/results/binding_sites/output/miranda", mode: params.publish_dir_mode
+    publishDir miranda_path, mode: params.publish_dir_mode
     
     input:
     file(bind_sites_raw) from bind_sites_out
@@ -537,7 +537,7 @@ process binding_sites_processing {
 */
 process binding_sites_filtering {
     label 'process_medium'
-    publishDir "${params.out_dir}/results/binding_sites/output/miRanda", mode: params.publish_dir_mode
+    publishDir miranda_path, mode: params.publish_dir_mode
     
     input:
     file(bind_sites_proc) from bind_sites_processed

@@ -683,6 +683,7 @@ if (!params.circRNA_only) {
         /*
         * PERFORM miRNA READ MAPPING USING miRDeep2
         */
+        miRNA_adapter = params.miRNA_adapter ? "-k " + params.miRNA_adapter : ""
         process miRDeep2_mapping {
             label 'process_high'
             publishDir "${params.out_dir}/samples/${sampleID}/miRNA_detection/", mode: params.publish_dir_mode
@@ -691,6 +692,7 @@ if (!params.circRNA_only) {
             tuple val(sampleID), file(read_file) from ch_smallRNA_reads
             file(index) from ch_bowtie_index.collect()
             file(fasta) from ch_fasta
+            val(adapter) from miRNA_adapter
 
             output: 
             tuple val(sampleID), file("reads_collapsed.fa"), file("reads_vs_ref.arf") into ch_miRNA_mapping_output
@@ -698,7 +700,7 @@ if (!params.circRNA_only) {
             script:
             """
             gunzip < $read_file > "${sampleID}.fastq"
-            mapper.pl "${sampleID}.fastq" -e -h -i -j -k $params.miRNA_adapter -l 18 -m -p ${fasta.baseName} -s "reads_collapsed.fa" -t "reads_vs_ref.arf" -v
+            mapper.pl "${sampleID}.fastq" -e -h -i -j $adapter -l 18 -m -p ${fasta.baseName} -s "reads_collapsed.fa" -t "reads_vs_ref.arf" -v
             """
         }
 

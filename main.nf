@@ -51,10 +51,18 @@ def helpMessage() {
         --annotated_only [bool]      Only use circRNAs that could be annotated by CircBase for downstream analysis (default: false)
         --offline_circ_db [file]      File containing downloaded circBase entries for offline access to the database
       --differential_expression [bool]  Enable differential expression analysis using DESeq2 on all given RNA-seq data and circRNA only
-      --tarpmir [bool]   Wheather to use tarpmir for bindsite prediction (may take significantly longer)
-        --model [pkl]       Path to a specific tarpmir model as pickle (default model is Human_sklearn_0.22.pkl, located in data directory)
-        --p     [real]      Double between 0 and 1 specifing cutoff for tarpmir (default: 0.8)
-        --threads [int]     Number of threads to use for tarpmir (default: 2)
+      miRNA binding site predictions:
+        --tarpmir [bool]   Use TarPmiR
+            --model [pkl]       Path to a specific tarpmir model as pickle (default model is Human_sklearn_0.22.pkl, located in data directory)
+            --p     [real]      Double between 0 and 1 specifing cutoff for tarpmir (default: 0.8)
+            --threads [int]     Number of threads to use for tarpmir (default: 2)
+        --pita [bool]  Use PITA
+            --pita_l [str]      Search for seed lengths of num1,...,num2 to the MicroRNA (default: "6-8")
+            --pita_gu [str]     Lengths for which G:U wobbles are allowed and number of allowed wobbles.
+                                    Format of nums: <length;num G:U>,<length;num G:U>,... (default: "6;0,7;1,8;1")
+            --pita_m [str]      Lengths for which mismatches are allowed and number of allowed mismatches
+                                    Format of nums: <length;num mismatches>,<length;num mismatches>,...
+                                    (default: "6;0,7;0,8;1")
       --sponge [bool]   Wheather to perform SPONGE ceRNA network analysis    
         --target_scan_symbols [file]    Path to target scan symbols matrix in tsv and SPONGE format (rows=ENSG,cols=miRNA,data=counts)
         --tpm [bool]     Use log(TPM + 1e-3) expressions
@@ -601,6 +609,7 @@ if (params.tarpmir) {
 if (params.pita) {
     pita_tmp = "${params.out_dir}/results/binding_sites/output/PITA/tmp"
     pita_out = "${params.out_dir}/results/binding_sites/output/PITA/circRNA_pita_results.tsv"
+    pita_options = "-l " + params.pita_l + " -gu " + params.pita_gu + " -m " + params.pita_m
     if(!file(pita_out).exists()){
         process PITA {
             label 'process_long'
@@ -609,13 +618,14 @@ if (params.pita) {
 
             input:
             file(circ_fasta) from circRNAs_fasta3.splitFasta( by: params.splitter, file: true )
+            val(options) from pita_options
 
             output:
             file("circRNA_pita_results.tab") into pita_splits
 
             script:
             """
-            perl $params.pita_path/pita_prediction.pl -utr $circ_fasta -mir $params.miRNA_fasta -prefix circRNA
+            perl $params.pita_path/pita_prediction.pl -utr $circ_fasta -mir $params.miRNA_fasta -prefix circRNA $options
             """
         }
 

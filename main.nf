@@ -854,7 +854,7 @@ if (!params.circRNA_only) {
         // USE GIVEN TARGET SYMBOLS OR DEFAULT LOCATED IN DATA
         target_scan_symbols = params.target_scan_symbols ? Channel.value(file(params.target_scan_symbols)) : Channel.value(file(projectDir + "/data/miRNA_target_symbols/hsa_mirWalk_lncbase_21_ENSG.tsv.gz"))
         process SPONGE {
-            label 'process_high'
+            label 'process_long'
             errorStrategy 'ignore'
 
             publishDir "${params.out_dir}/results/sponging/SPONGE", mode: params.publish_dir_mode

@@ -677,7 +677,8 @@ if (!params.circRNA_only) {
             file(fasta) from ch_fasta
             
             output:
-            file("${fasta.baseName}*") into ch_generated_bowtie_index
+            file("${fasta.baseName}*") into ch_generated_bowtie_index_files
+            val("${fasta.baseName}") into ch_generated_bowtie_index
                             
             when: (params.bowtie_index == null)
 
@@ -688,7 +689,7 @@ if (!params.circRNA_only) {
             """
         }
 
-        ch_bowtie_index = params.bowtie_index ? Channel.value(file(params.bowtie_index)) : ch_generated_bowtie_index
+        ch_bowtie_index = params.bowtie_index ? Channel.value(params.bowtie_index) : ch_generated_bowtie_index
 
         /*
         * PERFORM miRNA READ MAPPING USING miRDeep2
@@ -700,8 +701,7 @@ if (!params.circRNA_only) {
 
             input:
             tuple val(sampleID), file(read_file) from ch_smallRNA_reads
-            file(index) from ch_bowtie_index.collect()
-            file(fasta) from ch_fasta
+            val(index) from ch_bowtie_index
             val(adapter) from miRNA_adapter
 
             output: 

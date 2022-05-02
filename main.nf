@@ -9,6 +9,8 @@
 ----------------------------------------------------------------------------------------
 */
 
+nextflow.enable.dsl=1
+
 def helpMessage() {
     // TODO nf-core: Add to this help message with new command line parameters
     log.info"""
@@ -458,7 +460,6 @@ if (params.differential_expression){
         file(circRNA_raw) from ch_circRNA_counts2
         file(gene_expression) from gene_expression1
         val(tpm_map) from TPM_map1
-        val(tpm) from params.tpm ? "--tpm" : ""
 
         output:
         file("total_rna/total_rna.tsv") into deseq_total_rna
@@ -476,8 +477,7 @@ if (params.differential_expression){
             --samplesheet $params.samplesheet \\
             --circ_filtered $circRNA_counts \\
             --circ_raw $circRNA_raw \\
-            --tpm_map $tpm_map \\
-            $tpm
+            --tpm_map $tpm_map
         """
     }
 }

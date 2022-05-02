@@ -11,8 +11,6 @@ parser <- add_argument(parser, "--samplesheet", help = "Meta data for expression
 parser <- add_argument(parser, "--circ_filtered", help = "circRNA filtered expression file in tsv format as given by pipeline")
 parser <- add_argument(parser, "--circ_raw", help = "circRNA raw expression file in tsv format as given by pipeline")
 parser <- add_argument(parser, "--tpm_map", help = "TPM map of circular and linear transcripts provided by pipeline")
-# FLAGS
-parser <- add_argument(parser, "--tpm", help = "Use TPM instead of counts", flag = T)
 
 argv <- parse_args(parser, argv = args)
 
@@ -142,36 +140,6 @@ if (annotation) {
 circ_expr <- circ.raw[circ.raw$key %in% filtered.circs, samples]
 rownames(circ_expr) <- circ_RNA_annotation
 
-# use tpms instead of counts
-if (argv$tpm) {
-  # convert circRNA and linear expression
-  TPM.map <- read.table(argv$tpm_map, header = T, sep = "\t", stringsAsFactors = F, check.names = F)
-  gene_expression_tpm <- as.matrix(TPM.map[rownames(gene_expression), colnames(gene_expression)])
-  circ_expr_tpm <- as.matrix(TPM.map[rownames(circ_expr), colnames(circ_expr)])
-  
-  dds <- DESeq2::DESeqDataSetFromMatrix(countData = round(gene_expression_tpm),
-                                        colData = samplesheet,
-                                        design = ~ condition)
-  dds <- DESeq2::DESeq(dds)
-  res <- DESeq2::results(dds)
-  # sort by p-value
-  res <- res[order(res$padj),]
-  DESeq2::summary(res)
-  
-  create_outputs(d = dds, results = res, marker = "condition", out = "total_rna_tpm", nsub = 100, isLogFransformed = argv$tpm)
-  # CIRCULAR RNA
-  
-  dds.circ <- DESeq2::DESeqDataSetFromMatrix(countData = round(circ_expr_tpm),
-                                             colData = samplesheet,
-                                             design = ~ condition)
-  dds.circ <- DESeq2::DESeq(dds.circ)
-  res.circ <- DESeq2::results(dds.circ)
-  # sort by p-value
-  res.circ <- res.circ[order(res.circ$padj),]
-  # create summary
-  DESeq2::summary(res.circ)
-  create_outputs(dds.circ, res.circ, marker = "condition", out = "circ_rna_DE_tpm", nsub = 100, isLogFransformed = argv$tpm)
-}
 pseudocount = 1
 gene_expression <- gene_expression + pseudocount
 circ_expr <- as.matrix(circ_expr) + pseudocount

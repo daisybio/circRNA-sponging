@@ -15,9 +15,11 @@ parser <- add_argument(parser, "--cpus", help = "Number of cores to use for back
 argv <- parse_args(parser, argv = args)
 
 # load SPONGE data
+print("loading SPONGE data...")
 load(argv$spongeData)
 
 # backend
+cat("registering back end with", argv$cpus, "cores\n")
 num.of.cores <- argv$cpus
 cl <- makeCluster(num.of.cores) 
 registerDoParallel(cl)
@@ -28,6 +30,7 @@ meta$sample <- gsub("-", ".", meta$sample)
 # split between train and test
 n.train <- nrow(meta)*argv$train
 n.test <- nrow(meta)-n.train
+cat("using", n.train, "samples for training\n", "and", n.test, "for testing\n")
 # take n samples from each group
 cond.split <- split(meta, meta$condition)
 cond.ratio <- round(sapply(cond.split, function(x) nrow(x)*argv$train))
@@ -59,6 +62,7 @@ test_network_centralities <- tail(network_centralities, n.test.c)
 
 
 # spongEffects filtering
+print("filtering centralities...")
 filtered_network_centralities <- filter_ceRNA_network(sponge_effects = train_ceRNA_interactions, 
                                                       Node_Centrality = train_network_centralities,
                                                       add_weighted_centrality=T, 

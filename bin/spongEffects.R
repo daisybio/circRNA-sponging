@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 
-install.packages("pacman")
+install.packages("pacman", repos = "http://cran.us.r-project.org")
 pacman::p_load(SPONGE, doParallel, foreach, dplyr, argparser)
 
 args = commandArgs(trailingOnly = TRUE)

@@ -14,6 +14,9 @@ parser <- add_argument(parser, "--cpus", help = "Number of cores to use for back
 
 argv <- parse_args(parser, argv = args)
 
+# load SPONGE data
+load(argv$spongeData)
+
 # backend
 num.of.cores <- argv$cpus
 cl <- makeCluster(num.of.cores) 

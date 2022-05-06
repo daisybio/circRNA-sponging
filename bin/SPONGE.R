@@ -351,6 +351,14 @@ if (argv$tpm) {
   mi_rna_expr <- mi_rna_expr/lengths
   mi_rna_expr <- log2(t(t(mi_rna_expr)*1e6/colSums(mi_rna_expr)) + argv$pseudocount)
   
+  if (argv$normalize) {
+    # normalize expressions if not already done
+    print("normalizing gene tpm expression")
+    gene_expr <- normalize.data(gene_expr)
+    print("normalizing miRNA tpm expression")
+    mi_rna_expr <- normalize.data(mi_rna_expr)
+  }
+  
   # transform for sponge
   gene_expr[is.na(gene_expr)] <- 0
   mi_rna_expr[is.na(mi_rna_expr)] <- 0

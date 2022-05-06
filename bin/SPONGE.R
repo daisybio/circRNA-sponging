@@ -99,7 +99,7 @@ majority_vote <- function(miranda, tarpmir, pita, match) {
   print("process miranda targets")
   miranda.bp <- data.frame(read.table(miranda, header = T, sep = "\t"))
   miranda.bp[,c("start", "end")] <- str_split_fixed(miranda.bp$Subject.Al.Start.End., " ", 2)
-
+  
   print("process tarpmir targets")
   tarpmir_data <- read.table(tarpmir, header = F, sep = "\t")
   tarpmir_data <- tarpmir_data[,c(1:3)]
@@ -246,7 +246,7 @@ subnetwork <- function(interactions, pattern){
 
 circ.mRNA.subnetwork <- function(interactions, pattern) {
   return(interactions[(grepl(pattern, interactions$geneA) & grepl("EN", interactions$geneB)) | 
-                 (grepl(pattern, interactions$geneB) & grepl("EN", interactions$geneA)),])
+                        (grepl(pattern, interactions$geneB) & grepl("EN", interactions$geneA)),])
 }
 
 # Normalize
@@ -275,16 +275,22 @@ if (n.targets == 0) {
 
 # SET TARGET SCAN SYMBOLS
 target_scan_symbols_counts <- create_target_scan_symbols(merged_data = argv$target_scan_symbols,
-                                                        majority = majority,
-                                                        miranda = argv$miranda,
-                                                        tarpmir = argv$tarpmir,
-                                                        pita = argv$pita)
+                                                         majority = majority,
+                                                         miranda = argv$miranda,
+                                                         tarpmir = argv$tarpmir,
+                                                         pita = argv$pita)
 # SET MIRNA EXPRESSION
 print("reading miRNA expression...")
 mi_rna_expr <- data.frame(read.table(file = argv$mirna_expr, header = T, sep = "\t"), row.names = 1)
 # SET GENE EXPRESSION
 print("reading gene expression...")
 gene_expr <- as.data.frame(read.table(file = argv$gene_expr, header = T, sep = "\t"))
+
+if (argv$normalize) {
+  # normalize expressions if not already done
+  print("normalizing gene expression")
+  gene_expr <- normalize.data(gene_expr)
+}
 
 # READ CIRC_RNA EXPRESSION AND COMBINE THEM
 print("adding circRNA expression...")
@@ -348,10 +354,6 @@ if (argv$tpm) {
   # transform for sponge
   gene_expr[is.na(gene_expr)] <- 0
   mi_rna_expr[is.na(mi_rna_expr)] <- 0
-} else if (argv$normalize) {
-  # normalize expressions if not already done
-  print("normalizing gene expression")
-  gene_expr <- normalize.data(gene_expr)
 }
 
 save.image(file = file.path(out, "sponge.RData"))
@@ -394,9 +396,9 @@ genes_miRNA_candidates <- SPONGE::sponge_gene_miRNA_interaction_filter(
 print("calculating ceRNA interactions...")
 # (B) ceRNA interactions
 ceRNA_interactions <- SPONGE::sponge(gene_expr = gene_expr,
-                             mir_expr = mi_rna_expr,
-                             mir_interactions = genes_miRNA_candidates,
-                             log.level = "INFO")
+                                     mir_expr = mi_rna_expr,
+                                     mir_interactions = genes_miRNA_candidates,
+                                     log.level = "INFO")
 
 save.image(file = file.path(out, "sponge.RData"))
 

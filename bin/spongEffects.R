@@ -9,6 +9,7 @@ parser <- arg_parser("Argument parser for differenial expression analysis", name
 parser <- add_argument(parser, "--spongeData", help = "SPONGE Rdata containing all results, e.g. gene expression, miRNA expression, sponge centralities etc.")
 parser <- add_argument(parser, "--meta", help = "Meta data for samples in tsv")
 parser <- add_argument(parser, "--train", help = "Percentage of samples to use for training, rest will be used for testing", default = 0.8)
+# TODO add mscore etc
 parser <- add_argument(parser, "--fdr", help = "False discovery rate to use for filtering SPONGE results", default = 0.05)
 parser <- add_argument(parser, "--cpus", help = "Number of cores to use for backend", default = 4)
 
@@ -70,6 +71,7 @@ filtered_network_centralities <- filter_ceRNA_network(sponge_effects = train_ceR
                                                       padj.threshold = 0.1)
 
 # RNAs of interest
+# global parameter with lncRNA and circRNA as default
 RNAs <- c("lncRNA","protein_coding")
 RNAs.ofInterest <- ensembl.df %>% dplyr::filter(gene_biotype %in% RNAs) %>%
   dplyr::select(ensembl_gene_id)

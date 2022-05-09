@@ -97,6 +97,7 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   
   # plot total number per condition
   total.counts <- as.data.frame(colSums(counts.per.condition))
+  colnames(total.counts) <- "total"
   total.counts$condition <- rownames(total.counts)
   total.counts$color.code <- annotation.colors
   

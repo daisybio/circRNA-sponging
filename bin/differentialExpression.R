@@ -80,8 +80,7 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   annotation.colors <- met.brewer(palette, n = length(conditions), type = "continuous")
   
   names(annotation.colors) <- conditions
-  annotation.colors <- list(condition = annotation.colors)
-  
+
   # plot total counts per sample
   png(filename = file.path(out, "hits.per.sample.png"), res = 200, width = 1300, height = 800)
   cons <- split(df, df[,marker])

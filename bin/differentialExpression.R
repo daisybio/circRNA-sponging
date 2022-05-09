@@ -80,8 +80,8 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   annotation.colors <- met.brewer(palette, n = length(conditions))
   
   names(annotation.colors) <- conditions
-
-  # plot total counts per sample
+  
+  # plot counts per sample
   png(filename = file.path(out, "hits.per.sample.png"), res = 200, width = 1300, height = 800)
   cons <- split(df, df[,marker])
   counts.per.condition <- as.data.frame(lapply(cons, function(x) nrow(counts(d)[,x[["sample"]]] != 1)))
@@ -93,6 +93,18 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   par(xpd=F)
   abline(v = 1:nrow(counts.per.condition), lty = 2, col = "grey")
   abline(h = seq(min(counts.per.condition), max(counts.per.condition), 1000), lty = 2, col = "grey")
+  dev.off()
+  
+  # plot total number per condition
+  total.counts <- as.data.frame(colSums(counts.per.condition))
+  total.counts$condition <- rownames(total.counts)
+  total.counts$color.code <- annotation.colors
+  
+  png(filename = file.path(out, "total.hits.png"), res = 200, width = 1300, height = 800)
+  ggplot(data=total.counts, aes(x=condition, y=total)) +
+    geom_bar(stat = "identity", fill = total.counts$color.code) +
+    geom_text(aes(label = total), vjust = -0.2) +
+    guides(fill="none")
   dev.off()
   
   row.names(df) <- df$sample

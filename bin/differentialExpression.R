@@ -44,8 +44,8 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   
   # filter for significant differential expression
   signif.hits <- results[!is.na(results$padj) &
-                      results$padj<as.double(padj) &
-                        abs(results$log2FoldChange) > log2FC,]
+                           results$padj<as.double(padj) &
+                           abs(results$log2FoldChange) > log2FC,]
   # filter for specific RNAs
   if (!is.null(filter)){
     cat("using specific filtering for:", filter, "\n")
@@ -72,7 +72,7 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   }
   filtered <- as.data.frame(counts)
   filtered <- filtered[, df$sample]
-
+  
   # set colors
   colors <- c(colorRampPalette(c("blue", "orange"))(100), colorRampPalette(c("orange", "red"))(100))
   #colors <- hcl.colors(101, rev = T)
@@ -87,7 +87,7 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   cons <- split(df, df[,marker])
   counts.per.condition <- as.data.frame(lapply(cons, function(x) nrow(counts(d)[,x[["sample"]]] != 1)))
   par(mar=c(5,4,4,5), xpd = T)
-  matplot(counts.per.condition, type = "l", xaxt="n", yaxt="n", ylab = NA, main = "unique RNAs per sample", lty = 1, col = annotation.colors, lwd = 2)
+  matplot(counts.per.condition, type = "l", xaxt="n", yaxt="n", ylab = NA, main = "non-zero RNAs per sample", lty = 1, col = annotation.colors, lwd = 2)
   axis(1, at=1:nrow(counts.per.condition), labels = rownames(counts.per.condition), las = 2)
   axis(2, las = 2, at = seq(min(counts.per.condition), max(counts.per.condition), 1000))
   legend("topright", legend = colnames(counts.per.condition), col = annotation.colors, lty = c(1,1), cex=0.8, lwd = 2, inset = c(-0.2, 0))
@@ -100,13 +100,13 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   df <- df[, marker, drop = F]
   # plot heatmap
   pheatmap::pheatmap(filtered, cluster_rows=T, show_rownames=F,
-           cluster_cols=T, annotation_col=df,
-           filename = file.path(out, paste("HMAP", "png", sep = ".")),
-           height = 15, width = 25, legend = T, annotation_legend = T,
-           show_colnames = F, color = colors, annotation_names_col = F, main = out,
-           treeheight_row = 0, treeheight_col = 0, 
-           annotation_colors = annotation.colors, 
-           fontsize = 25)
+                     cluster_cols=T, annotation_col=df,
+                     filename = file.path(out, paste("HMAP", "png", sep = ".")),
+                     height = 15, width = 25, legend = T, annotation_legend = T,
+                     show_colnames = F, color = colors, annotation_names_col = F, main = out,
+                     treeheight_row = 0, treeheight_col = 0, 
+                     annotation_colors = annotation.colors, 
+                     fontsize = 25)
 }
 
 # read gene expression and add pseudocount

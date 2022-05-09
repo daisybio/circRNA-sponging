@@ -69,6 +69,8 @@ def helpMessage() {
         --normalize [bool]   Normalize all expressions
         --fdr [real]     False discovery rate (default: 0.01)  
         --majority_matcher [start|end|complete]     Matching criteria for bindingsite majority vote (only usefull if miRanda, TarPmiR and PITA is enabled)    
+      --spongEffects [bool] Use SPONGEs spongEffects extension to identify strong circRNA sponges
+        --train [real]  Percentage of samples to use for training (rest will be used for testing) (default = 0.8)
    """.stripIndent()
 }
 
@@ -951,7 +953,10 @@ if (!params.circRNA_only) {
 
                 script:
                 """
-                Rscript "${projectDir}"/bin/spongEffects.R --spongeData $sponge_data
+                Rscript "${projectDir}"/bin/spongEffects.R \\
+                --spongeData $sponge_data \\
+                --meta $params.samplesheet \\
+                --train $params.se_train
                 """
             }
         }

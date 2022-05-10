@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 
-install.packages("pacman", repos = "http://cran.us.r-project.org")
+if(!require(pacman)) install.packages("pacman", repos = "http://cran.us.r-project.org")
 pacman::p_load(SPONGE, argparser, data.table, dplyr, ggplot2, reshape2, stringr, VennDiagram, Biostrings, MetBrewer)
 
 args = commandArgs(trailingOnly = TRUE)

@@ -13,6 +13,7 @@ dependencies:
   - async_generator=1.10=py_0
   - attrs=21.4.0=pyhd8ed1ab_0
   - beautifulsoup4=4.11.1=pyha770c72_0
+  - pyliftover=0.4=py_0
   - binutils_impl_linux-64=2.36.1=h193b22a_2
   - binutils_linux-64=2.36=hf3e587d_9
   - bioconductor-annotate=1.72.0=r41hdfd78af_0

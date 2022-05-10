@@ -3,60 +3,69 @@
 if(!require(pacman)) install.packages("pacman", repos = "http://cran.us.r-project.org")
 pacman::p_load(SPONGE, doParallel, foreach, dplyr, argparser)
 
-args = commandArgs(trailingOnly = TRUE)
+args.effects = commandArgs(trailingOnly = TRUE)
 # TODO add fine tuning parameters
-parser <- arg_parser("Argument parser for differenial expression analysis", name = "DE_parser")
-parser <- add_argument(parser, "--spongeData", help = "SPONGE Rdata containing all results, e.g. gene expression, miRNA expression, sponge centralities etc.")
-parser <- add_argument(parser, "--meta", help = "Meta data for samples in tsv")
-parser <- add_argument(parser, "--train", help = "Percentage of samples to use for training, rest will be used for testing", default = 0.8)
-# TODO add mscore etc
-parser <- add_argument(parser, "--fdr", help = "False discovery rate to use for filtering SPONGE results", default = 0.05)
-parser <- add_argument(parser, "--cpus", help = "Number of cores to use for backend", default = 4)
+parser.e <- arg_parser("Argument parser.e for differenial expression analysis", name = "DE_parser.e")
+parser.e <- add_argument(parser.e, "--spongeData", help = "SPONGE Rdata containing all results, e.g. gene expression, miRNA expression, sponge centralities etc.")
+parser.e <- add_argument(parser.e, "--meta", help = "Meta data for samples in tsv")
+parser.e <- add_argument(parser.e, "--train", help = "Percentage of samples to use for training, rest will be used for testing", default = 0.8)
+parser.e <- add_argument(parser.e, "--fdr", help = "False discovery rate to use for filtering SPONGE results", default = 0.05)
+parser.e <- add_argument(parser.e, "--cpus", help = "Number of cores to use for backend", default = 25)
 
-argv <- parse_args(parser, argv = args)
+argv.e <- parse_args(parser.e, argv = args.effects)
+
+argv.e$spongeData <- "/nfs/proj/Bongiovanni-KrdIsar-platelets/circRNA_SPONGE_spongEffects/platelets/output/results/sponging/SPONGE_manual/sponge_0.05fdr.RData"
+argv.e$meta <- "/nfs/proj/Bongiovanni-KrdIsar-platelets/circRNA_SPONGE_spongEffects/platelets/resources/samplesheet.tsv"
 
 # load SPONGE data
 print("loading SPONGE data...")
-load(argv$spongeData)
+load(argv.e$spongeData)
 
 # backend
-cat("registering back end with", argv$cpus, "cores\n")
-num.of.cores <- argv$cpus
+cat("registering back end with", argv.e$cpus, "cores\n")
+num.of.cores <- argv.e$cpus
 cl <- makeCluster(num.of.cores) 
 registerDoParallel(cl)
 
 # meta data
-meta <- read.csv(file = argv$meta, sep = "\t")
+meta <- read.csv(file = argv.e$meta, sep = "\t")
+# update colnames
+colnames(meta)[which("sample" == colnames(meta))] <- "sampleID"
+colnames(meta)[which("condition" == colnames(meta))] <- "SUBTYPE"
 meta$sample <- gsub("-", ".", meta$sample)
 # split between train and test
-n.train <- nrow(meta)*argv$train
-n.test <- nrow(meta)-n.train
+n.train <- round(nrow(meta)*argv.e$train)
+n.test <- round(nrow(meta)-n.train)
 cat("using", n.train, "samples for training\n", "and", n.test, "for testing\n")
 # take n samples from each group
 cond.split <- split(meta, meta$condition)
-cond.ratio <- round(sapply(cond.split, function(x) nrow(x)*argv$train))
+cond.ratio <- round(sapply(cond.split, function(x) nrow(x)*argv.e$train))
 train.meta <- data.table::rbindlist(mapply(function(x,y) x[1:y,], cond.split, cond.ratio, SIMPLIFY = F))
+colnames(train.meta)<-c("sampleID",c(colnames(train.meta)[3:length(train.meta)-1],"SUBTYPE"))
 test.meta <- data.table::rbindlist(mapply(function(x,y) x[(y+1):nrow(x),], cond.split, cond.ratio, SIMPLIFY = F))
+colnames(test.meta)<-c("sampleID",c(colnames(test.meta)[3:length(test.meta)],"SUBTYPE"))
 
-# train gene expression; argv$train of samples
-train_gene_expr <- gene_expr[rownames(gene_expr) %in% train.meta$sample,]
+# train gene expression; argv.e$train of samples
+gene_expr <- t(gene_expr)
+train_gene_expr <- gene_expr[rownames(gene_expr) %in% train.meta$sampleID,]
 # test gene expression; rest of samples
-test_gene_expr <- gene_expr[rownames(gene_expr) %in% test.meta$sample,]
+test_gene_expr <- gene_expr[rownames(gene_expr) %in% test.meta$sampleID,]
 
 # train miRNA expression
-train_mirna_expr <- mi_rna_expr[rownames(mi_rna_expr) %in% train.meta$sample,]
+mi_rna_expr <- t(mi_rna_expr)
+train_mirna_expr <- mi_rna_expr[rownames(mi_rna_expr) %in% train.meta$sampleID,]
 # test miRNA expression
-test_mirna_expr <- mi_rna_expr[rownames(mi_rna_expr) %in% test.meta$sample,]
+test_mirna_expr <- mi_rna_expr[rownames(mi_rna_expr) %in% test.meta$sampleID,]
 
 # ceRNA interactions
-ceRNA_interactions_fdr <- ceRNA_interactions_sign[which(ceRNA_interactions_sign$p.adj < argv$fdr),]
-n.train <- round(nrow(ceRNA_interactions_fdr)*argv$train)
-n.test <- nrow(ceRNA_interactions_fdr)-n.train
-train_ceRNA_interactions <- head(ceRNA_interactions_fdr, n.train)
-test_ceRNA_interactions <- tail(ceRNA_interactions_fdr, n.test)
+ceRNA_interactions_fdr <- ceRNA_interactions_sign[which(ceRNA_interactions_sign$p.adj < argv.e$fdr),]
+n.train.ce <- round(nrow(ceRNA_interactions_fdr)*argv.e$train)
+n.test.ce <- nrow(ceRNA_interactions_fdr)-n.train.ce
+train_ceRNA_interactions <- head(ceRNA_interactions_fdr, n.train.ce)
+test_ceRNA_interactions <- tail(ceRNA_interactions_fdr, n.test.ce)
 # network centralities
 network_centralities  <- sponge_node_centralities(ceRNA_interactions_fdr)
-n.train.c <- round(nrow(network_centralities)*argv$train)
+n.train.c <- round(nrow(network_centralities)*argv.e$train)
 n.test.c <- nrow(network_centralities)-n.train.c
 train_network_centralities <- head(network_centralities, n.train.c)
 test_network_centralities <- tail(network_centralities, n.test.c)
@@ -67,19 +76,18 @@ print("filtering centralities...")
 filtered_network_centralities <- filter_ceRNA_network(sponge_effects = train_ceRNA_interactions, 
                                                       Node_Centrality = train_network_centralities,
                                                       add_weighted_centrality=T, 
-                                                      mscor.threshold = 0.01, 
-                                                      padj.threshold = 0.1)
+                                                      mscor.threshold = 0.1, 
+                                                      padj.threshold = 0.05)
 
 # RNAs of interest
-# global parameter with lncRNA and circRNA as default
-RNAs <- c("lncRNA","protein_coding")
+RNAs <- c("lncRNA","circRNA")
 RNAs.ofInterest <- ensembl.df %>% dplyr::filter(gene_biotype %in% RNAs) %>%
   dplyr::select(ensembl_gene_id)
 central_gene_modules<-get_central_modules(central_nodes = RNAs.ofInterest$ensembl_gene_id,
                                           node_centrality = filtered_network_centralities$Node_Centrality,
                                           ceRNA_class = RNAs, 
                                           centrality_measure = "Weighted_Degree", 
-                                          cutoff = 10)
+                                          cutoff = 750)
 
 # set modules
 Sponge.modules <- define_modules(network = filtered_network_centralities$Sponge.filtered, 
@@ -90,14 +98,15 @@ Sponge.modules <- define_modules(network = filtered_network_centralities$Sponge.
 Size.modules <- sapply(Sponge.modules, length)
 
 # train and test modules
-train.modules <- enrichment_modules(Expr.matrix = train_cancer_gene_expr, modules = Sponge.modules, bin.size = 10, min.size = 1, max.size = 2000, min.expr = 1, method = "OE", cores=1)
-test.modules <-  enrichment_modules(Expr.matrix = test_cancer_gene_expr, modules = Sponge.modules, bin.size = 10, min.size = 1, max.size = 2000, min.expr = 1, method = "OE", cores=1)
+# TODO: correct expression matrices?
+train.modules <- enrichment_modules(Expr.matrix = train_gene_expr, modules = Sponge.modules, bin.size = 100, min.size = 10, max.size = 2000, min.expr = 10, method = "OE", cores=25)
+test.modules <-  enrichment_modules(Expr.matrix = test_gene_expr, modules = Sponge.modules, bin.size = 10, min.size = 1, max.size = 2000, min.expr = 1, method = "OE", cores=25)
 
 # We find modules that were identified both in the train and test and use those as input features for the model
 common_modules = intersect(rownames(train.modules), rownames(test.modules))
 train.modules = train.modules[common_modules, ]
 test.modules = test.modules[common_modules, ]
-trained.model = calibrate_model(Input = train.modules, modules_metadata = train_cancer_metadata, label = "SUBTYPE", sampleIDs = "sampleID",Metric = "Exact_match", n_folds = 2, repetitions = 1)
+trained.model = calibrate_model(Input = train.modules, modules_metadata = train.meta, label = "SUBTYPE", sampleIDs = "sampleID",Metric = "Exact_match", n_folds = 10, repetitions = 3)
 trained.model[["ConfusionMatrix_training"]]
 
 Input.test <- t(test.modules) %>% scale(center = T, scale = T)

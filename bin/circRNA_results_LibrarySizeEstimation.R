@@ -21,6 +21,7 @@ row.names(expression_raw) <- expression_raw$key
 circRNA_names <- expression_raw[,colnames(expression_raw) %!in% samples]
 circRNA_names$order <- 1:nrow(circRNA_names)
 expression_raw <- expression_raw[,samples]
+expression_raw[is.na(expression_raw)] <- 0
 
 # normalize using DeSeq2, Library Size Estimation
 meta <- data.frame(samples)

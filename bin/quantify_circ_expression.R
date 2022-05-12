@@ -167,8 +167,8 @@ rownames(circ.norm.quant) <- paste(circ.norm.quant$chr, circ.norm.quant$start, c
 # normalize
 
 save.image("test.RData")
-circ.norm <- norm(circ.norm[,colnames(circ.norm) %in% samples], samples[colnames(circ.norm) %in% samples])
-circ.norm.quant <- norm(circ.norm.quant[,colnames(circ.norm.quant) %in% samples], samples[colnames(circ.norm.quant) %in% samples])
+circ.norm <- norm(circ.norm[,colnames(circ.norm) %in% samples], samples[samples %in% colnames(circ.norm)])
+circ.norm.quant <- norm(circ.norm.quant[,colnames(circ.norm.quant) %in% samples], samples[samples %in% colnames(circ.norm.quant)])
 
 # compare counts
 circ.norm.sums <- as.data.frame(rowSums(circ.norm))

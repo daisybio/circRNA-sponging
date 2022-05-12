@@ -149,6 +149,7 @@ if (annotation) {
 }
 
 # get raw expression values for filtered circRNAs and samples
+samples <- intersect(colnames(circ.raw), samples)
 circ_expr <- circ.raw[circ.raw$key %in% filtered.circs, samples]
 rownames(circ_expr) <- circ_RNA_annotation
 
@@ -169,6 +170,7 @@ DESeq2::summary(res)
 create_outputs(d = dds, results = res, marker = "condition", out = "total_rna", nsub = 100)
 # CIRCULAR RNA
 
+samplesheet <- samplesheet[samplesheet$sample %in% samples,]
 dds.circ <- DESeq2::DESeqDataSetFromMatrix(countData = round(circ_expr),
                                            colData = samplesheet,
                                            design = ~ condition)

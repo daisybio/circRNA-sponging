@@ -117,7 +117,7 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
                      height = 15, width = 25, legend = T, annotation_legend = T,
                      show_colnames = F, color = colors, annotation_names_col = F, main = out,
                      treeheight_row = 0, treeheight_col = 0, 
-                     annotation_colors = annotation.colors, 
+                     annotation_colors = list(condition = annotation.colors), 
                      fontsize = 25)
 }
 

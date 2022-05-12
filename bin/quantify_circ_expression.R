@@ -165,6 +165,8 @@ rownames(circ.norm) <- paste(circ.norm$chr, circ.norm$start, circ.norm$stop, cir
 circ.norm.quant <- circ.quant
 rownames(circ.norm.quant) <- paste(circ.norm.quant$chr, circ.norm.quant$start, circ.norm.quant$stop, circ.norm.quant$strand, circ.norm.quant$gene_symbol, sep = "_")
 # normalize
+
+save.image("test.RData")
 circ.norm <- norm(circ.norm[,samples], samples)
 circ.norm.quant <- norm(circ.norm.quant[,samples], samples)
 

@@ -44,4 +44,4 @@ RUN bash /install_psirc.sh
 COPY install_pita.sh /
 RUN bash /install_pita.sh
 
-# COPY . ./
+ENV PATH /ext/psirc/psirc-quant/release/src:/ext/PITA:$PATH

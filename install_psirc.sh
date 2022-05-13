@@ -1,5 +1,5 @@
 #!/usr/bin/bash
-
+mkdir ./ext
 cd ./ext
 git clone https://github.com/Christina-hshi/psirc.git
 cd psirc

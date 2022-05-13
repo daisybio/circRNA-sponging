@@ -26,41 +26,24 @@ RUN R -e "install.packages(c('pacman'), dependencies=TRUE, repos='http://cran.rs
 RUN R -e "pacman::p_load(SPONGE, biomaRt, argparser, data.table, dplyr, ggplot2, reshape2, stringr, VennDiagram, Biostrings, MetBrewer, ensembldb, pheatmap, DESeq2, EnhancedVolcano, doParallel, foreach, BSgenome, GenomicRanges, GenomicFeatures, seqinr)"
 
 # install psirc from git repository
-WORKDIR /ext
-RUN git clone https://github.com/Christina-hshi/psirc.git
-COPY . ./
-
 ARG DEBIAN_FRONTEND=noninteractive
-# you may need to compile htslib under "ext/htslib" by following the README there ("make install" is optional and only possible with admin permissions)
-WORKDIR /ext/psirc/psirc-quant/ext/htslib/
+# psirc prerequisites
 RUN apt-get install -y apt-utils
 RUN apt-get install -y autoconf
 RUN apt-get install -y libcurl4-openssl-dev
 RUN apt-get install -y pkg-config
 RUN apt-get install -y libssl-dev
-RUN autoheader \
-      && autoconf \ 
-      && ./configure \ 
-      && make \
-      && make install
+COPY install_psirc.sh /
+RUN /install_psirc.sh
 COPY . ./
-# make release
-WORKDIR /ext/psirc/psirc-quant/release
-RUN apt-get install -y cmake
-RUN cmake .. \
-      && make psirc-quant \
-      && make install
-COPY . ./
-# the psirc-quant program can be found at "src/psirc-quant"
-
 # install PITA
 WORKDIR /ext/PITA
-RUN  wget --no-check-certificate "https://genie.weizmann.ac.il/pubs/mir07/64bit_exe_pita_prediction.tar.gz"
+RUN wget --no-check-certificate "https://genie.weizmann.ac.il/pubs/mir07/64bit_exe_pita_prediction.tar.gz"
 COPY 64bit_exe_pita_prediction.tar.gz .
-RUN  tar xvfz *pita_prediction.tar.gz
+RUN tar xvfz *pita_prediction.tar.gz
 COPY . ./
-RUN  make install
+RUN make install
 # make script compatible with newer perl versions
-RUN  sed -i -E "s/(=~\s\S+)\{HOME\}(.\S+)/\1\\\{HOME\\\}\2/" /lib/libfile.pl
-RUN  sed -i -E "s/(if\()defined\((@\S+)\)(.*)/\1\2\3/" /lib/join.pl
+RUN sed -i -E "s/(=~\s\S+)\{HOME\}(.\S+)/\1\\\{HOME\\\}\2/" /lib/libfile.pl
+RUN sed -i -E "s/(if\()defined\((@\S+)\)(.*)/\1\2\3/" /lib/join.pl
 COPY . ./

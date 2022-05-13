@@ -35,7 +35,11 @@ RUN apt-get install -y pkg-config
 RUN apt-get install -y libssl-dev
 RUN apt-get install -y make
 
+RUN apt-get install -y cmake
 RUN apt-get install -y libhdf5-serial-dev
+
+COPY install_psirc.sh /
+RUN bash /install_psirc.sh
 
 WORKDIR /ext
 RUN git clone https://github.com/Christina-hshi/psirc.git
@@ -43,8 +47,7 @@ COPY . ./
 
 # make release
 WORKDIR /ext/psirc/psirc-quant/release
-RUN apt-get install -y cmake
-RUN cmake .. \
+RUN cd /ext/psirc/psirc-quant/release; cmake .. \
       && make psirc-quant \
       && make install
 # the psirc-quant program can be found at "src/psirc-quant"

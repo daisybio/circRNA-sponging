@@ -2,17 +2,7 @@
 mkdir ./ext
 cd ./ext
 git clone https://github.com/Christina-hshi/psirc.git
-cd psirc
-cd psirc-quant
-# you may need to compile htslib under "ext/htslib" by following the README there ("make install" is optional and only possible with admin permissions)
-cd ext/htslib/
-autoheader
-autoconf
-./configure
-make
-make install
-cd ..
-cd ..
+cd psirc/psirc-quant
 # make release
 mkdir release
 cd release

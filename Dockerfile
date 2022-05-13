@@ -45,8 +45,10 @@ ENV PATH /opt/conda/envs/nf-core-circrnasponging/bin:$PATH
 # Dump the details of the installed packages to a file for posterity
 RUN conda env export --name nf-core-circrnasponging > nf-core-circrnasponging.yml
 
-# R packages that are not in conda
-RUN R -e "install.packages(c('MetBrewer'), dependencies=TRUE, repos='http://cran.rstudio.com/')"
 # Instruct R processes to use these empty files instead of clashing with a local version
 RUN touch .Rprofile
 RUN touch .Renviron
+
+# R packages that are not in conda
+RUN R -e "install.packages(c('MetBrewer', 'pacman'), dependencies=TRUE, repos='http://cran.rstudio.com/')"
+RUN R -e "pacman::p_load(SPONGE)"

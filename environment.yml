@@ -49,7 +49,7 @@ dependencies:
   - bioconductor-rsamtools=2.10.0=r41h619a076_1
   - bioconductor-rtracklayer=1.54.0=r41hdc01c10_2
   - bioconductor-s4vectors=0.32.3=r41h5c21468_0
-  - bioconductor-sponge=1.16.0=r41hdfd78af_0
+  # - bioconductor-sponge=1.16.0=r41hdfd78af_0
   - bioconductor-summarizedexperiment=1.24.0=r41hdfd78af_0
   - bioconductor-tximport=1.22.0=r41hdfd78af_0
   - bioconductor-xvector=0.34.0=r41h5c21468_1

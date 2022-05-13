@@ -38,25 +38,15 @@ RUN apt-get install -y make
 RUN apt-get install -y cmake
 RUN apt-get install -y libhdf5-serial-dev
 
+WORKDIR /ext
 COPY install_psirc.sh /
 RUN bash /install_psirc.sh
-
-WORKDIR /ext
-RUN git clone https://github.com/Christina-hshi/psirc.git
-COPY . ./
-
-# make release
-WORKDIR /ext/psirc/psirc-quant/release
-RUN cd /ext/psirc/psirc-quant/release; cmake .. \
-      && make psirc-quant \
-      && make install
-# the psirc-quant program can be found at "src/psirc-quant"
 
 # install PITA
 WORKDIR /ext/PITA
 RUN  wget --no-check-certificate "https://genie.weizmann.ac.il/pubs/mir07/64bit_exe_pita_prediction.tar.gz"
 COPY 64bit_exe_pita_prediction.tar.gz .
-RUN  tar xvfz *pita_prediction.tar.gz
+RUN  tar xvfz /64bit_exe_pita_prediction.tar.gz
 COPY . ./
 RUN  make install
 # make script compatible with newer perl versions

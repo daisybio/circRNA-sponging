@@ -33,19 +33,30 @@ RUN apt-get install -y autoconf
 RUN apt-get install -y libcurl4-openssl-dev
 RUN apt-get install -y pkg-config
 RUN apt-get install -y libssl-dev
-RUN apt-get install -y cmake
-COPY install_psirc.sh /
-RUN bash /install_psirc.sh
+RUN apt install -y make
+RUN autoheader \
+      && autoconf \ 
+      && ./configure \ 
+      && make \
+      && make install
 COPY . ./
+# make release
+WORKDIR /ext/psirc/psirc-quant/release
+RUN apt-get install -y cmake
+RUN cmake .. \
+      && make psirc-quant \
+      && make install
+COPY . ./
+# the psirc-quant program can be found at "src/psirc-quant"
+
 # install PITA
 WORKDIR /ext/PITA
-RUN wget --no-check-certificate "https://genie.weizmann.ac.il/pubs/mir07/64bit_exe_pita_prediction.tar.gz"
+RUN  wget --no-check-certificate "https://genie.weizmann.ac.il/pubs/mir07/64bit_exe_pita_prediction.tar.gz"
 COPY 64bit_exe_pita_prediction.tar.gz .
-RUN tar xvfz *pita_prediction.tar.gz
+RUN  tar xvfz *pita_prediction.tar.gz
 COPY . ./
-RUN make install
-COPY . ./
+RUN  make install
 # make script compatible with newer perl versions
-RUN sed -i -E "s/(=~\s\S+)\{HOME\}(.\S+)/\1\\\{HOME\\\}\2/" /lib/libfile.pl
-RUN sed -i -E "s/(if\()defined\((@\S+)\)(.*)/\1\2\3/" /lib/join.pl
+RUN  sed -i -E "s/(=~\s\S+)\{HOME\}(.\S+)/\1\\\{HOME\\\}\2/" /lib/libfile.pl
+RUN  sed -i -E "s/(if\()defined\((@\S+)\)(.*)/\1\2\3/" /lib/join.pl
 COPY . ./

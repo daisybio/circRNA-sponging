@@ -42,7 +42,7 @@ WORKDIR /ext
 COPY install_psirc.sh /
 RUN bash /install_psirc.sh
 # install PITA
-WORKDIR /ext
+WORKDIR /ext/PITA
 COPY install_pita.sh /
 RUN bash /install_pita.sh
 

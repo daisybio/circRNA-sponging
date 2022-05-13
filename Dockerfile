@@ -31,9 +31,9 @@ RUN git clone https://github.com/Christina-hshi/psirc.git
 COPY . ./
 # you may need to compile htslib under "ext/htslib" by following the README there ("make install" is optional and only possible with admin permissions)
 WORKDIR /ext/psirc/psirc-quant/ext/htslib/
-RUN apt-get install -y apt-utils
-RUN apt-get install -y autoconf
-RUN apt-get install -y libcurl
+RUN apt-get update && apt-get install -y apt-utils
+RUN apt-get update && apt-get install -y autoconf
+RUN apt-get update && apt-get install -y curl
 RUN autoheader \
       && autoconf \ 
       && ./configure \ 

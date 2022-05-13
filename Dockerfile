@@ -35,6 +35,7 @@ RUN apt-get install -y apt-utils
 RUN apt-get install -y autoconf
 RUN apt-get install -y libcurl4-openssl-dev
 RUN apt-get install -y pkg-config
+RUN apt-get install -y libssl-dev
 RUN autoheader \
       && autoconf \ 
       && ./configure \ 

@@ -29,6 +29,8 @@ RUN R -e "pacman::p_load(SPONGE, biomaRt, argparser, data.table, dplyr, ggplot2,
 WORKDIR /ext
 RUN git clone https://github.com/Christina-hshi/psirc.git
 COPY . ./
+
+ARG DEBIAN_FRONTEND=noninteractive
 # you may need to compile htslib under "ext/htslib" by following the README there ("make install" is optional and only possible with admin permissions)
 WORKDIR /ext/psirc/psirc-quant/ext/htslib/
 RUN apt-get install -y apt-utils

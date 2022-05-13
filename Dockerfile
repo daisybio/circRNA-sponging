@@ -46,7 +46,7 @@ RUN bash /install_psirc.sh
 WORKDIR /ext/PITA
 RUN  wget --no-check-certificate "https://genie.weizmann.ac.il/pubs/mir07/64bit_exe_pita_prediction.tar.gz"
 COPY . ./
-RUN  tar xvfz /64bit_exe_pita_prediction.tar.gz
+RUN  tar xvfz *_pita_prediction.tar.gz
 COPY . ./
 RUN  make install
 # make script compatible with newer perl versions

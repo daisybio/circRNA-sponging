@@ -34,19 +34,22 @@ RUN apt-get install -y libcurl4-openssl-dev
 RUN apt-get install -y pkg-config
 RUN apt-get install -y libssl-dev
 RUN apt install -y make
+
+WORKDIR /ext
+RUN git clone https://github.com/Christina-hshi/psirc.git
+COPY . ./
+WORKDIR /ext/psirc/psirc-quant/ext/htslib
 RUN autoheader \
       && autoconf \ 
       && ./configure \ 
       && make \
       && make install
-COPY . ./
 # make release
 WORKDIR /ext/psirc/psirc-quant/release
 RUN apt-get install -y cmake
 RUN cmake .. \
       && make psirc-quant \
       && make install
-COPY . ./
 # the psirc-quant program can be found at "src/psirc-quant"
 
 # install PITA

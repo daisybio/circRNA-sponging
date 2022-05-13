@@ -35,16 +35,12 @@ RUN apt-get install -y pkg-config
 RUN apt-get install -y libssl-dev
 RUN apt-get install -y make
 
+RUN apt-get install -y libhdf5-serial-dev
+
 WORKDIR /ext
 RUN git clone https://github.com/Christina-hshi/psirc.git
 COPY . ./
-WORKDIR /ext/psirc/psirc-quant/ext/htslib
-RUN autoheader \
-      && autoconf \ 
-      && ./configure \ 
-      && make \
-      && make install
-ENV PATH /ext/psirc/psirc-quant/ext/htslib:$PATH
+
 # make release
 WORKDIR /ext/psirc/psirc-quant/release
 RUN apt-get install -y cmake

@@ -38,9 +38,9 @@ RUN autoheader \
       && make \
       && make install
 COPY . ./
-WORKDIR /ext/psirc/psirc-quant
 # make release
 WORKDIR /ext/psirc/psirc-quant/release
+RUN apt-get install -y cmake
 RUN cmake .. \
       && make psirc-quant \
       && make install

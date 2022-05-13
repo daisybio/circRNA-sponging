@@ -33,7 +33,7 @@ RUN apt-get install -y autoconf
 RUN apt-get install -y libcurl4-openssl-dev
 RUN apt-get install -y pkg-config
 RUN apt-get install -y libssl-dev
-RUN apt install -y make
+RUN apt-get install -y make
 
 WORKDIR /ext
 RUN git clone https://github.com/Christina-hshi/psirc.git
@@ -44,6 +44,7 @@ RUN autoheader \
       && ./configure \ 
       && make \
       && make install
+ENV PATH /ext/psirc/psirc-quant/ext/htslib:$PATH
 # make release
 WORKDIR /ext/psirc/psirc-quant/release
 RUN apt-get install -y cmake

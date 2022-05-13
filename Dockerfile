@@ -38,11 +38,9 @@ RUN apt-get install -y make
 RUN apt-get install -y cmake
 RUN apt-get install -y libhdf5-serial-dev
 # install psirc
-WORKDIR /ext
 COPY install_psirc.sh /
 RUN bash /install_psirc.sh
 # install PITA
-WORKDIR /ext/PITA
 COPY install_pita.sh /
 RUN bash /install_pita.sh
 

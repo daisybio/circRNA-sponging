@@ -48,9 +48,7 @@ RUN apt-get update -qq && \
       locales \
       tzdata \
       zlib1g-dev \
-      xorg-x11-server-devel \
-      libX11-devel \
-      libXt-devel
+      xorg-dev 
     
 # Install system dependencies for the tidyverse R packages
 RUN apt-get install -y \

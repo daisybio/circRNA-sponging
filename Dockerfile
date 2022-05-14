@@ -24,7 +24,8 @@ RUN apt-get update && apt-get install -y \
       cmake \
       libhdf5-serial-dev \
       libbz2-dev \
-      liblzma-dev
+      liblzma-dev \
+      g++
       # && rm -rf /var/lib/apt/lists/*
 # install psirc
 COPY install_psirc.sh /

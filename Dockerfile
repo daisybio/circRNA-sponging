@@ -32,13 +32,11 @@ RUN apt-get update && apt-get install -y \
       libcurl4-openssl-dev \
       pkg-config \
       libssl-dev \
-      libbz2-dev \
       make \
       cmake \
       libhdf5-serial-dev
       # && rm -rf /var/lib/apt/lists/*
 # install psirc
-RUN apt-get update && apt-get install -y cmake
 COPY install_psirc.sh /
 RUN bash /install_psirc.sh
 # install PITA

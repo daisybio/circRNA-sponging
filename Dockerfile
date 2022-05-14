@@ -24,7 +24,7 @@ RUN touch .Renviron
 # install psirc from git repository
 ARG DEBIAN_FRONTEND=noninteractive
 # psirc prerequisites
-RUN apt-get-clean && apt-get update && apt-get install -y \
+RUN apt-get clean && apt-get update && apt-get install -y \
       apt-utils \
       autoconf \
       libcurl4-openssl-dev \

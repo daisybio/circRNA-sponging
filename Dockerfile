@@ -19,7 +19,7 @@ RUN touch .Rprofile
 RUN touch .Renviron
 
 # install R
-RUN apt-get update && apt-get install -y r-base=4.2.0-1.1804.0
+RUN apt-get update && apt-get install -y -f r-base=4.2.0-1.1804.0
 
 # R packages that are not in conda
 RUN R -e "install.packages(c('pacman'), dependencies=TRUE, repos='http://cran.rstudio.com/')"

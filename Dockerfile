@@ -1,5 +1,5 @@
 FROM r-base:4.2.0 as Rbase
-COPY . ./R
+COPY . ./
 
 FROM nfcore/base:1.12.1 AS nfcore
 LABEL authors="Octavia Ciora, Leon Schwartz, Markus Hoffmann" \
@@ -18,7 +18,7 @@ ENV PATH /opt/conda/envs/nf-core-circrnasponging/bin:$PATH
 RUN conda env export --name nf-core-circrnasponging > nf-core-circrnasponging.yml
 
 # Instruct R processes to use these empty files instead of clashing with a local version
-COPY --from=Rbase R /R
+COPY --from=Rbase . ./
 RUN touch .Rprofile
 RUN touch .Renviron
 

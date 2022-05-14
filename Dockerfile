@@ -22,7 +22,8 @@ RUN apt-get update && apt-get install -y \
       libssl-dev \
       make \
       cmake \
-      libhdf5-serial-dev
+      libhdf5-serial-dev \
+      libbz2-dev
       # && rm -rf /var/lib/apt/lists/*
 # install psirc
 COPY install_psirc.sh /

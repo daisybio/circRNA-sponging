@@ -35,7 +35,7 @@ RUN apt-get update && apt-get install -y \
       libbz2-dev \
       make \
       cmake \
-      libhdf5-serial-dev \
+      libhdf5-serial-dev
       # && rm -rf /var/lib/apt/lists/*
 # install psirc
 RUN apt-get update && apt-get install -y cmake

@@ -1,7 +1,7 @@
 FROM r-base:4.2.0 as Rbase
 
 
-FROM nfcore/base:1.12.1 AS nfcore
+FROM nfcore/base:1.12.1
 LABEL authors="Octavia Ciora, Leon Schwartz, Markus Hoffmann" \
       description="Docker image containing all software requirements for the nf-core/circrnasponging pipeline"
 
@@ -24,7 +24,7 @@ RUN touch .Renviron
 # install psirc from git repository
 ARG DEBIAN_FRONTEND=noninteractive
 # psirc prerequisites
-RUN apt-get update && apt-get install -y \
+RUN apt-get-clean && apt-get update && apt-get install -y \
       apt-utils \
       autoconf \
       libcurl4-openssl-dev \

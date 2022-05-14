@@ -14,12 +14,11 @@ ENV PATH /opt/conda/envs/nf-core-circrnasponging/bin:$PATH
 # Dump the details of the installed packages to a file for posterity
 RUN conda env export --name nf-core-circrnasponging > nf-core-circrnasponging.yml
 
+
+# install R
+FROM r-base:4.2.0
 # Instruct R processes to use these empty files instead of clashing with a local version
 RUN touch .Rprofile
 RUN touch .Renviron
 
-# install R
-RUN apt-get update && apt-get install -y r-base
-ENV R_BASE_VERSION=4.2.0
-RUN apt-get update
 

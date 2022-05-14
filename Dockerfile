@@ -4,7 +4,7 @@ COPY . ./
 FROM nfcore/base:1.12.1 AS nfcore
 LABEL authors="Octavia Ciora, Leon Schwartz, Markus Hoffmann" \
       description="Docker image containing all software requirements for the nf-core/circrnasponging pipeline"
-COPY --from=Rbase . ./
+
 # Install the conda environment
 # All conda/bioconda dependencies are listed there
 COPY environment.yml /
@@ -41,9 +41,10 @@ RUN bash /install_psirc.sh
 # install PITA
 COPY install_pita.sh /
 RUN bash /install_pita.sh
-
+# add psirc and PITA to PATH
 ENV PATH /ext/psirc/psirc-quant/release/src:/ext/PITA:$PATH
-
+# add R
+COPY --from=Rbase . ./
 # R packages that are not in conda
 RUN R -e "install.packages(c('pacman'), dependencies=TRUE, repos='http://cran.rstudio.com/')"
 RUN R -e "pacman::p_load(SPONGE, biomaRt, argparser, data.table, dplyr, ggplot2, reshape2, stringr, VennDiagram, Biostrings, MetBrewer, ensembldb, pheatmap, DESeq2, EnhancedVolcano, doParallel, foreach, BSgenome, GenomicRanges, GenomicFeatures, seqinr)"

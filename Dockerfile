@@ -26,6 +26,7 @@ RUN apt-get install -y libssl-dev
 RUN apt-get install -y make
 RUN apt-get install -y cmake
 RUN apt-get install -y libhdf5-serial-dev
+RUN apt-get install -y gfortran
 
 # install R
 RUN wget https://cran.r-project.org/src/base/R-latest.tar.gz

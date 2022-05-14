@@ -14,10 +14,11 @@ ENV PATH /opt/conda/envs/nf-core-circrnasponging/bin:$PATH
 # Dump the details of the installed packages to a file for posterity
 RUN conda env export --name nf-core-circrnasponging > nf-core-circrnasponging.yml
 
-
 # install R
-FROM r-base:4.2.0
-COPY --from=nfcore . ./
+ARG R_VERSION=4.2.0
+RUN wget https://cdn.rstudio.com/r/ubuntu-1604/pkgs/r-${R_VERSION}_1_amd64.deb
+RUN apt-get install -y gdebi-core
+RUN gdebi r-${R_VERSION}_1_amd64.deb
 # Instruct R processes to use these empty files instead of clashing with a local version
 RUN touch .Rprofile
 RUN touch .Renviron

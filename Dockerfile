@@ -38,6 +38,7 @@ RUN apt-get update -qq && \
       liblzma-dev \
       libpango-1.0-0 \
       libpangocairo-1.0-0 \
+      libreadline-dev \
       libpcre3-dev \
       libtcl8.6 \
       libtiff5 \
@@ -50,7 +51,6 @@ RUN apt-get update -qq && \
     
 # Install system dependencies for the tidyverse R packages
 RUN apt-get install -y \
-      libcurl4-openssl-dev \
       libssl-dev \
       pandoc \
       libxml2-dev

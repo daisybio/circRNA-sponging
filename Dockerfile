@@ -14,6 +14,18 @@ ENV PATH /opt/conda/envs/nf-core-circrnasponging/bin:$PATH
 # Dump the details of the installed packages to a file for posterity
 RUN conda env export --name nf-core-circrnasponging > nf-core-circrnasponging.yml
 
+
+ARG DEBIAN_FRONTEND=noninteractive
+# prerequisites
+RUN apt-get install -y apt-utils
+RUN apt-get install -y autoconf
+RUN apt-get install -y libcurl4-openssl-dev
+RUN apt-get install -y pkg-config
+RUN apt-get install -y libssl-dev
+RUN apt-get install -y make
+RUN apt-get install -y cmake
+RUN apt-get install -y libhdf5-serial-dev
+
 # install R
 RUN wget https://cran.r-project.org/src/base/R-latest.tar.gz
 RUN tar xvfz R-latest.tar.gz

@@ -17,6 +17,7 @@ RUN conda env export --name nf-core-circrnasponging > nf-core-circrnasponging.ym
 
 ARG DEBIAN_FRONTEND=noninteractive
 # prerequisites
+RUN apt-get update
 RUN apt-get install -y apt-utils
 RUN apt-get install -y autoconf
 RUN apt-get install -y libcurl4-openssl-dev

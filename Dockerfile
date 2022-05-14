@@ -17,31 +17,9 @@ RUN conda env export --name nf-core-circrnasponging > nf-core-circrnasponging.ym
 # Instruct R processes to use these empty files instead of clashing with a local version
 RUN touch .Rprofile
 RUN touch .Renviron
-ENV R_BASE_VERSION=4.2.0
+
 # install R
 RUN apt-get update && apt-get install -y r-base
+ENV R_BASE_VERSION=4.2.0
+RUN apt-get update
 
-# R packages that are not in conda
-RUN R -e "install.packages(c('pacman'), dependencies=TRUE, repos='http://cran.rstudio.com/')"
-RUN R -e "pacman::p_load(SPONGE, biomaRt, argparser, data.table, dplyr, ggplot2, reshape2, stringr, VennDiagram, Biostrings, MetBrewer, ensembldb, pheatmap, DESeq2, EnhancedVolcano, doParallel, foreach, BSgenome, GenomicRanges, GenomicFeatures, seqinr)"
-
-# install psirc from git repository
-ARG DEBIAN_FRONTEND=noninteractive
-# psirc prerequisites
-RUN apt-get install -y apt-utils
-RUN apt-get install -y autoconf
-RUN apt-get install -y libcurl4-openssl-dev
-RUN apt-get install -y pkg-config
-RUN apt-get install -y libssl-dev
-RUN apt-get install -y make
-
-RUN apt-get install -y cmake
-RUN apt-get install -y libhdf5-serial-dev
-# install psirc
-COPY install_psirc.sh /
-RUN bash /install_psirc.sh
-# install PITA
-COPY install_pita.sh /
-RUN bash /install_pita.sh
-
-ENV PATH /ext/psirc/psirc-quant/release/src:/ext/PITA:$PATH

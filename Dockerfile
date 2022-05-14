@@ -11,18 +11,6 @@ FROM nfcore/base:1.12.1
 LABEL authors="Octavia Ciora, Leon Schwartz, Markus Hoffmann" \
       description="Docker image containing all software requirements for the nf-core/circrnasponging pipeline"
 
-# Install the conda environment
-# All conda/bioconda dependencies are listed there
-COPY environment.yml /
-
-RUN conda env create --quiet -f /environment.yml && conda clean -a
-
-# Add conda installation dir to PATH (instead of doing 'conda activate')
-ENV PATH /opt/conda/envs/nf-core-circrnasponging/bin:$PATH
-
-# Dump the details of the installed packages to a file for posterity
-RUN conda env export --name nf-core-circrnasponging > nf-core-circrnasponging.yml
-
 # install psirc from git repository
 ARG DEBIAN_FRONTEND=noninteractive
 # psirc prerequisites
@@ -44,5 +32,18 @@ COPY install_pita.sh /
 RUN bash /install_pita.sh
 # add psirc and PITA to PATH
 ENV PATH /ext/psirc/psirc-quant/release/src:/ext/PITA:$PATH
+
+# Install the conda environment
+# All conda/bioconda dependencies are listed there
+COPY environment.yml /
+
+RUN conda env create --quiet -f /environment.yml && conda clean -a
+
+# Add conda installation dir to PATH (instead of doing 'conda activate')
+ENV PATH /opt/conda/envs/nf-core-circrnasponging/bin:$PATH
+
+# Dump the details of the installed packages to a file for posterity
+RUN conda env export --name nf-core-circrnasponging > nf-core-circrnasponging.yml
+
 # add R
 #COPY --from=Rbase . ./

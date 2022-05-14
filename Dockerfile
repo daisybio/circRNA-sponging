@@ -17,9 +17,9 @@ RUN conda env export --name nf-core-circrnasponging > nf-core-circrnasponging.ym
 # Instruct R processes to use these empty files instead of clashing with a local version
 RUN touch .Rprofile
 RUN touch .Renviron
-
+ENV R_BASE_VERSION=4.2.0
 # install R
-RUN apt-get update && apt-get install -y -f r-base=4.2.0-1.1804.0
+RUN apt-get update
 
 # R packages that are not in conda
 RUN R -e "install.packages(c('pacman'), dependencies=TRUE, repos='http://cran.rstudio.com/')"

@@ -40,6 +40,7 @@ RUN apt-get update && apt-get install -y \
       libhdf5-serial-dev \
       && rm -rf /var/lib/apt/lists/*
 # install psirc
+RUN apt-get update && apt-get install -y cmake
 COPY install_psirc.sh /
 RUN bash /install_psirc.sh
 # install PITA

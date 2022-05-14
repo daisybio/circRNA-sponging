@@ -29,15 +29,15 @@ RUN R -e "pacman::p_load(SPONGE, biomaRt, argparser, data.table, dplyr, ggplot2,
 # install psirc from git repository
 ARG DEBIAN_FRONTEND=noninteractive
 # psirc prerequisites
-RUN apt-get update
-RUN apt-get install -y apt-utils
-RUN apt-get install -y autoconf
-RUN apt-get install -y libcurl4-openssl-dev
-RUN apt-get install -y pkg-config
-RUN apt-get install -y libssl-dev
-RUN apt-get install -y make
-RUN apt-get install -y cmake
-RUN apt-get install -y libhdf5-serial-dev
+RUN apt-get update && apt-get install -y \
+      apt-utils \
+      autoconf \
+      libcurl4-openssl-dev \
+      pkg-config \
+      libssl-dev \
+      make \
+      cmake \
+      ibhdf5-serial-dev
 # install psirc
 COPY install_psirc.sh /
 RUN bash /install_psirc.sh

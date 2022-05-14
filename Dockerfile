@@ -29,7 +29,7 @@ RUN R -e "pacman::p_load(SPONGE, biomaRt, argparser, data.table, dplyr, ggplot2,
 # install psirc from git repository
 ARG DEBIAN_FRONTEND=noninteractive
 # psirc prerequisites
-RUN apt-get install -y apt-utils
+# RUN apt-get install -y apt-utils
 RUN apt-get install -y autoconf
 RUN apt-get install -y libcurl4-openssl-dev
 RUN apt-get install -y pkg-config

@@ -18,7 +18,7 @@ ENV PATH /opt/conda/envs/nf-core-circrnasponging/bin:$PATH
 RUN conda env export --name nf-core-circrnasponging > nf-core-circrnasponging.yml
 
 # Instruct R processes to use these empty files instead of clashing with a local version
-COPY --from=Rbase /R ./R
+COPY --from=Rbase R /R
 RUN touch .Rprofile
 RUN touch .Renviron
 

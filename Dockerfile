@@ -1,4 +1,4 @@
-FROM nfcore/base:1.12.1
+FROM nfcore/base:1.12.1 AS nfcore
 LABEL authors="Octavia Ciora, Leon Schwartz, Markus Hoffmann" \
       description="Docker image containing all software requirements for the nf-core/circrnasponging pipeline"
 
@@ -17,6 +17,7 @@ RUN conda env export --name nf-core-circrnasponging > nf-core-circrnasponging.ym
 
 # install R
 FROM r-base:4.2.0
+COPY --from=nfcore . ./
 # Instruct R processes to use these empty files instead of clashing with a local version
 RUN touch .Rprofile
 RUN touch .Renviron

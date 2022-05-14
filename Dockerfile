@@ -1,5 +1,5 @@
 FROM r-base:4.2.0 as Rbase
-COPY . ./
+
 
 FROM nfcore/base:1.12.1 AS nfcore
 LABEL authors="Octavia Ciora, Leon Schwartz, Markus Hoffmann" \

@@ -16,17 +16,44 @@ RUN conda env export --name nf-core-circrnasponging > nf-core-circrnasponging.ym
 
 
 ARG DEBIAN_FRONTEND=noninteractive
-# prerequisites
-RUN apt-get update
-RUN apt-get install -y apt-utils
-RUN apt-get install -y autoconf
-RUN apt-get install -y libcurl4-openssl-dev
-RUN apt-get install -y pkg-config
-RUN apt-get install -y libssl-dev
-RUN apt-get install -y make
-RUN apt-get install -y cmake
-RUN apt-get install -y libhdf5-serial-dev
-RUN apt-get install -y gfortran
+# prerequisites for psirc and PITA
+RUN apt-get update -qq && \
+      apt-get install -y apt-utils \
+      autoconf \
+      libcurl4-openssl-dev \
+      pkg-config \
+      libssl-dev \
+      make \
+      cmake \
+      libhdf5-serial-dev \
+      # Install system dependencies for R
+      apt-transport-https \
+      build-essential \
+      curl \
+      gfortran \
+      libatlas-base-dev \
+      libbz2-dev \
+      libcairo2 \
+      libicu-dev \
+      liblzma-dev \
+      libpango-1.0-0 \
+      libpangocairo-1.0-0 \
+      libpcre3-dev \
+      libtcl8.6 \
+      libtiff5 \
+      libtk8.6 \
+      libx11-6 \
+      libxt6 \
+      locales \
+      tzdata \
+      zlib1g-dev
+    
+# Install system dependencies for the tidyverse R packages
+RUN apt-get install -y \
+      libcurl4-openssl-dev \
+      libssl-dev \
+      pandoc \
+      libxml2-dev
 
 # install R
 RUN wget https://cran.r-project.org/src/base/R-latest.tar.gz

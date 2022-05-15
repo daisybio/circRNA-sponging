@@ -1,7 +1,7 @@
 FROM rocker/tidyverse:4.1.0 as Rbase
 # R packages that are not in conda
 RUN R -e "install.packages('pacman', repos='http://cran.rstudio.com/')"
-RUN R -e "pacman::p_load(gRbase)"
+RUN R -e "BiocManager::install('gRbase')"
 RUN R -e "if(!require('gRbase')) stop('gRbase not properly installed')"
 # SPONGE
 RUN R -e "devtools::install_github('biomedbigdata/SPONGE', dependencies = T)"

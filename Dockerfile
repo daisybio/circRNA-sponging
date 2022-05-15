@@ -1,9 +1,8 @@
 FROM rocker/tidyverse:4.1.0 as Rbase
-# Add R and instruct R processes to use these empty files instead of clashing with a local version
-RUN touch .Rprofile
-RUN touch .Renviron
 # R packages that are not in conda
 RUN R -e "install.packages('pacman', repos='http://cran.rstudio.com/')"
+RUN R -e "install.packages('gRbase')"
+RUN R -e "if(!require('gRbase')) stop('gRbase not properly installed')"
 # SPONGE
 RUN R -e "devtools::install_github('biomedbigdata/SPONGE', dependencies = T)"
 RUN R -e "if(!require(SPONGE)) stop('SPONGE not properly installed')"

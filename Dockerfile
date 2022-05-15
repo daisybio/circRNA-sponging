@@ -5,6 +5,24 @@ RUN R -e "install.packages('pacman', repos='http://cran.rstudio.com/')"
 # SPONGE
 RUN R -e "devtools::install_github('biomedbigdata/SPONGE')"
 RUN R -e "if(!require(SPONGE)) stop('SPONGE not properly installed')"
+
+# install psirc from git repository
+ARG DEBIAN_FRONTEND=noninteractive
+# system prerequisites
+RUN apt-get update && apt-get install -y \
+      apt-utils \
+      autoconf \
+      libcurl4-openssl-dev \
+      pkg-config \
+      libssl-dev \
+      make \
+      cmake \
+      libhdf5-serial-dev \
+      libbz2-dev \
+      liblzma-dev \
+      g++ \
+      && rm -rf /var/lib/apt/lists/*
+
 COPY R_p_install.R /
 RUN Rscript /R_p_install.R \
       biomaRt \
@@ -27,28 +45,12 @@ RUN Rscript /R_p_install.R \
       GenomicRanges \
       GenomicFeatures \
       seqinr
-COPY . ./
 
 FROM nfcore/base:1.12.1
 LABEL authors="Octavia Ciora, Leon Schwartz, Markus Hoffmann" \
       description="Docker image containing all software requirements for the nf-core/circrnasponging pipeline"
-
-# install psirc from git repository
-ARG DEBIAN_FRONTEND=noninteractive
-# psirc prerequisites
-RUN apt-get update && apt-get install -y \
-      apt-utils \
-      autoconf \
-      libcurl4-openssl-dev \
-      pkg-config \
-      libssl-dev \
-      make \
-      cmake \
-      libhdf5-serial-dev \
-      libbz2-dev \
-      liblzma-dev \
-      g++ \
-      && rm -rf /var/lib/apt/lists/*
+# add R and base software
+COPY --from=Rbase . ./
 # install psirc
 COPY install_psirc.sh /
 RUN bash /install_psirc.sh
@@ -69,7 +71,3 @@ ENV PATH /opt/conda/envs/nf-core-circrnasponging/bin:$PATH
 
 # Dump the details of the installed packages to a file for posterity
 RUN conda env export --name nf-core-circrnasponging > nf-core-circrnasponging.yml
-
-# add R
-COPY --from=Rbase . ./
-

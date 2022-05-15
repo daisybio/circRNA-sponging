@@ -2,4 +2,5 @@
 
 args <- commandArgs(trailingOnly = TRUE)
 pacman::p_load(char=args)
-sapply(args, function(pkg) if(!require(pkg, character.only = T)) stop("package ", pkg, " could not be properly installed"))
+errors <- args[!args %in% intersect(args, rownames(installed.packages()))]
+if (length(errors)>0) stop("Could not properly install package(s): ", errors)

@@ -5,6 +5,7 @@ RUN R -e "install.packages('pacman', repos='http://cran.rstudio.com/')"
 # SPONGE
 RUN R -e "devtools::install_github('biomedbigdata/SPONGE')"
 RUN R -e "if(!require(SPONGE)) stop('SPONGE not properly installed')"
+COPY . ./
 COPY R_p_install.R /
 RUN Rscript /R_p_install.R \
       biomaRt \

@@ -1,7 +1,7 @@
 FROM rocker/tidyverse:4.1.0 as Rbase
+RUN apt-get update && apt-get install -y libglpk-dev
 # R packages that are not in conda
 RUN R -e "install.packages('pacman', repos='http://cran.rstudio.com/')"
-RUN apt-get update && apt-get install -y libglpk-dev
 # SPONGE
 RUN R -e "BiocManager::install(c('ComplexHeatmap', 'MetBrewer'), ask = F)"
 RUN R -e "if(!require(MetBrewer)) stop('MetBrewer not properly installed')"

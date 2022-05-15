@@ -1,4 +1,35 @@
-FROM rocker/tidyverse:4.1 as Rbase
+FROM rocker/tidyverse:4.1.0 as Rbase
+# Add R and instruct R processes to use these empty files instead of clashing with a local version
+RUN touch .Rprofile
+RUN touch .Renviron
+# R packages that are not in conda
+RUN R -e "install.packages('pacman', repos='http://cran.rstudio.com/')"
+# SPONGE
+RUN R -e "devtools::install_github('biomedbigdata/SPONGE', dependencies = T)"
+RUN R -e "if(!require(SPONGE)) stop('SPONGE not properly installed')"
+COPY R_p_install.R /
+RUN Rscript /R_p_install.R \
+      biomaRt \
+      argparser \
+      data.table \
+      dplyr \
+      ggplot2 \
+      reshape2 \
+      stringr \
+      VennDiagram \
+      Biostrings \
+      MetBrewer \
+      ensembldb \
+      pheatmap \
+      DESeq2 \
+      EnhancedVolcano \
+      doParallel \
+      foreach \
+      BSgenome \
+      GenomicRanges \
+      GenomicFeatures \
+      seqinr
+COPY . ./
 
 FROM nfcore/base:1.12.1
 LABEL authors="Octavia Ciora, Leon Schwartz, Markus Hoffmann" \
@@ -43,33 +74,4 @@ RUN conda env export --name nf-core-circrnasponging > nf-core-circrnasponging.ym
 
 # add R
 COPY --from=Rbase . ./
-# Add R and instruct R processes to use these empty files instead of clashing with a local version
-RUN touch .Rprofile
-RUN touch .Renviron
-# R packages that are not in conda
-RUN R -e "install.packages('pacman', repos='http://cran.rstudio.com/')"
-# SPONGE
-RUN R -e "devtools::install_github('biomedbigdata/SPONGE', dependencies = T)"
-RUN R -e "if(!require(SPONGE)) stop('SPONGE not properly installed')"
-COPY R_p_install.R /
-RUN Rscript /R_p_install.R \
-      biomaRt \
-      argparser \
-      data.table \
-      dplyr \
-      ggplot2 \
-      reshape2 \
-      stringr \
-      VennDiagram \
-      Biostrings \
-      MetBrewer \
-      ensembldb \
-      pheatmap \
-      DESeq2 \
-      EnhancedVolcano \
-      doParallel \
-      foreach \
-      BSgenome \
-      GenomicRanges \
-      GenomicFeatures \
-      seqinr
+

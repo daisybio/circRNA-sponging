@@ -3,7 +3,7 @@ FROM r-base:4.1.0 as Rbase
 RUN touch .Rprofile
 RUN touch .Renviron
 # R packages that are not in conda
-RUN R -e "install.packages(c('pacman, devtools'), dependencies=TRUE, repos='http://cran.rstudio.com/')"
+RUN R -e "install.packages(c('pacman', 'devtools'), dependencies=TRUE, repos='http://cran.rstudio.com/')"
 # SPONGE
 RUN R -e "devtools::install_github('biomedbigdata/SPONGE')"
 COPY R_p_install.R /

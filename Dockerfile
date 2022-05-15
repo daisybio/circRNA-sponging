@@ -1,4 +1,4 @@
-FROM r-base:4.1.0 as Rbase
+FROM rocker/tidyverse:4.1 as Rbase
 # Add R and instruct R processes to use these empty files instead of clashing with a local version
 RUN touch .Rprofile
 RUN touch .Renviron

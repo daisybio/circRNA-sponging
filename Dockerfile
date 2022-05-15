@@ -3,12 +3,10 @@ FROM rocker/tidyverse:4.1.0 as Rbase
 RUN R -e "install.packages('pacman', repos='http://cran.rstudio.com/')"
 RUN apt-get update && apt-get install -y libglpk-dev
 # SPONGE
-COPY R_p_install.R /
-RUN Rscript /R_p_install.R \
-      ComplexHeatmap \
-      MetBrewer
+RUN R -e "BiocManager::install(c('ComplexHeatmap', 'MetBrewer'))"
 RUN R -e "devtools::install_github('biomedbigdata/SPONGE', dependencies = T)"
 RUN R -e "if(!require(SPONGE)) stop('SPONGE not properly installed')"
+COPY R_p_install.R /
 RUN Rscript /R_p_install.R \
       biomaRt \
       argparser \

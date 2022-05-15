@@ -5,7 +5,7 @@ RUN touch .Renviron
 # R packages that are not in conda
 RUN R -e "install.packages('pacman', repos='http://cran.rstudio.com/')"
 # SPONGE
-RUN R -e "devtools::install_github('biomedbigdata/SPONGE')"
+RUN R -e "devtools::install_github('biomedbigdata/SPONGE', dependencies = T, quiet = T)"
 COPY R_p_install.R /
 RUN Rscript /R_p_install.R \
       biomaRt \

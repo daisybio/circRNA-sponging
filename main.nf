@@ -627,7 +627,7 @@ if (params.pita) {
 
             script:
             """
-            perl pita_prediction.pl -utr $circ_fasta -mir $params.miRNA_fasta -prefix circRNA $options
+            pita_prediction.pl -utr $circ_fasta -mir $params.miRNA_fasta -prefix circRNA $options
             """
         }
 

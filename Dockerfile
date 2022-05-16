@@ -74,6 +74,7 @@ RUN conda env export --name nf-core-circrnasponging > nf-core-circrnasponging.ym
 # include firefox and geckodriver
 ENV GECKODRIVER_VER v0.29.0
 ENV FIREFOX_VER 87.0
+ARG DEBIAN_FRONTEND=noninteractive
 # install dependencies
 RUN set -x \
       && echo "deb http://deb.debian.org/debian/ unstable main contrib non-free" >> /etc/apt/sources.list.d/debian.list \

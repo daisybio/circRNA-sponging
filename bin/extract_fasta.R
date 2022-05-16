@@ -12,6 +12,9 @@ select.genome <- genomes$pkgname[genomes$genome == genome.version]
 if (length(select.genome) == 0) {
   stop("Error: Genome version not found in BSgenomes")
 }
+# set user library
+dir.create(Sys.getenv("R_LIBS_USER"), recursive = TRUE)  # create personal library
+.libPaths(Sys.getenv("R_LIBS_USER"))  # add to the path
 # select default genome
 select.genome <- select.genome[!grepl("masked", select.genome)]
 BiocManager::install(select.genome, ask = F)

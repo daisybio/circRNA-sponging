@@ -14,7 +14,6 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.firefox.options import Options
-from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
 import threading
 import logging
 import time
@@ -258,16 +257,13 @@ def read_html(response):
 def submit(tsv_data):
     # get circBase url
     url = dbs["circBase"]
-    # FireFox binary path (Must be absolute path in docker)
-    FIREFOX_BINARY = FirefoxBinary('/opt/firefox/firefox')
-    
+
     # FireFox Options
     FIREFOX_OPTS = Options()
     FIREFOX_OPTS.log.level = "trace"    # Debug
     FIREFOX_OPTS.headless = True
-    #firefox_path = os.path.join(pipeline_home, "assets/geckodriver")
     
-    driver = webdriver.Firefox(firefox_binary=FIREFOX_BINARY, options=FIREFOX_OPTS)
+    driver = webdriver.Firefox(options=FIREFOX_OPTS)
     driver.get(url=url)
     WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
     # select according organism

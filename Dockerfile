@@ -77,14 +77,14 @@ ENV FIREFOX_VER 87.0
 # install dependencies
 RUN set -x \
       && echo "deb http://deb.debian.org/debian/ unstable main contrib non-free" >> /etc/apt/sources.list.d/debian.list \
-      && apt update \
-      && apt upgrade -y \
-      && apt install -y \
+      && apt-get update \
+      && apt-get upgrade -y \
+      && apt-get install -y \
             firefox-esr
 
 # Add latest FireFox
 RUN set -x \
-      && apt install -y \
+      && apt-get install -y \
             ibx11-xcb1 \
             libdbus-glib-1-2 \
       && curl -sSLO https://download-installer.cdn.mozilla.net/pub/firefox/releases/${FIREFOX_VER}/linux-x86_64/en-US/firefox-${FIREFOX_VER}.tar.bz2 \

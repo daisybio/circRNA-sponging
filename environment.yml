@@ -9,6 +9,7 @@ channels:
 dependencies:
   - beautifulsoup4=4.11.1=pyha770c72_0
   - pyliftover=0.4=py_0
+  - pymysql=1.0.2=py39h06a4308_1
   - numpy=1.22.3=py39hc58783e_2
   - pandas=1.4.2=py39h1832856_1
   - randfold=2.0.1=hec16e2b_4

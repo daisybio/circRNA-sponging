@@ -85,7 +85,8 @@ RUN set -x \
 
 # Add latest FireFox
 RUN set -x \
-      && apt install -y \
+      && apt-get update \
+      && apt-get install -y \
             ibx11-xcb1 \
             libdbus-glib-1-2 \
       && curl -sSLO https://download-installer.cdn.mozilla.net/pub/firefox/releases/${FIREFOX_VER}/linux-x86_64/en-US/firefox-${FIREFOX_VER}.tar.bz2 \

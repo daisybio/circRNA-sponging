@@ -325,7 +325,7 @@ dim(target_scan_symbols_counts)
 # shared samples
 shared.samples <- intersect(colnames(gene_expr), colnames(mi_rna_expr))
 all.samples <- unique(c(colnames(gene_expr), colnames(mi_rna_expr)))
-if (length(shared.samples) < all.samples) {
+if (length(shared.samples) < length(all.samples)) {
   cat("Discarding samples", all.samples[!all.samples %in% shared.samples], "because they are missing in either gene or miRNA expression")
 }
 gene_expr <- gene_expr[,shared.samples]

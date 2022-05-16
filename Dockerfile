@@ -72,8 +72,8 @@ ENV PATH /opt/conda/envs/nf-core-circrnasponging/bin:$PATH
 # Dump the details of the installed packages to a file for posterity
 RUN conda env export --name nf-core-circrnasponging > nf-core-circrnasponging.yml
 # include firefox and geckodriver
-ENV GECKODRIVER_VER v0.29.0
-ENV FIREFOX_VER 87.0
+ENV GECKODRIVER_VER v0.30.0
+ENV FIREFOX_VER 91.0
 ARG DEBIAN_FRONTEND=noninteractive
 # install dependencies
 RUN set -x \

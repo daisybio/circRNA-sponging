@@ -262,6 +262,7 @@ def submit(tsv_data):
     # set headless
     options.headless = True
     firefox_path = os.path.join(pipeline_home, "assets/geckodriver")
+    print(firefox_path)
     # chrome_path = "/Users/leonschwartz/Desktop/Bioinformatik/local_data/software/chromedriver"
     driver = webdriver.Firefox(executable_path=firefox_path, options=options)
     # driver = webdriver.Chrome(executable_path=chrome_path, options=options)

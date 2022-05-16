@@ -76,7 +76,7 @@ ENV GECKODRIVER_VER v0.29.0
 ENV FIREFOX_VER 87.0
 # install dependencies
 RUN set -x \
-      && add-apt-repository ppa:mozillateam/firefox-next \
+      && echo "deb http://deb.debian.org/debian/ unstable main contrib non-free" >> /etc/apt/sources.list.d/debian.list \
       && apt update \
       && apt upgrade -y \
       && apt install -y \

@@ -73,13 +73,12 @@ ENV PATH /opt/conda/envs/nf-core-circrnasponging/bin:$PATH
 RUN conda env export --name nf-core-circrnasponging > nf-core-circrnasponging.yml
 # include firefox and geckodriver
 ENV GECKODRIVER_VER v0.31.0
-ENV FIREFOX_VER 91.0
+ENV FIREFOX_VER 100.0
 ARG DEBIAN_FRONTEND=noninteractive
 # install dependencies
 RUN set -x \
       && echo "deb http://deb.debian.org/debian/ unstable main contrib non-free" >> /etc/apt/sources.list.d/debian.list \
       && apt-get update \
-      && apt-get upgrade -y \
       && apt-get install -y \
             firefox-esr
 

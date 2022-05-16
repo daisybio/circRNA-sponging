@@ -71,3 +71,10 @@ ENV PATH /opt/conda/envs/nf-core-circrnasponging/bin:$PATH
 
 # Dump the details of the installed packages to a file for posterity
 RUN conda env export --name nf-core-circrnasponging > nf-core-circrnasponging.yml
+# include firefox and geckodriver
+RUN apt-get update                             \
+      && apt-get install -y --no-install-recommends \
+      ca-certificates curl firefox-esr           \
+      && rm -fr /var/lib/apt/lists/*                \
+      && curl -L https://github.com/mozilla/geckodriver/releases/download/v0.30.0/geckodriver-v0.30.0-linux64.tar.gz | tar xz -C /usr/local/bin \
+      && apt-get purge -y ca-certificates curl

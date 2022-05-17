@@ -130,7 +130,7 @@ samplesheet <- read.table(file = argv$samplesheet, sep = "\t", header = T)
 # plot ratio of conditions
 png(filename = "conditions.png", res = 200, width = 1300, height = 800)
 condition.occurences <- table(samplesheet$condition)
-cond.col <- met.brewer(palette, n = length(condition.occurences))
+cond.col <- met.brewer("Renoir", n = length(condition.occurences))
 pie(condition.occurences, col = cond.col)
 legend("topright", legend = names(label), fill = cond.col, inset = c(-0.1, 0), cex = 0.75)
 dev.off()

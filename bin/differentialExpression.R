@@ -128,7 +128,7 @@ gene_expression <- as.matrix(read.table(file = argv$gene_expr, header = T, sep =
 samplesheet <- read.table(file = argv$samplesheet, sep = "\t", header = T)
 
 # plot ratio of conditions
-png(filename = file.path(out, "conditions.png"), res = 200, width = 1300, height = 800)
+png(filename = "conditions.png", res = 200, width = 1300, height = 800)
 condition.occurences <- table(samplesheet$condition)
 pie(condition.occurences, col = met.brewer(palette, n = length(condition.occurences)))
 dev.off()

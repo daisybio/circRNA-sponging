@@ -100,16 +100,16 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   colnames(total.counts) <- "total"
   total.counts$condition <- rownames(total.counts)
   total.counts$color.code <- annotation.colors
-  
   png(filename = file.path(out, "total.hits.png"), res = 200, width = 1300, height = 800)
   ggplot(data=total.counts, aes(x=condition, y=total)) +
     geom_bar(stat = "identity", fill = total.counts$color.code) +
     geom_text(aes(label = total), vjust = -0.2) +
     guides(fill="none")
   dev.off()
-  
+  # reformat meta data for heatmap annotation
   row.names(df) <- df$sample
   df <- df[, marker, drop = F]
+  
   # plot heatmap
   pheatmap::pheatmap(filtered, cluster_rows=T, show_rownames=F,
                      cluster_cols=T, annotation_col=df,
@@ -126,6 +126,12 @@ gene_expression <- as.matrix(read.table(file = argv$gene_expr, header = T, sep =
 
 # metadata
 samplesheet <- read.table(file = argv$samplesheet, sep = "\t", header = T)
+
+# plot ratio of conditions
+png(filename = file.path(out, "conditions.png"), res = 200, width = 1300, height = 800)
+condition.occurences <- table(samplesheet$condition)
+pie(condition.occurences, col = met.brewer(palette, n = length(condition.occurences)))
+dev.off()
 
 # circRNAs filtered
 circ_RNAs <- read.table(file = argv$circ_filtered, sep = "\t", header = T, stringsAsFactors = F, check.names = F)

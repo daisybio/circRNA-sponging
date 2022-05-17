@@ -134,7 +134,7 @@ label <- paste(round(prop.table(condition.occurences)*100), "%", sep = "")
 cond.col <- met.brewer("Renoir", n = length(condition.occurences))
 pie(condition.occurences, col = cond.col, labels = label)
 par(mar = c(5, 4, 4, 8), xpd = T)
-legend("topright", legend = names(label), fill = cond.col, inset = c(-0.1, 0), cex = 0.75)
+legend("topright", legend = names(condition.occurences), fill = cond.col, inset = c(-0.2, 0), cex = 0.75)
 dev.off()
 
 # circRNAs filtered

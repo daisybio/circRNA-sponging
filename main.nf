@@ -32,7 +32,7 @@ def helpMessage() {
 
       --fasta [file] 			Path to genome fasta (must be surrounded with quotes)
       --gtf [file]			Path to gtf file (must be surrounded with quotes)
-      --gene_pred [file]		Path to gene annotation (must be surrounded with quotes)
+      --bed12 [file]		Path to gene annotation (must be surrounded with quotes)
       --miRNA_fasta [file]		Path to mature miRNA fasta (must be surrounded with quotes)
       --miRNA_related_fasta [file]	Path to mature miRNA fasta of related species (must be surrounded with quotes)
       --hairpin_fasta [file]		Path to miRNA hairpin fasta (must be surrounded with quotes)
@@ -221,7 +221,7 @@ process circExplorer2_Annotate {
 
     script:
     """
-    CIRCexplorer2 annotate -r $params.gene_pred -g $fasta -b $backspliced_junction_bed -o "${sampleID}_circularRNA_known.txt"
+    CIRCexplorer2 annotate -r $params.bed12 -g $fasta -b $backspliced_junction_bed -o "${sampleID}_circularRNA_known.txt"
     """
 }
 

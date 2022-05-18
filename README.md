@@ -81,7 +81,7 @@ BASIC OPTIONS:
 REFERENCE FILES:
   --fasta [path/to/genome.fasta]
   --gtf [path/to/gtf_file]
-  --gene_pred [path/to/gene_annotation]
+  --bed12 [path/to/gene_annotation]
   --mature_fasta [path/to/mature_fasta]
   --mature_other_fasta [path/to/mature_other_fasta]
   --hairpin_fasta [path/to/hairpin_fasta]
@@ -271,7 +271,7 @@ params {
         single_end = true
         fasta = "path/to/genome.fasta"
         gtf = "path/to/genome.gtf"
-        gene_pred = "path/to/genome.annot"
+        bed12 = "path/to/genome.annot"
         mature_fasta = "path/to/mature_mmu.fa"
         mature_other_fasta = "path/to/mature_rno_hsa.fa"
         hairpin_fasta = "path/to/hairpin_mmu.fa"

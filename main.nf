@@ -104,16 +104,18 @@ def get_miRNA_paths(LinkedHashMap row) {
     return array
 }
 
-def check_input(){
-    if (!params.genome && params.database_annotation) {
-        exit 1, "Error: genome version not specified, which is mandatory for database annotation"
-    }
-}
-
 // Show help message
 if (params.help) {
     helpMessage()
     exit 0
+}
+
+////////////////////////////////////////////////////
+/* --         VALIDATE PARAMETERS              -- */
+////////////////////////////////////////////////////+
+def json_schema = "$projectDir/nextflow_schema.json"
+if (params.validate_params) {
+    NfcoreSchema.validateParameters(params, json_schema, log)
 }
 
 /*
@@ -125,11 +127,6 @@ Channel.fromPath(params.samplesheet)
 
 ch_fasta = Channel.value(file(params.fasta))
 ch_gtf = Channel.value(file(params.gtf))
-
-/*
-* CHECK INPUT OPTIONS
-*/
-check_input()
 
 /*
 * GENERATE STAR INDEX IN CASE IT IS NOT ALREADY PROVIDED

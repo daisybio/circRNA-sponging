@@ -78,7 +78,7 @@ BASIC OPTIONS:
   --miRNA_adapter [adapter_sequence] # miRNA adapter used for trimming
   -profile [configuration_profile] # Available: docker, singularity
     
-REFERENCE FILES
+REFERENCE FILES:
   --fasta [path/to/genome.fasta]
   --gtf [path/to/gtf_file]
   --gene_pred [path/to/gene_annotation]

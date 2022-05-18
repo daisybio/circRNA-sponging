@@ -23,9 +23,9 @@ def helpMessage() {
 
     Mandatory arguments:
       --samplesheet [file]		Path to samplesheet (must be surrounded with quotes)
-      --out_dir [file]			The output directory where the results will be saved
+      --outdir [file]			The output directory where the results will be saved
       --species [str]			Species name in 3 letter code (hsa for human, mmu for mouse)
-      --genome_version [str]    Genome version that will be used for mapping e.g. for human hg38
+      --genome [str]    Genome version that will be used for mapping e.g. for human hg38
       --miRNA_adapter [str] 		miRNA adapter used for trimming
       -profile [str]           	 	Configuration profile to use. Can use multiple (comma separated)
                                       	Available: conda, docker, singularity, test, awsbatch, <institute> and more
@@ -105,7 +105,7 @@ def get_miRNA_paths(LinkedHashMap row) {
 }
 
 def check_input(){
-    if (!params.genome_version && params.database_annotation) {
+    if (!params.genome && params.database_annotation) {
         exit 1, "Error: genome version not specified, which is mandatory for database annotation"
     }
 }
@@ -136,7 +136,7 @@ check_input()
 */
 process generate_star_index{
     label 'process_high'
-    publishDir "${params.out_dir}/", mode: params.publish_dir_mode
+    publishDir "${params.outdir}/", mode: params.publish_dir_mode
 
     input:
     file(fasta) from ch_fasta
@@ -168,7 +168,7 @@ ch_star_index = params.STAR_index ? Channel.value(file(params.STAR_index)) : gen
 */
 process STAR {
     label 'process_high'
-    publishDir "${params.out_dir}/samples/${sampleID}/circRNA_detection/", mode: params.publish_dir_mode
+    publishDir "${params.outdir}/samples/${sampleID}/circRNA_detection/", mode: params.publish_dir_mode
     
     input:
     set val(sampleID), file(reads) from ch_totalRNA_reads1
@@ -190,7 +190,7 @@ process STAR {
 process circExplorer2_Parse {
     label 'process_medium'
 
-    publishDir "${params.out_dir}/samples/${sampleID}/circRNA_detection/circExplorer2", mode: params.publish_dir_mode
+    publishDir "${params.outdir}/samples/${sampleID}/circRNA_detection/circExplorer2", mode: params.publish_dir_mode
     
     input:
     tuple val(sampleID), file(chimeric_junction) from chimeric_junction_files
@@ -210,7 +210,7 @@ process circExplorer2_Parse {
 process circExplorer2_Annotate {
     label 'process_medium'
 
-    publishDir "${params.out_dir}/samples/${sampleID}/circRNA_detection/circExplorer2", mode: params.publish_dir_mode
+    publishDir "${params.outdir}/samples/${sampleID}/circRNA_detection/circExplorer2", mode: params.publish_dir_mode
     
     input:
     tuple val(sampleID), file(backspliced_junction_bed) from backspliced_junction_bed_files
@@ -231,7 +231,7 @@ process circExplorer2_Annotate {
 process summarize_detected_circRNAs{
     label 'process_medium'
 
-    publishDir "${params.out_dir}/results/circRNA/", mode: params.publish_dir_mode
+    publishDir "${params.outdir}/results/circRNA/", mode: params.publish_dir_mode
     
     input:
     file(circRNA_file) from ch_circRNA_known_files.collect()
@@ -241,7 +241,7 @@ process summarize_detected_circRNAs{
 
     script:
     """
-    Rscript "${projectDir}"/bin/circRNA_summarize_results.R $params.samplesheet $params.out_dir
+    Rscript "${projectDir}"/bin/circRNA_summarize_results.R $params.samplesheet $params.outdir
     """
 }
 
@@ -250,7 +250,7 @@ process summarize_detected_circRNAs{
 */
 process extract_circRNA_sequences {
     label 'process_medium'
-    publishDir "${params.out_dir}/results/binding_sites/input/", mode: params.publish_dir_mode
+    publishDir "${params.outdir}/results/binding_sites/input/", mode: params.publish_dir_mode
     
     input:
     file(circRNAs_raw) from ch_circRNA_counts_raw1
@@ -260,7 +260,7 @@ process extract_circRNA_sequences {
 
     script:
     """
-	Rscript "${projectDir}"/bin/extract_fasta.R $params.genome_version $circRNAs_raw
+	Rscript "${projectDir}"/bin/extract_fasta.R $params.genome $circRNAs_raw
     """
 }
 
@@ -268,11 +268,11 @@ process extract_circRNA_sequences {
 * CREATE PSIRC INDEX IF NOT ALREADY PRESENT/ GIVEN
 */
 psirc = params.psirc_exc ? params.psirc_exc : "psirc-quant"
-psirc_index_path = params.psirc_index ? params.psirc_index : params.out_dir + "/results/psirc/psirc.index"
+psirc_index_path = params.psirc_index ? params.psirc_index : params.outdir + "/results/psirc/psirc.index"
 if(!file(psirc_index_path).exists()) {
     process psirc_index {
         label 'process_medium'
-        publishDir "${params.out_dir}/results/psirc/", mode: params.publish_dir_mode
+        publishDir "${params.outdir}/results/psirc/", mode: params.publish_dir_mode
 
         input:
         file(circ_fasta) from circRNAs_raw_fasta
@@ -297,11 +297,11 @@ if(!file(psirc_index_path).exists()) {
 /*
 * QUANTIFY EXPRESSIONS USING PSIRC
 */
-psirc_out = params.out_dir + "/results/psirc/"
+psirc_out = params.outdir + "/results/psirc/"
 if (!file(psirc_out + "quant_linear_expression.tsv").exists()) {
     process psirc_quant {
         label 'process_medium'
-        publishDir "${params.out_dir}/results/psirc/tmp/", mode: params.publish_dir_mode
+        publishDir "${params.outdir}/results/psirc/tmp/", mode: params.publish_dir_mode
 
         input:
         set val(sampleID), file(reads) from ch_totalRNA_reads2
@@ -327,7 +327,7 @@ if (!file(psirc_out + "quant_linear_expression.tsv").exists()) {
     */
     process process_psirc {
         label 'process_medium'
-        publishDir "${params.out_dir}/results/psirc/", mode: params.publish_dir_mode
+        publishDir "${params.outdir}/results/psirc/", mode: params.publish_dir_mode
 
         input:
         file(circ_counts) from ch_circRNA_counts_raw2
@@ -343,7 +343,7 @@ if (!file(psirc_out + "quant_linear_expression.tsv").exists()) {
         """
         Rscript "${projectDir}"/bin/quantify_circ_expression.R \
         --circ_counts $circ_counts \
-        --dir "${params.out_dir}/results/psirc/tmp/" \
+        --dir "${params.outdir}/results/psirc/tmp/" \
         --samplesheet $params.samplesheet \
         --pseudocount $params.pseudocount
         """
@@ -366,7 +366,7 @@ if (params.quantification){
 process normalize_circRNAs{
     label 'process_medium'
 
-    publishDir "${params.out_dir}/results/circRNA/", mode: params.publish_dir_mode
+    publishDir "${params.outdir}/results/circRNA/", mode: params.publish_dir_mode
     
     input:
     file(circRNA_counts_raw) from ch_circRNA_counts1
@@ -376,7 +376,7 @@ process normalize_circRNAs{
 
     script:
     """
-    Rscript "${projectDir}"/bin/circRNA_results_LibrarySizeEstimation.R $circRNA_counts_raw $params.samplesheet $params.out_dir
+    Rscript "${projectDir}"/bin/circRNA_results_LibrarySizeEstimation.R $circRNA_counts_raw $params.samplesheet $params.outdir
     """
 }
 
@@ -386,7 +386,7 @@ process normalize_circRNAs{
 process filter_circRNAs{
     label 'process_medium'
 
-    publishDir "${params.out_dir}/results/circRNA/", mode: params.publish_dir_mode
+    publishDir "${params.outdir}/results/circRNA/", mode: params.publish_dir_mode
     
     input:
     file(circRNA_counts_norm) from ch_circRNA_counts_norm1
@@ -396,7 +396,7 @@ process filter_circRNAs{
 
     script:
     """
-    Rscript "${projectDir}"/bin/circRNA_filtering.R $circRNA_counts_norm $params.samplesheet $params.out_dir $params.sample_percentage $params.read_threshold
+    Rscript "${projectDir}"/bin/circRNA_filtering.R $circRNA_counts_norm $params.samplesheet $params.outdir $params.sample_percentage $params.read_threshold
     """
 }
 
@@ -404,13 +404,13 @@ process filter_circRNAs{
 * DATABASE ANNOTATION USING LIFTOVER FOR GENOMIC COORDINATE CONVERSION AND CIRCBASE
 */
 if (params.database_annotation){
-    circ_annotation = params.out_dir + "/results/circRNA/circRNAs_annotated.tsv"
-    circ_counts_annotated_path = params.out_dir + "/results/circRNA/circRNA_counts_annotated.tsv"
+    circ_annotation = params.outdir + "/results/circRNA/circRNAs_annotated.tsv"
+    circ_counts_annotated_path = params.outdir + "/results/circRNA/circRNA_counts_annotated.tsv"
     if (!file(circ_counts_annotated_path).exists()) {
         process database_annotation{
         label 'process_medium'
 
-        publishDir "${params.out_dir}/results/circRNA/", mode: params.publish_dir_mode
+        publishDir "${params.outdir}/results/circRNA/", mode: params.publish_dir_mode
 
         input:
         file(circRNAs_filtered) from ch_circRNA_counts_filtered
@@ -421,11 +421,11 @@ if (params.database_annotation){
         script:
         if( params.offline_circ_db == null )
             """
-            python3 "${projectDir}"/bin/circRNA_db_annotation.py -o $params.species -gv $params.genome_version -d $circRNAs_filtered -ao $params.annotated_only
+            python3 "${projectDir}"/bin/circRNA_db_annotation.py -o $params.species -gv $params.genome -d $circRNAs_filtered -ao $params.annotated_only
             """
         else
             """
-            python3 "${projectDir}"/bin/circRNA_db_annotation.py -o $params.species -gv $params.genome_version -d $circRNAs_filtered -off $params.offline_circ_db -ao $params.annotated_only
+            python3 "${projectDir}"/bin/circRNA_db_annotation.py -o $params.species -gv $params.genome -d $circRNAs_filtered -off $params.offline_circ_db -ao $params.annotated_only
             """
         }
     } else {
@@ -442,7 +442,7 @@ if (params.database_annotation){
 process circ_fastas{
     label 'process_medium'
 
-    publishDir "${params.out_dir}/results/binding_sites/input/", mode: params.publish_dir_mode
+    publishDir "${params.outdir}/results/binding_sites/input/", mode: params.publish_dir_mode
 
     input:
     file(circRNAs_filtered) from ch_circRNA_counts_filtered1
@@ -452,7 +452,7 @@ process circ_fastas{
 
     script:
     """
-	Rscript "${projectDir}"/bin/extract_fasta.R $params.genome_version $circRNAs_filtered
+	Rscript "${projectDir}"/bin/extract_fasta.R $params.genome $circRNAs_filtered
     """
 }
 
@@ -462,7 +462,7 @@ process circ_fastas{
 if (params.differential_expression){
     process differential_expression {
         label 'process_medium'
-        publishDir "${params.out_dir}/results/differential_expression", mode: params.publish_dir_mode
+        publishDir "${params.outdir}/results/differential_expression", mode: params.publish_dir_mode
         errorStrategy 'ignore'
 
         input:
@@ -497,7 +497,7 @@ if (params.differential_expression){
 * DETERMINE miRNA BINDING SITES ON THE PREVIOUSLY DETECTED circRNAs USING miranda
 run only if file is not already present
 */
-miranda_path = params.out_dir + "/results/binding_sites/output/miRanda"
+miranda_path = params.outdir + "/results/binding_sites/output/miRanda"
 miranda_output = miranda_path + "/bind_sites_raw.out"
 if (!file(miranda_output).exists()) {
     miranda_tmp = miranda_path + "/tmp"
@@ -567,7 +567,7 @@ process binding_sites_filtering {
 */
 if (params.tarpmir) {
     model = params.model ? Channel.value(file(params.model)) : Channel.value(file(projectDir + "/data/tarpmir_models/Human_sklearn_0.22.pkl"))
-    tarpmir_path = "${params.out_dir}/results/binding_sites/output/TarPmiR"
+    tarpmir_path = "${params.outdir}/results/binding_sites/output/TarPmiR"
     tarpmir_tmp = tarpmir_path + "/tmp"
     // RUN TARPMIR ON CHUNKED MRNA FASTAS
     tarpmir_out = tarpmir_path + "/TarPmiR_bp.tsv"
@@ -610,8 +610,8 @@ if (params.tarpmir) {
  * RUN PITA ANALYSIS FOR circRNAs
  */
 if (params.pita) {
-    pita_tmp = "${params.out_dir}/results/binding_sites/output/PITA/tmp"
-    pita_out = "${params.out_dir}/results/binding_sites/output/PITA/circRNA_pita_results.tsv"
+    pita_tmp = "${params.outdir}/results/binding_sites/output/PITA/tmp"
+    pita_out = "${params.outdir}/results/binding_sites/output/PITA/circRNA_pita_results.tsv"
     pita_options = "-l " + params.pita_l + " -gu " + params.pita_gu + " -m " + params.pita_m
     if(!file(pita_out).exists()){
         process PITA {
@@ -674,7 +674,7 @@ if (!params.circRNA_only) {
         */
         process generate_bowtie_index{
             label 'process_high'
-            publishDir "${params.out_dir}/bowtie_index/", mode: params.publish_dir_mode
+            publishDir "${params.outdir}/bowtie_index/", mode: params.publish_dir_mode
 
             input:
             file(fasta) from ch_fasta
@@ -700,7 +700,7 @@ if (!params.circRNA_only) {
         miRNA_adapter = params.miRNA_adapter ? "-k " + params.miRNA_adapter : ""
         process miRDeep2_mapping {
             label 'process_high'
-            publishDir "${params.out_dir}/samples/${sampleID}/miRNA_detection/", mode: params.publish_dir_mode
+            publishDir "${params.outdir}/samples/${sampleID}/miRNA_detection/", mode: params.publish_dir_mode
 
             input:
             tuple val(sampleID), file(read_file) from ch_smallRNA_reads
@@ -722,7 +722,7 @@ if (!params.circRNA_only) {
         */
         process miRDeep2_quantification {
             label 'process_high'
-            publishDir "${params.out_dir}/samples/${sampleID}/miRNA_detection/", mode: params.publish_dir_mode
+            publishDir "${params.outdir}/samples/${sampleID}/miRNA_detection/", mode: params.publish_dir_mode
     
             input:
             tuple val(sampleID), file(reads_collapsed_fa), file(reads_vs_ref_arf) from ch_miRNA_mapping_output
@@ -743,7 +743,7 @@ if (!params.circRNA_only) {
         process summarize_detected_miRNAs{
             label 'process_medium'
 
-            publishDir "${params.out_dir}/results/miRNA/", mode: params.publish_dir_mode
+            publishDir "${params.outdir}/results/miRNA/", mode: params.publish_dir_mode
         
             input:
             val(miRNAs_expressed) from ch_miRNA_expression_files.unique().collect()
@@ -753,7 +753,7 @@ if (!params.circRNA_only) {
 
             script:
             """
-            Rscript "${projectDir}"/bin/miRNA_summarize_results.R $params.samplesheet $params.out_dir
+            Rscript "${projectDir}"/bin/miRNA_summarize_results.R $params.samplesheet $params.outdir
             """
         }
     }
@@ -765,7 +765,7 @@ if (!params.circRNA_only) {
         process normalize_miRNAs{
             label 'process_low'
 
-            publishDir "${params.out_dir}/results/miRNA/", mode: params.publish_dir_mode
+            publishDir "${params.outdir}/results/miRNA/", mode: params.publish_dir_mode
             
             input:
             file(miRNA_counts_raw) from ch_miRNA_counts_raw
@@ -775,7 +775,7 @@ if (!params.circRNA_only) {
 
             script:
             """
-            Rscript "${projectDir}"/bin/miRNA_results_LibrarySizeEstimation.R $miRNA_counts_raw $params.out_dir
+            Rscript "${projectDir}"/bin/miRNA_results_LibrarySizeEstimation.R $miRNA_counts_raw $params.outdir
             """
         }
     } else {
@@ -790,7 +790,7 @@ if (!params.circRNA_only) {
         process filter_miRNAs{
             label 'process_medium'
 
-            publishDir "${params.out_dir}/results/miRNA/", mode: params.publish_dir_mode
+            publishDir "${params.outdir}/results/miRNA/", mode: params.publish_dir_mode
             
             input:
             file(miRNA_counts_norm) from ch_miRNA_counts_norm1
@@ -800,7 +800,7 @@ if (!params.circRNA_only) {
 
             script:
             """
-            Rscript "${projectDir}"/bin/miRNA_filtering.R $miRNA_counts_norm $params.out_dir $params.sample_percentage $params.read_threshold
+            Rscript "${projectDir}"/bin/miRNA_filtering.R $miRNA_counts_norm $params.outdir $params.sample_percentage $params.read_threshold
             """
         }
     } else {
@@ -815,7 +815,7 @@ if (!params.circRNA_only) {
         process compute_correlations{
             label 'process_high'
 
-            publishDir "${params.out_dir}/results/sponging/", mode: params.publish_dir_mode
+            publishDir "${params.outdir}/results/sponging/", mode: params.publish_dir_mode
             
             input:
             file(miRNA_counts_filtered) from ch_miRNA_counts_filtered1
@@ -838,7 +838,7 @@ if (!params.circRNA_only) {
         process correlation_analysis{
             label 'process_high'
 
-            publishDir "${params.out_dir}/results/sponging/", mode: params.publish_dir_mode
+            publishDir "${params.outdir}/results/sponging/", mode: params.publish_dir_mode
             
             input:
             file(correlations) from ch_correlations
@@ -854,8 +854,8 @@ if (!params.circRNA_only) {
 
             script:
             """
-            mkdir -p "${params.out_dir}/results/sponging/plots/"
-            Rscript "${projectDir}"/bin/correlation_analysis.R $params.samplesheet $miRNA_counts_filtered $circRNA_counts_filtered $correlations $params.out_dir $params.sample_group $miRNA_counts_norm $circRNA_counts_norm
+            mkdir -p "${params.outdir}/results/sponging/plots/"
+            Rscript "${projectDir}"/bin/correlation_analysis.R $params.samplesheet $miRNA_counts_filtered $circRNA_counts_filtered $correlations $params.outdir $params.sample_group $miRNA_counts_norm $circRNA_counts_norm
             """
         }
     }
@@ -870,7 +870,7 @@ if (!params.circRNA_only) {
             label 'process_long'
             errorStrategy 'ignore'
 
-            publishDir "${params.out_dir}/results/sponging/SPONGE", mode: params.publish_dir_mode
+            publishDir "${params.outdir}/results/sponging/SPONGE", mode: params.publish_dir_mode
 
             input:
             file(gene_expression) from gene_expression2
@@ -917,7 +917,7 @@ if (!params.circRNA_only) {
                 label 'process_low'
                 errorStrategy 'ignore'
 
-                publishDir "${params.out_dir}/results/sponging/SPONGE/DE_analysis", mode: params.publish_dir_mode
+                publishDir "${params.outdir}/results/sponging/SPONGE/DE_analysis", mode: params.publish_dir_mode
 
                 input:
                 file(sponge_data) from sponge_rimage1
@@ -944,7 +944,7 @@ if (!params.circRNA_only) {
                 label 'process_high'
                 errorStrategy 'ignore'
 
-                publishDir "${params.out_dir}/results/sponging/SPONGE/spongEffects", mode: params.publish_dir_mode
+                publishDir "${params.outdir}/results/sponging/SPONGE/spongEffects", mode: params.publish_dir_mode
 
                 input:
                 file(sponge_data) from sponge_rimage2

@@ -41,12 +41,12 @@ By default, the pipeline currently performs the following:
   + linear and circular quantification (using `psirc` and `kallisto`)
   + extraction of fasta sequences for filtered circRNAs
   + database annotation (using `circBase`)
-* differential expression analysis:
+* differential expression analysis (using `DESeq2`):
   + linear RNAs
   + circular RNAs
   + Heatmaps, Volcano and PCA plots
 * miRNA analysis:
-  + smRNA read mapping and quantification (using `miRDeep2`)
+  + smallRNA read mapping and quantification (using `miRDeep2`)
   + aggregation of identified miRNAs over all samples, normalization and filtering
 * circRNA-miRNA binding sites:
   + binding sites processing and filtering (`miranda`)
@@ -57,6 +57,7 @@ By default, the pipeline currently performs the following:
   + Correlation analysis between circRNA and miRNA expression (using `miranda`)
   + mRNA-circRNA-miRNA networks (using majority vote with `SPONGE`)
   + Analysis of networks and plotting
+  + ceRNA network analysis (using `SPONGE` package extension `spongEffects`)
 
 <img src="images/workflow.PNG" width = "700">
 
@@ -66,14 +67,14 @@ This analysis is based on both totalRNA (or rRNA-depleted) and smRNA data coming
 In order to run the sponging analysis on a dataset using our pipeline, the data has to meet strict requirements.  At least 5 samples from the same organism are needed, because computing the correlation between 4 or less samples is unreasonable. For each sample, both total RNA (or rRNA-depleted) and small RNA data should be available.  Further instructions regarding the exact input format, reference files and configuration are explained below.
 
 ### Basic Workflow
-The following options are mandatory for executing the basic workflow of the pipeline:
+The following options are mandatory for executing the full workflow of the pipeline:
 
 
 ```
 BASIC OPTIONS:
   --samplesheet [path/to/sampleseet.tsv]
-  --out_dir [path/to/output_directory]
-  --species [species_in_3_letter_code] # hsa for human, mmu for mouse etc.
+  --outdir [path/to/output_directory]
+  --genome [string] # genome version of RNA-seq data, hg38 for human, etc.
   --miRNA_adapter [adapter_sequence] # miRNA adapter used for trimming
   -profile [configuration_profile] # Available: docker, singularity
     
@@ -264,7 +265,7 @@ where `my.config` is a configuration file specifying parameters and execution se
 ```
 params {
         samplesheet = "path/to/sampleseet.tsv"
-        out_dir = "path/to/out_dir"
+        outdir = "path/to/outdir"
         species = "mmu"
         miRNA_adapter = "TGGAATTCTCGGGTGCCAAGG"
         single_end = true

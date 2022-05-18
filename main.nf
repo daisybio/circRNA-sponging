@@ -133,6 +133,14 @@ params.miRNA_fasta = params.genome ? params.genomes[ params.genome ].mature ?: f
 params.miRNA_related_fasta = params.genome ? params.genomes[ params.genome ].mature_rel ?: false : false
 params.hairpin_fasta = params.genome ? params.genomes[ params.genome ].hairpin ?: false : false
 
+// create files
+Channel.value(file(params.fasta)).into { ch_fasta; ch_fasta_star }
+ch_gtf = Channel.value(file(params.gtf))
+ch_bed12 = Channel.value(file(params.bed12))
+Channel.value(file(params.miRNA_fasta)).into { mirna_fasta_miRanda; mirna_fasta_PITA; mirna_fasta_TarPmiR; mirna_fasta_miRDeep2; mirna_fasta_SPONGE }
+ch_miRNA_related_fasta = Channel.value(file(params.miRNA_related_fasta))
+ch_hairpin_fasta = Channel.value(file(params.hairpin_fasta))
+
 // Sequencing presets
 if (params.protocol == "illumina"){
     params.miRNA_adapter = "TGGAATTCTCGGGTGCCAAGG"
@@ -151,9 +159,6 @@ Channel.fromPath(params.samplesheet)
    .splitCsv( header:true, sep:'\t')
    .map { get_circRNA_paths(it) }.into { ch_totalRNA_reads1; ch_totalRNA_reads2 }
 
-ch_fasta = Channel.value(file(params.fasta))
-ch_gtf = Channel.value(file(params.gtf))
-
 /*
 * GENERATE STAR INDEX IN CASE IT IS NOT ALREADY PROVIDED
 */
@@ -162,7 +167,7 @@ process generate_star_index{
     publishDir "${params.outdir}/", mode: params.publish_dir_mode
 
     input:
-    file(fasta) from ch_fasta
+    file(fasta) from ch_fasta_star
     file(gtf) from ch_gtf           
     
     output:
@@ -238,13 +243,14 @@ process circExplorer2_Annotate {
     input:
     tuple val(sampleID), file(backspliced_junction_bed) from backspliced_junction_bed_files
     file(fasta) from ch_fasta
+    file(bed12) from ch_bed12
 
     output:
     file("${sampleID}_circularRNA_known.txt") into ch_circRNA_known_files
 
     script:
     """
-    CIRCexplorer2 annotate -r $params.bed12 -g $fasta -b $backspliced_junction_bed -o "${sampleID}_circularRNA_known.txt"
+    CIRCexplorer2 annotate -r bed12 -g $fasta -b $backspliced_junction_bed -o "${sampleID}_circularRNA_known.txt"
     """
 }
 
@@ -524,19 +530,20 @@ miranda_path = params.outdir + "/results/binding_sites/output/miRanda"
 miranda_output = miranda_path + "/bind_sites_raw.out"
 if (!file(miranda_output).exists()) {
     miranda_tmp = miranda_path + "/tmp"
-    process miranda {
+    process miRanda {
         label 'process_medium'
         publishDir miranda_tmp, mode: params.publish_dir_mode
         
         input:
         file(circRNA_fasta) from circRNAs_fasta1.splitFasta( by: params.splitter, file: true )
+        file(miRNA_fasta) from mirna_fasta_miRanda
 
         output:
         file("bind_sites_raw.out") into bind_sites_split
 
         script:
         """
-        miranda $params.miRNA_fasta $circRNA_fasta -out "bind_sites_raw.out" -quiet
+        miranda $miRNA_fasta $circRNA_fasta -out "bind_sites_raw.out" -quiet
         """
     }
     // combine files to one
@@ -602,6 +609,7 @@ if (params.tarpmir) {
             input:
             file(model) from model
             file(mRNA_fasta) from circRNAs_fasta2.splitFasta( by: params.splitter, file: true )
+            file(miRNA_fasta) from mirna_fasta_TarPmiR
 
             output:
             file("bindings.bp") into bp_files
@@ -609,7 +617,7 @@ if (params.tarpmir) {
             script:
             """
             python3 "${projectDir}/bin/TarPmiR_threading.py" \\
-            -a $params.miRNA_fasta \\
+            -a $miRNA_fasta \\
             -b $mRNA_fasta \\
             -m $model \\
             -p $params.p \\
@@ -645,13 +653,14 @@ if (params.pita) {
             input:
             file(circ_fasta) from circRNAs_fasta3.splitFasta( by: params.splitter, file: true )
             val(options) from pita_options
+            file(miRNA_fasta) from mirna_fasta_PITA
 
             output:
             file("circRNA_pita_results.tab") into pita_splits
 
             script:
             """
-            pita_prediction.pl -utr $circ_fasta -mir $params.miRNA_fasta -prefix circRNA $options
+            pita_prediction.pl -utr $circ_fasta -mir $miRNA_fasta -prefix circRNA $options
             """
         }
 
@@ -750,13 +759,16 @@ if (!params.circRNA_only) {
             input:
             tuple val(sampleID), file(reads_collapsed_fa), file(reads_vs_ref_arf) from ch_miRNA_mapping_output
             file(fasta) from ch_fasta
+            file(miRNA_fasta) from mirna_fasta_miRDeep2
+            file(miRNA_related_fasta) from ch_miRNA_related_fasta
+            file(hairpin_fasta) from ch_hairpin_fasta
 
             output:
             file("miRNAs_expressed*") into ch_miRNA_expression_files
 
             script:
             """
-            miRDeep2.pl $reads_collapsed_fa $fasta $reads_vs_ref_arf $params.miRNA_fasta $params.miRNA_related_fasta $params.hairpin_fasta -t $params.species -d -v 
+            miRDeep2.pl $reads_collapsed_fa $fasta $reads_vs_ref_arf $miRNA_fasta $miRNA_related_fasta $hairpin_fasta -t $params.species -d -v 
             """
         }
 
@@ -899,6 +911,7 @@ if (!params.circRNA_only) {
             file(gene_expression) from gene_expression2
             file(circRNA_counts_filtered) from ch_circRNA_counts_filtered5
             file(mirna_expression) from ch_miRNA_counts_filtered3
+            file(miRNA_fasta) from mirna_fasta_SPONGE
             file(miranda_bind_sites) from ch_bindsites_filtered2
             file(target_scan_symbols) from target_scan_symbols
             val(tarpmir) from tarpmir_bp_file
@@ -919,7 +932,7 @@ if (!params.circRNA_only) {
             --gene_expr $gene_expression \\
             --circ_rna $circRNA_counts_filtered \\
             --mirna_expr $mirna_expression \\
-            --mir_fasta $params.miRNA_fasta \\
+            --mir_fasta $miRNA_fasta \\
             --fdr $params.fdr \\
             --target_scan_symbols $target_scan_symbols \\
             --miranda_data $miranda_bind_sites \\

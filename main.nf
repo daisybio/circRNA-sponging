@@ -118,6 +118,32 @@ if (params.validate_params) {
     NfcoreSchema.validateParameters(params, json_schema, log)
 }
 
+// Check if genome exists in the config file
+if (params.genomes && params.genome && !params.genomes.containsKey(params.genome)) {
+    exit 1, "The provided genome '${params.genome}' is not available in the iGenomes file. Currently the available genomes are ${params.genomes.keySet().join(', ')}"
+}
+
+// fill params with iGenomes
+params.STAR_index = params.genome ? params.genomes[ params.genome ].star ?: false : false
+params.species = params.genome ? params.genomes[ params.genome ].species ?: false : false
+params.fasta = params.genome ? params.genomes[ params.genome ].fasta ?: false : false
+params.gtf = params.genome ? params.genomes[ params.genome ].gtf ?: false : false
+params.bed12 = params.genome ? params.genomes[ params.genome ].bed12 ?: false : false
+params.miRNA_fasta = params.genome ? params.genomes[ params.genome ].mature ?: false : false
+params.miRNA_related_fasta = params.genome ? params.genomes[ params.genome ].mature_rel ?: false : false
+params.hairpin_fasta = params.genome ? params.genomes[ params.genome ].hairpin ?: false : false
+
+// Sequencing presets
+if (params.protocol == "illumina"){
+    params.miRNA_adapter = "TGGAATTCTCGGGTGCCAAGG"
+} else if (params.protocol == "nextflex"){
+    params.miRNA_adapter = "TGGAATTCTCGGGTGCCAAGG"
+} else if (params.protocol == "qiaseq"){
+    params.miRNA_adapter = "AACTGTAGGCACCATCAAT"
+} else if (params.protocol == "cats"){
+    params.miRNA_adapter = "AAAAAAAA"
+}
+
 /*
  * CREATE CHANNELS FOR INPUT READ FILES
  */

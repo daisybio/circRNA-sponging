@@ -75,7 +75,7 @@ BASIC OPTIONS:
   --samplesheet [path/to/sampleseet.tsv]
   --outdir [path/to/output_directory]
   --genome [string] # genome version of RNA-seq data, hg38 for human, etc.
-  --miRNA_adapter [adapter_sequence] # miRNA adapter used for trimming
+  --miRNA_adapter [adapter_sequence] OR --protocol [sequencing_protocol] # miRNA adapter used for trimming OR protocol used in smallRNA sequencing, e.g. illumina
   -profile [configuration_profile] # Available: docker, singularity
     
 REFERENCE FILES:

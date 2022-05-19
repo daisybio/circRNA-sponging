@@ -116,36 +116,37 @@ if (params.genomes && params.genome && !params.genomes.containsKey(params.genome
 }
 
 // fill params with iGenomes
-params.STAR_index = params.STAR_index ?: params.genome ? params.genomes[ params.genome ].star ?: false : false
+STAR_index = params.STAR_index ?: params.genome ? params.genomes[ params.genome ].star ?: false : false
 species = params.species ?: params.genome ? params.genomes[ params.genome ].species ?: false : false
-params.fasta = params.fasta ?: params.genome ? params.genomes[ params.genome ].fasta ?: false : false
-params.gtf = params.gtf ?: params.genome ? params.genomes[ params.genome ].gtf ?: false : false
-params.bed12 = params.bed12 ?: params.genome ? params.genomes[ params.genome ].bed12 ?: false : false
-params.miRNA_fasta = params.miRNA_fasta ?: params.genome ? params.genomes[ params.genome ].mature ?: false : false
+fasta = params.fasta ?: params.genome ? params.genomes[ params.genome ].fasta ?: false : false
+gtf = params.gtf ?: params.genome ? params.genomes[ params.genome ].gtf ?: false : false
+bed12 = params.bed12 ?: params.genome ? params.genomes[ params.genome ].bed12 ?: false : false
+miRNA_fasta = params.miRNA_fasta ?: params.genome ? params.genomes[ params.genome ].mature ?: false : false
 if(!params.miRNA_raw_counts) {
-    params.miRNA_related_fasta = params.miRNA_related_fasta ?: params.genome ? params.genomes[ params.genome ].mature_rel ?: false : false
-    params.hairpin_fasta = params.hairpin_fasta ?: params.genome ? params.genomes[ params.genome ].hairpin ?: false : false
+    miRNA_related_fasta = params.miRNA_related_fasta ?: params.genome ? params.genomes[ params.genome ].mature_rel ?: false : false
+    hairpin_fasta = params.hairpin_fasta ?: params.genome ? params.genomes[ params.genome ].hairpin ?: false : false
+    ch_miRNA_related_fasta = Channel.value(file(miRNA_related_fasta))
+    ch_hairpin_fasta = Channel.value(file(hairpin_fasta))
 }
 
 log.info species
 
 // create files
-Channel.value(file(params.fasta)).into { ch_fasta; ch_fasta_star }
-ch_gtf = Channel.value(file(params.gtf))
-ch_bed12 = Channel.value(file(params.bed12))
-Channel.value(file(params.miRNA_fasta)).into { mirna_fasta_miRanda; mirna_fasta_PITA; mirna_fasta_TarPmiR; mirna_fasta_miRDeep2; mirna_fasta_SPONGE }
-ch_miRNA_related_fasta = Channel.value(file(params.miRNA_related_fasta))
-ch_hairpin_fasta = Channel.value(file(params.hairpin_fasta))
+Channel.value(file(fasta)).into { ch_fasta; ch_fasta_star }
+ch_gtf = Channel.value(file(gtf))
+ch_bed12 = Channel.value(file(bed12))
+Channel.value(file(miRNA_fasta)).into { mirna_fasta_miRanda; mirna_fasta_PITA; mirna_fasta_TarPmiR; mirna_fasta_miRDeep2; mirna_fasta_SPONGE }
 
+miRNA_adapter = params.miRNA_adapter
 // Sequencing presets
 if (params.protocol == "illumina"){
-    params.miRNA_adapter = "TGGAATTCTCGGGTGCCAAGG"
+    miRNA_adapter = "TGGAATTCTCGGGTGCCAAGG"
 } else if (params.protocol == "nextflex"){
-    params.miRNA_adapter = "TGGAATTCTCGGGTGCCAAGG"
+    miRNA_adapter = "TGGAATTCTCGGGTGCCAAGG"
 } else if (params.protocol == "qiaseq"){
-    params.miRNA_adapter = "AACTGTAGGCACCATCAAT"
+    miRNA_adapter = "AACTGTAGGCACCATCAAT"
 } else if (params.protocol == "cats"){
-    params.miRNA_adapter = "AAAAAAAA"
+    miRNA_adapter = "AAAAAAAA"
 }
 
 /*
@@ -185,7 +186,7 @@ process generate_star_index{
     """
 }
 
-ch_star_index = params.STAR_index ? Channel.value(file(params.STAR_index)) : generated_star_index
+ch_star_index = STAR_index ? Channel.value(file(STAR_index)) : generated_star_index
 
 /*
 * PERFORM READ MAPPING OF totalRNA SAMPLES USING STAR
@@ -439,6 +440,7 @@ if (params.database_annotation){
 
         input:
         file(circRNAs_filtered) from ch_circRNA_counts_filtered
+        val(species) from species
 
         output:
         file("circRNAs_annotated.tsv") into circRNAs_annotated
@@ -446,11 +448,11 @@ if (params.database_annotation){
         script:
         if( params.offline_circ_db == null )
             """
-            python3 "${projectDir}"/bin/circRNA_db_annotation.py -o $params.species -gv $params.genome -d $circRNAs_filtered -ao $params.annotated_only
+            python3 "${projectDir}"/bin/circRNA_db_annotation.py -o $species -gv $params.genome -d $circRNAs_filtered -ao $params.annotated_only
             """
         else
             """
-            python3 "${projectDir}"/bin/circRNA_db_annotation.py -o $params.species -gv $params.genome -d $circRNAs_filtered -off $params.offline_circ_db -ao $params.annotated_only
+            python3 "${projectDir}"/bin/circRNA_db_annotation.py -o $species -gv $params.genome -d $circRNAs_filtered -off $params.offline_circ_db -ao $params.annotated_only
             """
         }
     } else {
@@ -758,13 +760,14 @@ if (!params.circRNA_only) {
             file(miRNA_fasta) from mirna_fasta_miRDeep2
             file(miRNA_related_fasta) from ch_miRNA_related_fasta
             file(hairpin_fasta) from ch_hairpin_fasta
+            val(species) from species
 
             output:
             file("miRNAs_expressed*") into ch_miRNA_expression_files
 
             script:
             """
-            miRDeep2.pl $reads_collapsed_fa $fasta $reads_vs_ref_arf $miRNA_fasta $miRNA_related_fasta $hairpin_fasta -t $params.species -d -v 
+            miRDeep2.pl $reads_collapsed_fa $fasta $reads_vs_ref_arf $miRNA_fasta $miRNA_related_fasta $hairpin_fasta -t $species -d -v 
             """
         }
 

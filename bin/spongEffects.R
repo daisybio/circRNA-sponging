@@ -14,6 +14,7 @@ parser.e <- add_argument(parser.e, "--meta", help = "Meta data for samples in ts
 parser.e <- add_argument(parser.e, "--train", help = "Percentage of samples to use for training, rest will be used for testing", default = 0.8)
 parser.e <- add_argument(parser.e, "--cpus", help = "Number of cores to use for backend", default = 4)
 parser.e <- add_argument(parser.e, "--mscor", help = "Mscore threshold", default = 0.1)
+parser.e <- add_argument(parser.e, "--genome", help = "Genome version, e.g. GRCh38", default = 0.1)
 parser.e <- add_argument(parser.e, "--fdr", help = "False discovery rate for padj ceRNA interactions", default = 0.05)
 parser.e <- add_argument(parser.e, "--modules_cutoff", help = "Modules cutoff", default = 750)
 parser.e <- add_argument(parser.e, "--bin_size", help = "Total bin size for enrichment", default = 100)

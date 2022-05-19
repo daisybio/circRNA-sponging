@@ -122,8 +122,12 @@ params.fasta = params.fasta ?: params.genome ? params.genomes[ params.genome ].f
 params.gtf = params.gtf ?: params.genome ? params.genomes[ params.genome ].gtf ?: false : false
 params.bed12 = params.bed12 ?: params.genome ? params.genomes[ params.genome ].bed12 ?: false : false
 params.miRNA_fasta = params.miRNA_fasta ?: params.genome ? params.genomes[ params.genome ].mature ?: false : false
-params.miRNA_related_fasta = params.miRNA_related_fasta ?: params.genome ? params.genomes[ params.genome ].mature_rel ?: false : false
-params.hairpin_fasta = params.hairpin_fasta ?: params.genome ? params.genomes[ params.genome ].hairpin ?: false : false
+if(!params.miRNA_raw_counts) {
+    params.miRNA_related_fasta = params.miRNA_related_fasta ?: params.genome ? params.genomes[ params.genome ].mature_rel ?: false : false
+    params.hairpin_fasta = params.hairpin_fasta ?: params.genome ? params.genomes[ params.genome ].hairpin ?: false : false
+}
+
+log.info params
 
 // create files
 Channel.value(file(params.fasta)).into { ch_fasta; ch_fasta_star }

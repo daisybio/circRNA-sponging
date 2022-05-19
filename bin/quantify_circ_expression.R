@@ -8,6 +8,7 @@ args <- commandArgs(trailingOnly = TRUE)
 
 parser <- arg_parser("Argument parser for circRNA quantification", name = "quant_parser")
 parser <- add_argument(parser, "--circ_counts", help = "circRNA counts file")
+parser <- add_argument(parser, "--gtf", help = "Gene annotation file")
 parser <- add_argument(parser, "--samplesheet", help = "Samplesheet of pipeline")
 parser <- add_argument(parser, "--pseudocount", help = "Pseudocount to use for tpms", default = 1e-3)
 parser <- add_argument(parser, "--dir", help = "Directory containing all samples with calculated abundances", default = ".")
@@ -31,7 +32,6 @@ remove.duplicates <- function(data, split) {
   data$key <- NULL
   return(data)
 }
-
 
 # read circRNA counts
 print("reading circRNA raw counts")
@@ -89,41 +89,15 @@ mRNA.quant <- remove.duplicates(mRNA.quant, "\\.")
 mRNA.tpm <- remove.duplicates(mRNA.tpm, "\\.")
 
 print("Converting transcripts to genes...")
-library(biomaRt)
-# convert transcript ids to gene ids
-mart <- NULL
-not_done <- T
-while(not_done){
-  tryCatch(
-    {
-      mart <- useEnsembl(biomart = "ENSEMBL_MART_ENSEMBL", "hsapiens_gene_ensembl")
-    },
-    error=function(cond) {
-      message(cond)
-    },
-    warning=function(cond) {
-      message(cond)
-    },
-    finally={
-      not_done = F
-      print("mart successfully created")
-    }
-  )
-}
+gtf <- rtracklayer::readGFF(argv$gtf)
+transcript2gene <- unique(gtf[!is.na(gtf$transcript_id),c("gene_id", "transcript_id")])
+rownames(transcript2gene) <- transcript2gene$transcript_id
 
-# convert row names
-transcript.IDs <- sapply(strsplit(row.names(mRNA.quant), "\\."), "[", 1)
-rownames(mRNA.quant) <- transcript.IDs
-transcript2gene <- getBM(attributes=c("ensembl_transcript_id","external_gene_name","ensembl_gene_id"),
-                         filters = "ensembl_transcript_id",
-                         values = transcript.IDs, 
-                         mart = mart)
-conv <- merge(mRNA.quant, transcript2gene, by.x = 0, by.y = 1)
+conv <- merge(mRNA.quant, transcript2gene, by.x = 0, by.y = 2)
 conv$Row.names <- NULL
-conv$external_gene_name <- NULL
 # summarizing transcripts that map to same gene
 print("Summarizing transcripts of same gene...")
-conv <- aggregate(conv[,-ncol(conv)], list(Gene=conv$ensembl_gene_id), FUN = sum)
+conv <- aggregate(conv[,-ncol(conv)], list(Gene=conv$gene_id), FUN = sum)
 row.names(conv) <- conv$Gene
 conv$Gene <- NULL
 # save converted samples

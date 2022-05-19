@@ -131,9 +131,9 @@ if(!params.miRNA_raw_counts) {
 
 log.info species
 
-// create files
+// create channels
 Channel.value(file(fasta)).into { ch_fasta; ch_fasta_star }
-ch_gtf = Channel.value(file(gtf))
+Channel.value(file(gtf)).into { ch_gtf; ch_gtf_psirc; ch_gtf_spongEffects }
 ch_bed12 = Channel.value(file(bed12))
 Channel.value(file(miRNA_fasta)).into { mirna_fasta_miRanda; mirna_fasta_PITA; mirna_fasta_TarPmiR; mirna_fasta_miRDeep2; mirna_fasta_SPONGE }
 
@@ -358,6 +358,7 @@ if (!file(psirc_out + "quant_linear_expression.tsv").exists()) {
         input:
         file(circ_counts) from ch_circRNA_counts_raw2
         file("abundance.tsv") from psirc_outputs.collect()
+        file(gtf) from ch_gtf_psirc
 
         output:
         file("quant_circ_expression.tsv") into ch_circRNA_counts_raw_quant
@@ -369,6 +370,7 @@ if (!file(psirc_out + "quant_linear_expression.tsv").exists()) {
         """
         Rscript "${projectDir}"/bin/quantify_circ_expression.R \
         --circ_counts $circ_counts \
+        --gtf $gtf \
         --dir "${params.outdir}/results/psirc/tmp/" \
         --samplesheet $params.samplesheet \
         --pseudocount $params.pseudocount
@@ -958,6 +960,7 @@ if (!params.circRNA_only) {
                 file(sponge_data) from sponge_rimage1
                 file(circ_signif_DE) from DE_circ_signif
                 file(mRNA_signif_DE) from DE_mRNA_signif
+                file(gtf) from ch_gtf_spongEffects
 
                 output:
                 file("DE_SPONGE.html") into DE_SPONGE_graph
@@ -967,7 +970,8 @@ if (!params.circRNA_only) {
                 Rscript "${projectDir}"/bin/SPONGE_analysis.R \\
                 $sponge_data \\
                 $circ_signif_DE \\
-                $mRNA_signif_DE
+                $mRNA_signif_DE \\
+                $gtf
                 """
             }
         }

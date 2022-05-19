@@ -1,7 +1,6 @@
 #!/usr/bin/env Rscript
 
 library(SPONGE)
-library(biomaRt)
 library(visNetwork)
 
 args = commandArgs(trailingOnly = TRUE)
@@ -11,29 +10,9 @@ load(args[1])
 # differentially expressed circRNAs
 signif.hits.circ <- read.table(args[2], sep = "\t", header = T)
 signif.hits.mRNA <- read.table(args[3], sep = "\t", header = T)
+gtf <- args[4]
 
 signif.hits <- rbind(signif.hits.circ, signif.hits.mRNA)
-
-# load biomaRt
-mart <- NULL
-not_done <- T
-while(not_done){
-  tryCatch(
-    {
-      mart <- useEnsembl(biomart = "ensembl", "hsapiens_gene_ensembl")
-    },
-    error=function(cond) {
-      message(cond)
-    },
-    warning=function(cond) {
-      message(cond)
-    },
-    finally={
-      not_done = F
-      print("SUCCESS")
-    }
-  )
-}
 
 # get all differentially expressed circRNAs that act as ceRNAs
 # build network for all DE circRNAs
@@ -43,15 +22,11 @@ for (hit in signif.hits$X) {
   de.circ.network <- rbind(de.circ.network, circ.network)
 }
 differential.circ.in.ce.network <- de.circ.network
-# find gene symbols for ensg
-targets <- unique(c(differential.circ.in.ce.network$geneA, differential.circ.in.ce.network$geneB))
-targets <- targets[!grepl("c", targets)]
-# start query
-gene.ens.all <- biomaRt::getBM(attributes = c("ensembl_gene_id", "hgnc_symbol"),
-                               filter = "ensembl_gene_id",
-                               values = targets,
-                               mart = mart,
-                               checkFilters = T)
+# convert ENSG to hgnc
+gtf <- rtracklayer::readGFF(gtf)
+gene.ens.all <- unique(gtf[!is.na(gtf$transcript_id),c("gene_id", "gene_name")])
+colnames(gene.ens.all) <- c("ensembl_gene_id", "hgnc_symbol")
+rownames(gene.ens.all) <- gene.ens.all$gene_id
 # merge for geneA and geneB
 differential.circ.in.ce.network <- merge(differential.circ.in.ce.network, gene.ens.all, by.x = "geneA", by.y = 1, all.x = T)
 differential.circ.in.ce.network[!is.na(differential.circ.in.ce.network$hgnc_symbol),"geneA"] <- differential.circ.in.ce.network$hgnc_symbol[!is.na(differential.circ.in.ce.network$hgnc_symbol)]

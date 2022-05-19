@@ -117,7 +117,7 @@ if (params.genomes && params.genome && !params.genomes.containsKey(params.genome
 
 // fill params with iGenomes
 params.STAR_index = params.STAR_index ?: params.genome ? params.genomes[ params.genome ].star ?: false : false
-params.species = params.species ?: params.genome ? params.genomes[ params.genome ].species ?: false : false
+species = params.species ?: params.genome ? params.genomes[ params.genome ].species ?: false : false
 params.fasta = params.fasta ?: params.genome ? params.genomes[ params.genome ].fasta ?: false : false
 params.gtf = params.gtf ?: params.genome ? params.genomes[ params.genome ].gtf ?: false : false
 params.bed12 = params.bed12 ?: params.genome ? params.genomes[ params.genome ].bed12 ?: false : false
@@ -127,7 +127,7 @@ if(!params.miRNA_raw_counts) {
     params.hairpin_fasta = params.hairpin_fasta ?: params.genome ? params.genomes[ params.genome ].hairpin ?: false : false
 }
 
-log.info params.species
+log.info species
 
 // create files
 Channel.value(file(params.fasta)).into { ch_fasta; ch_fasta_star }

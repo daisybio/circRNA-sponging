@@ -127,7 +127,7 @@ if(!params.miRNA_raw_counts) {
     params.hairpin_fasta = params.hairpin_fasta ?: params.genome ? params.genomes[ params.genome ].hairpin ?: false : false
 }
 
-log.info params
+log.info params.species
 
 // create files
 Channel.value(file(params.fasta)).into { ch_fasta; ch_fasta_star }

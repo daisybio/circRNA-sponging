@@ -114,9 +114,8 @@ if (params.help) {
 /* --         VALIDATE PARAMETERS              -- */
 ////////////////////////////////////////////////////+
 def json_schema = "$projectDir/nextflow_schema.json"
-if (params.validate_params) {
-    NfcoreSchema.validateParameters(params, json_schema, log)
-}
+NfcoreSchema.validateParameters(params, json_schema, log)
+
 
 // Check if genome exists in the config file
 if (params.genomes && params.genome && !params.genomes.containsKey(params.genome)) {

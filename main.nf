@@ -110,13 +110,6 @@ if (params.help) {
     exit 0
 }
 
-////////////////////////////////////////////////////
-/* --         VALIDATE PARAMETERS              -- */
-////////////////////////////////////////////////////+
-def json_schema = "$projectDir/nextflow_schema.json"
-NfcoreSchema.validateParameters(params, json_schema, log)
-
-
 // Check if genome exists in the config file
 if (params.genomes && params.genome && !params.genomes.containsKey(params.genome)) {
     exit 1, "The provided genome '${params.genome}' is not available in the iGenomes file. Currently the available genomes are ${params.genomes.keySet().join(', ')}"
@@ -150,9 +143,6 @@ if (params.protocol == "illumina"){
 } else if (params.protocol == "cats"){
     params.miRNA_adapter = "AAAAAAAA"
 }
-
-// log parameters
-log.info NfcoreSchema.params_summary_log(workflow, params, json_schema)
 
 /*
  * CREATE CHANNELS FOR INPUT READ FILES

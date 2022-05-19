@@ -137,6 +137,16 @@ par(mar = c(5, 4, 4, 8), xpd = T)
 legend("topright", legend = names(condition.occurences), fill = cond.col, inset = c(-0.05, 0), cex = 0.75)
 dev.off()
 
+# plot ratio if database annotation
+png(filename = "db_annotation.png", res = 200, width = 1300, height = 800)
+db.rate <- table(grepl("circ", circ_RNA_annotation))
+label <- paste(round(prop.table(db.rate)*100), "%", sep = "")
+cond.col <- met.brewer("Renoir", n = length(db.rate))
+pie(db.rate, col = cond.col, labels = label, main = "circRNA database annotation")
+par(mar = c(5, 4, 4, 8), xpd = T)
+legend("topright", legend = names(db.rate), fill = cond.col, inset = c(-0.05, 0), cex = 0.75)
+dev.off()
+
 # circRNAs filtered
 circ_RNAs <- read.table(file = argv$circ_filtered, sep = "\t", header = T, stringsAsFactors = F, check.names = F)
 filtered.circs <- paste0(circ_RNAs$chr, ":", circ_RNAs$start, "-", circ_RNAs$stop, ":", circ_RNAs$strand)

@@ -152,6 +152,9 @@ if (params.protocol == "illumina"){
     params.miRNA_adapter = "AAAAAAAA"
 }
 
+// log parameters
+log.info NfcoreSchema.params_summary_log(workflow, params, json_schema)
+
 /*
  * CREATE CHANNELS FOR INPUT READ FILES
  */

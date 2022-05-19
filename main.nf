@@ -124,14 +124,14 @@ if (params.genomes && params.genome && !params.genomes.containsKey(params.genome
 }
 
 // fill params with iGenomes
-params.STAR_index = params.genome ? params.genomes[ params.genome ].star ?: false : false
-params.species = params.genome ? params.genomes[ params.genome ].species ?: false : false
-params.fasta = params.genome ? params.genomes[ params.genome ].fasta ?: false : false
-params.gtf = params.genome ? params.genomes[ params.genome ].gtf ?: false : false
-params.bed12 = params.genome ? params.genomes[ params.genome ].bed12 ?: false : false
-params.miRNA_fasta = params.genome ? params.genomes[ params.genome ].mature ?: false : false
-params.miRNA_related_fasta = params.genome ? params.genomes[ params.genome ].mature_rel ?: false : false
-params.hairpin_fasta = params.genome ? params.genomes[ params.genome ].hairpin ?: false : false
+params.STAR_index = params.STAR_index ?: params.genome ? params.genomes[ params.genome ].star ?: false : false
+params.species = params.species ?: params.genome ? params.genomes[ params.genome ].species ?: false : false
+params.fasta = params.fasta ?: params.genome ? params.genomes[ params.genome ].fasta ?: false : false
+params.gtf = params.gtf ?: params.genome ? params.genomes[ params.genome ].gtf ?: false : false
+params.bed12 = params.bed12 ?: params.genome ? params.genomes[ params.genome ].bed12 ?: false : false
+params.miRNA_fasta = params.miRNA_fasta ?: params.genome ? params.genomes[ params.genome ].mature ?: false : false
+params.miRNA_related_fasta = params.miRNA_related_fasta ? : params.genome ? params.genomes[ params.genome ].mature_rel ?: false : false
+params.hairpin_fasta = params.hairpin_fasta ?: params.genome ? params.genomes[ params.genome ].hairpin ?: false : false
 
 // create files
 Channel.value(file(params.fasta)).into { ch_fasta; ch_fasta_star }
@@ -160,7 +160,7 @@ Channel.fromPath(params.samplesheet)
    .map { get_circRNA_paths(it) }.into { ch_totalRNA_reads1; ch_totalRNA_reads2 }
 
 /*
-* GENERATE STAR INDEX IN CASE IT IS NOT ALREADY PROVIDED
+* GENERATE STAR INDEX IN CASE IT IS NOT ALREADY PROVIDED BY iGenomes
 */
 process generate_star_index{
     label 'process_high'

@@ -167,7 +167,7 @@ plot(sums$key, log10(sums$count.y), type = "b", col = psirc.color, xlab = "chrom
 axis(1, at = round(seq(1, nrow(sums), nrow(sums)/length(chromosomes)))+middle.chromosome.pos, labels = F)
 text(round(seq(1, nrow(sums), nrow(sums)/length(chromosomes))), par("usr")[3] - 0.2, labels = chromosomes, srt = 45, pos = 1, xpd = TRUE)
 lines(sums$key, log10(sums$count.x), type = "b", lty = 2, col = circExplorer2.color, pch = 18)
-legend("top", inset = c(-0.5, 0), legend = c("CircExplorer2", "psirc-quant"), col = c(circExplorer2.color, psirc.color), lty = c(1,1), cex=0.8)
+legend("top", inset = c(-0.5, 0), legend = c("CircExplorer2", "psirc-quant"), col = c(circExplorer2.color, psirc.color), lty = c(1,1), cex=2)
 dev.off()
 
 # extract counts

@@ -522,7 +522,10 @@ if (params.differential_expression){
             --samplesheet $params.samplesheet \\
             --circ_filtered $circRNA_counts \\
             --circ_raw $circRNA_raw \\
-            --tpm_map $tpm_map
+            --tpm_map $tpm_map \\
+            --fdr $params.fdr \\
+            --log2fc $params.log2fc \\
+            --palette $params.palette
         """
     }
 }

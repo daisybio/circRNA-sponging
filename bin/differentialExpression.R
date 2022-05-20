@@ -11,6 +11,10 @@ parser <- add_argument(parser, "--samplesheet", help = "Meta data for expression
 parser <- add_argument(parser, "--circ_filtered", help = "circRNA filtered expression file in tsv format as given by pipeline")
 parser <- add_argument(parser, "--circ_raw", help = "circRNA raw expression file in tsv format as given by pipeline")
 parser <- add_argument(parser, "--tpm_map", help = "TPM map of circular and linear transcripts provided by pipeline")
+# parameter settings
+parser <- add_argument(parser, "--fdr", help = "FDR threshold", default = 0.01)
+parser <- add_argument(parser, "--log2fc", help = "Log2FoldChange threshold", default = 0)
+parser <- add_argument(parser, "--palette", help = "Palette to use for MetBrewer", default = "Renoir")
 
 argv <- parse_args(parser, argv = args)
 
@@ -131,7 +135,7 @@ samplesheet <- read.table(file = argv$samplesheet, sep = "\t", header = T)
 png(filename = "conditions.png", res = 200, width = 1300, height = 800)
 condition.occurences <- table(samplesheet$condition)
 label <- paste(round(prop.table(condition.occurences)*100), "%", sep = "")
-cond.col <- met.brewer("Renoir", n = length(condition.occurences))
+cond.col <- met.brewer(argv$palette, n = length(condition.occurences))
 pie(condition.occurences, col = cond.col, labels = label)
 par(mar = c(5, 4, 4, 8), xpd = T)
 legend("topright", legend = names(condition.occurences), fill = cond.col, inset = c(-0.05, 0), cex = 0.75)
@@ -162,7 +166,7 @@ if (annotation) {
 png(filename = "db_annotation.png", res = 200, width = 1300, height = 800)
 db.rate <- table(grepl("circ", circ_RNA_annotation))
 label <- paste(round(prop.table(db.rate)*100), "%", sep = "")
-cond.col <- met.brewer("Renoir", n = length(db.rate))
+cond.col <- met.brewer(argv$palette, n = length(db.rate))
 pie(db.rate, col = cond.col, labels = label, main = "circRNA database annotation")
 par(mar = c(5, 4, 4, 8), xpd = T)
 legend("topright", legend = names(db.rate), fill = cond.col, inset = c(-0.05, 0), cex = 0.75)
@@ -187,7 +191,8 @@ res <- DESeq2::results(dds)
 res <- res[order(res$padj),]
 DESeq2::summary(res)
 
-create_outputs(d = dds, results = res, marker = "condition", out = "total_rna", nsub = 100)
+create_outputs(d = dds, results = res, marker = "condition", out = "total_rna", nsub = 100,
+               padj = argv$fdr, log2FC = argv$log2fc, palette = argv$palette)
 # CIRCULAR RNA
 
 samplesheet <- samplesheet[samplesheet$sample %in% samples,]
@@ -200,7 +205,8 @@ res.circ <- DESeq2::results(dds.circ)
 res.circ <- res.circ[order(res.circ$padj),]
 # create summary
 DESeq2::summary(res.circ)
-create_outputs(dds.circ, res.circ, marker = "condition", out = "circ_rna_DE", nsub = 100)
+create_outputs(dds.circ, res.circ, marker = "condition", out = "circ_rna_DE", nsub = 100,
+               padj = argv$fdr, log2FC = argv$log2fc, palette = argv$palette)
 
 # save R image
 save.image(file = "DESeq2.RData")

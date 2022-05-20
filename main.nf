@@ -115,17 +115,19 @@ if (params.genomes && params.genome && !params.genomes.containsKey(params.genome
     exit 1, "The provided genome '${params.genome}' is not available in the iGenomes file. Currently the available genomes are ${params.genomes.keySet().join(', ')}"
 }
 
-// fill params with iGenomes
+// fill params with iGenomes if not given by user
 STAR_index = params.STAR_index ?: params.genome ? params.genomes[ params.genome ].star ?: false : false
 species = params.species ?: params.genome ? params.genomes[ params.genome ].species ?: false : false
 fasta = params.fasta ?: params.genome ? params.genomes[ params.genome ].fasta ?: false : false
 gtf = params.gtf ?: params.genome ? params.genomes[ params.genome ].gtf ?: false : false
 bed12 = params.bed12 ?: params.genome ? params.genomes[ params.genome ].bed12 ?: false : false
 miRNA_fasta = params.miRNA_fasta ?: params.genome ? params.genomes[ params.genome ].mature ?: false : false
+
 // log parameter settings
 log.info "Parameters:\n\t--STAR_index:'${STAR_index}'\n\t--species:'${species}'\n\t--fasta:'${fasta}'\n\t--bed12:'${bed12}'\n\t--miRNA_fasta:'${miRNA_fasta}'\n"
+
 // include miRNA related and hairpin if miRNA_raw_counts not given and circRNA_only = false
-if(!params.miRNA_raw_counts && !circRNA_only) {
+if(!params.miRNA_raw_counts && !params.circRNA_only) {
     miRNA_related_fasta = params.miRNA_related_fasta ?: params.genome ? params.genomes[ params.genome ].mature_rel ?: false : false
     hairpin_fasta = params.hairpin_fasta ?: params.genome ? params.genomes[ params.genome ].hairpin ?: false : false
     ch_miRNA_related_fasta = Channel.value(file(miRNA_related_fasta))
@@ -134,7 +136,7 @@ if(!params.miRNA_raw_counts && !circRNA_only) {
     log.info "\t--miRNA_related_fasta:'${miRNA_related_fasta}'\n\t--hairpin_fasta:'${hairpin_fasta}'\n"
 }
 
-// create channels
+// create channels for files
 Channel.value(file(fasta)).into { ch_fasta; ch_fasta_star }
 Channel.value(file(gtf)).into { ch_gtf; ch_gtf_psirc; ch_gtf_spongEffects }
 ch_bed12 = Channel.value(file(bed12))

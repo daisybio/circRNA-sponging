@@ -124,14 +124,14 @@ bed12 = params.bed12 ?: params.genome ? params.genomes[ params.genome ].bed12 ?:
 miRNA_fasta = params.miRNA_fasta ?: params.genome ? params.genomes[ params.genome ].mature ?: false : false
 // log parameter settings
 log.info "Parameters:\n\t--STAR_index:'${STAR_index}'\n\t--species:'${species}'\n\t--fasta:'${fasta}'\n\t--bed12:'${bed12}'\n\t--miRNA_fasta:'${miRNA_fasta}'\n"
-
-if(!params.miRNA_raw_counts) {
+// include miRNA related and hairpin if miRNA_raw_counts not given and circRNA_only = false
+if(!params.miRNA_raw_counts && !circRNA_only) {
     miRNA_related_fasta = params.miRNA_related_fasta ?: params.genome ? params.genomes[ params.genome ].mature_rel ?: false : false
     hairpin_fasta = params.hairpin_fasta ?: params.genome ? params.genomes[ params.genome ].hairpin ?: false : false
     ch_miRNA_related_fasta = Channel.value(file(miRNA_related_fasta))
     ch_hairpin_fasta = Channel.value(file(hairpin_fasta))
     // log parameter settings
-    log.info "Parameters:\n\t--miRNA_related_fasta:'${miRNA_related_fasta}'\n\t--hairpin_fasta:'${hairpin_fasta}'\n"
+    log.info "\t--miRNA_related_fasta:'${miRNA_related_fasta}'\n\t--hairpin_fasta:'${hairpin_fasta}'\n"
 }
 
 // create channels
@@ -320,7 +320,7 @@ if(!file(psirc_index_path).exists()) {
         """
     }
 } else {
-    Channel.value( file(psirc_index_path) ).into{ psirc_index }
+    psirc_index = Channel.value( file(psirc_index_path) )
 }
 
 /*
@@ -380,7 +380,7 @@ if (!file(psirc_out + "quant_linear_expression.tsv").exists()) {
         """
     }
 } else {
-    Channel.fromPath(psirc_out + "quant_circ_expression.tsv").into{ ch_circRNA_counts_raw_quant }
+    ch_circRNA_counts_raw_quant = Channel.fromPath(psirc_out + "quant_circ_expression.tsv")
     Channel.fromPath(psirc_out + "quant_linear_expression.tsv").into{ gene_expression1; gene_expression2 }
     Channel.fromPath(psirc_out + "TPM_map.tsv").into{ TPM_map1; TPM_map2 }
 }
@@ -461,7 +461,7 @@ if (params.database_annotation){
             """
         }
     } else {
-        Channel.fromPath(circ_annotation).into{ circRNAs_annotated }
+        circRNAs_annotated = Channel.fromPath(circ_annotation)
         Channel.fromPath(circ_counts_annotated_path).into{ ch_circRNA_counts_filtered1; ch_circRNA_counts_filtered2; ch_circRNA_counts_filtered3; ch_circRNA_counts_filtered4; ch_circRNA_counts_filtered5 }
     }
 } else {
@@ -550,11 +550,11 @@ if (!file(miranda_output).exists()) {
         """
     }
     // combine files to one
-    bind_sites_split.collectFile(name: miranda_output, newLine: true).into{ bind_sites_out }
+    bind_sites_out = bind_sites_split.collectFile(name: miranda_output, newLine: true)
     // delete tmp files
     file(miranda_tmp).deleteDir()
 } else {
-    Channel.fromPath(miranda_output).into{ bind_sites_out }
+    bind_sites_out = Channel.fromPath(miranda_output)
 }
 /*
 * PROCESS miranda OUTPUT INTO A TABLE FORMAT
@@ -630,14 +630,14 @@ if (params.tarpmir) {
         }
 
         // combine files to one
-        bp_files.collectFile(name: tarpmir_out, newLine: true).into{ tarpmir_bp_file }
+        tarpmir_bp_file = bp_files.collectFile(name: tarpmir_out, newLine: true)
         // delete tmp files
         file(tarpmir_tmp).deleteDir()
     } else {
-        Channel.fromPath(tarpmir_out).into{ tarpmir_bp_file }
+        tarpmir_bp_file = Channel.fromPath(tarpmir_out)
     }
 } else {
-    Channel.of( 'null' ).into{ tarpmir_bp_file }
+    tarpmir_bp_file = Channel.of( 'null' )
 }
 
 /*
@@ -668,14 +668,14 @@ if (params.pita) {
         }
 
         // collect all PITA splits
-        pita_splits.collectFile(name: pita_out, newLine: true).into{ pita_results }
+        pita_results = pita_splits.collectFile(name: pita_out, newLine: true)
         // delete tmp directory
         file(pita_tmp).deleteDir()
     } else {
-        Channel.fromPath(pita_out).into{ pita_results }
+        pita_results = Channel.fromPath(pita_out)
     }
 } else {
-    Channel.of( 'null' ).into{ pita_results }
+    pita_results = Channel.of( 'null' )
 }
 
 /*

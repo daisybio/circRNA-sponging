@@ -123,12 +123,7 @@ gtf = params.gtf ?: params.genome ? params.genomes[ params.genome ].gtf ?: false
 bed12 = params.bed12 ?: params.genome ? params.genomes[ params.genome ].bed12 ?: false : false
 miRNA_fasta = params.miRNA_fasta ?: params.genome ? params.genomes[ params.genome ].mature ?: false : false
 // log parameter settings
-log.info "Parameters:\n
-\t--STAR_index:'${STAR_index}'\n
-\t--species:'${species}'\n
-\t--fasta:'${fasta}'\n
-\t--bed12:'${bed12}'\n
-\t--miRNA_fasta:'${miRNA_fasta}'\n"
+log.info "Parameters:\n\t--STAR_index:'${STAR_index}'\n\t--species:'${species}'\n\t--fasta:'${fasta}'\n\t--bed12:'${bed12}'\n\t--miRNA_fasta:'${miRNA_fasta}'\n"
 
 if(!params.miRNA_raw_counts) {
     miRNA_related_fasta = params.miRNA_related_fasta ?: params.genome ? params.genomes[ params.genome ].mature_rel ?: false : false
@@ -136,10 +131,7 @@ if(!params.miRNA_raw_counts) {
     ch_miRNA_related_fasta = Channel.value(file(miRNA_related_fasta))
     ch_hairpin_fasta = Channel.value(file(hairpin_fasta))
     // log parameter settings
-    log.info "Parameters:\n
-    \t--miRNA_related_fasta:'${miRNA_related_fasta}'\n
-    \t--hairpin_fasta:'${hairpin_fasta}'\n"
-
+    log.info "Parameters:\n\t--miRNA_related_fasta:'${miRNA_related_fasta}'\n\t--hairpin_fasta:'${hairpin_fasta}'\n"
 }
 
 // create channels

@@ -252,7 +252,7 @@ process circExplorer2_Annotate {
 
     script:
     """
-    CIRCexplorer2 annotate -r bed12 -g $fasta -b $backspliced_junction_bed -o "${sampleID}_circularRNA_known.txt"
+    CIRCexplorer2 annotate -r $bed12 -g $fasta -b $backspliced_junction_bed -o "${sampleID}_circularRNA_known.txt"
     """
 }
 

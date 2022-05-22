@@ -50,6 +50,15 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   signif.hits <- results[!is.na(results$padj) &
                            results$padj<as.double(padj) &
                            abs(results$log2FoldChange) > log2FC,]
+  
+  # DE vs not
+  png(filename = "nDE.png", res = 200, width = 1300, height = 800)
+  nDE <- c(all=nrow(results), DE=nrow(signif.hits))
+  pie(nDE, labels = names(nDE))
+  par(mar = c(5, 4, 4, 8), xpd = T)
+  legend("topright", legend = names(nDE), inset = c(-0.05, 0), cex = 0.75)
+  dev.off()
+  
   # filter for specific RNAs
   if (!is.null(filter)){
     cat("using specific filtering for:", filter, "\n")

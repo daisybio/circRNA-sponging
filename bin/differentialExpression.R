@@ -88,7 +88,11 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   # plot counts per sample
   png(filename = file.path(out, "hits.per.sample.png"), res = 200, width = 1300, height = 800)
   cons <- split(df, df[,marker])
-  counts.per.condition <- as.data.frame(lapply(cons, function(x) nrow(counts(d)[,x[["sample"]]] != 1)))
+  counts.per.condition <- sapply(cons, function(x) {
+    sapply(x[,"sample"], function(sample) {
+      colSums(counts(dds.circ)[,sample,drop=F] != 1)
+    })
+  })
   par(mar=c(5,4,4,5), xpd = T)
   matplot(counts.per.condition, type = "l", xaxt="n", yaxt="n", ylab = NA, main = "non-zero RNAs per sample", lty = 1, col = annotation.colors, lwd = 2)
   axis(1, at=1:nrow(counts.per.condition), labels = rownames(counts.per.condition), las = 2)

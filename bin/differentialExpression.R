@@ -69,7 +69,7 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
                              lab = rownames(signif.hits),
                              x = 'log2FoldChange',
                              y = 'pvalue')
-  png(filename = file.path(out, paste("volcano", "png", sep = ".")), res = 200, width = 1024, height = 800)
+  png(filename = file.path(out, paste("volcano", "png", sep = ".")), res = 200, width = 1200, height = 800)
   plot(volcano)
   dev.off()
   

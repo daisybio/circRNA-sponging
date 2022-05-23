@@ -52,7 +52,7 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   # DE vs not
   png(filename = file.path(out, "nDE.png"), res = 200, width = 1300, height = 800)
   nDE <- c(all=nrow(results), DE=nrow(signif.hits))
-  pie(nDE, labels = names(nDE), col = met.brewer(argv$palette, n = length(nDE)))
+  pie(nDE, labels = names(nDE), col = met.brewer(palette, n = length(nDE)))
   par(mar = c(5, 4, 4, 8), xpd = T)
   legend("topright", legend = names(nDE), inset = c(-0.05, 0), cex = 0.75)
   dev.off()

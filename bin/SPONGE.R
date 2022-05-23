@@ -286,7 +286,7 @@ mi_rna_expr <- data.frame(read.table(file = argv$mirna_expr, header = T, sep = "
 print("reading gene expression...")
 gene_expr <- as.data.frame(read.table(file = argv$gene_expr, header = T, sep = "\t"))
 
-if (argv$normalize) {
+if (argv$normalize & !argv$tpm) {
   # normalize expressions if not already done
   print("normalizing gene expression")
   gene_expr <- normalize.data(gene_expr)

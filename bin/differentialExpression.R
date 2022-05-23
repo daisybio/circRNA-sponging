@@ -92,24 +92,6 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   
   names(annotation.colors) <- conditions
   
-  # plot counts per sample
-  png(filename = file.path(out, "hits.per.sample.png"), res = 200, width = 1300, height = 800)
-  cons <- split(df, df[,marker])
-  counts.per.condition <- sapply(cons, function(x) {
-    sapply(x[,"sample"], function(sample) {
-      colSums(counts(d)[,sample,drop=F] != 1)
-    })
-  })
-  par(mar=c(5,4,4,5), xpd = T)
-  matplot(counts.per.condition, type = "l", xaxt="n", yaxt="n", ylab = NA, main = "non-zero RNAs per sample", lty = 1, col = annotation.colors, lwd = 2)
-  axis(1, at=1:nrow(counts.per.condition), labels = rownames(counts.per.condition), las = 2)
-  axis(2, las = 2, at = seq(min(counts.per.condition), max(counts.per.condition), 1000))
-  legend("topright", legend = colnames(counts.per.condition), col = annotation.colors, lty = c(1,1), cex=0.8, lwd = 2, inset = c(-0.2, 0))
-  par(xpd=F)
-  abline(v = 1:nrow(counts.per.condition), lty = 2, col = "grey")
-  abline(h = seq(min(counts.per.condition), max(counts.per.condition), 1000), lty = 2, col = "grey")
-  dev.off()
-  
   # plot total number per condition
   total.counts <- as.data.frame(colSums(counts.per.condition))
   colnames(total.counts) <- "total"

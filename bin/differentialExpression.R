@@ -97,7 +97,7 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   cons <- split(df, df[,marker])
   counts.per.condition <- sapply(cons, function(x) {
     sapply(x[,"sample"], function(sample) {
-      colSums(counts(dds.circ)[,sample,drop=F] != 1)
+      colSums(counts(d)[,sample,drop=F] != 1)
     })
   })
   par(mar=c(5,4,4,5), xpd = T)

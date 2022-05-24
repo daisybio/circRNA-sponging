@@ -89,9 +89,9 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   # PCA
   # variance stabilizing transformation
   deseq_vst <- DESeq2::vst(d, blind = FALSE, nsub = nsub)
-  PCA_plot <- DESeq2::plotPCA(deseq_vst, intgroup = marker, returnData = T)
+  PCA_plot <- DESeq2::plotPCA(deseq_vst, intgroup = marker)
   png(filename = file.path(out, paste("pca", "png", sep = ".")), res = 200, width = 1024, height = 800)
-  ggplot(PCA_plot, aes(PC1, PC2, color = annotation.colors))
+  plot(PCA_plot, color = annotation.colors)
   dev.off()
   
   # reformat meta data for heatmap annotation

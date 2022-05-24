@@ -417,7 +417,7 @@ print("building ceRNA network...")
 fdr <- as.double(argv$fdr)
 min.interactions <- 5000
 ceRNA_interactions_fdr <- ceRNA_interactions_sign[which(ceRNA_interactions_sign$p.adj < fdr),]
-if (nrow(ceRNA_interactions_fdr)<min.interactions) {
+if (nrow(ceRNA_interactions_fdr)<min.interactions & nrow(ceRNA_interactions_fdr)>ceRNA_interactions_sign) {
   print("Warning: fdr setting too strict, no significant interactions detected; min of padj is:")
   print(min(ceRNA_interactions_sign$p.adj))
   print("adjusting...")
@@ -429,7 +429,6 @@ if (nrow(ceRNA_interactions_fdr)<min.interactions) {
   cat("adjusted fdr to :", fdr, "to allow for a minimum", min.interactions, "interactions", "\n")
   cat("current fdr relevant interactions:", nrow(ceRNA_interactions_fdr))
   ceRNA_interactions_fdr <- ceRNA_interactions_fdr[order(ceRNA_interactions_fdr$p.adj),]
-  # ceRNA_interactions_fdr <- head(ceRNA_interactions_fdr, 8000)
 }
 # cut samples if too many are detected TODO: choose cutoff
 cutoff <- 5000

@@ -200,7 +200,7 @@ create_target_scan_symbols <- function(merged_data, majority, miranda, tarpmir, 
     if (file.exists(pita)) {
       print("processsing PITA data")
       pita_data <- read.table(pita, header = T, sep = "\t")
-      pita_targets <- as.data.frame.matrix(table(pita_data$RefSeq, pita_data$microRNA))
+      pita_targets <- as.data.frame.matrix(table(pita_data$UTR, pita_data$microRNA))
     }
   }
   

@@ -281,7 +281,7 @@ target_scan_symbols_counts <- create_target_scan_symbols(merged_data = argv$targ
                                                          pita = argv$pita)
 # SET MIRNA EXPRESSION
 print("reading miRNA expression...")
-mi_rna_expr <- data.frame(read.table(file = argv$mirna_expr, header = T, sep = "\t"), row.names = 1)
+mi_rna_expr <- data.frame(read.table(file = argv$mirna_expr, header = T, sep = "\t"))
 # SET GENE EXPRESSION
 print("reading gene expression...")
 gene_expr <- as.data.frame(read.table(file = argv$gene_expr, header = T, sep = "\t"))

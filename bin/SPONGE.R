@@ -281,7 +281,7 @@ target_scan_symbols_counts <- create_target_scan_symbols(merged_data = argv$targ
                                                          pita = argv$pita)
 # SET MIRNA EXPRESSION
 print("reading miRNA expression...")
-mi_rna_expr <- data.frame(read.table(file = argv$mirna_expr, header = T, sep = "\t"))
+mi_rna_expr <- data.frame(read.table(file = argv$mirna_expr, header = T, sep = "\t"), row.names = 1)
 # SET GENE EXPRESSION
 print("reading gene expression...")
 gene_expr <- as.data.frame(read.table(file = argv$gene_expr, header = T, sep = "\t"))
@@ -326,7 +326,7 @@ dim(target_scan_symbols_counts)
 shared.samples <- intersect(colnames(gene_expr), colnames(mi_rna_expr))
 all.samples <- unique(c(colnames(gene_expr), colnames(mi_rna_expr)))
 if (length(shared.samples) < length(all.samples)) {
-  cat("Discarding samples", all.samples[!all.samples %in% shared.samples], "because they are missing in either gene or miRNA expression")
+  cat("Discarding samples", all.samples[!all.samples %in% shared.samples], "because they are missing in either gene or miRNA expression\n")
 }
 gene_expr <- gene_expr[,shared.samples]
 mi_rna_expr <- mi_rna_expr[,shared.samples]

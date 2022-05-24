@@ -35,13 +35,6 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   # write data to disk
   write.table(results, file = file.path(out, paste(out, "tsv", sep = ".")), quote = FALSE, sep = "\t", col.names = NA)
   
-  # PCA
-  # variance stabilizing transformation
-  deseq_vst <- DESeq2::vst(d, blind = FALSE, nsub = nsub)
-  PCA_plot <- DESeq2::plotPCA(deseq_vst, intgroup = marker)
-  png(filename = file.path(out, paste("pca", "png", sep = ".")), res = 200, width = 1024, height = 800)
-  plot(PCA_plot)
-  dev.off()
   # HEAT MAP
   
   # filter for significant differential expression
@@ -92,6 +85,14 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   annotation.colors <- met.brewer(palette, n = length(conditions))
   
   names(annotation.colors) <- conditions
+  
+  # PCA
+  # variance stabilizing transformation
+  deseq_vst <- DESeq2::vst(d, blind = FALSE, nsub = nsub)
+  PCA_plot <- DESeq2::plotPCA(deseq_vst, intgroup = marker, returnData = T)
+  png(filename = file.path(out, paste("pca", "png", sep = ".")), res = 200, width = 1024, height = 800)
+  ggplot(PCA_plot, aes(PC1, PC2, color = annotation.colors))
+  dev.off()
   
   # reformat meta data for heatmap annotation
   row.names(df) <- df$sample

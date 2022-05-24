@@ -417,7 +417,7 @@ print("building ceRNA network...")
 fdr <- as.double(argv$fdr)
 min.interactions <- 5000
 ceRNA_interactions_fdr <- ceRNA_interactions_sign[which(ceRNA_interactions_sign$p.adj < fdr),]
-if (nrow(ceRNA_interactions_fdr)<min.interactions & nrow(ceRNA_interactions_fdr)>ceRNA_interactions_sign) {
+if (nrow(ceRNA_interactions_fdr)<min.interactions && nrow(ceRNA_interactions_fdr)>ceRNA_interactions_sign) {
   print("Warning: fdr setting too strict, no significant interactions detected; min of padj is:")
   print(min(ceRNA_interactions_sign$p.adj))
   print("adjusting...")

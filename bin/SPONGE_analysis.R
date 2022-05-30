@@ -41,8 +41,10 @@ style <- data.frame(groupname=biotypes,
 colnames(nodes)[10] <- "group"
 # remove preset color and shape
 nodes <- nodes[,-c(3:4)]
+# change edges
+edges <- differential.circ.plot$x$edges
 
-graph <- visNetwork(nodes = nodes, edges = differential.circ.plot$x$edges) %>%
+graph <- visNetwork(nodes = nodes, edges = edges) %>%
   visIgraphLayout(type = "full", physics = F) %>%
   visGroups(groupname = "circRNA", shape = "rectangle", color = "#33FF99") %>%
   visGroups(groupname = "mRNA", shape = "triangle", color = "#0066CC") %>% 

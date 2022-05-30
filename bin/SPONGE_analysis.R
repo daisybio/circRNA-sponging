@@ -30,13 +30,15 @@ hgncs <- merge(signif.hits, gene.ens.all, by.x = "X", by.y = "ensembl_gene_id")
 nodes <- differential.circ.plot$x$nodes
 nodes <- merge(nodes, gene.ens.all, by = 1, all.x = T)
 # change to hgnc
-nodes[!is.na(nodes$hgnc_symbol),"id"] <- nodes[!is.na(nodes$hgnc_symbol),"hgnc_symbol"]
+nodes[!is.na(nodes$hgnc_symbol),1:2] <- nodes[!is.na(nodes$hgnc_symbol),"hgnc_symbol"]
 # add circRNA as biotype
 nodes[is.na(nodes$gene_biotype),"gene_biotype"] <- "circRNA"
 biotypes <- unique(nodes$gene_biotype)
 style <- data.frame(groupname=biotypes, 
                     shape=seq(1,length(biotypes)), 
                     color = as.vector(met.brewer("Juarez", length(biotypes))))
+# change to group
+colnames(nodes)[8] <- "group"
 nodes$color <- NULL
 nodes[nodes$id %in% hgncs$hgnc_symbol | nodes$id %in% signif.hits$X,"color"] <- "#CC3333"
 nodes$shape <- ifelse(grepl("c", nodes$id), "rectangle", "triangle")

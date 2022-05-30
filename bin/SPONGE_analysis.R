@@ -21,11 +21,6 @@ gtf <- rtracklayer::readGFF(gtf)
 gene.ens.all <- unique(gtf[!is.na(gtf$transcript_id),c("gene_id", "gene_name", "gene_biotype")])
 colnames(gene.ens.all) <- c("ensembl_gene_id", "hgnc_symbol", "gene_biotype")
 rownames(gene.ens.all) <- gene.ens.all$gene_id
-# convert geneA and geneB
-differential.circ.in.ce.network <- merge(differential.circ.in.ce.network, gene.ens.all, by.x = "geneA", by.y = 1, all.x = T)
-differential.circ.in.ce.network[!is.na(differential.circ.in.ce.network$hgnc_symbol),"geneA"] <- differential.circ.in.ce.network$hgnc_symbol[!is.na(differential.circ.in.ce.network$hgnc_symbol)]
-differential.circ.in.ce.network <- merge(differential.circ.in.ce.network, gene.ens.all, by.x = "geneB", by.y = 1, all.x = T)
-differential.circ.in.ce.network[!is.na(differential.circ.in.ce.network$hgnc_symbol.y),"geneB"] <- differential.circ.in.ce.network$hgnc_symbol.y[!is.na(differential.circ.in.ce.network$hgnc_symbol.y)]
 
 differential.circ.plot <- sponge_plot_network(differential.circ.in.ce.network, genes_miRNA_candidates, ) %>%
   visNetwork::visEdges(arrows = list(to = list(enabled = T, scaleFactor = 1)))
@@ -33,7 +28,9 @@ differential.circ.plot$x$edges$label <- paste("mscor:", round(differential.circ.
 
 hgncs <- merge(signif.hits, gene.ens.all, by.x = "X", by.y = "ensembl_gene_id")
 nodes <- differential.circ.plot$x$nodes
-nodes <- merge(nodes, gene.ens.all[,c("ensembl_gene_id", "gene_biotype")], by = 1, all.x = T)
+nodes <- merge(nodes, gene.ens.all, by = 1, all.x = T)
+# change to hgnc
+nodes[!is.na(nodes$hgnc_symbol),1:2] <- nodes[!is.na(nodes$hgnc_symbol),"hgnc_symbol"]
 
 # add circRNA as biotype
 nodes[is.na(nodes$gene_biotype),"gene_biotype"] <- "circRNA"
@@ -45,8 +42,15 @@ style <- data.frame(groupname=biotypes,
 nodes <- nodes[,-c(3,4)]
 # change to group
 colnames(nodes)[7] <- "group"
+# add new shape and color
+nodes <- merge(nodes, style, by.x = "group", by.y = "groupname", all.x = T)
 # change edges
 edges <- differential.circ.plot$x$edges
+# convert geneA and geneB
+edges <- merge(edges, gene.ens.all, by.x = "from", by.y = 1, all.x = T)
+edges[!is.na(edges$hgnc_symbol),"from"] <- edges$hgnc_symbol[!is.na(edges$hgnc_symbol)]
+edges <- merge(edges, gene.ens.all, by.x = "to", by.y = 1, all.x = T)
+edges[!is.na(edges$hgnc_symbol.y),"to"] <- edges$hgnc_symbol.y[!is.na(edges$hgnc_symbol.y)]
 
 graph <- visNetwork(nodes = nodes, edges = edges) %>%
   visIgraphLayout(type = "full", physics = F) %>%

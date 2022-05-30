@@ -14,14 +14,7 @@ gtf <- args[4]
 
 signif.hits <- rbind(signif.hits.circ, signif.hits.mRNA)
 
-# get all differentially expressed circRNAs that act as ceRNAs
-# build network for all DE circRNAs
-de.circ.network <- c()
-for (hit in signif.hits$X) {
-  circ.network <- subnetwork(ceRNA_interactions_fdr, pattern = hit)
-  de.circ.network <- rbind(de.circ.network, circ.network)
-}
-differential.circ.in.ce.network <- de.circ.network
+differential.circ.in.ce.network <- circ.mRNA.only
 # convert ENSG to hgnc
 gtf <- rtracklayer::readGFF(gtf)
 gene.ens.all <- unique(gtf[!is.na(gtf$transcript_id),c("gene_id", "gene_name")])

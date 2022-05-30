@@ -39,13 +39,8 @@ style <- data.frame(groupname=biotypes,
                     color = as.vector(met.brewer("Juarez", length(biotypes))))
 # change to group
 colnames(nodes)[10] <- "group"
-nodes <- nodes[,c("id", "label", "group")]
-nodes$color <- NULL
-nodes[nodes$id %in% hgncs$hgnc_symbol | nodes$id %in% signif.hits$X,"color"] <- "#CC3333"
-nodes$shape <- ifelse(grepl("c", nodes$id), "rectangle", "triangle")
-nodes$group <- ifelse(grepl("c", nodes$id), "circRNA", "mRNA")
-nodes$group[grep("c", nodes$id)] <- "circRNA"
-nodes[nodes$id %in% hgncs$hgnc_symbol | nodes$id %in% signif.hits$X,"group"] <- "DE"
+# remove preset color and shape
+nodes <- nodes[,-c(3:4)]
 
 graph <- visNetwork(nodes = nodes, edges = differential.circ.plot$x$edges) %>%
   visIgraphLayout(type = "full", physics = F) %>%

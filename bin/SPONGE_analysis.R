@@ -42,7 +42,7 @@ style <- data.frame(groupname=biotypes,
                     shape=seq(1,length(biotypes)), 
                     color = as.vector(met.brewer("Juarez", length(biotypes))))
 # change to group
-colnames(nodes)[10] <- "group"
+colnames(nodes)[7] <- "group"
 # remove preset color and shape
 nodes <- nodes[,-c(3:4)]
 # change edges

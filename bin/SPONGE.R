@@ -421,6 +421,7 @@ if (nrow(ceRNA_interactions_fdr)<min.interactions && nrow(ceRNA_interactions_sig
   print("Warning: fdr setting too strict, no significant interactions detected; min of padj is:")
   print(min(ceRNA_interactions_sign$p.adj))
   print("adjusting...")
+  fdr <- min(ceRNA_interactions_sign$p.adj) * 1.01
   ceRNA_interactions_fdr <- ceRNA_interactions_sign[which(ceRNA_interactions_sign$p.adj < fdr),]
   while (nrow(ceRNA_interactions_fdr)<min.interactions) {
     fdr <- fdr * 1.01
@@ -431,7 +432,7 @@ if (nrow(ceRNA_interactions_fdr)<min.interactions && nrow(ceRNA_interactions_sig
   ceRNA_interactions_fdr <- ceRNA_interactions_fdr[order(ceRNA_interactions_fdr$p.adj),]
 }
 # cut samples if too many are detected TODO: choose cutoff
-cutoff <- 5000
+cutoff <- 8500
 if (nrow(ceRNA_interactions_fdr)>10000){
   print("Warning: fdr setting too loose, generated over 10000 significant hits; adjusting")
   ceRNA_interactions_fdr <- ceRNA_interactions_fdr[order(ceRNA_interactions_fdr$p.adj),]

@@ -18,7 +18,7 @@ differential.circ.in.ce.network <- circ.mRNA.only
 # convert ENSG to hgnc
 gtf <- rtracklayer::readGFF(gtf)
 gene.ens.all <- unique(gtf[!is.na(gtf$transcript_id),c("gene_id", "gene_name", "gene_biotype")])
-colnames(gene.ens.all) <- c("ensembl_gene_id", "hgnc_symbol")
+colnames(gene.ens.all) <- c("ensembl_gene_id", "hgnc_symbol", "gene_biotype")
 rownames(gene.ens.all) <- gene.ens.all$gene_id
 # merge for geneA and geneB
 differential.circ.in.ce.network <- merge(differential.circ.in.ce.network, gene.ens.all, by.x = "geneA", by.y = 1, all.x = T)
@@ -29,7 +29,6 @@ differential.circ.in.ce.network[!is.na(differential.circ.in.ce.network$hgnc_symb
 differential.circ.plot <- sponge_plot_network(differential.circ.in.ce.network, genes_miRNA_candidates, ) %>%
   visNetwork::visEdges(arrows = list(to = list(enabled = T, scaleFactor = 1)))
 differential.circ.plot$x$edges$label <- paste("mscor:", round(differential.circ.in.ce.network$mscor, 2))
-differential.circ.plot
 
 hgncs <- merge(signif.hits, gene.ens.all, by.x = "X", by.y = "ensembl_gene_id")
 nodes <- differential.circ.plot$x$nodes

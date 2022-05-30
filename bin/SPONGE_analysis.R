@@ -41,10 +41,10 @@ biotypes <- unique(nodes$gene_biotype)
 style <- data.frame(groupname=biotypes, 
                     shape=seq(1,length(biotypes)), 
                     color = as.vector(met.brewer("Juarez", length(biotypes))))
+# remove preset color and shape
+nodes[,-c(3,4)]
 # change to group
 colnames(nodes)[7] <- "group"
-# remove preset color and shape
-nodes <- nodes[,-c(3:4)]
 # change edges
 edges <- differential.circ.plot$x$edges
 

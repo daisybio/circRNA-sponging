@@ -26,6 +26,9 @@ differential.circ.plot <- sponge_plot_network(differential.circ.in.ce.network, g
   visNetwork::visEdges(arrows = list(to = list(enabled = T, scaleFactor = 1)))
 differential.circ.plot$x$edges$label <- paste("mscor:", round(differential.circ.in.ce.network$mscor, 2))
 
+# break types of RNA down to lncRNA and coding
+gene.ens.all$gene_biotype[gene.ens.all$gene_biotype != "protein_coding" & gene.ens.all$gene_biotype != "lncRNA"] <- "RNA"
+
 hgncs <- merge(signif.hits, gene.ens.all, by.x = "X", by.y = "ensembl_gene_id")
 nodes <- differential.circ.plot$x$nodes
 nodes <- merge(nodes, gene.ens.all, by = 1, all.x = T)
@@ -41,9 +44,11 @@ style <- data.frame(groupname=biotypes,
 # remove preset color and shape
 nodes <- nodes[,-c(3,4)]
 # change to group
-colnames(nodes)[7] <- "group"
+colnames(nodes)[8] <- "group"
 # add new shape and color
 nodes <- merge(nodes, style, by.x = "group", by.y = "groupname", all.x = T)
+# mark differentially expressed RNAs
+nodes[nodes$id %in% hgncs$hgnc_symbol | nodes$id %in% signif.hits$X,"group"] <- "DE"
 # change edges
 edges <- differential.circ.plot$x$edges
 # convert geneA and geneB

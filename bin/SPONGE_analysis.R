@@ -38,7 +38,7 @@ style <- data.frame(groupname=biotypes,
                     shape=seq(1,length(biotypes)), 
                     color = as.vector(met.brewer("Juarez", length(biotypes))))
 # change to group
-colnames(nodes)[8] <- "group"
+colnames(nodes)[10] <- "group"
 nodes$color <- NULL
 nodes[nodes$id %in% hgncs$hgnc_symbol | nodes$id %in% signif.hits$X,"color"] <- "#CC3333"
 nodes$shape <- ifelse(grepl("c", nodes$id), "rectangle", "triangle")

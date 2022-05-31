@@ -20,7 +20,7 @@ differential.circ.in.ce.network <- circ.mRNA.only
 gtf <- rtracklayer::readGFF(gtf)
 gene.ens.all <- unique(gtf[!is.na(gtf$transcript_id),c("gene_id", "gene_name", "gene_biotype")])
 colnames(gene.ens.all) <- c("ensembl_gene_id", "hgnc_symbol", "gene_biotype")
-rownames(gene.ens.all) <- gene.ens.all$gene_id
+rownames(gene.ens.all) <- gene.ens.all$ensembl_gene_id
 
 differential.circ.plot <- sponge_plot_network(differential.circ.in.ce.network, genes_miRNA_candidates, ) %>%
   visNetwork::visEdges(arrows = list(to = list(enabled = T, scaleFactor = 1)))

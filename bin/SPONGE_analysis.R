@@ -36,7 +36,9 @@ nodes <- merge(nodes, gene.ens.all, by = 1, all.x = T)
 nodes[!is.na(nodes$hgnc_symbol),1:2] <- nodes[!is.na(nodes$hgnc_symbol),"hgnc_symbol"]
 
 # add circRNA as biotype
-nodes[is.na(nodes$gene_biotype),"gene_biotype"] <- "circRNA"
+nodes[is.na(nodes$gene_biotype) & !grepl("ENSG", nodes$id),"gene_biotype"] <- "circRNA"
+# label unknown RNAs as other
+nodes[is.na(nodes$gene_biotype), "gene_biotype"] <- "other_RNA"
 
 # remove preset color and shape
 nodes <- nodes[,-c(3,4)]

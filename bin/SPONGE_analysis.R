@@ -37,16 +37,12 @@ nodes[!is.na(nodes$hgnc_symbol),1:2] <- nodes[!is.na(nodes$hgnc_symbol),"hgnc_sy
 
 # add circRNA as biotype
 nodes[is.na(nodes$gene_biotype),"gene_biotype"] <- "circRNA"
-biotypes <- unique(nodes$gene_biotype)
-style <- data.frame(groupname=biotypes, 
-                    shape=seq(1,length(biotypes)), 
-                    color = as.vector(met.brewer("Juarez", length(biotypes))))
+
 # remove preset color and shape
 nodes <- nodes[,-c(3,4)]
 # change to group
 colnames(nodes)[8] <- "group"
-# add new shape and color
-# nodes <- merge(nodes, style, by.x = "group", by.y = "groupname", all.x = T)
+
 # mark differentially expressed RNAs
 nodes[nodes$id %in% hgncs$hgnc_symbol | nodes$id %in% signif.hits$X,"group"] <- "DE"
 # change edges

@@ -72,12 +72,17 @@ gtf <- args[4]
 
 signif.hits <- rbind(signif.hits.circ, signif.hits.mRNA)
 
-differential.circ.in.ce.network <- circ.mRNA.only
 # convert ENSG to hgnc
 gtf <- rtracklayer::readGFF(gtf)
 gene.ens.all <- unique(gtf[!is.na(gtf$transcript_id),c("gene_id", "gene_name", "gene_biotype")])
 colnames(gene.ens.all) <- c("ensembl_gene_id", "hgnc_symbol", "gene_biotype")
 rownames(gene.ens.all) <- gene.ens.all$ensembl_gene_id
+
+# extract lncRNAs
+lncs <- gene.ens.all[gene.ens.all$gene_biotype=="lncRNA",1]
+
+# set network
+differential.circ.in.ce.network <- circ.mRNA.only
 
 differential.circ.plot <- sponge_plot_network(differential.circ.in.ce.network, genes_miRNA_candidates, ) %>%
   visNetwork::visEdges(arrows = list(to = list(enabled = T, scaleFactor = 1)))

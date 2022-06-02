@@ -80,6 +80,8 @@ rownames(gene.ens.all) <- gene.ens.all$ensembl_gene_id
 
 # extract lncRNAs
 lncs <- gene.ens.all[gene.ens.all$gene_biotype=="lncRNA",1]
+lncs_interactions <- ceRNA_interactions_fdr[ceRNA_interactions_fdr$geneA %in% lncs |
+                                              ceRNA_interactions_fdr$geneB %in% lncs,]
 
 # set network
 differential.circ.in.ce.network <- circ.mRNA.only

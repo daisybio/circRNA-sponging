@@ -15,14 +15,10 @@ plot_network <- function(ceRNA_network, signif_hits=NA, gtf=NA, annotation=NA) {
   # extract nodes and edges for customization
   nodes <- ceRNA_plot$x$nodes
   edges <- ceRNA_plot$x$edges
-  # remove preset color and shape
-  nodes <- nodes[,-c(3,4)]
-  # change to group
-  colnames(nodes)[8] <- "group"
   
   # mark differentially expressed RNAs
   if (!is.na(signif_hits)){
-    nodes[nodes$id %in% hgncs$hgnc_symbol | nodes$id %in% signif.hits$X,"group"] <- "DE"
+    nodes[nodes$id %in% hgncs$hgnc_symbol | nodes$id %in% signif_hits$X,"group"] <- "DE"
   }
   if (!is.na(gtf)) {
     gtf <- rtracklayer::readGFF(gtf)
@@ -44,6 +40,11 @@ plot_network <- function(ceRNA_network, signif_hits=NA, gtf=NA, annotation=NA) {
     nodes[is.na(nodes$gene_biotype) & !grepl("ENSG", nodes$id),"gene_biotype"] <- "circRNA"
     # label unknown RNAs as other
     nodes[is.na(nodes$gene_biotype), "gene_biotype"] <- "other_RNA"
+    # remove preset color and shape
+    nodes <- nodes[,-c(3,4)]
+    # change to group
+    colnames(nodes)[8] <- "group"
+    
     # convert geneA and geneB
     edges <- merge(edges, annotation, by.x = "from", by.y = 1, all.x = T)
     edges[!is.na(edges$hgnc_symbol),"from"] <- edges$hgnc_symbol[!is.na(edges$hgnc_symbol)]

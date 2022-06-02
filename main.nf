@@ -942,6 +942,7 @@ if (!params.circRNA_only) {
             --circ_rna $circRNA_counts_filtered \\
             --mirna_expr $mirna_expression \\
             --mir_fasta $miRNA_fasta \\
+            --meta $params.samplesheet \\
             --fdr $params.fdr \\
             --target_scan_symbols $target_scan_symbols \\
             --miranda_data $miranda_bind_sites \\

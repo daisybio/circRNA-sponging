@@ -10,6 +10,7 @@ parser <- add_argument(parser, "--gene_expr", help = "Gene expression file in ts
 parser <- add_argument(parser, "--circ_rna", help = "circRNA expression file in tsv format as given by pipeline")
 parser <- add_argument(parser, "--mirna_expr", help = "miRNA expression file in tsv format")
 parser <- add_argument(parser, "--mir_fasta", help = "miRNA fasta file")
+parser <- add_argument(parser, "--meta", help = "Meta data describing the samples")
 # add all target scan symbol options to be included -> will generate final target scan symbols
 parser <- add_argument(parser, "--output_dir", help = "Output directory", default = getwd())
 parser <- add_argument(parser, "--fdr", help = "FDR rate for ceRNA networks", default = 0.01)
@@ -96,11 +97,11 @@ majority_vote <- function(miranda, tarpmir, pita, match) {
   }
   print("calculating majority vote of circRNA-miRNA binding sites")
   
-  print("process miranda targets")
+  print("process miRanda targets")
   miranda.bp <- data.frame(read.table(miranda, header = T, sep = "\t"))
   miranda.bp[,c("start", "end")] <- str_split_fixed(miranda.bp$Subject.Al.Start.End., " ", 2)
   
-  print("process tarpmir targets")
+  print("process TarPmiR targets")
   tarpmir_data <- read.table(tarpmir, header = F, sep = "\t")
   tarpmir_data <- tarpmir_data[,c(1:3)]
   tarpmir_data[, c("start", "end")] <- str_split_fixed(tarpmir_data$V3, ",", 2)
@@ -186,7 +187,7 @@ create_target_scan_symbols <- function(merged_data, majority, miranda, tarpmir, 
   if (is.null(majority)) {
     # process targets from miranda
     if (file.exists(miranda)) {
-      print("processing miranda targets")
+      print("processing miRanda targets")
       miranda.bp <- data.frame(read.table(miranda, header = T, sep = "\t"))
       miranda_targets <- as.data.frame.matrix(table(miranda.bp$Target, miranda.bp$miRNA))
     }
@@ -294,22 +295,18 @@ if (argv$normalize & !argv$tpm) {
 
 # READ CIRC_RNA EXPRESSION AND COMBINE THEM
 print("adding circRNA expression...")
-circ_RNAs <- as.data.frame(read.table(file = argv$circ_rna, header = T, sep = "\t"))
+circ_filtered_raw <- as.data.frame(read.table(file = argv$circ_rna, header = T, sep = "\t"))
+print("reading samplesheet...")
+meta <- read.csv(argv$meta, sep = "\t")
+meta$sample <- gsub("-", ".", meta$sample)
 
-# use given annotation if possible
-annotation <- "circBaseID" %in% colnames(circ_RNAs)
-if (annotation) {
-  circ_RNA_annotation <- ifelse(circ_RNAs$circBaseID != "None", 
-                                circ_RNAs$circBaseID, 
-                                paste(circ_RNAs$chr, circ_RNAs$start, circ_RNAs$stop, circ_RNAs$strand, sep = ":"))
-  # cut table and annotate rownames
-  circ_filtered <- circ_RNAs[,-c(1:8)]
-} else {
-  circ_RNA_annotation <- paste(circ_RNAs$chr, circ_RNAs$start, circ_RNAs$stop, circ_RNAs$strand, sep = ":")
-  # cut table and annotate row names
-  circ_filtered <- circ_RNAs[,-c(1:7)]
-}
-rownames(circ_filtered) <- paste0(circ_RNAs$chr, ":", circ_RNAs$start, "-", circ_RNAs$stop, "_", circ_RNAs$strand)
+# build position keys
+positions <- paste0(circ_filtered_raw$chr, ":", circ_filtered_raw$start, "-", circ_filtered_raw$stop, "_", circ_filtered_raw$strand)
+# create names
+rownames(circ_filtered) <- positions
+
+# filter for expressions only
+circ_filtered <- circ_filtered_raw[,meta$sample]
 
 circ_filtered <- circ_filtered[complete.cases(circ_filtered),]
 
@@ -358,9 +355,16 @@ if (argv$tpm) {
 
 save.image(file = file.path(out, "sponge.RData"))
 
-# annotate circRNAs
-if (annotation){
-  rownames(gene_expr)[grepl("c", rownames(gene_expr))] <- circ_RNA_annotation
+# annotate circRNAs if possible
+if ("circBaseID" %in% colnames(circ_filtered_raw)){
+  annotation <- data.table(position=positions, circBaseID=circ_filtered_raw$circBaseID)
+  annotation[annotation$circBaseID=="None",2] <- NA
+  # merge row names with known annotated rows
+  IDs <- rownames(gene_expr)
+  IDs <- merge(IDs, annotation, by = 1, all.x = T)
+  # only change names that are present in annotation
+  IDs[!is.na(IDs$circBaseID),"x"] <- IDs[!is.na(IDs$circBaseID),"circBaseID"]
+  rownames(data) <- IDs$x
 }
 
 # transpose for SPONGE

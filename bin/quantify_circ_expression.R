@@ -110,7 +110,6 @@ conv$Gene <- NULL
 mRNA.quant <- conv
 
 # aggregate tpms
-rownames(mRNA.tpm) <- transcript.IDs
 mRNA.tpm <- merge(mRNA.tpm, transcript2gene, by.x = 0, by.y = 1)
 mRNA.tpm$Row.names <- NULL
 mRNA.tpm$external_gene_name <- NULL

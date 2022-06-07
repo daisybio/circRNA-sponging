@@ -364,7 +364,7 @@ if ("circBaseID" %in% colnames(circ_filtered_raw)){
   IDs <- merge(IDs, annotation, by = 1, all.x = T)
   # only change names that are present in annotation
   IDs[!is.na(IDs$circBaseID),"x"] <- IDs[!is.na(IDs$circBaseID),"circBaseID"]
-  rownames(data) <- IDs$x
+  rownames(gene_expr) <- IDs$x
 }
 
 # transpose for SPONGE

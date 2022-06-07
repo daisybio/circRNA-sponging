@@ -33,6 +33,10 @@ remove.duplicates <- function(data, split) {
   return(data)
 }
 
+print("reading samplesheet")
+samplesheet <- read.table(argv$samplesheet, sep = "\t", header = T)
+samples <- samplesheet$sample
+
 # read circRNA counts
 print("reading circRNA raw counts")
 circ.counts <- read.table(argv$circ_counts, header = T, sep = "\t", stringsAsFactors = F, check.names = F)
@@ -46,9 +50,10 @@ if (annotation) {
   rownames(circ.counts) <- circ.counts$circBaseID
 } else {
   circ.counts$key <- paste0(circ.counts$chr, ":", circ.counts$start, "-", circ.counts$stop, "_", circ.counts$strand)
+  # remove duplicates
   circ.counts <- circ.counts[!duplicated(circ.counts$key),]
+  rownames(circ.counts) <- circ.counts$key
   circ.counts$key <- NULL
-  rownames(circ.counts) <- paste0(circ.counts$chr, ":", circ.counts$start, "-", circ.counts$stop, "_", circ.counts$strand)
 }
 
 circ.quant <- circ.counts
@@ -131,8 +136,6 @@ print("Calculating quantification effects...")
 # plot estimated counts vs junction reads
 # est counts <- quantification
 # junction reads <- CIRCexplorer2
-samplesheet <- read.table(argv$samplesheet, sep = "\t", header = T)
-samples <- samplesheet$sample
 
 circ.norm <- circ.counts
 rownames(circ.norm) <- paste(circ.norm$chr, circ.norm$start, circ.norm$stop, circ.norm$strand, circ.norm$gene_symbol, sep = "_")
@@ -170,11 +173,17 @@ lines(sums$key, log10(sums$count.x), type = "b", lty = 2, col = circExplorer2.co
 legend("top", inset = c(-0.5, 0), legend = c("CircExplorer2", "psirc-quant"), col = c(circExplorer2.color, psirc.color), lty = c(1,1), cex=2)
 dev.off()
 
-# extract counts
-# circ.counts.c <- circ.counts[order(rownames(circ.counts)), -c(1:8)]
-# circ.quant.c <- circ.quant[order(rownames(circ.quant)), -c(1:8)]
-# calculate false positive rate
-# tmp <- circ.counts.c - circ.quant.c
-# fp <- length(tmp[tmp ==circ.counts.c])
-# fp.rate <- fp/prod(dim(circ.counts.c))
-# cat("False positive rate:", fp.rate, "according to psirc quantification\n")
+# calculate statistics
+psirc_counts <- circ.quant
+psirc_counts <- as.matrix(psirc_counts[,samples])
+psirc_counts <- psirc_counts[sort(rownames(psirc_counts)),]
+
+original_counts <- circ.counts
+original_counts <- as.matrix(original_counts[,samples])
+original_counts <- original_counts[sort(rownames(original_counts)),]
+# total entries
+all <- (dim(psirc_counts)[1]*dim(psirc_counts)[2])
+# FP rate
+FP <- sum(original_counts != 0 & psirc_counts == 0)/all
+# FN rate
+FN <- sum(original_counts == 0 & psirc_counts != 0)/all

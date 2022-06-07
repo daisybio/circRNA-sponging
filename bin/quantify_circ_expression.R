@@ -187,3 +187,5 @@ all <- (dim(psirc_counts)[1]*dim(psirc_counts)[2])
 FP <- sum(original_counts != 0 & psirc_counts == 0)/all
 # FN rate
 FN <- sum(original_counts == 0 & psirc_counts != 0)/all
+statistics <- data.frame(FP=FP, FN=FN)
+write.table(statistics, file = "statistics.tsv", sep = "\t", quote = F, row.names = F)

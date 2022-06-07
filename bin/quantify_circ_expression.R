@@ -29,6 +29,7 @@ norm <- function(data, samples) {
 remove.duplicates <- function(data, split) {
   data$key <- sapply(strsplit(rownames(data), split), "[", 1)
   data <- data[!duplicated(data$key),]
+  rownames(data) <- data$key
   data$key <- NULL
   return(data)
 }

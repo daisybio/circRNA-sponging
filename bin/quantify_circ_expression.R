@@ -103,16 +103,16 @@ conv <- merge(mRNA.quant, transcript2gene, by.x = 0, by.y = 2)
 conv$Row.names <- NULL
 # summarizing transcripts that map to same gene
 print("Summarizing transcripts of same gene...")
-conv <- aggregate(conv[,-ncol(conv)], list(Gene=conv$gene_id), FUN = sum)
+conv <- aggregate(conv[,-ncol(conv)], list(gene_id=conv$gene_id), FUN = sum)
 row.names(conv) <- conv$gene_id
 conv$gene_id <- NULL
 # save converted samples
 mRNA.quant <- conv
 
 # aggregate tpms
-mRNA.tpm <- merge(mRNA.tpm, transcript2gene, by.x = 0, by.y = 1)
+mRNA.tpm <- merge(mRNA.tpm, transcript2gene, by.x = 0, by.y = 2)
 mRNA.tpm$Row.names <- NULL
-mRNA.tpm <- aggregate(mRNA.tpm[,-ncol(mRNA.tpm)], list(Gene=mRNA.tpm$gene_id), FUN = sum)
+mRNA.tpm <- aggregate(mRNA.tpm[,-ncol(mRNA.tpm)], list(gene_id=mRNA.tpm$gene_id), FUN = sum)
 row.names(mRNA.tpm) <- mRNA.tpm$gene_id
 mRNA.tpm$gene_id <- NULL
 mRNA.tpm <- log2(mRNA.tpm + argv$pseudocount)

@@ -300,15 +300,15 @@ print("reading samplesheet...")
 meta <- read.csv(argv$meta, sep = "\t")
 meta$sample <- gsub("-", ".", meta$sample)
 
-# build position keys
-positions <- paste0(circ_filtered_raw$chr, ":", circ_filtered_raw$start, "-", circ_filtered_raw$stop, "_", circ_filtered_raw$strand)
-# create names
-rownames(circ_filtered) <- positions
-
 # filter for expressions only
 circ_filtered <- circ_filtered_raw[,meta$sample]
 
 circ_filtered <- circ_filtered[complete.cases(circ_filtered),]
+
+# build position keys
+positions <- paste0(circ_filtered_raw$chr, ":", circ_filtered_raw$start, "-", circ_filtered_raw$stop, "_", circ_filtered_raw$strand)
+# create names
+rownames(circ_filtered) <- positions
 
 gene_expr <- rbind(gene_expr, circ_filtered)
 

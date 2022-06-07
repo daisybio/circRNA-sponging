@@ -370,6 +370,7 @@ if (!file(psirc_out + "quant_linear_expression.tsv").exists()) {
         file("quant_linear_expression.tsv") into (gene_expression1, gene_expression2)
         file("TPM_map.tsv") into (TPM_map1, TPM_map2)
         file("quant_effects.png") into quant_effects
+        file("statistics.tsv") into quant_stats
 
         script:
         """

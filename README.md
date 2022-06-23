@@ -64,7 +64,19 @@ By default, the pipeline currently performs the following:
 ## Documentation
 <!--The nf-core/circrnasponging pipeline comes with documentation about the pipeline: [usage](https://nf-co.re/circrnasponging/usage) and [output](https://nf-co.re/circrnasponging/output). -->
 This analysis is based on both totalRNA (or rRNA-depleted) and smRNA data coming from the same samples. It is recommended to run this analysis with a minimum of 5 samples. The exact input format and how to get the needed reference files is described below.
-In order to run the sponging analysis on a dataset using our pipeline, the data has to meet strict requirements.  At least 5 samples from the same organism are needed, because computing the correlation between 4 or less samples is unreasonable. For each sample, both total RNA (or rRNA-depleted) and small RNA data should be available.  Further instructions regarding the exact input format, reference files and configuration are explained below.
+In order to run the sponging analysis on a dataset using our pipeline, the data has to meet strict requirements.  At least 5 samples from the same organism are needed, because computing the correlation between 4 or less samples is unreasonable. For each sample, both total RNA (or rRNA-depleted) and small RNA data should be available. Further instructions regarding the exact input format, reference files and configuration are explained below.
+
+### Installation
+Pull pipeline from github using:
+```
+  git clone https://github.com/biomedbigdata/nf-core-circRNA-sponging.git
+```
+Switch to extension branch:
+```
+  cd nf-core-circRNA-sponging/
+  git fetch
+  git checkout extension
+```
 
 ### Basic Workflow
 The following options are mandatory for executing the full workflow of the pipeline:

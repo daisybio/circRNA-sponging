@@ -26,7 +26,7 @@ It was extended by Leon Schwartz as part of his Bachelor's Thesis under the supe
 
 ## Introduction
 
-**nf-core/circrnasponging** is a pipeline for the systematical analysis of circRNAs, their differential expression and miRNA sponging activities. It requires total RNA and small RNA sequencing data and is based on the hypothesis that the negatively correlating expression of miRNAs and circRNAs (having miRNA binding sites) is an indicator of sponging.
+**nf-core/circrnasponging** is a pipeline for the systematical analysis of circRNAs, their differential expression, miRNA sponging activities and ceRNA network functions. It requires total RNA and small RNA sequencing data.
 
 The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It comes with docker containers making installation trivial and results highly reproducible.
 
@@ -75,16 +75,11 @@ BASIC OPTIONS:
   --samplesheet [path/to/sampleseet.tsv]
   --outdir [path/to/output_directory]
   --genome [string] # genome version of RNA-seq data, hg38 for human, etc.
-  --miRNA_adapter [adapter_sequence] OR --protocol [sequencing_protocol] # miRNA adapter used for trimming OR protocol used in smallRNA sequencing, e.g. illumina
-  -profile [configuration_profile] # Available: docker, singularity
-    
-REFERENCE FILES:
-  --fasta [path/to/genome.fasta]
-  --gtf [path/to/gtf_file]
-  --bed12 [path/to/gene_annotation]
-  --mature_fasta [path/to/mature_fasta]
-  --mature_other_fasta [path/to/mature_other_fasta]
-  --hairpin_fasta [path/to/hairpin_fasta]
+  -profile [configuration_profile] # docker, singularity, slurm, etc.
+  Adapter trimming:
+    --miRNA_adapter [adapter_sequence] # miRNA adapter used for trimming
+    OR 
+    --protocol [sequencing_protocol] # protocol used in smallRNA sequencing, e.g. illumina, cat, etc.
 }
 ```
 
@@ -102,7 +97,23 @@ The pipeline requires a tab-separated samplesheet file containing the sample nam
 ```
 
 #### Reference Files
-Besides the genome fasta, transcriptome, gtf and annotation files, some miRNA references are required: mature and hairpin miRNA sequences for the organism used in the analysis, e.g.  mouse and mature miRNA sequences from related species, e.g. rat and human.  Instructions forgenerating the miRNA reference files can be found in the [`miRDeep2 tutorial`](https://drmirdeep.github.io/mirdeep2_tutorial.html).
+A linear transcriptome has to be supplied with:
+```
+  --transcriptome "path/to/transcriptome"
+```
+Other reference files are supported through iGenomes and automatically downloaded (see conf/igenomes.config for details). These files can also be given manually by the user with these parameters:
+```
+  --bed12
+  --fasta
+  --gtf
+  // sRNA options
+  --miRNA_fasta
+  --hairpin_fasta
+  --miRNA_related_fasta
+  --bowtie_index
+  --STAR_index
+```
+mature and hairpin miRNA sequences for the organism used in the analysis, e.g.  mouse and mature miRNA sequences from related species, e.g. rat and human.  Instructions forgenerating the miRNA reference files can be found in the [`miRDeep2 tutorial`](https://drmirdeep.github.io/mirdeep2_tutorial.html).
 
 ### Additional Features and Advanced Options
 #### Skip miRNA Quantification
@@ -143,7 +154,7 @@ In addition, the samplesheet should be adapted to match the following structure:
 ```
 
 #### psirc quantification
-psirc requires the input of a linearRNA transcriptome (can be gzipped). It is recommended to use an Ensembl transcriptome as it is default for generating kallisto indices (available under https://ftp.ensembl.org/pub/). 
+psirc requires the input of a linear RNA transcriptome. It is recommended to use an Ensembl transcriptome as it is default for generating kallisto indices (available under https://ftp.ensembl.org/pub/). 
 Linear and circular quantification is enabled by default but can be switched off by:
 
 ```
@@ -185,16 +196,16 @@ SPONGE also requires condition labeling (see Differential expression). To perfor
 ```
 ### miRNA-circRNA binding sites
 Additionally one can select the miRNA binding sites tools to use from `miranda`, `TarPmiR` and `PITA`.
-Miranda is enabled per default, but TarPmiR and PITA must be enabled manually with:
+Per default all three methods are enabled, but `TarPmiR` and `PITA` can be disabled by:
 ```
---tarpmir true
---pita true
+--tarpmir false
+--pita false
 ```
 The majority vote function only works with all three methods enabled.
-Else all remaining binding sites are merged.
+Otherwise, remaining binding sites are simply merged.
 
 ### miRNA-mRNA binding sites
-SPONGE analysis also requires miRNA-mRNA binding sites for which the pipeline will, per default, use the precomputed data from MirWalk2.0 Human combined with lncBase. Custom binding sites can be provided using:
+SPONGE analysis also requires miRNA-mRNA binding sites for which the pipeline will, per default, use the precomputed data from MirWalk3.0 Human combined with lncBase. Custom linearRNA-miRNA binding sites can be provided using:
 ```
 --target_scan_symbols path/to/targets.tsv
 ```
@@ -207,7 +218,33 @@ Format specification:
   ENSG..3  |    1     |    3    |    5    |
     ...
 ```
-#### Advanced Filtering
+
+## Pipeline Execution and Configuration
+To execute the pipeline, run the following command:
+```nextflow run nf-core-circrnasponging/ -c my.config -profile [singularity/docker],cluster```
+where `my.config` is a configuration file specifying parameters and execution settings. An example configuration file is shown below:
+```
+params {
+        samplesheet = "path/to/sampleseet.tsv"
+        outdir = "path/to/outdir"
+        species = "mmu"
+        protocol = "illumina"
+        transcriptome = "path/to/transcriptome.fa.gz"
+    }
+    profiles {
+         standard {
+             process.executor = 'local'
+         }
+         cluster {
+             executor.queueSize = 20
+             process.executor = 'slurm'
+             process.cpu = '8'
+    	       process.memory = '50 GB'
+         }
+    }
+```
+
+#### Advanced Options
 After normalizing the raw read counts for both circRNAs and miRNAs, the pipeline filters out entries which have a low expression level. By default, only entries having at least 5 reads in at least 20% of samples are used in the downstream analysis. The parameter values can be changed with the options:
 ```
   --read_threshold
@@ -216,6 +253,14 @@ After normalizing the raw read counts for both circRNAs and miRNAs, the pipeline
   --sample_percentage
       default: 0.2
         0<= real <=1    minimum percentage of samples that should have no low expression
+```
+Color palettes from R MetBrewer can be set by:
+```
+  --palette
+```
+TarPmiR prediction cutoff score can be set by:
+```
+  --p
 ```
 ### Output
 The output folder is structured as shown below. The circRNA/miRNA results for each sample are stored in the `samples` folder. The tabulated circRNA and miRNA counts summarized over all samples located in `results/circRNA` and `results/miRNA`, respectively. The results and plots of the sponging analysis are stored in the subfolder `results/sponging`. 
@@ -256,37 +301,6 @@ The output folder is structured as shown below. The circRNA/miRNA results for ea
 |   |   |   |   └─── total
 |   |   |   |   └─── RData
 └── └── └── 
-```
-
-## Pipeline Execution and Configuration
-To execute the pipeline, run the following command:
-```nextflow run nf-core-circrnasponging/ -c my.config -profile cluster -resume```
-where `my.config` is a configuration file specifying parameters and execution settings. An example configuration file is shown below:
-```
-params {
-        samplesheet = "path/to/sampleseet.tsv"
-        outdir = "path/to/outdir"
-        species = "mmu"
-        miRNA_adapter = "TGGAATTCTCGGGTGCCAAGG"
-        single_end = true
-        fasta = "path/to/genome.fasta"
-        gtf = "path/to/genome.gtf"
-        bed12 = "path/to/genome.annot"
-        mature_fasta = "path/to/mature_mmu.fa"
-        mature_other_fasta = "path/to/mature_rno_hsa.fa"
-        hairpin_fasta = "path/to/hairpin_mmu.fa"
-    }
-    profiles {
-         standard {
-             process.executor = 'local'
-         }
-         cluster {
-             executor.queueSize = 20
-             process.executor = 'slurm'
-             process.cpu = '8'
-    	 process.memory = '50 GB'
-         }
-    }
 ```
 
 

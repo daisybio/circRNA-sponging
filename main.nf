@@ -142,6 +142,7 @@ Channel.value(file(gtf)).into { ch_gtf; ch_gtf_psirc; ch_gtf_spongEffects }
 ch_bed12 = Channel.value(file(bed12))
 Channel.value(file(miRNA_fasta)).into { mirna_fasta_miRanda; mirna_fasta_PITA; mirna_fasta_TarPmiR; mirna_fasta_miRDeep2; mirna_fasta_SPONGE }
 
+// set miRNA adapter sequence
 miRNA_adapter = params.miRNA_adapter
 // Sequencing presets
 if (params.protocol == "illumina"){

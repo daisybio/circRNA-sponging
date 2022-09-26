@@ -1,0 +1,726 @@
+# chrom	start	end	strand	circRNA ID	genomic length	spliced seq length	samples	repeats	annotation	best transcript	gene symbol	circRNA study
+chrIII	1947632	1948044	-	cel_circ_0000338	412	412	1cell, 2cell, fem1, spe9, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	F53A3.2	polh-1	Memczak2013
+chrII	12675765	12676099	-	cel_circ_0000264	334	334	2cell, fem1, spe9, sperm_act	None	ANNOTATED, CDS, coding	Y38E10A.22	Y38E10A.22	Memczak2013
+chrIV	1610868	1611308	-	cel_circ_0000477	440	440	fem1	None	ANTISENSE, CDS, coding, INTERNAL, intronic	Y41D4B.10	dsl-3	Memczak2013
+chrIII	2487756	2489131	+	cel_circ_0000353	1375	368	1cell, 2cell, fem1, spe9, sperm_act	None	ANNOTATED, CDS, coding, UTR5	Y54F10AL.1a	Y54F10AL.1	Memczak2013
+chrIII	2356442	2358852	+	cel_circ_0000349	2410	540	spe9, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	H04J21.3b	gip-1	Memczak2013
+chrIII	4320983	4322230	+	cel_circ_0000377	1247	1132	sperm, sperm_act	None	ALT_DONOR, CDS, coding, downstream_end	H38K22.6	H38K22.6	Memczak2013
+chrII	2526102	2526874	-	cel_circ_0000205	772	623	spe9, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	K02F6.7	K02F6.7	Memczak2013
+chrI	6087435	6087557	-	cel_circ_0000067	122	122	sperm, sperm_act	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	ZK484.5	ZK484.5	Memczak2013
+chrIII	12630252	12630558	+	cel_circ_0000450	306	306	spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y111B2A.14.2	Y111B2A.14.2	Memczak2013
+chrIV	9326624	9326753	-	cel_circ_0000545	129	129	sperm, sperm_act	None	ANTISENSE, CDS, coding, INTERNAL	F49C12.15	F49C12.15	Memczak2013
+chrIII	2235141	2235285	+	cel_circ_0000346	144	144	fem1	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL, intronic	C39B5.2	C39B5.2	Memczak2013
+chrI	1748287	1748696	-	cel_circ_0000030	409	409	fem1, spe9, sperm	None	ANNOTATED, CDS, coding, INTERNAL	Y71G12B.24	mppa-1	Memczak2013
+chrII	310619	318537	-	cel_circ_0000177	6160	6160	fem1, sperm, sperm_act	None	ALT_ACCEPTOR, CDS, coding, upstream_start, UTR5	K01A2.8a	mps-2	Memczak2013
+chrIII	6762398	6767917	+	cel_circ_0000394	5519	5025	sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	K07E12.1a.2	dig-1	Memczak2013
+chrIV	6325439	6325547	-	cel_circ_0000528	108	108	spe9, sperm	None	ANTISENSE, coding, INTERNAL, UTR3	Y73B6BL.6b.1	sqd-1	Memczak2013
+chrII	5495409	5519889	+	cel_circ_0000228	24480	24437	sperm, sperm_act	None	ALT_DONOR, CDS, coding, downstream_end	F12A10.2	F12A10.2	Memczak2013
+chrIV	10547226	10558791	+	cel_circ_0000554	8493	2148	1cell, 2cell, fem1	None	ALT_DONOR, CDS, coding, downstream_end, UTR3	T07G12.6	zim-1	Memczak2013
+chrIV	12363006	12364103	+	cel_circ_0000560	1097	563	fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	ZC518.3b	ccr-4	Memczak2013
+chrIII	12677141	12678795	+	cel_circ_0000454	1654	641	1cell, spe9, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y111B2A.17	elpc-2	Memczak2013
+chrV	18678069	18679635	+	cel_circ_0000663	1566	882	fem1	None	ANNOTATED, CDS, coding, INTERNAL	Y69H2.10b	Y69H2.10	Memczak2013
+chrI	12672345	12672777	+	cel_circ_0000127	432	313	fem1, spe9, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	T26E3.3a	par-6	Memczak2013
+chrI	12878627	12879582	+	cel_circ_0000132	955	260	1cell, 2cell, fem1, spe9, sperm_act	None	ALT_ACCEPTOR, CDS, coding, INTERNAL, UTR5	Y18D10A.13	pad-1	Memczak2013
+chrIII	1219376	1219657	-	cel_circ_0000319	281	233	sperm, sperm_act	None	ALT_ACCEPTOR, CDS, coding, INTERNAL	Y119D3B.17	pes-4	Memczak2013
+chrIII	1515549	1515894	-	cel_circ_0000325	345	226	1cell, 2cell, spe9	None	ANNOTATED, CDS, coding, INTERNAL	M01G5.3	M01G5.3	Memczak2013
+chrI	7726219	7726902	-	cel_circ_0000084	683	683	2cell	None	ANTISENSE, CDS, coding, INTERNAL, UTR3	F27D4.4a.1	F27D4.4	Memczak2013
+chrIII	5941356	5942549	+	cel_circ_0000387	1193	1140	1cell, 2cell, fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	F25B5.4c	ubq-1	Memczak2013
+chrI	4209292	4209396	-	cel_circ_0000052	104	104	1cell	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	C18E3.8	hop-1	Memczak2013
+chrIII	11116032	11195082	-	cel_circ_0000434	79050	67153	fem1, sperm	None	ALT_DONOR, CDS, coding, downstream_end, UTR3, UTR5	Y47D3A.6b	tra-1	Memczak2013
+chrIII	11107311	11118978	-	cel_circ_0000431	11667	10745	spe9	DNA	ALT_DONOR, CDS, coding, downstream_end	Y48A6C.3	sup-35	Memczak2013
+chrIII	10295553	10300632	+	cel_circ_0000424	5079	3855	1cell, sperm, sperm_act	None	ALT_DONOR, CDS, coding, downstream_end, UTR3	K10G9.1	K10G9.1	Memczak2013
+chrIII	6463109	6463226	+	cel_circ_0000390	117	117	1cell, 2cell, fem1, spe9, sperm_act	None	ANTISENSE, CDS, coding, INTERNAL, UTR3	T26A5.9.1	dlc-1	Memczak2013
+chrII	2132067	2132983	+	cel_circ_0000197	916	916	fem1, spe9	None	ALT_DONOR, CDS, coding, downstream_end, UTR3	R52.1	sdz-28	Memczak2013
+chrIV	386492	386601	-	cel_circ_0000463	109	109	spe9, sperm, sperm_act	None	ANTISENSE, CDS, coding, INTERNAL, UTR3	T07A9.11.1	rps-24	Memczak2013
+chrIV	16862350	16862790	-	cel_circ_0000582	440	320	spe9	None	ANNOTATED, CDS, coding, INTERNAL	T06A10.1	mel-46	Memczak2013
+chrV	8422033	8422715	-	cel_circ_0000617	682	682	fem1, spe9	None	ANNOTATED, CDS, coding, UTR5	F52E1.13b.2	F52E1.13	Memczak2013
+chrIII	2482724	2483108	+	cel_circ_0000352	384	307	1cell, 2cell, fem1, spe9, sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y54F10AL.2a	smg-6	Memczak2013
+chrV	14813156	14814418	-	cel_circ_0000634	1262	409	1cell, spe9	None	ANNOTATED, CDS, coding, INTERNAL	C48G7.3a	tag-333	Memczak2013
+chrI	14740949	14741941	+	cel_circ_0000166	992	992	spe9	None	ANNOTATED, CDS, coding, INTERNAL	K05C4.6	hmp-2	Memczak2013
+chrI	13330714	13330832	-	cel_circ_0000139	118	118	2cell	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL, UTR5	T04D3.5.1	T04D3.5	Memczak2013
+chrIV	4049269	4049441	-	cel_circ_0000516	172	172	1cell, fem1, spe9	None	ANNOTATED, CDS, coding, UTR5	W03D2.4.1	W03D2.4.1	Memczak2013
+chrI	13578490	13579341	+	cel_circ_0000144	851	851	2cell, fem1	None	ANNOTATED, CDS, coding, INTERNAL	Y87G2A.8a.4	Y87G2A.8a.4	Memczak2013
+chrII	9270666	9270821	-	cel_circ_0000246	155	155	spe9	None	ANTISENSE, CDS, coding, INTERNAL	C01G6.3	C01G6.3	Memczak2013
+chrIII	8953529	8953644	+	cel_circ_0000410	115	115	1cell, fem1	None	ANTISENSE, CDS, coding, INTERNAL	ZK643.5	ZK643.5	Memczak2013
+chrI	865732	866860	+	cel_circ_0000010	1128	300	1cell, fem1, spe9, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y95B8A.7	Y95B8A.7	Memczak2013
+chrIV	2515054	2515383	+	cel_circ_0000501	329	329	2cell, spe9, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y69A2AR.16	Y69A2AR.16	Memczak2013
+chrI	11390938	11392176	-	cel_circ_0000116	1238	325	1cell, 2cell, sperm	None	ANNOTATED, CDS, coding, INTERNAL	Y53H1C.1b	aat-9	Memczak2013
+chrII	3307403	3309487	-	cel_circ_0000210	2084	2084	fem1, spe9	None	INTERGENIC	None	None	Memczak2013
+chrI	6078696	6078842	-	cel_circ_0000066	146	146	spe9	None	ALT_ACCEPTOR, CDS, coding, INTERNAL	ZK484.4a	ZK484.4	Memczak2013
+chrIII	11269798	11270715	-	cel_circ_0000437	917	265	1cell, fem1, sperm	None	ALT_ACCEPTOR, CDS, coding, INTERNAL	Y47D3A.17a	obr-1	Memczak2013
+chrIV	2489628	2490079	+	cel_circ_0000498	451	219	sperm, sperm_act	None	ALT_ACCEPTOR, CDS, coding, INTERNAL	Y69A2AR.19	Y69A2AR.19	Memczak2013
+chrI	8050423	8051354	+	cel_circ_0000085	931	882	fem1	None	ANNOTATED, CDS, coding, INTERNAL	K04G2.8a	04/01/13	Memczak2013
+chrIII	707146	709230	+	cel_circ_0000303	2084	400	fem1	None	ANNOTATED, CDS, coding, INTERNAL	C24A1.2a	C24A1.2	Memczak2013
+chrI	10668624	10669265	+	cel_circ_0000104	641	359	spe9	None	ANNOTATED, CDS, coding, INTERNAL	B0511.1	fkb-7	Memczak2013
+chrV	19080440	19080829	-	cel_circ_0000676	389	389	1cell, fem1, sperm	None	ANNOTATED, CDS, coding, INTERNAL	Y39B6A.17a	nhr-95	Memczak2013
+chrV	13153112	13153961	+	cel_circ_0000625	849	583	spe9	None	ALT_DONOR, CDS, coding, INTERNAL	K03H4.2	K03H4.2	Memczak2013
+chrI	1511898	1512000	+	cel_circ_0000025	102	102	2cell, sperm_act	None	ANTISENSE, CDS, coding, INTERNAL	Y92H12A.5	Y92H12A.5	Memczak2013
+chrII	14131104	14131674	-	cel_circ_0000273	570	523	spe9, sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	K09E4.2	K09E4.2	Memczak2013
+chrI	1377016	1386404	-	cel_circ_0000019	9388	9388	fem1	None	ALT_DONOR, CDS, coding, downstream_end	Y92H12BM.1	Y92H12BM.1	Memczak2013
+chrI	9174552	9174760	-	cel_circ_0000093	208	208	sperm	None	ANTISENSE, CDS, coding, INTERNAL	F25H5.3b	pyk-1	Memczak2013
+chrII	4235723	4237264	-	cel_circ_0000220	1541	1492	sperm, sperm_act	None	ALT_ACCEPTOR, CDS, coding, upstream_start	C16A11.9	fbxc-43	Memczak2013
+chrIV	1999378	1999702	+	cel_circ_0000482	324	324	2cell, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y76B12C.2	xpc-1	Memczak2013
+chrV	16095832	16095947	+	cel_circ_0000643	115	115	sperm, sperm_act	None	ALT_DONOR, CDS, coding, INTERNAL	F22B8.7	F22B8.7	Memczak2013
+chrI	5998579	6000888	-	cel_circ_0000064	2309	1964	1cell, fem1, sperm	None	ALT_ACCEPTOR, CDS, coding, upstream_start, UTR5	C06A5.7b	unc-94	Memczak2013
+chrI	2287563	2289754	-	cel_circ_0000039	2191	393	2cell	None	ANNOTATED, CDS, coding, INTERNAL, UTR5	Y39G10AL.3.1	cdk-7	Memczak2013
+chrIV	985667	988456	-	cel_circ_0000468	2789	2732	1cell, spe9, sperm_act	None	ALT_DONOR, CDS, coding, downstream_end	Y55F3AM.7	egrh-2	Memczak2013
+chrIII	1927665	1931276	+	cel_circ_0000335	3611	1191	fem1, spe9, sperm	None	ALT_DONOR, CDS, coding, UTR5	F53A3.6	F53A3.6	Memczak2013
+chrIII	12053466	12055043	-	cel_circ_0000444	1577	372	fem1	None	ANNOTATED, CDS, coding, INTERNAL	Y79H2A.6	arx-3	Memczak2013
+chrIII	8014336	8014961	-	cel_circ_0000404	625	532	1cell, 2cell, fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	F44B9.5.2	F44B9.5	Memczak2013
+chrV	5504097	5504202	-	cel_circ_0000606	105	105	fem1, spe9, sperm_act	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	T05C3.5.1	dnj-19	Memczak2013
+chrII	9747229	9747331	+	cel_circ_0000250	102	102	1cell, 2cell, sperm	None	ALT_ACCEPTOR, CDS, coding, INTERNAL	Y53C12B.3a	nos-3	Memczak2013
+chrIV	2242177	2242264	-	cel_circ_0000489	87	87	sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	M70.3a	M70.3	Memczak2013
+chrIV	3222437	3225880	+	cel_circ_0000509	3443	1350	1cell, fem1, spe9, sperm_act	None	ALT_DONOR, CDS, coding, downstream_end, UTR3, UTR5	Y67D8A.2a.2	Y67D8A.2	Memczak2013
+chrI	6087619	6087717	+	cel_circ_0000070	98	98	sperm, sperm_act	None	ANTISENSE, CDS, coding, INTERNAL	ZK484.5	ZK484.5	Memczak2013
+chrI	497692	498570	-	cel_circ_0000008	878	426	2cell, fem1	None	ANNOTATED, CDS, coding, INTERNAL	Y65B4BL.3	Y65B4BL.3	Memczak2013
+chrV	18043535	18047649	+	cel_circ_0000650	6310	894	fem1, spe9	None	ANNOTATED, CDS, coding, UTR5	Y59A8B.7	ebp-1	Memczak2013
+chrV	20239625	20241520	-	cel_circ_0000691	1895	514	fem1, spe9, sperm	None	ANNOTATED, CDS, coding, INTERNAL	Y113G7B.23	psa-1	Memczak2013
+chrIV	3059680	3142984	+	cel_circ_0000507	83304	82191	1cell, 2cell, fem1, sperm, sperm_act	None	ALT_DONOR, CDS, coding, downstream_end, UTR3	Y67D8C.3a	Y67D8C.3	Memczak2013
+chrIV	13485494	13486960	-	cel_circ_0000566	1466	453	2cell, fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y45F10A.6b	tbc-9	Memczak2013
+chrI	14109218	14109432	-	cel_circ_0000158	214	214	1cell, fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y63D3A.6b	dnj-29	Memczak2013
+chrI	14579068	14579561	-	cel_circ_0000161	493	231	2cell, fem1	None	ANNOTATED, CDS, coding, INTERNAL	Y105E8A.24a	Y105E8A.24	Memczak2013
+chrV	3738214	3739383	-	cel_circ_0000598	1169	862	spe9	None	ALT_DONOR, CDS, coding, downstream_end	Y39H10A.5	Y39H10A.5	Memczak2013
+chrI	1420211	1421309	+	cel_circ_0000022	1098	1098	2cell, fem1, spe9, sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y92H12BR.3a	Y92H12BR.3	Memczak2013
+chrII	6664173	6671969	+	cel_circ_0000233	7796	7665	sperm, sperm_act	None	ALT_DONOR, CDS, coding, downstream_end, UTR3	T19D12.2c.1	T19D12.2	Memczak2013
+chrX	6252734	6252921	+	cel_circ_0000707	187	187	fem1, spe9, sperm_act	None	ALT_ACCEPTOR, ALT_DONOR, coding, INTERNAL, UTR3	W05H9.3	W05H9.3	Memczak2013
+chrIII	12631806	12634809	+	cel_circ_0000451	3003	588	spe9, sperm	None	ANNOTATED, CDS, coding, INTERNAL	Y111B2A.14.2	Y111B2A.14.2	Memczak2013
+chrIV	4044720	4044985	+	cel_circ_0000513	752	350	fem1, spe9, sperm_act	None	ALT_ACCEPTOR, CDS, coding, INTERNAL	F35F11.1	F35F11.1	Memczak2013
+chrII	6192933	6193029	-	cel_circ_0000232	96	96	sperm, sperm_act	None	ANTISENSE, coding, INTERNAL, UTR5	C30B5.3	cpb-2	Memczak2013
+chrII	3446582	3452199	+	cel_circ_0000214	5617	4520	fem1, spe9, sperm_act	None	ALT_DONOR, CDS, coding, downstream_end	C16C8.16	C16C8.16	Memczak2013
+chrI	11384076	11384356	+	cel_circ_0000115	280	280	1cell, 2cell, fem1, spe9, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	F56G4.5	png-1	Memczak2013
+chrIII	6463186	6463649	-	cel_circ_0000391	463	183	1cell, 2cell, fem1, sperm	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	T26A5.9	dlc-1	Memczak2013
+chrI	14099478	14099938	-	cel_circ_0000157	460	327	spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y63D3A.4	Y63D3A.4	Memczak2013
+chrI	1892269	1892873	-	cel_circ_0000033	604	533	sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y71G12A.4	Y71G12A.4	Memczak2013
+chrV	310115	310390	-	cel_circ_0000589	275	275	1cell, fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	F33E11.6b	F33E11.6	Memczak2013
+chrIV	16665185	16672924	+	cel_circ_0000581	7739	3509	2cell, fem1, sperm, sperm_act	None	ALT_DONOR, CDS, coding, downstream_end, UTR3	Y51H4A.17c	sta-1	Memczak2013
+chrII	5490056	5490193	-	cel_circ_0000227	137	137	sperm_act	None	ANTISENSE, CDS, coding, INTERNAL	F12A10.4	F12A10.4	Memczak2013
+chrIII	1946057	1948044	-	cel_circ_0000337	1987	786	2cell, fem1	None	ANNOTATED, CDS, coding, INTERNAL	F53A3.2	polh-1	Memczak2013
+chrIV	6337652	6337756	+	cel_circ_0000529	104	104	1cell, fem1	None	ALT_ACCEPTOR, CDS, coding, INTERNAL	Y73B6BL.4	Y73B6BL.4	Memczak2013
+chrI	1517533	1520271	+	cel_circ_0000026	2738	701	1cell, spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y92H12A.4	Y92H12A.4	Memczak2013
+chrV	18959367	18959808	-	cel_circ_0000674	441	380	2cell, sperm	None	ANNOTATED, CDS, coding, INTERNAL	Y39B6A.46	ztf-20	Memczak2013
+chrIII	8739344	8741024	-	cel_circ_0000406	1680	682	1cell, spe9	None	ANNOTATED, CDS, coding, INTERNAL	ZK370.5.2	pdhk-2	Memczak2013
+chrIII	730585	731798	-	cel_circ_0000304	1213	309	1cell, 2cell, fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	T17H7.4c.3	gei-16	Memczak2013
+chrI	13573943	13574629	+	cel_circ_0000143	686	629	fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y87G2A.7	Y87G2A.7	Memczak2013
+chrIV	1499860	1500983	+	cel_circ_0000474	1123	338	2cell, fem1, spe9, sperm	None	ANNOTATED, CDS, coding, UTR5	Y77E11A.1.2	Y77E11A.1	Memczak2013
+chrIII	9080692	9080780	+	cel_circ_0000412	88	88	sperm	None	ANTISENSE, CDS, coding, INTERNAL	F02A9.2.1	far-1	Memczak2013
+chrII	8515012	8515107	+	cel_circ_0000241	95	95	sperm_act	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	T13H5.2	ctg-2	Memczak2013
+chrI	12917876	12918912	+	cel_circ_0000133	1036	1036	fem1, spe9, sperm, sperm_act	None	ALT_DONOR, CDS, coding, downstream_end, UTR3	Y18D10A.25	fkb-8	Memczak2013
+chrIII	10297414	10302808	+	cel_circ_0000425	5394	4864	sperm, sperm_act	None	ALT_DONOR, CDS, coding, downstream_end, UTR3	K10G9.1	K10G9.1	Memczak2013
+chrI	1377018	1386404	-	cel_circ_0000020	9386	9386	1cell, 2cell, fem1, spe9, sperm, sperm_act	None	ALT_DONOR, CDS, coding, downstream_end	Y92H12BM.1	Y92H12BM.1	Memczak2013
+chrIII	1969531	1970179	-	cel_circ_0000340	648	648	sperm, sperm_act	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL, intronic	R155.2	R155.2	Memczak2013
+chrI	1431678	1433718	-	cel_circ_0000024	2040	1545	fem1, spe9	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, downstream_end, UTR3, UTR5	Y92H12BR.4	Y92H12BR.4	Memczak2013
+chrV	19901370	19901871	-	cel_circ_0000687	501	260	1cell, 2cell, fem1, spe9, sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y60A3A.13a	frs-3	Memczak2013
+chrV	1819940	1820415	-	cel_circ_0000595	475	475	1cell, 2cell, fem1, spe9, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y46H3A.6	gly-7	Memczak2013
+chrII	12901601	12904713	+	cel_circ_0000265	3112	2368	sperm, sperm_act	None	ALT_DONOR, CDS, coding, downstream_end, UTR3	F35C5.8.1	clec-65	Memczak2013
+chrV	18686988	18687738	-	cel_circ_0000664	750	411	fem1, sperm	None	ANNOTATED, CDS, coding, INTERNAL	Y69H2.6	ubc-19	Memczak2013
+chrI	9369857	9382621	-	cel_circ_0000094	12764	1180	fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	F16A11.3c	ppfr-1	Memczak2013
+chrX	12913234	12913758	+	cel_circ_0000716	524	524	sperm_act	None	ANNOTATED, CDS, coding, UTR5	C34E7.1.1	pqn-18	Memczak2013
+chrI	7352903	7353005	-	cel_circ_0000083	102	102	sperm, sperm_act	None	ANTISENSE, CDS, coding, INTERNAL	F07A5.2	F07A5.2	Memczak2013
+chrIV	13537282	13537627	+	cel_circ_0000569	409	409	spe9	None	ANTISENSE, CDS, coding, INTERNAL, intronic	F52G2.2b.1	rsd-2	Memczak2013
+chrIII	2479948	2482086	+	cel_circ_0000351	2138	346	1cell, 2cell	None	ANNOTATED, CDS, coding, INTERNAL	Y54F10AL.2a	smg-6	Memczak2013
+chrIII	6762405	6788688	-	cel_circ_0000395	26283	26283	sperm	None	ANTISENSE, CDS, coding, INTERNAL	K07E12.1a.2	dig-1	Memczak2013
+chrV	19900491	19901473	-	cel_circ_0000684	2270	516	1cell, fem1, spe9, sperm, sperm_act	RC	ALT_ACCEPTOR, CDS, coding, INTERNAL	Y60A3A.13a	frs-3	Memczak2013
+chrI	12968030	12968153	-	cel_circ_0000136	123	123	1cell, spe9	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	C47B2.4	pbs-2	Memczak2013
+chrII	310619	316779	-	cel_circ_0000176	7918	7918	fem1, spe9, sperm	None	ALT_ACCEPTOR, CDS, coding, upstream_start, UTR5	K01A2.8a	mps-2	Memczak2013
+chrI	3825188	3825845	-	cel_circ_0000049	657	657	fem1	None	ANTISENSE, CDS, coding, INTERNAL	F53F10.4	unc-108	Memczak2013
+chrII	14130372	14131674	-	cel_circ_0000272	1302	757	1cell, fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	K09E4.2	K09E4.2	Memczak2013
+chrIV	7762849	7763361	-	cel_circ_0000536	512	414	1cell, fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	C46A5.6	C46A5.6	Memczak2013
+chrII	9651551	9652585	-	cel_circ_0000249	1034	1034	sperm, sperm_act	None	ALT_ACCEPTOR, CDS, coding, upstream_start	ZK1307.4	ZK1307.4	Memczak2013
+chrIV	13882227	13882489	-	cel_circ_0000574	262	262	2cell, spe9, sperm, sperm_act	None	ANTISENSE, CDS, coding, INTERNAL	B0513.3	rpl-29	Memczak2013
+chrI	6055004	6059793	-	cel_circ_0000065	4789	4637	2cell, fem1	None	ALT_ACCEPTOR, CDS, coding, upstream_start, UTR5	C27A12.6	C27A12.6	Memczak2013
+chrV	20399910	20403740	-	cel_circ_0000693	3830	569	fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	F53H2.3	F53H2.3	Memczak2013
+chrIV	9742300	9745972	-	cel_circ_0000547	5287	5178	sperm, sperm_act	None	ALT_ACCEPTOR, CDS, coding, upstream_start, UTR5	C28D4.7	C28D4.7	Memczak2013
+chrII	169873	170030	-	cel_circ_0000169	157	157	spe9	None	ANTISENSE, coding, INTERNAL, UTR3	T01D1.2a.2	etr-1	Memczak2013
+chrIII	261123	261388	+	cel_circ_0000295	265	265	1cell, 2cell, fem1, spe9, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y50D7A.3a	Y50D7A.3	Memczak2013
+chrIII	983247	987508	+	cel_circ_0000309	4261	1254	fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	R06B10.5.1	tbc-10	Memczak2013
+chrIII	3299365	3299857	+	cel_circ_0000364	492	351	1cell, 2cell, fem1, spe9, sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y53G8AR.5	Y53G8AR.5	Memczak2013
+chrIII	984270	984487	+	cel_circ_0000310	217	217	spe9	None	ANNOTATED, CDS, coding, INTERNAL	R06B10.5.1	tbc-10	Memczak2013
+chrV	18160177	18165498	-	cel_circ_0000658	5321	4687	sperm, sperm_act	None	ALT_ACCEPTOR, CDS, coding, upstream_start	C14A6.13	C14A6.13	Memczak2013
+chrI	13784388	13786069	+	cel_circ_0000150	224	224	1cell, fem1, spe9, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y37H9A.3	Y37H9A.3	Memczak2013
+chrIII	1827227	1832242	+	cel_circ_0000330	5015	883	fem1	None	ANNOTATED, CDS, coding, INTERNAL	Y39A3CL.7a	Y39A3CL.7	Memczak2013
+chrI	5134743	5135373	+	cel_circ_0000059	630	464	fem1, spe9, sperm, sperm_act	None	ALT_ACCEPTOR, CDS, coding, upstream_start	Y110A7A.5	mtm-1	Memczak2013
+chrI	10603051	10603590	+	cel_circ_0000103	539	484	1cell, sperm	None	ANNOTATED, CDS, coding, INTERNAL	T22A3.5	pash-1	Memczak2013
+chrV	841381	842095	-	cel_circ_0000590	714	426	sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	K09C6.8	K09C6.8	Memczak2013
+chrV	18688227	18688469	-	cel_circ_0000665	242	242	1cell, fem1, spe9, sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y69H2.6	ubc-19	Memczak2013
+chrIII	12547412	12547551	-	cel_circ_0000449	139	139	spe9	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	Y111B2A.8	Y111B2A.8	Memczak2013
+chrI	12730360	12731510	-	cel_circ_0000128	1150	509	fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	W02A11.1	W02A11.1	Memczak2013
+chrIV	2357633	2364959	+	cel_circ_0000493	7326	1793	2cell, fem1	None	ALT_ACCEPTOR, CDS, coding, upstream_start	Y38F2AR.5	Y38F2AR.5	Memczak2013
+chrIII	4635664	4638717	+	cel_circ_0000382	3053	2812	sperm, sperm_act	None	ALT_DONOR, CDS, coding, downstream_end	F10F2.8	clec-153	Memczak2013
+chrIV	4044720	4045472	+	cel_circ_0000514	1579	638	spe9	None	ALT_ACCEPTOR, CDS, coding, INTERNAL	F35F11.1	F35F11.1	Memczak2013
+chrIV	11477434	11477538	+	cel_circ_0000557	104	104	fem1, spe9, sperm, sperm_act	None	ANTISENSE, CDS, coding, INTERNAL	C10C6.6	C10C6.6	Memczak2013
+chrI	1167653	1167978	-	cel_circ_0000016	325	325	2cell, spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y48G8AL.11	haf-6	Memczak2013
+chrV	15036694	15105719	-	cel_circ_0000635	69025	69025	sperm, sperm_act	None	ALT_ACCEPTOR, CDS, coding, upstream_start, UTR5	C25D7.1	C25D7.1	Memczak2013
+chrIII	13778049	13782807	+	cel_circ_0000462	4758	4649	fem1, spe9, sperm, sperm_act	None	ALT_DONOR, CDS, coding, downstream_end, UTR3	K08E3.8	mdt-29	Memczak2013
+chrI	1524298	1524644	+	cel_circ_0000027	346	346	1cell, 2cell, fem1, spe9, sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y92H12A.4	Y92H12A.4	Memczak2013
+chrI	12083561	12083648	-	cel_circ_0000124	87	87	sperm_act	None	ALT_ACCEPTOR, CDS, coding, upstream_start	Y47H10A.1	clp-3	Memczak2013
+chrII	15222732	15224717	+	cel_circ_0000287	1985	453	spe9, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y46E12BL.4	Y46E12BL.4	Memczak2013
+chrIV	4164276	4165982	+	cel_circ_0000520	1706	1706	fem1, spe9, sperm, sperm_act	None	ALT_DONOR, CDS, coding, downstream_end, UTR3	K08D10.8	scrm-5	Memczak2013
+chrV	13007120	13007267	-	cel_circ_0000624	147	147	2cell, fem1	None	ALT_DONOR, CDS, coding, INTERNAL	F15B9.10	F15B9.10	Memczak2013
+chrI	1335996	1336300	+	cel_circ_0000018	304	254	sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	K12C11.3	K12C11.3	Memczak2013
+chrI	4175389	4175577	+	cel_circ_0000051	188	135	1cell, sperm_act	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	R12E2.3.2	rpn-8	Memczak2013
+chrIV	2019242	2021131	-	cel_circ_0000483	1889	455	2cell, fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y76B12C.7	cpsf-1	Memczak2013
+chrII	925045	930737	+	cel_circ_0000186	5692	5692	fem1, spe9	None	ALT_DONOR, CDS, coding, downstream_end	R07C3.6	fbxc-28	Memczak2013
+chrV	16408721	16409515	+	cel_circ_0000646	794	702	spe9, sperm_act	None	ALT_DONOR, CDS, coding, INTERNAL, intronic	F26D2.3a	F26D2.3	Memczak2013
+chrII	457580	457883	-	cel_circ_0000179	303	255	1cell, 2cell, spe9	None	ANNOTATED, CDS, coding, INTERNAL	W10D9.3	W10D9.3	Memczak2013
+chrIII	12241257	12241745	-	cel_circ_0000445	488	488	fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y75B8A.22	tim-1	Memczak2013
+chrX	15568857	15569289	-	cel_circ_0000721	432	432	fem1	None	ANTISENSE, CDS, coding, INTERNAL	C02C6.1a	dyn-1	Memczak2013
+chrIII	8692292	8692558	-	cel_circ_0000405	266	266	1cell	None	ANTISENSE, CDS, coding, INTERNAL	B0303.4.2	B0303.4	Memczak2013
+chrV	10023530	10024991	+	cel_circ_0000620	1461	1407	spe9, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL, UTR5	K08H10.2a.2	K08H10.2	Memczak2013
+chrIV	2392019	2393356	+	cel_circ_0000496	1337	532	spe9, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y38F2AR.1	eri-5	Memczak2013
+chrX	10589799	10589927	+	cel_circ_0000714	128	128	2cell, fem1	None	ANTISENSE, coding, INTERNAL, UTR3	F57C7.3a	sdn-1	Memczak2013
+chrIII	6591645	6592115	-	cel_circ_0000392	470	426	2cell, fem1, spe9	None	ANNOTATED, CDS, coding	F20H11.1	F20H11.1	Memczak2013
+chrIII	13168747	13169035	-	cel_circ_0000459	288	288	2cell, fem1, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y39E4B.2	Y39E4B.2	Memczak2013
+chrIV	1572110	1572463	-	cel_circ_0000475	2931	2931	2cell, sperm	None	ALT_ACCEPTOR, CDS, coding, INTERNAL, intronic	Y41D4B.19b	npp-8	Memczak2013
+chrX	3112895	3114215	-	cel_circ_0000701	1320	1271	1cell, 2cell, fem1, spe9, sperm, sperm_act	None	ALT_ACCEPTOR, CDS, coding, upstream_start, UTR5	K10B3.7.2	gpd-3	Memczak2013
+chrIV	2849724	2850126	+	cel_circ_0000503	402	309	1cell, sperm	None	ALT_DONOR, CDS, coding, INTERNAL	Y54G2A.40	Y54G2A.40	Memczak2013
+chrIII	8768390	8768776	-	cel_circ_0000407	386	386	2cell	None	ANTISENSE, CDS, coding, INTERNAL	PAR2.1.2	mtss-1	Memczak2013
+chrI	2630325	2643067	+	cel_circ_0000042	12742	12436	1cell, 2cell, fem1, spe9, sperm, sperm_act	None	ALT_DONOR, coding, downstream_end, UTR3	Y23H5A.1b	Y23H5A.1b	Memczak2013
+chrIV	4178158	4178549	+	cel_circ_0000521	391	391	1cell, fem1	None	ALT_DONOR, CDS, coding, downstream_end	K08D10.2	dnj-15	Memczak2013
+chrIII	9527454	9528058	+	cel_circ_0000417	604	604	spe9	None	ANNOTATED, CDS, coding, INTERNAL	ZK1098.6	ZK1098.6	Memczak2013
+chrI	14817710	14819383	-	cel_circ_0000168	1673	994	2cell, fem1	None	ANNOTATED, CDS, coding, INTERNAL	Y54E5B.2	Y54E5B.2	Memczak2013
+chrIII	7070855	7070980	+	cel_circ_0000400	125	125	2cell, sperm_act	None	ANTISENSE, CDS, coding, INTERNAL, UTR3	ZK418.4.1	lin-37	Memczak2013
+chrI	6515002	6515387	+	cel_circ_0000078	385	342	1cell, fem1, sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	C55B7.1.1	C55B7.1.1	Memczak2013
+chrIII	4632957	4639023	+	cel_circ_0000381	6066	5648	sperm, sperm_act	None	ALT_DONOR, CDS, coding, downstream_end	F10F2.6	clec-152	Memczak2013
+chrI	11381236	11383141	+	cel_circ_0000114	1905	544	spe9	None	ANNOTATED, CDS, coding, INTERNAL	F56G4.5	png-1	Memczak2013
+chrI	13945446	13946391	-	cel_circ_0000156	945	278	1cell, sperm	None	ANNOTATED, CDS, coding, INTERNAL	Y71A12B.9	usp-3	Memczak2013
+chrII	3001840	3003252	+	cel_circ_0000207	1412	1412	1cell, 2cell, fem1, spe9, sperm_act	None	ALT_DONOR, CDS, coding, downstream_end, UTR3	C41H7.6	C41H7.6	Memczak2013
+chrIII	9918804	9925993	-	cel_circ_0000419	7189	7085	sperm, sperm_act	None	ALT_DONOR, CDS, coding, downstream_end	K03H1.3	ttr-3	Memczak2013
+chrI	14427055	14428997	+	cel_circ_0000160	1942	574	1cell, 2cell, fem1, spe9, sperm	None	ANNOTATED, CDS, coding, INTERNAL	Y105E8A.10c.1	Y105E8A.10	Memczak2013
+chrI	11884087	11884446	+	cel_circ_0000121	359	359	spe9, sperm	None	ANNOTATED, CDS, coding, INTERNAL	Y47H9C.5a	dnj-27	Memczak2013
+chrII	560633	561089	-	cel_circ_0000180	456	456	fem1, spe9	None	ANTISENSE, coding, INTERNAL, intronic	C09E8.1a	C09E8.1	Memczak2013
+chrV	19901714	19902822	-	cel_circ_0000688	1108	308	2cell, fem1	None	ANNOTATED, CDS, coding, UTR5	Y60A3A.13a	frs-3	Memczak2013
+chrIII	237748	238011	+	cel_circ_0000293	263	263	spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y50D7A.4.2	Y50D7A.4	Memczak2013
+chrIII	12635427	12635740	+	cel_circ_0000452	313	257	1cell, spe9, sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y111B2A.14.2	Y111B2A.14.2	Memczak2013
+chrIV	4149015	4156366	+	cel_circ_0000518	7351	6732	sperm_act	None	ALT_DONOR, CDS, coding, downstream_end, UTR3	R07C12.2	R07C12.2	Memczak2013
+chrIII	6763764	6764722	+	cel_circ_0000396	958	870	sperm	None	ALT_DONOR, CDS, coding, INTERNAL	K07E12.1a.2	dig-1	Memczak2013
+chrII	3445893	3449305	+	cel_circ_0000213	3412	2269	1cell, 2cell	None	ALT_DONOR, CDS, coding, downstream_end	C16C8.16	C16C8.16	Memczak2013
+chrX	10923217	10923446	-	cel_circ_0000715	229	229	fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL, UTR5	T21B6.1.1	dgn-1	Memczak2013
+chrI	11376418	11376687	+	cel_circ_0000113	269	269	1cell, spe9	None	ANNOTATED, CDS, coding, INTERNAL	F56G4.4	F56G4.4	Memczak2013
+chrIV	2179390	2192702	+	cel_circ_0000486	13312	1694	fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y71G10AL.1a	Y71G10AL.1	Memczak2013
+chrX	8041256	8042873	+	cel_circ_0000709	1617	979	fem1, spe9	None	ALT_ACCEPTOR, CDS, coding, upstream_start	C18A11.5c	xol-1	Memczak2013
+chrI	9469703	9470010	-	cel_circ_0000095	307	307	1cell, 2cell, fem1	None	ANTISENSE, CDS, coding, INTERNAL	F46A9.4	skr-2	Memczak2013
+chrV	19679006	19679601	+	cel_circ_0000683	595	359	1cell, fem1	RC	ANNOTATED, CDS, coding, INTERNAL	Y43F8C.12	mrp-7	Memczak2013
+chrV	9779983	9780098	+	cel_circ_0000619	115	115	1cell	None	ANTISENSE, CDS, coding, INTERNAL	F46B6.5c	F46B6.5	Memczak2013
+chrIV	13500786	13501189	-	cel_circ_0000568	403	344	spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y45F10A.6b	tbc-9	Memczak2013
+chrIV	1965856	1966435	+	cel_circ_0000480	579	471	1cell, sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y48A5A.1	Y48A5A.1	Memczak2013
+chrI	6220405	6220489	-	cel_circ_0000073	84	84	sperm_act	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	T08B2.10.2	rps-17	Memczak2013
+chrIII	4253263	4253902	-	cel_circ_0000375	639	590	2cell	None	ALT_ACCEPTOR, CDS, coding, INTERNAL, intronic	T08A11.1	T08A11.1	Memczak2013
+chrIII	797762	798016	+	cel_circ_0000305	254	254	1cell, 2cell, spe9, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	B0412.3.1	B0412.3	Memczak2013
+chrI	1817301	1817613	+	cel_circ_0000032	312	312	spe9, sperm_act	None	ALT_DONOR, CDS, coding, INTERNAL, intronic	Y71G12B.2	Y71G12B.2	Memczak2013
+chrI	10977642	10978049	+	cel_circ_0000107	407	407	1cell, spe9, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y52B11A.3a	Y52B11A.3	Memczak2013
+chrI	13013364	13013933	+	cel_circ_0000137	569	507	2cell, fem1, spe9, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	ZK256.1c	pmr-1	Memczak2013
+chrII	11822891	11823014	-	cel_circ_0000259	123	123	fem1	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	Y6D1A.1	Y6D1A.1	Memczak2013
+chrI	9977311	9977465	-	cel_circ_0000100	154	154	1cell	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	T23D8.4.1	eif-3.C	Memczak2013
+chrIV	13537282	13537691	+	cel_circ_0000570	345	345	fem1, spe9	None	ANTISENSE, CDS, coding, INTERNAL, intronic	F52G2.2b.1	rsd-2	Memczak2013
+chrI	14629871	14630685	-	cel_circ_0000163	814	114	sperm, sperm_act	None	ALT_ACCEPTOR, CDS, coding, INTERNAL	Y105E8B.1d	lev-11	Memczak2013
+chrII	249869	251048	-	cel_circ_0000173	1179	552	fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y43H11AL.3	pqn-85	Memczak2013
+chrIII	2302216	2303922	-	cel_circ_0000347	1706	606	1cell, fem1	None	ANNOTATED, CDS, coding, INTERNAL	Y54F10BM.9	Y54F10BM.9	Memczak2013
+chrV	18691434	18691753	+	cel_circ_0000666	319	319	spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y69H2.7	Y69H2.7	Memczak2013
+chrI	698055	698325	-	cel_circ_0000009	270	270	1cell, 2cell, fem1, spe9, sperm	None	ALT_ACCEPTOR, CDS, coding, INTERNAL, UTR5	Y18H1A.2	Y18H1A.2	Memczak2013
+chrII	12279815	12280695	+	cel_circ_0000262	880	880	1cell, 2cell	None	ALT_DONOR, CDS, coding, downstream_end, UTR3	Y57A10A.29	Y57A10A.29	Memczak2013
+chrV	14131617	14133273	-	cel_circ_0000632	1656	386	sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	H39E23.1a	par-1	Memczak2013
+chrII	3127118	3127798	+	cel_circ_0000209	680	587	1cell, 2cell, fem1, spe9	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, downstream_end	T10D4.4	ins-31	Memczak2013
+chrIV	12084725	12084929	-	cel_circ_0000559	204	204	2cell	None	ANTISENSE, CDS, coding, INTERNAL	F11A10.2	F11A10.2	Memczak2013
+chrIV	6611940	6617000	-	cel_circ_0000532	5060	4530	1cell, 2cell, fem1, sperm, sperm_act	None	ALT_ACCEPTOR, CDS, coding, upstream_start, UTR5	F15B10.2	drh-1	Memczak2013
+chrI	4938200	4940976	+	cel_circ_0000058	2776	1195	1cell, sperm, sperm_act	None	ALT_DONOR, CDS, coding, downstream_end, UTR3	F28B3.4	F28B3.4	Memczak2013
+chrI	13581297	13581740	+	cel_circ_0000145	443	443	1cell	None	ALT_DONOR, CDS, coding, downstream_end, UTR3	Y87G2A.8b.1	Y87G2A.8b.1	Memczak2013
+chrX	2068637	2070436	-	cel_circ_0000700	1799	654	spe9	None	ALT_DONOR, CDS, coding, UTR5	F49H12.6a.2	acl-4	Memczak2013
+chrIII	1210886	1211488	+	cel_circ_0000318	602	602	fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y119D3B.11.1	Y119D3B.11.1	Memczak2013
+chrIV	12654464	12654864	+	cel_circ_0000562	400	352	1cell, fem1, spe9, sperm	None	ANNOTATED, CDS, coding, INTERNAL	C26H9A.2	C26H9A.2	Memczak2013
+chrIII	11890103	11890472	-	cel_circ_0000441	369	316	1cell, fem1, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y56A3A.5	faah-5	Memczak2013
+chrV	6982073	6984611	-	cel_circ_0000611	2538	2538	1cell, 2cell	None	ALT_ACCEPTOR, CDS, coding, upstream_start, UTR5	C33G8.7	nhr-161	Memczak2013
+chrIV	7789906	7790045	+	cel_circ_0000537	139	139	fem1	None	ANTISENSE, coding, INTERNAL, UTR3	C33H5.12b.2	rsp-6	Memczak2013
+chrX	7231405	7231560	+	cel_circ_0000708	155	155	sperm, sperm_act	None	ANTISENSE, CDS, coding, INTERNAL	F46H5.3a	F46H5.3	Memczak2013
+chrV	18956093	18956423	-	cel_circ_0000673	330	284	spe9, sperm_act	RC	ALT_ACCEPTOR, CDS, coding, INTERNAL, intronic	Y80D3A.9	Y80D3A.9	Memczak2013
+chrIII	11132340	11133144	+	cel_circ_0000435	804	683	spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y48A6C.5a	pha-1	Memczak2013
+chrII	408981	409441	-	cel_circ_0000178	460	460	fem1, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	C24H12.5a	C24H12.5	Memczak2013
+chrII	1768955	1772720	+	cel_circ_0000194	3765	3375	sperm, sperm_act	None	ALT_DONOR, CDS, coding, downstream_end, UTR3	F36H5.2b.1	math-27	Memczak2013
+chrIII	1585836	1586060	-	cel_circ_0000326	224	224	sperm	None	ANNOTATED, CDS, coding, INTERNAL	Y22D7AL.8	sms-3	Memczak2013
+chrIV	10950349	10950433	+	cel_circ_0000556	84	84	sperm, sperm_act	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	Y69E1A.2	Y69E1A.2	Memczak2013
+chrI	909681	910135	+	cel_circ_0000013	454	404	spe9, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y95B8A.4	Y95B8A.4	Memczak2013
+chrV	866570	870803	-	cel_circ_0000591	4233	4180	sperm, sperm_act	None	ALT_ACCEPTOR, CDS, coding, upstream_start, UTR5	T02B11.3b	T02B11.3	Memczak2013
+chrIII	11110656	11116117	-	cel_circ_0000432	5461	5461	spe9	None	INTERGENIC	None	None	Memczak2013
+chrX	97551	97962	-	cel_circ_0000698	411	216	1cell, spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y73B3A.4	Y73B3A.4	Memczak2013
+chrIII	1474847	1475099	-	cel_circ_0000323	252	252	fem1	None	ANNOTATED, CDS, coding, INTERNAL	Y82E9BR.18	Y82E9BR.18	Memczak2013
+chrIII	9071150	9071381	-	cel_circ_0000411	231	231	spe9, sperm_act	None	ALT_ACCEPTOR, CDS, coding, upstream_start	R107.8	lin-12	Memczak2013
+chrIII	3108680	3110657	-	cel_circ_0000361	1977	1640	sperm, sperm_act	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL, intronic, UTR5	Y53G8B.3	Y53G8B.3	Memczak2013
+chrI	6371200	6371646	+	cel_circ_0000074	446	345	fem1	None	ANNOTATED, CDS, coding, INTERNAL	ZC308.1a	gld-2	Memczak2013
+chrI	1377018	1391297	-	cel_circ_0000021	14279	9747	fem1, spe9	None	ALT_DONOR, CDS, coding, downstream_end	Y92H12BM.1	Y92H12BM.1	Memczak2013
+chrIV	9237217	9239805	+	cel_circ_0000544	2588	1183	fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y11D7A.3b	Y11D7A.3	Memczak2013
+chrIV	2278890	2279180	-	cel_circ_0000491	290	290	sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	C37F5.1	lin-1	Memczak2013
+chrI	8649753	8650014	+	cel_circ_0000086	261	261	1cell	None	ANNOTATED, CDS, coding, INTERNAL	F39H2.2a	sig-7	Memczak2013
+chrV	16376580	16376670	+	cel_circ_0000645	90	90	sperm	None	ANTISENSE, CDS, coding, INTERNAL	F13A7.1	F13A7.1	Memczak2013
+chrIII	4595339	4595458	-	cel_circ_0000380	119	119	fem1, sperm, sperm_act	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	F35G12.10.1	asb-1	Memczak2013
+chrIII	1870241	1870698	+	cel_circ_0000331	2025	862	sperm	None	ANNOTATED, CDS, coding, INTERNAL	Y39A3CR.3	Y39A3CR.3	Memczak2013
+chrV	3691788	3692045	+	cel_circ_0000597	257	172	1cell, spe9	None	ANNOTATED, CDS, coding, INTERNAL, UTR5	W08A12.1b.2	W08A12.1	Memczak2013
+chrIII	7458916	7462321	-	cel_circ_0000401	3405	3405	sperm, sperm_act	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, downstream_end, upstream_start	H14A12.6	fipr-20	Memczak2013
+chrIV	14216849	14217472	+	cel_circ_0000575	623	573	fem1	None	ANNOTATED, CDS, coding, INTERNAL	F02H6.4	F02H6.4	Memczak2013
+chrIII	987238	987508	+	cel_circ_0000311	270	270	1cell, fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	R06B10.5.1	tbc-10	Memczak2013
+chrX	16056167	16069732	+	cel_circ_0000722	13565	13508	sperm, sperm_act	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, downstream_end, upstream_start	T27A8.3	T27A8.3	Memczak2013
+chrV	7140063	7142227	-	cel_circ_0000612	2164	1614	spe9	None	ALT_ACCEPTOR, CDS, coding, upstream_start	F10D2.5	ugt-40	Memczak2013
+chrV	16528073	16529436	+	cel_circ_0000648	1363	1110	sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	F36D3.8	F36D3.8	Memczak2013
+chrX	3113073	3114390	-	cel_circ_0000702	1317	1317	1cell, 2cell, fem1, spe9, sperm, sperm_act	None	ALT_ACCEPTOR, CDS, coding, upstream_start, UTR5	K10B3.7.2	gpd-3	Memczak2013
+chrX	9510459	9511097	+	cel_circ_0000713	638	336	fem1, sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	ZK899.8h	gap-2	Memczak2013
+chrV	4204708	4205696	+	cel_circ_0000600	988	412	fem1	None	ALT_ACCEPTOR, CDS, coding, upstream_start	H43I07.1	H43I07.1	Memczak2013
+chrIII	3498156	3499041	-	cel_circ_0000367	885	316	1cell, spe9, sperm	None	ANNOTATED, CDS, coding, UTR5	M01F1.9	M01F1.9	Memczak2013
+chrIII	12671501	12672080	-	cel_circ_0000453	579	579	fem1	None	ALT_DONOR, CDS, coding, INTERNAL	Y111B2A.16	taf-7.2	Memczak2013
+chrI	59044	60236	-	cel_circ_0000002	1192	1192	sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y48G1C.5	Y48G1C.5	Memczak2013
+chrIV	1412839	1413212	-	cel_circ_0000472	373	373	2cell, fem1, spe9, sperm	None	ANNOTATED, CDS, coding, INTERNAL	Y77E11A.7b	Y77E11A.7	Memczak2013
+chrIV	4044720	4046299	+	cel_circ_0000515	265	265	1cell, 2cell, fem1, spe9	None	ALT_ACCEPTOR, CDS, coding, INTERNAL	F35F11.1	F35F11.1	Memczak2013
+chrI	6846640	6846716	-	cel_circ_0000079	76	76	sperm_act	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	H27M09.5	H27M09.5	Memczak2013
+chrIV	6611594	6616663	-	cel_circ_0000531	5069	4441	1cell, 2cell, fem1, sperm	None	ALT_ACCEPTOR, CDS, coding, upstream_start, UTR5	F15B10.2	drh-1	Memczak2013
+chrI	12653052	12653166	+	cel_circ_0000126	114	114	2cell, fem1	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	H28O16.1d.3	H28O16.1	Memczak2013
+chrIII	6343876	6346435	+	cel_circ_0000389	2559	2559	spe9	None	INTERGENIC	None	None	Memczak2013
+chrIV	2229794	2230105	+	cel_circ_0000488	311	311	fem1, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	T04C4.1a	T04C4.1	Memczak2013
+chrIV	7997324	7997867	-	cel_circ_0000539	543	465	1cell	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	Y42H9B.2	rig-4	Memczak2013
+chrIV	10206853	10206930	-	cel_circ_0000552	77	77	sperm_act	None	ALT_ACCEPTOR, CDS, coding, INTERNAL	C24F3.5	abt-1	Memczak2013
+chrII	5624540	5632925	+	cel_circ_0000229	8385	8385	1cell, 2cell, fem1, spe9, sperm, sperm_act	None	ALT_DONOR, CDS, coding, downstream_end, UTR3	F59E12.5a	npl-4.2	Memczak2013
+chrI	12962954	12963804	-	cel_circ_0000134	850	324	spe9	None	ANNOTATED, CDS, coding, INTERNAL	C47B2.2b	C47B2.2	Memczak2013
+chrIII	9918800	9925993	-	cel_circ_0000418	7193	7089	sperm, sperm_act	None	ALT_DONOR, CDS, coding, downstream_end	K03H1.3	ttr-3	Memczak2013
+chrIV	2995246	2995570	-	cel_circ_0000504	324	268	spe9	None	ANNOTATED, coding, UTR5	Y54G2A.26b.2	Y54G2A.26	Memczak2013
+chrIV	9742300	9744148	-	cel_circ_0000546	3672	3563	sperm, sperm_act	None	ALT_ACCEPTOR, CDS, coding, upstream_start, UTR5	C28D4.7	C28D4.7	Memczak2013
+chrII	11464809	11465861	+	cel_circ_0000258	1052	761	fem1, spe9	None	ANNOTATED, CDS, coding, UTR5	W02B12.8a	rga-1	Memczak2013
+chrIV	4592601	4598752	+	cel_circ_0000522	6151	5845	spe9	None	ALT_ACCEPTOR, CDS, coding, upstream_start	F19C7.3	F19C7.3	Memczak2013
+chrV	15671682	15673414	+	cel_circ_0000640	1732	1732	sperm, sperm_act	None	ALT_DONOR, CDS, coding, downstream_end	K06B4.15	K06B4.15	Memczak2013
+chrIII	3730850	3730928	+	cel_circ_0000371	78	78	sperm	None	ALT_ACCEPTOR, CDS, coding, INTERNAL	F34D10.8	F34D10.8	Memczak2013
+chrIV	6527148	6539346	-	cel_circ_0000530	12198	11759	fem1, spe9, sperm, sperm_act	None	ALT_ACCEPTOR, CDS, coding, upstream_start, UTR5	C01G5.2	prg-2	Memczak2013
+chrI	4465738	4466009	+	cel_circ_0000054	271	227	1cell, spe9	None	ANNOTATED, CDS, coding, INTERNAL	T01A4.3	T01A4.3	Memczak2013
+chrII	12364319	12365539	-	cel_circ_0000263	1220	296	sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y57A10B.1	Y57A10B.1	Memczak2013
+chrV	18111316	18112676	+	cel_circ_0000655	1360	555	spe9, sperm	None	ANNOTATED, CDS, coding, INTERNAL	Y37H2A.1	Y37H2A.1	Memczak2013
+chrIV	2227078	2227473	+	cel_circ_0000487	395	395	2cell, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	T04C4.1a	T04C4.1	Memczak2013
+chrI	13944636	13946391	-	cel_circ_0000155	1755	340	1cell, 2cell, fem1, sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y71A12B.9	usp-3	Memczak2013
+chrIV	14517658	14517808	-	cel_circ_0000576	150	150	sperm, sperm_act	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	Y57G11A.2	Y57G11A.2	Memczak2013
+chrIII	6823088	6823438	+	cel_circ_0000397	350	350	sperm, sperm_act	None	INTERGENIC	None	None	Memczak2013
+chrV	19293612	19294084	-	cel_circ_0000679	472	330	fem1, spe9	None	ALT_DONOR, CDS, coding, INTERNAL	F55C9.6	F55C9.6	Memczak2013
+chrII	235460	235994	-	cel_circ_0000172	534	405	1cell, 2cell, fem1, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y43H11AL.2	Y43H11AL.2	Memczak2013
+chrI	10763578	10765272	+	cel_circ_0000105	1694	337	1cell, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	R13H8.1c	daf-16	Memczak2013
+chrIV	13578385	13597888	-	cel_circ_0000571	19503	19296	sperm, sperm_act	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, downstream_end, upstream_start	Y45F10B.9	Y45F10B.9	Memczak2013
+chrII	6784081	6784301	-	cel_circ_0000234	220	220	2cell	None	ANTISENSE, CDS, coding, INTERNAL	T13C2.6b	T13C2.6	Memczak2013
+chrIII	3106580	3106817	-	cel_circ_0000359	237	192	1cell, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y53G8B.3	Y53G8B.3	Memczak2013
+chrIV	12550417	12551469	+	cel_circ_0000561	1052	345	spe9, sperm	None	ANNOTATED, CDS, coding, INTERNAL	ZK795.1	ZK795.1	Memczak2013
+chrIII	798331	801619	+	cel_circ_0000306	3288	1047	fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	B0412.3.1	B0412.3	Memczak2013
+chrIV	4802064	4802277	+	cel_circ_0000523	213	213	1cell	None	ANTISENSE, CDS, coding, INTERNAL	R11E3.7a	dpf-7	Memczak2013
+chrIII	5148552	5149537	-	cel_circ_0000384	985	433	1cell, 2cell, fem1, spe9, sperm	None	ANNOTATED, CDS, coding	Y54H5A.2.2	Y54H5A.2	Memczak2013
+chrV	20263021	20263141	+	cel_circ_0000692	120	120	2cell	None	ANTISENSE, CDS, coding, INTERNAL	Y113G7B.17.2	prmt-1	Memczak2013
+chrV	18693306	18693506	+	cel_circ_0000667	200	200	2cell, spe9, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y69H2.7	Y69H2.7	Memczak2013
+chrII	9304008	9304745	-	cel_circ_0000247	737	301	2cell, fem1, spe9, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	C01G6.8a	cam-1	Memczak2013
+chrIV	7983453	7983610	-	cel_circ_0000538	157	157	1cell	None	ANTISENSE, CDS, coding, INTERNAL, UTR3	F57H12.1	arf-3	Memczak2013
+chrV	18956093	18956374	-	cel_circ_0000672	281	235	1cell, 2cell, fem1, spe9, sperm	None	ANNOTATED, CDS, coding, INTERNAL	Y80D3A.9	Y80D3A.9	Memczak2013
+chrI	6207427	6207674	-	cel_circ_0000072	247	133	1cell, fem1	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	T08B2.7a	T08B2.7	Memczak2013
+chrIII	209016	210062	+	cel_circ_0000292	1046	1046	spe9	None	INTERGENIC	None	None	Memczak2013
+chrI	4231143	4232704	+	cel_circ_0000053	1561	480	sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	C43E11.6a	nab-1	Memczak2013
+chrI	2478228	2478801	-	cel_circ_0000040	573	573	1cell, 2cell, fem1, spe9, sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y74C10AR.3	abtm-1	Memczak2013
+chrIII	2114774	2115978	-	cel_circ_0000341	1204	358	sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y48G9A.11	Y48G9A.11	Memczak2013
+chrIII	1502888	1504278	+	cel_circ_0000324	1390	861	2cell, spe9	None	ANNOTATED, CDS, coding, INTERNAL	M01G5.1	M01G5.1	Memczak2013
+chrII	9841697	9841870	-	cel_circ_0000251	173	123	1cell, 2cell	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	ZK938.7	rnh-1.2	Memczak2013
+chrX	344165	345275	-	cel_circ_0000699	1110	1110	sperm, sperm_act	None	ALT_DONOR, CDS, coding, INTERNAL	C04E7.3	C04E7.3	Memczak2013
+chrIII	2479476	2480027	+	cel_circ_0000350	551	180	1cell, spe9, sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y54F10AL.2a	smg-6	Memczak2013
+chrIII	11830421	11830502	+	cel_circ_0000440	81	81	sperm, sperm_act	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	C18D11.4.1	rsp-8	Memczak2013
+chrII	2238114	2242621	+	cel_circ_0000200	4507	906	spe9	None	ALT_DONOR, CDS, coding, INTERNAL, UTR3	F54A3.3	cct-3	Memczak2013
+chrIII	1200189	1200461	-	cel_circ_0000317	272	272	1cell, spe9	RC	ANNOTATED, CDS, coding, INTERNAL	Y119D3B.16	Y119D3B.16	Memczak2013
+chrV	915840	938321	+	cel_circ_0000592	22481	22481	1cell, fem1, sperm	None	ALT_DONOR, CDS, coding, downstream_end, UTR3	H24K24.3b	H24K24.3	Memczak2013
+chrII	3497398	3498907	-	cel_circ_0000216	1509	472	spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y49F6B.9a	Y49F6B.9	Memczak2013
+chrII	14294216	14298358	+	cel_circ_0000275	4142	3242	fem1, sperm	None	ALT_DONOR, CDS, coding, downstream_end	Y54G11A.4	Y54G11A.4	Memczak2013
+chrII	14870599	14871006	+	cel_circ_0000280	4221	904	fem1, spe9, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	R05H10.3a	R05H10.3	Memczak2013
+chrIV	12696833	12697643	+	cel_circ_0000563	810	331	spe9, sperm	None	ANNOTATED, CDS, coding, INTERNAL	T23B5.3a	T23B5.3	Memczak2013
+chrII	15066082	15066407	-	cel_circ_0000283	325	325	1cell, fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y53F4B.18	Y53F4B.18	Memczak2013
+chrII	1495646	1496693	-	cel_circ_0000192	1047	512	1cell, 2cell, fem1, spe9, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	H17B01.4a.1	H17B01.4a.1	Memczak2013
+chrII	11175617	11175988	+	cel_circ_0000256	371	371	1cell, fem1	None	INTERGENIC	None	None	Memczak2013
+chrI	9469956	9471635	+	cel_circ_0000096	1679	1634	1cell, 2cell, fem1, spe9, sperm, sperm_act	None	ALT_DONOR, CDS, coding, downstream_end, UTR3	F46A9.4	skr-2	Memczak2013
+chrIV	2272926	2273455	-	cel_circ_0000490	529	529	2cell, fem1, spe9, sperm	None	ANNOTATED, CDS, coding, INTERNAL	M70.5	M70.5	Memczak2013
+chrIII	1057717	1058011	-	cel_circ_0000312	294	294	1cell, 2cell, spe9, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	BE0003N10.3	BE0003N10.3	Memczak2013
+chrII	14278308	14278677	+	cel_circ_0000274	369	369	1cell, spe9, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y54G11A.3	Y54G11A.3	Memczak2013
+chrIV	2489986	2490079	+	cel_circ_0000499	93	93	sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y69A2AR.19	Y69A2AR.19	Memczak2013
+chrIV	11722489	11723055	+	cel_circ_0000558	566	229	spe9, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	K01A6.2	magi-1	Memczak2013
+chrIV	16944041	16944212	-	cel_circ_0000583	171	171	2cell, spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y116A8C.9	Y116A8C.9	Memczak2013
+chrI	10804703	10805433	+	cel_circ_0000106	730	358	1cell, fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	F55A3.1	marc-6	Memczak2013
+chrIII	3109884	3110174	-	cel_circ_0000362	290	290	1cell, 2cell, sperm, sperm_act	None	ALT_DONOR, CDS, coding, INTERNAL, intronic, UTR5	Y53G8B.3	Y53G8B.3	Memczak2013
+chrIII	2355279	2355530	+	cel_circ_0000348	251	251	1cell, 2cell, spe9	None	ANNOTATED, CDS, coding, INTERNAL	H04J21.3b	gip-1	Memczak2013
+chrI	2618634	2632514	+	cel_circ_0000041	13880	12983	sperm, sperm_act	None	ALT_DONOR, CDS, coding, downstream_end	Y23H5A.4	Y23H5A.4	Memczak2013
+chrI	55889	56293	-	cel_circ_0000001	404	328	sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y48G1C.5	Y48G1C.5	Memczak2013
+chrIII	3107150	3110174	-	cel_circ_0000360	3024	764	sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL, UTR5	Y53G8B.3	Y53G8B.3	Memczak2013
+chrV	14718918	14719026	-	cel_circ_0000633	108	108	sperm, sperm_act	None	ALT_ACCEPTOR, CDS, coding, INTERNAL	R08A2.1	R08A2.1	Memczak2013
+chrI	1544285	1544491	+	cel_circ_0000029	206	206	1cell, 2cell	None	ANNOTATED, CDS, coding, INTERNAL	Y92H12A.2	Y92H12A.2	Memczak2013
+chrIII	10073872	10073975	+	cel_circ_0000422	103	103	1cell, fem1	None	ALT_ACCEPTOR, CDS, coding, INTERNAL	T16G12.6	T16G12.6	Memczak2013
+chrI	903104	903513	+	cel_circ_0000011	409	295	sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y95B8A.5	gpa-16	Memczak2013
+chrIII	10754396	10755076	-	cel_circ_0000428	680	413	1cell, spe9	None	ANNOTATED, CDS, coding, INTERNAL	K01G5.2a.1	K01G5.2a.1	Memczak2013
+chrV	4576260	4576641	+	cel_circ_0000605	333	333	spe9, sperm	Unknown	ANNOTATED, CDS, coding, INTERNAL	Y61A9LA.3a	Y61A9LA.3	Memczak2013
+chrV	18065061	18065463	-	cel_circ_0000653	402	268	1cell, 2cell, spe9, sperm	None	ANNOTATED, CDS, coding, INTERNAL	Y59A8B.8	Y59A8B.8	Memczak2013
+chrV	19340208	19340560	+	cel_circ_0000680	352	352	fem1, spe9	None	ANTISENSE, CDS, coding, INTERNAL	C14B4.2	C14B4.2	Memczak2013
+chrV	19900491	19902761	-	cel_circ_0000685	2331	577	1cell, 2cell, spe9, sperm	None	ANNOTATED, CDS, coding, UTR5	Y60A3A.13a	frs-3	Memczak2013
+chrII	1262125	1263016	+	cel_circ_0000188	891	532	sperm	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, downstream_end, upstream_start	F47F6.4	F47F6.4	Memczak2013
+chrII	987511	1055498	+	cel_circ_0000187	67987	67855	2cell, fem1, spe9	Unknown	ALT_DONOR, CDS, coding, downstream_end, UTR3	C32B5.1a	fbxc-40	Memczak2013
+chrIV	767821	769412	-	cel_circ_0000465	1591	1237	1cell, fem1	None	ALT_ACCEPTOR, CDS, coding, upstream_start, UTR5	F56B3.2a	F56B3.2	Memczak2013
+chrV	18153831	18156139	+	cel_circ_0000656	2308	2254	sperm_act	None	ALT_DONOR, CDS, coding, downstream_end	C14A6.2	C14A6.2	Memczak2013
+chrIII	1870241	1872266	+	cel_circ_0000332	457	403	1cell, 2cell	None	ANNOTATED, CDS, coding, INTERNAL	Y39A3CR.3	Y39A3CR.3	Memczak2013
+chrII	1948751	1949092	+	cel_circ_0000195	341	234	1cell, fem1, spe9	None	ALT_ACCEPTOR, CDS, coding, INTERNAL	ZK250.2	ZK250.2	Memczak2013
+chrV	13159552	13164449	+	cel_circ_0000626	4897	2937	fem1	None	ALT_ACCEPTOR, CDS, coding, upstream_start, UTR5	T09E8.1a	T09E8.1	Memczak2013
+chrII	4578108	4579337	+	cel_circ_0000221	1229	444	fem1	None	ANNOTATED, CDS, coding, INTERNAL	M03A1.1b	vab-1	Memczak2013
+chrIII	8774218	8775861	+	cel_circ_0000408	1643	869	2cell, fem1, sperm	None	ALT_DONOR, CDS, coding, INTERNAL, UTR3	K02D10.1b.1	K02D10.1	Memczak2013
+chrIII	4405341	4405461	+	cel_circ_0000378	120	120	spe9	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	R07E5.3	snfc-5	Memczak2013
+chrV	13647036	13647149	-	cel_circ_0000630	113	113	fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	H37A05.4	H37A05.4	Memczak2013
+chrV	958606	959018	-	cel_circ_0000593	412	412	1cell, fem1, spe9, sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y50D4C.4	sqv-6	Memczak2013
+chrV	16527379	16529099	+	cel_circ_0000647	1720	1110	sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	F36D3.8	F36D3.8	Memczak2013
+chrI	5426844	5426964	-	cel_circ_0000061	120	120	sperm, sperm_act	None	ALT_ACCEPTOR, ALT_DONOR, coding, INTERNAL, intronic	F27C1.6.2	F27C1.6	Memczak2013
+chrI	7080147	7080261	+	cel_circ_0000081	114	114	1cell, 2cell, fem1	None	ANTISENSE, coding, INTERNAL, UTR3	F22D6.2.1	F22D6.2	Memczak2013
+chrII	6958890	6959360	-	cel_circ_0000235	470	380	spe9, sperm	None	ANNOTATED, CDS, coding, INTERNAL	C15F1.3a.3	C15F1.3a.3	Memczak2013
+chrV	20420688	20423256	+	cel_circ_0000696	2568	651	fem1, sperm_act	None	ANNOTATED, CDS, coding, UTR5	F48F5.5	fce-2	Memczak2013
+chrV	18889736	18892637	-	cel_circ_0000670	2901	474	fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y80D3A.2	emb-4	Memczak2013
+chrII	3406627	3409575	+	cel_circ_0000211	2948	2948	sperm, sperm_act	None	ALT_DONOR, CDS, coding, downstream_end	F18A12.4	F18A12.4	Memczak2013
+chrI	112125	112206	-	cel_circ_0000003	81	81	sperm, sperm_act	None	ANTISENSE, CDS, coding, INTERNAL	F53G12.10.3	rpl-7	Memczak2013
+chrIII	3535891	3536322	-	cel_circ_0000368	431	381	fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	C54C6.6	C54C6.6	Memczak2013
+chrIV	2493291	2493375	+	cel_circ_0000500	84	84	sperm_act	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	Y69A2AR.19	Y69A2AR.19	Memczak2013
+chrI	13861460	13861850	+	cel_circ_0000154	390	325	2cell, spe9	None	ALT_ACCEPTOR, CDS, coding, upstream_start	W04A8.7	taf-1	Memczak2013
+chrV	18609271	18610340	+	cel_circ_0000662	1069	576	spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y51A2D.15	Y51A2D.15	Memczak2013
+chrV	13162295	13167705	+	cel_circ_0000628	2154	529	fem1, sperm	None	ANNOTATED, CDS, coding, INTERNAL	T09E8.1a	T09E8.1	Memczak2013
+chrI	13430784	13432302	+	cel_circ_0000141	1518	832	spe9, sperm	None	ANNOTATED, CDS, coding, INTERNAL	Y40B1B.8	Y40B1B.8	Memczak2013
+chrI	6377544	6378706	+	cel_circ_0000075	1162	443	1cell	None	ANNOTATED, CDS, coding, INTERNAL	ZC308.1c	gld-2	Memczak2013
+chrV	15073547	15077068	+	cel_circ_0000638	1315	307	fem1	None	ANNOTATED, CDS, coding, INTERNAL	C01G10.11b	unc-76	Memczak2013
+chrIV	9772652	9772786	+	cel_circ_0000549	134	134	spe9	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL, intronic	T13F2.8	cav-1	Memczak2013
+chrI	4934259	4935424	+	cel_circ_0000057	1165	418	2cell	None	ALT_ACCEPTOR, CDS, coding, INTERNAL	F28B3.4	F28B3.4	Memczak2013
+chrV	7806060	7807061	+	cel_circ_0000614	1001	1001	spe9	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	ZK742.1a.1	xpo-1	Memczak2013
+chrI	9548218	9548654	+	cel_circ_0000097	436	255	1cell, fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL, UTR5	C36F7.2	C36F7.2	Memczak2013
+chrV	3816617	3820179	-	cel_circ_0000599	3562	708	sperm, sperm_act	None	ALT_ACCEPTOR, CDS, coding, INTERNAL	H10D18.5	H10D18.5	Memczak2013
+chrI	11326684	11328865	+	cel_circ_0000111	2181	673	spe9, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	H25P06.2b	cdk-9	Memczak2013
+chrII	8810309	8810444	-	cel_circ_0000242	135	135	2cell, fem1, sperm_act	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	F46C5.9	F46C5.9	Memczak2013
+chrIII	1927665	1929462	+	cel_circ_0000334	273	273	1cell, 2cell, fem1, spe9, sperm, sperm_act	None	ANNOTATED, coding, UTR5	F53A3.6	F53A3.6	Memczak2013
+chrIV	10547226	10555719	+	cel_circ_0000553	11565	5220	2cell, sperm	None	ALT_DONOR, CDS, coding, downstream_end, UTR3	T07G12.6	zim-1	Memczak2013
+chrII	3623576	3630453	+	cel_circ_0000217	6877	6766	1cell, 2cell	None	ALT_DONOR, CDS, coding, downstream_end, UTR3	M151.7	M151.7	Memczak2013
+chrII	9059888	9059993	-	cel_circ_0000245	105	105	fem1, spe9	Low_complexity	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	T24B8.3a.1	T24B8.3	Memczak2013
+chrIII	7574380	7574478	+	cel_circ_0000402	98	98	sperm, sperm_act	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	R13A5.12	lpd-7	Memczak2013
+chrIII	9918820	9925993	-	cel_circ_0000420	7173	7069	sperm, sperm_act	None	ALT_DONOR, CDS, coding, downstream_end	K03H1.3	ttr-3	Memczak2013
+chrIV	4807788	4808139	+	cel_circ_0000524	351	351	2cell	None	ANTISENSE, CDS, coding, INTERNAL	H06H21.6.4	ubxn-6	Memczak2013
+chrIII	81423	83557	-	cel_circ_0000289	2134	951	1cell, 2cell, fem1, spe9, sperm, sperm_act	None	ALT_DONOR, CDS, coding, INTERNAL, intronic	F54C4.3	F54C4.3	Memczak2013
+chrIII	6931013	6940798	+	cel_circ_0000398	9785	9730	1cell, 2cell, fem1, spe9, sperm, sperm_act	None	ALT_DONOR, CDS, coding, downstream_end, UTR3	F57B9.6a.1	inf-1	Memczak2013
+chrIV	3870635	3871433	+	cel_circ_0000512	798	451	sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	F37C4.4b.1	F37C4.4	Memczak2013
+chrI	3153043	3154389	+	cel_circ_0000044	1346	386	spe9	None	ALT_DONOR, CDS, coding, INTERNAL	K09H9.1	K09H9.1	Memczak2013
+chrV	5593352	5593472	-	cel_circ_0000607	120	120	spe9, sperm	None	ANTISENSE, CDS, coding, INTERNAL	CD4.4	vps-37	Memczak2013
+chrIII	2140079	2140320	+	cel_circ_0000342	241	241	1cell, spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y48G9A.4	frl-1	Memczak2013
+chrV	244583	245850	-	cel_circ_0000587	1267	847	spe9	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, upstream_start	R02C2.2	kin-34	Memczak2013
+chrX	8749463	8749582	-	cel_circ_0000711	119	119	sperm, sperm_act	None	ALT_ACCEPTOR, CDS, coding, INTERNAL	M02D8.4b	M02D8.4	Memczak2013
+chrV	18867253	18868170	-	cel_circ_0000668	917	267	spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y80D3A.2	emb-4	Memczak2013
+chrIV	2390818	2393356	+	cel_circ_0000495	429	429	2cell, spe9, sperm, sperm_act	None	ANNOTATED, CDS, coding	Y38F2AR.1	eri-5	Memczak2013
+chrIV	14517808	14517886	-	cel_circ_0000577	78	78	sperm_act	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	Y57G11A.2	Y57G11A.2	Memczak2013
+chrII	1746735	1747270	-	cel_circ_0000193	535	535	fem1	None	INTERGENIC	None	None	Memczak2013
+chrIII	4871278	4871392	+	cel_circ_0000383	114	114	sperm, sperm_act	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	C35D10.2	C35D10.2	Memczak2013
+chrI	13762120	13762448	+	cel_circ_0000147	328	328	1cell, spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y6B3B.4	Y6B3B.4	Memczak2013
+chrI	14585508	14587126	-	cel_circ_0000162	1618	269	fem1, spe9	None	ALT_DONOR, CDS, coding, INTERNAL	Y105E8A.29	Y105E8A.29	Memczak2013
+chrIII	3103632	3103945	-	cel_circ_0000358	313	259	1cell, fem1, spe9, sperm_act	None	ANNOTATED, CDS, coding, UTR5	Y53G8B.2	Y53G8B.2	Memczak2013
+chrV	18899135	18899595	-	cel_circ_0000671	460	334	spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y80D3A.4	nhr-243	Memczak2013
+chrV	18073160	18073613	-	cel_circ_0000654	453	453	fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y59A8B.10	Y59A8B.10	Memczak2013
+chrI	9010357	9010498	+	cel_circ_0000090	141	141	2cell	Low_complexity	ANTISENSE, CDS, coding, INTERNAL	F36F2.3a	tag-214	Memczak2013
+chrV	8414123	8414298	+	cel_circ_0000616	175	175	2cell, fem1	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	F52E1.1	pos-1	Memczak2013
+chrI	14712621	14713776	+	cel_circ_0000165	1155	765	spe9, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y54E5A.7	Y54E5A.7	Memczak2013
+chrV	15073547	15074862	+	cel_circ_0000637	3521	641	spe9, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	C01G10.11b	unc-76	Memczak2013
+chrIII	1954623	1957848	-	cel_circ_0000339	3225	591	fem1	None	ANNOTATED, CDS, coding, INTERNAL	R155.1a.2	mboa-6	Memczak2013
+chrIV	1913452	1914929	+	cel_circ_0000478	1477	912	spe9	None	ANNOTATED, CDS, coding, INTERNAL, UTR5	F55A8.1.1	egl-18	Memczak2013
+chrX	17214128	17216014	-	cel_circ_0000725	1886	1771	1cell, sperm_act	None	ALT_ACCEPTOR, CDS, coding, upstream_start, UTR5	T08G2.3.1	acdh-10	Memczak2013
+chrI	1899028	1902899	+	cel_circ_0000034	3871	920	spe9, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y71G12A.2a	Y71G12A.2	Memczak2013
+chrI	11709295	11715812	-	cel_circ_0000120	6517	5008	sperm, sperm_act	None	ALT_ACCEPTOR, CDS, coding, upstream_start	F35E2.6	oac-19	Memczak2013
+chrV	18870869	18872930	-	cel_circ_0000669	2061	417	1cell, fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y80D3A.2	emb-4	Memczak2013
+chrII	3497398	3497718	-	cel_circ_0000215	320	272	1cell, 2cell, fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y49F6B.9b.2	Y49F6B.9b.2	Memczak2013
+chrII	11302134	11302497	+	cel_circ_0000257	363	313	1cell	None	ALT_DONOR, CDS, coding, INTERNAL, UTR3	T24F1.1.1	raga-1	Memczak2013
+chrI	8996169	8996304	-	cel_circ_0000088	135	135	sperm_act	None	ALT_ACCEPTOR, CDS, coding, INTERNAL	F32H2.7	F32H2.7	Memczak2013
+chrIII	418087	418737	-	cel_circ_0000298	650	253	fem1, spe9	None	ANNOTATED, CDS, coding, UTR5	Y55B1BM.1c	stim-1	Memczak2013
+chrIV	8003554	8004102	-	cel_circ_0000541	548	415	2cell, fem1, sperm	None	ALT_ACCEPTOR, CDS, coding, upstream_start	Y42H9B.2	rig-4	Memczak2013
+chrI	6944371	6945357	-	cel_circ_0000080	986	681	fem1	None	ANNOTATED, CDS, coding	T10B11.6	T10B11.6	Memczak2013
+chrI	12742402	12743667	+	cel_circ_0000129	1265	413	spe9, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	W02A11.4	uba-2	Memczak2013
+chrI	11366752	11368622	-	cel_circ_0000112	1870	791	2cell, fem1	None	ANNOTATED, CDS, coding, INTERNAL	F56G4.6	F56G4.6	Memczak2013
+chrII	14300827	14304044	-	cel_circ_0000276	7450	7327	fem1, sperm_act	None	ALT_ACCEPTOR, CDS, coding, upstream_start, UTR5	Y54G11A.5.1	ctl-2	Memczak2013
+chrI	11217884	11219243	-	cel_circ_0000109	1359	502	1cell, 2cell, fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y53H1A.1a	rsy-1	Memczak2013
+chrIV	3028441	3028939	-	cel_circ_0000505	498	377	fem1, sperm, sperm_act	None	ANNOTATED, CDS, coding, UTR5	Y54G2A.29	Y54G2A.29	Memczak2013
+chrIII	1675421	1675681	-	cel_circ_0000329	260	260	sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y22D7AR.6	Y22D7AR.6	Memczak2013
+chrIV	2029044	2030383	-	cel_circ_0000485	1339	646	1cell, 2cell, fem1, spe9, sperm	None	ANNOTATED, CDS, coding, INTERNAL	Y76B12C.7	cpsf-1	Memczak2013
+chrIII	11924875	11925487	+	cel_circ_0000443	612	408	2cell, spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y56A3A.13	nft-1	Memczak2013
+chrIV	12810054	12810285	+	cel_circ_0000564	231	231	1cell, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	F07C6.4a	F07C6.4	Memczak2013
+chrIV	677610	678469	+	cel_circ_0000464	859	533	2cell, fem1, spe9, sperm_act	None	ALT_ACCEPTOR, CDS, coding, upstream_start	K11H12.5	K11H12.5	Memczak2013
+chrIV	7027584	7027794	+	cel_circ_0000534	210	210	1cell	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	C06G3.5b.1	C06G3.5	Memczak2013
+chrII	232677	233541	-	cel_circ_0000171	864	864	fem1, spe9	None	ALT_ACCEPTOR, CDS, coding, upstream_start, UTR5	Y43H11AL.1.1	Y43H11AL.1	Memczak2013
+chrIII	187792	188130	-	cel_circ_0000291	338	285	2cell, sperm_act	None	ANNOTATED, CDS, coding, UTR5	F40G9.11	mxl-2	Memczak2013
+chrX	14712565	14712780	+	cel_circ_0000719	215	168	fem1	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	F33C8.1a	tag-53	Memczak2013
+chrV	5839604	5839785	-	cel_circ_0000608	181	181	fem1, spe9	None	ALT_ACCEPTOR, ALT_DONOR, coding, INTERNAL, UTR3	F26F12.3c.1	F26F12.3	Memczak2013
+chrIII	1190918	1193802	-	cel_circ_0000316	2884	985	2cell, spe9	None	ALT_DONOR, CDS, coding, intronic, UTR5	Y119D3B.14	Y119D3B.14	Memczak2013
+chrII	2145463	2150036	-	cel_circ_0000198	4573	4573	fem1, spe9	None	ALT_ACCEPTOR, CDS, coding, upstream_start	C40A11.6	C40A11.6	Memczak2013
+chrIII	9331416	9332502	+	cel_circ_0000416	1086	887	spe9	None	ALT_DONOR, CDS, coding, downstream_end, UTR3	C40H1.6	C40H1.6	Memczak2013
+chrIV	1187800	1191074	+	cel_circ_0000470	3274	499	1cell, 2cell, fem1, spe9, sperm, sperm_act	None	ALT_ACCEPTOR, CDS, coding, upstream_start	Y104H12D.1	mdt-20	Memczak2013
+chrII	14870599	14874820	+	cel_circ_0000281	407	261	1cell, 2cell, fem1, spe9, sperm	None	ANNOTATED, CDS, coding, INTERNAL	R05H10.3a	R05H10.3	Memczak2013
+chrII	682917	690247	+	cel_circ_0000182	7330	7274	1cell, sperm, sperm_act	None	ALT_DONOR, CDS, coding, downstream_end	T02H6.7	T02H6.7	Memczak2013
+chrIV	4162787	4164990	+	cel_circ_0000519	2203	1261	sperm, sperm_act	None	ALT_DONOR, CDS, coding, downstream_end, UTR3	K08D10.8	scrm-5	Memczak2013
+chrIII	13006554	13007102	+	cel_circ_0000457	548	548	sperm, sperm_act	None	ALT_DONOR, CDS, coding, INTERNAL, intronic	ZK1010.9	snf-7	Memczak2013
+chrV	4521745	4522577	-	cel_circ_0000602	832	403	spe9, sperm	None	ANNOTATED, CDS, coding, INTERNAL	T28F12.3	sos-1	Memczak2013
+chrIII	8798304	8799552	+	cel_circ_0000409	1248	656	spe9, sperm_act	None	ANNOTATED, CDS, coding, UTR5	F54F2.2a.3	zfp-1	Memczak2013
+chrIII	11041974	11042141	+	cel_circ_0000429	167	167	1cell	None	ANNOTATED, CDS, coding, INTERNAL	Y48A6B.10	Y48A6B.10	Memczak2013
+chrII	4819427	4820329	-	cel_circ_0000222	902	742	spe9	None	ANNOTATED, CDS, coding, INTERNAL	C33F10.7a	lact-5	Memczak2013
+chrIII	2161708	2168136	+	cel_circ_0000343	6428	6428	fem1, spe9	None	ALT_DONOR, CDS, coding, downstream_end	Y48G9A.3	gcn-1	Memczak2013
+chrII	1327842	1328833	+	cel_circ_0000189	991	374	spe9	None	ANNOTATED, CDS, coding, INTERNAL	F56D12.4a	jip-1	Memczak2013
+chrX	15550342	15550954	-	cel_circ_0000720	612	390	spe9	None	ANNOTATED, CDS, coding, INTERNAL	C02C6.3a	C02C6.3	Memczak2013
+chrIII	11113477	11118978	-	cel_circ_0000433	5501	4579	spe9, sperm, sperm_act	None	ALT_DONOR, CDS, coding, downstream_end	Y48A6C.3	sup-35	Memczak2013
+chrV	19900491	19902822	-	cel_circ_0000686	982	269	fem1, sperm	None	ANNOTATED, CDS, coding, INTERNAL	Y60A3A.13a	frs-3	Memczak2013
+chrI	12859485	12861180	+	cel_circ_0000131	1695	722	fem1, sperm_act	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, upstream_start	Y18D10A.10	clec-104	Memczak2013
+chrIII	9226490	9226626	+	cel_circ_0000415	136	136	1cell, 2cell, fem1, spe9	None	ANTISENSE, CDS, coding, INTERNAL	T23G5.1.2	rnr-1	Memczak2013
+chrV	18541569	18541777	+	cel_circ_0000660	208	208	2cell, spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y51A2D.7b	Y51A2D.7	Memczak2013
+chrV	10372582	10375050	+	cel_circ_0000621	2468	2223	sperm, sperm_act	None	ALT_DONOR, CDS, coding, downstream_end, UTR3	AC3.2	ugt-49	Memczak2013
+chrV	1188336	1193106	-	cel_circ_0000594	4770	688	1cell, 2cell, sperm	None	ALT_DONOR, CDS, coding, INTERNAL, intronic	Y50D4A.4	Y50D4A.4	Memczak2013
+chrV	18043535	18049845	+	cel_circ_0000651	14695	6914	fem1, spe9	None	ALT_DONOR, CDS, coding, downstream_end, UTR3, UTR5	Y59A8B.7	ebp-1	Memczak2013
+chrV	18542694	18543059	+	cel_circ_0000661	365	365	spe9, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y51A2D.7b	Y51A2D.7	Memczak2013
+chrIV	9742300	9747587	-	cel_circ_0000548	1848	1739	sperm, sperm_act	None	ALT_ACCEPTOR, CDS, coding, upstream_start, UTR5	C28D4.7	C28D4.7	Memczak2013
+chrI	972868	976555	-	cel_circ_0000015	3687	3638	1cell, 2cell, fem1, spe9, sperm_act	None	ALT_ACCEPTOR, CDS, coding, upstream_start, UTR5	F54A5.3d	shc-1	Memczak2013
+chrX	9496474	9498136	+	cel_circ_0000712	1662	373	sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	ZK899.8h	gap-2	Memczak2013
+chrIV	4149015	4153297	+	cel_circ_0000517	4282	3663	sperm_act	None	ALT_DONOR, CDS, coding, downstream_end, UTR3	R07C12.2	R07C12.2	Memczak2013
+chrIII	5803771	5803897	+	cel_circ_0000386	126	126	fem1	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	R12B2.4	him-10	Memczak2013
+chrIV	2403908	2404480	-	cel_circ_0000497	572	572	fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y38F2AR.12a	Y38F2AR.12	Memczak2013
+chrII	3418873	3418993	+	cel_circ_0000212	120	120	sperm, sperm_act	None	ALT_ACCEPTOR, CDS, coding, INTERNAL	F18A12.1	F18A12.1	Memczak2013
+chrIII	4292585	4292803	-	cel_circ_0000376	218	171	spe9	None	ANNOTATED, CDS, coding, INTERNAL	R10E4.5	nth-1	Memczak2013
+chrIII	10119762	10119986	-	cel_circ_0000423	224	172	1cell, 2cell	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	ZK1128.4	ZK1128.4	Memczak2013
+chrI	11326684	11327719	+	cel_circ_0000110	1035	449	spe9, sperm	None	ANNOTATED, CDS, coding, INTERNAL	H25P06.2b	cdk-9	Memczak2013
+chrI	13622090	13622586	-	cel_circ_0000146	496	496	fem1	None	ANNOTATED, CDS, coding, INTERNAL	Y6B3A.1a	agef-1	Memczak2013
+chrIV	15461245	15467693	-	cel_circ_0000578	6448	926	fem1, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y73F8A.25a	Y73F8A.25	Memczak2013
+chrI	4635987	4636380	-	cel_circ_0000056	393	127	fem1	None	ALT_DONOR, CDS, coding, UTR5	C44E4.6.3	C44E4.6.3	Memczak2013
+chrII	1374409	1374994	-	cel_circ_0000191	585	354	fem1, spe9	None	ALT_ACCEPTOR, CDS, coding, upstream_start	F54D12.6	rog-1	Memczak2013
+chrII	3623902	3630794	+	cel_circ_0000218	6892	6892	1cell, 2cell	None	ALT_DONOR, CDS, coding, downstream_end, UTR3	M151.7	M151.7	Memczak2013
+chrV	20672326	20673542	-	cel_circ_0000697	1216	1216	1cell, spe9	None	ANTISENSE, CDS, coding, INTERNAL, intronic	W01F3.3	mlt-11	Memczak2013
+chrIV	4997211	4997301	+	cel_circ_0000525	90	90	sperm, sperm_act	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	T28H11.5	ssq-2	Memczak2013
+chrIII	7969304	7969433	+	cel_circ_0000403	129	129	sperm, sperm_act	None	ALT_ACCEPTOR, CDS, coding, INTERNAL	F54H12.7	F54H12.7	Memczak2013
+chrI	13366648	13366874	-	cel_circ_0000140	226	226	2cell, fem1, sperm	None	INTERGENIC	None	None	Memczak2013
+chrI	2942824	2943204	+	cel_circ_0000043	380	330	2cell, spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y71F9AM.4b	cogc-3	Memczak2013
+chrIII	11896894	11898150	-	cel_circ_0000442	1256	309	spe9	None	ALT_DONOR, CDS, coding, UTR5	Y56A3A.11	Y56A3A.11	Memczak2013
+chrIV	1986266	1986736	+	cel_circ_0000481	470	470	fem1, spe9, sperm	None	ALT_ACCEPTOR, CDS, coding, upstream_start, UTR5	Y76B12C.6	Y76B12C.6	Memczak2013
+chrII	14300827	14308277	-	cel_circ_0000277	3217	3094	sperm_act	None	ALT_ACCEPTOR, CDS, coding, upstream_start, UTR5	Y54G11A.5.1	ctl-2	Memczak2013
+chrV	13162295	13164449	+	cel_circ_0000627	5410	617	fem1, spe9, sperm	None	ANNOTATED, CDS, coding, INTERNAL	T09E8.1a	T09E8.1	Memczak2013
+chrIII	305646	306686	+	cel_circ_0000296	1040	329	fem1, sperm	None	ANNOTATED, CDS, coding, INTERNAL	Y50D7A.1	Y50D7A.1	Memczak2013
+chrIII	6970776	6970906	-	cel_circ_0000399	130	130	sperm, sperm_act	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	F31E3.5.1	eft-3	Memczak2013
+chrI	13831725	13832141	-	cel_circ_0000153	416	369	fem1, sperm_act	None	ALT_ACCEPTOR, CDS, coding, upstream_start, UTR5	W09G3.1b	W09G3.1	Memczak2013
+chrII	3065835	3066537	-	cel_circ_0000208	702	278	spe9, sperm	None	ANNOTATED, CDS, coding, INTERNAL	Y25C1A.7a.1	Y25C1A.7	Memczak2013
+chrII	8996517	8996625	-	cel_circ_0000244	108	108	sperm, sperm_act	None	ANTISENSE, CDS, coding, INTERNAL	F44G4.2.3	F44G4.2.3	Memczak2013
+chrIII	1187295	1187741	-	cel_circ_0000315	446	319	1cell	None	ANNOTATED, CDS, coding, INTERNAL	Y119D3B.14	Y119D3B.14	Memczak2013
+chrV	13995081	14006057	-	cel_circ_0000631	10976	1710	spe9	None	ANNOTATED, CDS, coding, UTR5	F58E10.1b	F58E10.1	Memczak2013
+chrV	15987696	15996357	-	cel_circ_0000642	8661	8558	sperm, sperm_act	None	ALT_ACCEPTOR, CDS, coding, upstream_start	F36G9.15	F36G9.15	Memczak2013
+chrIV	3537723	3542166	+	cel_circ_0000510	4443	4148	1cell, sperm	None	ALT_DONOR, CDS, coding, downstream_end, UTR3	M57.1	M57.1	Memczak2013
+chrIV	17105670	17105790	-	cel_circ_0000585	120	120	spe9, sperm_act	Low_complexity	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	Y116A8C.32	sfa-1	Memczak2013
+chrIV	2390818	2391247	+	cel_circ_0000494	2538	961	sperm, sperm_act	None	ANNOTATED, CDS, coding	Y38F2AR.1	eri-5	Memczak2013
+chrV	20098594	20098821	+	cel_circ_0000690	227	227	1cell, fem1, spe9, sperm	None	ANNOTATED, CDS, coding, INTERNAL	Y113G7A.3	sec-23	Memczak2013
+chrIV	17098548	17099411	-	cel_circ_0000584	863	360	1cell, 2cell, fem1, spe9, sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y116A8C.28c	bca-2	Memczak2013
+chrI	1525845	1532398	+	cel_circ_0000028	6553	5582	spe9, sperm	None	ALT_DONOR, CDS, coding, downstream_end	Y92H12A.4	Y92H12A.4	Memczak2013
+chrIII	78272	82054	-	cel_circ_0000288	3782	782	spe9	None	ANNOTATED, CDS, coding, INTERNAL	F54C4.3	F54C4.3	Memczak2013
+chrV	7179172	7179336	-	cel_circ_0000613	164	164	1cell, 2cell	None	ANTISENSE, CDS, coding, upstream_start, UTR5	F09G2.4	cpsf-2	Memczak2013
+chrIII	430870	430981	+	cel_circ_0000299	111	111	fem1	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	Y55B1BR.3	Y55B1BR.3	Memczak2013
+chrIII	3088300	3088575	+	cel_circ_0000356	275	275	1cell, fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	H06I04.2	sft-1	Memczak2013
+chrIV	1289628	1294729	+	cel_circ_0000471	5101	3444	fem1	None	ALT_ACCEPTOR, CDS, coding, upstream_start	Y104H12BR.1	plst-1	Memczak2013
+chrII	14880935	14881279	+	cel_circ_0000282	344	344	fem1	None	ANNOTATED, CDS, coding, INTERNAL	R05H10.3b	R05H10.3	Memczak2013
+chrIII	802948	803434	+	cel_circ_0000307	486	443	2cell, spe9	None	ANNOTATED, CDS, coding, INTERNAL	B0412.3.1	B0412.3	Memczak2013
+chrV	15396079	15396237	-	cel_circ_0000639	158	158	spe9	None	ANTISENSE, CDS, coding, INTERNAL	T06E6.2b	cyb-3	Memczak2013
+chrIV	9853252	9853381	+	cel_circ_0000550	129	129	sperm, sperm_act	None	ALT_ACCEPTOR, CDS, coding, INTERNAL	K07F5.11	ssq-1	Memczak2013
+chrII	11118295	11119080	+	cel_circ_0000254	785	735	1cell, spe9	None	ANNOTATED, CDS, coding, INTERNAL	W10C6.1	mat-2	Memczak2013
+chrIII	13167892	13169035	-	cel_circ_0000458	1143	682	1cell, 2cell, fem1, spe9, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y39E4B.2	Y39E4B.2	Memczak2013
+chrIII	143136	144437	-	cel_circ_0000290	1301	1301	fem1, spe9	None	ALT_ACCEPTOR, CDS, coding, upstream_start	T17A3.4	fbxb-82	Memczak2013
+chrI	8764541	8764634	+	cel_circ_0000087	93	93	sperm, sperm_act	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	DY3.2.2	lmn-1	Memczak2013
+chrII	2515152	2521067	-	cel_circ_0000204	5915	5915	2cell, sperm_act	None	ALT_DONOR, CDS, coding, downstream_end	F40B1.1	bath-13	Memczak2013
+chrIII	438128	439393	+	cel_circ_0000300	1265	748	fem1, spe9, sperm	None	ANNOTATED, CDS, coding, INTERNAL	Y55B1BR.2	Y55B1BR.2	Memczak2013
+chrII	638219	638642	-	cel_circ_0000181	423	423	sperm_act	None	ALT_DONOR, CDS, coding, INTERNAL	K07E8.6	K07E8.6	Memczak2013
+chrI	3253863	3254448	+	cel_circ_0000046	585	320	1cell, 2cell, fem1, spe9, sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y54E10A.2	cogc-1	Memczak2013
+chrIII	3320946	3321234	-	cel_circ_0000365	288	288	spe9	None	ANNOTATED, CDS, coding	Y53G8AR.9	Y53G8AR.9	Memczak2013
+chrI	9757334	9757433	+	cel_circ_0000098	99	99	sperm	None	ALT_ACCEPTOR, ALT_DONOR, coding, INTERNAL, UTR3	F26E4.1	sur-6	Memczak2013
+chrIV	6896037	6899920	+	cel_circ_0000533	3883	3261	2cell, fem1	None	ALT_DONOR, CDS, coding, downstream_end, UTR3	T05A12.4a	T05A12.4	Memczak2013
+chrI	11086718	11088538	-	cel_circ_0000108	1820	532	spe9	None	ANNOTATED, CDS, coding, INTERNAL	W02B9.1a	hmr-1	Memczak2013
+chrII	172098	192739	+	cel_circ_0000170	20641	20123	spe9, sperm_act	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, downstream_end, upstream_start	T01D1.8	T01D1.8	Memczak2013
+chrI	1999954	2001195	-	cel_circ_0000035	1241	309	1cell, 2cell, fem1, spe9, sperm	None	ALT_ACCEPTOR, CDS, coding, upstream_start	Y51F10.9	Y51F10.9	Memczak2013
+chrIII	9080911	9081022	-	cel_circ_0000413	111	111	sperm, sperm_act	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	F02A9.2.1	far-1	Memczak2013
+chrI	10598849	10599303	-	cel_circ_0000102	454	454	spe9	None	ANTISENSE, CDS, coding, INTERNAL, intronic	T22A3.5	pash-1	Memczak2013
+chrV	4450959	4453250	+	cel_circ_0000601	2291	2291	spe9	None	ANTISENSE, CDS, coding, downstream_end, intronic, UTR3	H22D07.1	gnrr-5	Memczak2013
+chrII	4835303	4835450	+	cel_circ_0000223	147	147	sperm, sperm_act	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	C33F10.1	C33F10.1	Memczak2013
+chrIII	10329048	10329438	-	cel_circ_0000426	390	390	sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	T07C4.9b.1	nex-2	Memczak2013
+chrI	4605655	4607125	+	cel_circ_0000055	1470	791	1cell, fem1, spe9, sperm	None	ANNOTATED, CDS, coding, UTR5	C44E4.5	C44E4.5	Memczak2013
+chrIV	1417702	1418678	-	cel_circ_0000473	976	602	1cell, fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y77E11A.7b	Y77E11A.7	Memczak2013
+chrI	9058970	9059088	+	cel_circ_0000091	118	118	sperm	None	ALT_ACCEPTOR, CDS, coding, INTERNAL	W06D4.3	W06D4.3	Memczak2013
+chrI	12966012	12966147	+	cel_circ_0000135	135	135	2cell, sperm_act	None	ANTISENSE, CDS, coding, INTERNAL	C47B2.3.1	tba-2	Memczak2013
+chrI	909243	910399	+	cel_circ_0000012	1156	847	sperm, sperm_act	None	ALT_DONOR, CDS, coding, INTERNAL, intronic	Y95B8A.4	Y95B8A.4	Memczak2013
+chrIV	13023802	13024587	+	cel_circ_0000565	785	375	1cell, sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	F49E11.1c	mbk-2	Memczak2013
+chrX	3971579	3972413	-	cel_circ_0000703	834	583	spe9	None	ANNOTATED, CDS, coding, INTERNAL	C16B8.4	C16B8.4	Memczak2013
+chrII	2508092	2508504	+	cel_circ_0000202	412	310	1cell, fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	F59H5.1	F59H5.1	Memczak2013
+chrV	19099504	19100591	-	cel_circ_0000677	1087	557	spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y39B6A.16	Y39B6A.16	Memczak2013
+chrIV	3057649	3141790	+	cel_circ_0000506	84141	81296	2cell, fem1, spe9, sperm	None	ALT_DONOR, CDS, coding, downstream_end, UTR3	Y67D8C.3a	Y67D8C.3	Memczak2013
+chrII	310160	317861	-	cel_circ_0000175	7701	7473	fem1, sperm, sperm_act	None	ALT_ACCEPTOR, CDS, coding, upstream_start, UTR5	K01A2.8a	mps-2	Memczak2013
+chrIII	1458507	1463584	+	cel_circ_0000321	5077	637	fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y82E9BR.1	Y82E9BR.1	Memczak2013
+chrII	2235463	2235853	+	cel_circ_0000199	390	390	fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	F54A3.3	cct-3	Memczak2013
+chrIII	3103158	3103945	-	cel_circ_0000357	787	473	fem1, spe9	None	ANNOTATED, CDS, coding, UTR5	Y53G8B.2	Y53G8B.2	Memczak2013
+chrII	12229422	12229850	+	cel_circ_0000261	428	428	fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y57A10A.20	sinh-1	Memczak2013
+chrIII	11688006	11688217	+	cel_circ_0000438	211	211	1cell, spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y41C4A.4b	crh-1	Memczak2013
+chrIII	1082981	1084449	+	cel_circ_0000314	1468	335	fem1	None	ANNOTATED, CDS, coding, INTERNAL	F58B6.3a	par-2	Memczak2013
+chrIII	12937792	12937916	-	cel_circ_0000455	124	124	fem1	None	ANTISENSE, CDS, coding, INTERNAL	Y37D8A.22	Y37D8A.22	Memczak2013
+chrII	12925956	12926034	-	cel_circ_0000266	78	78	sperm, sperm_act	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	F58G1.3	F58G1.3	Memczak2013
+chrX	14687387	14687507	+	cel_circ_0000718	120	120	sperm, sperm_act	None	ALT_ACCEPTOR, CDS, coding, INTERNAL	F40E10.3.2	csq-1	Memczak2013
+chrII	5376753	5376879	+	cel_circ_0000226	126	126	2cell	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	F09E5.2	F09E5.2	Memczak2013
+chrIII	2178436	2178996	+	cel_circ_0000344	560	560	1cell, fem1, spe9	None	ALT_ACCEPTOR, CDS, coding, INTERNAL	Y48G9A.1	Y48G9A.1	Memczak2013
+chrI	6087532	6087646	-	cel_circ_0000069	114	114	sperm_act	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	ZK484.5	ZK484.5	Memczak2013
+chrI	5489757	5489864	+	cel_circ_0000062	107	107	sperm_act	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	C09D4.3	C09D4.3	Memczak2013
+chrI	952678	953094	-	cel_circ_0000014	416	355	1cell, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y34D9B.1a	mig-1	Memczak2013
+chrII	14521307	14522643	-	cel_circ_0000278	1336	1241	1cell, 2cell, sperm_act	None	ALT_ACCEPTOR, CDS, coding, upstream_start	F57C2.2	btb-19	Memczak2013
+chrIV	2351507	2351878	+	cel_circ_0000492	371	268	1cell, spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y38F2AR.6	Y38F2AR.6	Memczak2013
+chrI	14636272	14637484	-	cel_circ_0000164	1212	895	spe9, sperm	None	ANNOTATED, CDS, coding, INTERNAL	Y105E8B.2a	exoc-8	Memczak2013
+chrII	6080138	6090730	-	cel_circ_0000231	10592	10498	1cell, spe9, sperm	None	ALT_ACCEPTOR, CDS, coding, upstream_start, UTR5	H12I13.4	fbf-1	Memczak2013
+chrIV	851993	852438	-	cel_circ_0000467	445	445	2cell, fem1, spe9, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y55F3BR.8a	Y55F3BR.8	Memczak2013
+chrIII	1074167	1076543	-	cel_circ_0000313	2376	526	1cell, 2cell, fem1, sperm, sperm_act	None	ANNOTATED, CDS, coding	Y92C3B.2a.1	Y92C3B.2a.1	Memczak2013
+chrV	17947597	17948009	-	cel_circ_0000649	412	245	spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y59A8B.1a	dpy-21	Memczak2013
+chrIV	8001025	8004102	-	cel_circ_0000540	3077	1164	1cell, fem1	None	ALT_ACCEPTOR, CDS, coding, upstream_start	Y42H9B.2	rig-4	Memczak2013
+chrV	2006341	2012356	+	cel_circ_0000596	6015	5964	sperm, sperm_act	None	ALT_DONOR, CDS, coding, downstream_end	F59A7.9	F59A7.9	Memczak2013
+chrIV	9200183	9200284	+	cel_circ_0000543	101	101	1cell, spe9	None	ALT_ACCEPTOR, ALT_DONOR, coding, INTERNAL, UTR5	C46C2.1a	wnk-1	Memczak2013
+chrX	16332359	16335021	+	cel_circ_0000723	2662	1277	fem1, spe9	None	ALT_ACCEPTOR, CDS, coding, upstream_start	C11G6.1	taf-3	Memczak2013
+chrIII	3867942	3868038	+	cel_circ_0000372	96	96	sperm, sperm_act	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	F13B10.2c	rpl-3	Memczak2013
+chrIII	13509888	13510431	-	cel_circ_0000461	543	543	fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	T28A8.7.2	mlh-1	Memczak2013
+chrIII	1621415	1621508	+	cel_circ_0000327	93	93	sperm, sperm_act	None	ALT_DONOR, CDS, coding, INTERNAL	Y22D7AL.5a.2	hsp-60	Memczak2013
+chrIII	6624042	6624675	-	cel_circ_0000393	633	633	spe9	None	ANNOTATED, CDS, coding, INTERNAL	C13B9.3	C13B9.3	Memczak2013
+chrIII	4434261	4439411	-	cel_circ_0000379	5150	5150	1cell, 2cell, fem1, spe9, sperm, sperm_act	None	ALT_ACCEPTOR, CDS, coding, upstream_start	C28A5.1	C28A5.1	Memczak2013
+chrV	19100403	19100591	-	cel_circ_0000678	188	188	spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y39B6A.16	Y39B6A.16	Memczak2013
+chrIII	3442370	3443223	-	cel_circ_0000366	853	640	sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	K01A11.4.1	K01A11.4.1	Memczak2013
+chrIII	5236850	5237432	+	cel_circ_0000385	582	480	1cell, 2cell, fem1, spe9, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	C34E10.4a	wrs-2	Memczak2013
+chrI	3558937	3561586	-	cel_circ_0000047	2649	2046	1cell, 2cell, fem1, spe9, sperm, sperm_act	None	ALT_ACCEPTOR, CDS, coding, upstream_start, UTR5	Y47G6A.21.1	Y47G6A.21	Memczak2013
+chrIV	5947413	5947527	-	cel_circ_0000526	114	114	sperm_act	None	ALT_ACCEPTOR, CDS, coding, INTERNAL	K02B2.5.2	rps-25	Memczak2013
+chrV	8223250	8223372	-	cel_circ_0000615	122	122	1cell	None	ANTISENSE, coding, INTERNAL, UTR3	K07C11.2.1	air-1	Memczak2013
+chrI	3231634	3231754	+	cel_circ_0000045	120	120	2cell, sperm	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	Y54E10A.3	Y54E10A.3	Memczak2013
+chrII	7087271	7087765	+	cel_circ_0000238	494	494	fem1	None	INTERGENIC	None	None	Memczak2013
+chrII	6078750	6089346	-	cel_circ_0000230	10596	10314	1cell, 2cell, fem1, sperm, sperm_act	None	ALT_ACCEPTOR, CDS, coding, upstream_start, UTR5	H12I13.4	fbf-1	Memczak2013
+chrV	18160177	18162217	-	cel_circ_0000657	2040	1406	sperm, sperm_act	None	ALT_ACCEPTOR, CDS, coding, upstream_start	C14A6.13	C14A6.13	Memczak2013
+chrII	13398589	13426399	+	cel_circ_0000269	27810	25241	2cell	None	ALT_DONOR, CDS, coding, downstream_end, UTR3	Y48C3A.14	Y48C3A.14	Memczak2013
+chrII	11125884	11125968	+	cel_circ_0000255	84	84	sperm_act	None	ANTISENSE, CDS, coding, INTERNAL	F40F8.10.1	rps-9	Memczak2013
+chrIV	2556151	2571057	+	cel_circ_0000502	14906	14602	sperm, sperm_act	None	ALT_DONOR, CDS, coding, downstream_end	Y69A2AR.14	Y69A2AR.14	Memczak2013
+chrV	20095501	20096645	+	cel_circ_0000689	1144	834	fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y113G7A.3	sec-23	Memczak2013
+chrV	15867947	15869481	+	cel_circ_0000641	1534	1490	1cell, sperm_act	None	ALT_DONOR, CDS, coding, downstream_end	T06C12.4	fbxa-197	Memczak2013
+chrI	11593916	11594294	+	cel_circ_0000119	378	189	fem1, spe9, sperm	None	ANNOTATED, CDS, coding, INTERNAL	C17D12.2	unc-75	Memczak2013
+chrII	15216287	15216540	+	cel_circ_0000285	253	253	1cell, fem1	None	ALT_ACCEPTOR, ALT_DONOR, coding, INTERNAL, intronic	Y46E12BL.4	Y46E12BL.4	Memczak2013
+chrIII	11688012	11688217	+	cel_circ_0000439	205	205	1cell, fem1, spe9, sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y41C4A.4c	crh-1	Memczak2013
+chrIII	3076294	3076680	+	cel_circ_0000355	386	386	2cell, sperm	None	ANNOTATED, CDS, coding, INTERNAL	H06I04.3a	H06I04.3	Memczak2013
+chrI	2007323	2007568	-	cel_circ_0000036	245	245	1cell, 2cell	None	ANNOTATED, CDS, coding, INTERNAL	Y20F4.3	gap-3	Memczak2013
+chrII	3767586	3771584	-	cel_circ_0000219	3998	3880	fem1	None	ALT_ACCEPTOR, CDS, coding, upstream_start, UTR5	T24E12.9	T24E12.9	Memczak2013
+chrIV	9922907	9924011	-	cel_circ_0000551	1104	525	sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	F25H8.5a	dur-1	Memczak2013
+chrII	2923913	2924680	+	cel_circ_0000206	767	596	fem1, sperm, sperm_act	None	ANNOTATED, CDS, coding, UTR5	ZK355.2b	ZK355.2	Memczak2013
+chrI	1427228	1433718	-	cel_circ_0000023	6490	5995	fem1, spe9	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, downstream_end, UTR3, UTR5	Y92H12BR.4	Y92H12BR.4	Memczak2013
+chrI	6491055	6491420	+	cel_circ_0000077	365	365	spe9	None	ANTISENSE, CDS, coding, INTERNAL	C55B7.8	dbr-1	Memczak2013
+chrII	13745037	13748201	+	cel_circ_0000271	3164	1033	spe9	None	ANNOTATED, CDS, coding, INTERNAL	R06B9.6	mig-14	Memczak2013
+chrI	4141608	4141722	+	cel_circ_0000050	114	114	1cell, fem1	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	E01A2.1a	E01A2.1	Memczak2013
+chrV	18043535	18058230	+	cel_circ_0000652	4114	509	2cell, spe9	None	ANNOTATED, CDS, coding, UTR5	Y59A8B.7	ebp-1	Memczak2013
+chrIII	3113760	3114033	-	cel_circ_0000363	273	273	1cell, fem1, spe9, sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y53G8B.4b	nipa-1	Memczak2013
+chrI	9786054	9786222	-	cel_circ_0000099	168	168	1cell, fem1	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	F26E4.8.1	tba-1	Memczak2013
+chrIV	1572110	1575041	-	cel_circ_0000476	353	353	fem1, spe9, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y41D4B.19b	npp-8	Memczak2013
+chrV	19674807	19676198	+	cel_circ_0000682	1391	367	2cell, fem1	None	ALT_ACCEPTOR, CDS, coding, upstream_start, UTR5	Y43F8C.12	mrp-7	Memczak2013
+chrIII	1461818	1463584	+	cel_circ_0000322	1766	328	fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y82E9BR.1	Y82E9BR.1	Memczak2013
+chrIV	3736067	3739715	-	cel_circ_0000511	3648	1895	fem1, spe9, sperm, sperm_act	None	ALT_ACCEPTOR, CDS, coding, upstream_start, UTR5	Y37E11AR.3a	Y37E11AR.3	Memczak2013
+chrII	15222726	15223093	+	cel_circ_0000286	367	367	1cell, 2cell	None	ALT_ACCEPTOR, CDS, coding, INTERNAL, intronic	Y46E12BL.4	Y46E12BL.4	Memczak2013
+chrIII	12276661	12276769	-	cel_circ_0000446	108	108	fem1, spe9	None	ANTISENSE, coding, INTERNAL, intronic	Y75B8A.25	Y75B8A.25	Memczak2013
+chrI	3598621	3598976	-	cel_circ_0000048	355	308	1cell, 2cell, fem1, spe9, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y47G6A.29	Y47G6A.29	Memczak2013
+chrI	12494814	12495858	+	cel_circ_0000125	1044	450	spe9, sperm_act	None	ANNOTATED, CDS, coding, UTR5	T27F6.7	T27F6.7	Memczak2013
+chrV	15058101	15058574	-	cel_circ_0000636	473	473	2cell	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	C25D7.6	mcm-3	Memczak2013
+chrV	4576260	4576593	+	cel_circ_0000604	381	381	fem1, spe9, sperm	None	ALT_DONOR, CDS, coding, INTERNAL, intronic	Y61A9LA.3a	Y61A9LA.3	Memczak2013
+chrV	8486467	8486687	-	cel_circ_0000618	220	220	sperm, sperm_act	LTR	INTERGENIC	None	None	Memczak2013
+chrII	8424133	8424215	-	cel_circ_0000240	82	82	sperm_act	None	ALT_ACCEPTOR, ALT_DONOR, coding, INTERNAL, UTR3	F14E5.2b	F14E5.2	Memczak2013
+chrIII	1927665	1927938	+	cel_circ_0000333	1797	641	fem1, spe9	None	ANNOTATED, CDS, coding, UTR5	F53A3.6	F53A3.6	Memczak2013
+chrII	916206	931248	+	cel_circ_0000185	15042	14996	fem1, spe9	None	ALT_DONOR, CDS, coding, downstream_end, UTR3	R07C3.7	fbxc-29	Memczak2013
+chrIII	834296	835205	+	cel_circ_0000308	909	801	fem1, spe9, sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL, UTR5	K02F3.4.2	zip-2	Memczak2013
+chrV	20401148	20401325	-	cel_circ_0000694	177	177	spe9	None	ANNOTATED, CDS, coding, INTERNAL	F53H2.3	F53H2.3	Memczak2013
+chrII	9994197	9998651	+	cel_circ_0000252	4454	615	sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	ZK892.1a	lec-3	Memczak2013
+chrIII	4042342	4053226	-	cel_circ_0000374	10884	10834	1cell, sperm, sperm_act	None	ALT_DONOR, CDS, coding, downstream_end, UTR3	E03A3.2	rcq-5	Memczak2013
+chrIII	646750	648264	+	cel_circ_0000301	2787	845	fem1, spe9	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, upstream_start, UTR5	W06E11.7	W06E11.7	Memczak2013
+chrI	13784388	13784612	+	cel_circ_0000149	1681	719	sperm, sperm_act	None	ALT_DONOR, CDS, coding, INTERNAL	Y37H9A.3	Y37H9A.3	Memczak2013
+chrII	4957814	4958459	-	cel_circ_0000224	645	546	1cell, fem1	None	ANNOTATED, CDS, coding, INTERNAL	Y38A8.3	ulp-2	Memczak2013
+chrIV	6106151	6106491	+	cel_circ_0000527	340	289	1cell, spe9, sperm	None	ANNOTATED, CDS, coding, INTERNAL	K08B4.1a	lag-1	Memczak2013
+chrI	13516312	13518260	+	cel_circ_0000142	1948	594	spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y87G2A.1	Y87G2A.1	Memczak2013
+chrII	2509524	2509860	+	cel_circ_0000203	336	336	1cell, 2cell, fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	F59H5.1	F59H5.1	Memczak2013
+chrIII	10667571	10669222	+	cel_circ_0000427	1651	454	fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y39A1A.15c	cnt-2	Memczak2013
+chrIV	13787708	13787853	-	cel_circ_0000573	145	145	1cell	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	Y45F10D.9	sas-6	Memczak2013
+chrV	5942114	5942265	-	cel_circ_0000609	151	151	1cell	None	ANTISENSE, CDS, coding, INTERNAL	M03F8.3a	M03F8.3	Memczak2013
+chrI	5179622	5180199	+	cel_circ_0000060	577	478	fem1, spe9	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	F56A3.3a.1	npp-6	Memczak2013
+chrII	10993817	10996197	+	cel_circ_0000253	2380	782	fem1, spe9, sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	C09D8.1b	ptp-3	Memczak2013
+chrX	6089018	6089175	-	cel_circ_0000705	157	157	2cell, fem1	None	ALT_ACCEPTOR, ALT_DONOR, coding, INTERNAL, UTR3	C15H9.6.1	hsp-3	Memczak2013
+chrII	7021545	7022480	-	cel_circ_0000236	935	537	fem1, spe9	None	ALT_ACCEPTOR, CDS, coding, upstream_start	C52E12.4	C52E12.4	Memczak2013
+chrIII	1940647	1941742	-	cel_circ_0000336	1095	339	spe9, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	F53A3.1	F53A3.1	Memczak2013
+chrIII	3538329	3538432	+	cel_circ_0000369	103	103	sperm	None	ANTISENSE, CDS, coding, INTERNAL	C54C6.2	ben-1	Memczak2013
+chrII	9651408	9652447	-	cel_circ_0000248	1039	989	sperm, sperm_act	None	ALT_ACCEPTOR, CDS, coding, upstream_start	ZK1307.4	ZK1307.4	Memczak2013
+chrI	332611	332950	+	cel_circ_0000004	339	258	1cell, fem1, spe9	None	ALT_ACCEPTOR, CDS, coding, upstream_start	Y48G1A.3	Y48G1A.3	Memczak2013
+chrI	381044	381221	-	cel_circ_0000006	177	177	sperm, sperm_act	None	ALT_DONOR, CDS, coding, INTERNAL	R119.4	pqn-59	Memczak2013
+chrI	11897184	11902178	+	cel_circ_0000122	4994	4781	fem1, sperm	None	ALT_ACCEPTOR, CDS, coding, upstream_start	Y47H9C.10	fbxa-216	Memczak2013
+chrX	4328525	4328892	-	cel_circ_0000704	367	307	1cell, fem1	None	ALT_DONOR, CDS, coding, UTR5	C24A8.5	C24A8.5	Memczak2013
+chrIII	12986126	12986204	+	cel_circ_0000456	78	78	sperm, sperm_act	None	ANTISENSE, CDS, coding, INTERNAL	ZK1010.5	ZK1010.5	Memczak2013
+chrIV	10928365	10928509	-	cel_circ_0000555	144	144	2cell	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	ZK593.5	dnc-1	Memczak2013
+chrIV	8076433	8076534	+	cel_circ_0000542	101	101	1cell, 2cell	None	ALT_DONOR, CDS, coding, INTERNAL	C18F3.2a	sax-7	Memczak2013
+chrIII	11067035	11067503	+	cel_circ_0000430	468	468	fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y48A6B.11b	rsa-2	Memczak2013
+chrII	310160	316103	-	cel_circ_0000174	5943	5715	fem1, spe9, sperm, sperm_act	None	ALT_ACCEPTOR, CDS, coding, upstream_start, UTR5	K01A2.8a	mps-2	Memczak2013
+chrV	11981279	11981383	-	cel_circ_0000623	104	104	1cell	None	ALT_ACCEPTOR, CDS, coding, INTERNAL	C52E4.4.1	rpt-1	Memczak2013
+chrIII	12499440	12501213	+	cel_circ_0000448	1773	617	2cell, sperm	None	ANNOTATED, CDS, coding, UTR5	Y111B2A.4	Y111B2A.4	Memczak2013
+chrII	2119831	2120287	-	cel_circ_0000196	456	405	fem1, spe9	None	ALT_ACCEPTOR, CDS, coding, upstream_start	R52.8	math-36	Memczak2013
+chrII	8909032	8910995	-	cel_circ_0000243	1963	1963	sperm, sperm_act	None	ALT_DONOR, CDS, coding, downstream_end, UTR3	B0457.4	B0457.4	Memczak2013
+chrI	1225177	1225537	-	cel_circ_0000017	360	360	spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y48G8AL.13.4	Y48G8AL.13	Memczak2013
+chrI	13159630	13160015	-	cel_circ_0000138	385	344	2cell, fem1, sperm_act	None	ALT_DONOR, CDS, coding, INTERNAL	F22G12.6	F22G12.6	Memczak2013
+chrI	14409503	14409764	+	cel_circ_0000159	261	261	fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y105E8A.9	apg-1	Memczak2013
+chrV	308573	311536	-	cel_circ_0000588	2963	960	fem1, spe9	None	ANNOTATED, CDS, coding	F33E11.6b	F33E11.6	Memczak2013
+chrV	18176728	18177038	-	cel_circ_0000659	310	258	sperm	None	ALT_DONOR, CDS, coding, downstream_end	C31G12.4	C31G12.4	Memczak2013
+chrIII	11219107	11219552	+	cel_circ_0000436	445	401	sperm, sperm_act	None	ALT_ACCEPTOR, CDS, coding, upstream_start	Y47D3A.11	wht-8	Memczak2013
+chrIII	2199965	2202969	+	cel_circ_0000345	3004	610	1cell, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	C39B5.6	C39B5.6	Memczak2013
+chrII	12191200	12191501	-	cel_circ_0000260	301	301	spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y57A10A.15	polg-1	Memczak2013
+chrX	13422904	13428173	-	cel_circ_0000717	5269	5269	1cell, 2cell, fem1, spe9	None	ALT_ACCEPTOR, CDS, coding, upstream_start, UTR5	C29F7.4	fkh-3	Memczak2013
+chrI	1763589	1764897	+	cel_circ_0000031	1308	497	spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y71G12B.9a	lin-65	Memczak2013
+chrII	14785112	14785234	-	cel_circ_0000279	122	122	sperm	Simple_repeat	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, downstream_end	Y54E2A.9	Y54E2A.9	Memczak2013
+chrV	13282859	13283987	-	cel_circ_0000629	1128	436	2cell, fem1	None	ALT_ACCEPTOR, CDS, coding, upstream_start, UTR5	F32F2.1	uig-1	Memczak2013
+chrV	19027210	19027393	+	cel_circ_0000675	183	183	sperm_act	RC	ANNOTATED, CDS, coding, INTERNAL	Y39B6A.25	Y39B6A.25	Memczak2013
+chrIV	16488252	16488980	-	cel_circ_0000580	728	211	spe9	None	ANNOTATED, CDS, coding, UTR5	Y51H4A.3	rho-1	Memczak2013
+chrIV	2027469	2030383	-	cel_circ_0000484	2914	1023	spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y76B12C.7	cpsf-1	Memczak2013
+chrI	10476256	10476403	-	cel_circ_0000101	147	147	1cell, fem1	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	F37D6.2c.2	F37D6.2	Memczak2013
+chrII	13023559	13025746	-	cel_circ_0000267	2187	849	1cell, sperm	None	ANNOTATED, CDS, coding, UTR5	Y38F1A.10c	max-2	Memczak2013
+chrII	2246478	2246959	+	cel_circ_0000201	481	249	1cell, 2cell, fem1, spe9, sperm_act	None	ALT_DONOR, CDS, coding, INTERNAL	F54A3.2	F54A3.2	Memczak2013
+chrIII	237748	240836	+	cel_circ_0000294	3088	669	spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y50D7A.4.2	Y50D7A.4	Memczak2013
+chrIV	7544279	7544479	+	cel_circ_0000535	200	200	2cell	None	ANTISENSE, CDS, coding, INTERNAL	F49E8.3a.1	F49E8.3a.1	Memczak2013
+chrII	8027356	8027687	-	cel_circ_0000239	331	331	spe9	None	ALT_DONOR, CDS, coding, UTR5	C08B11.3	C08B11.3	Memczak2013
+chrIII	9081875	9081968	-	cel_circ_0000414	93	93	sperm, sperm_act	None	ANTISENSE, CDS, coding, INTERNAL	F02A9.3.1	far-2	Memczak2013
+chrI	2066705	2067240	+	cel_circ_0000037	535	271	1cell, spe9, sperm	None	ANNOTATED, CDS, coding, INTERNAL	Y37E3.5b	arl-13	Memczak2013
+chrI	11584259	11584672	-	cel_circ_0000118	413	313	sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	C17D12.6	spe-9	Memczak2013
+chrX	16519399	16521507	+	cel_circ_0000724	2108	1007	spe9	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL, intronic	T25D1.1	T25D1.1	Memczak2013
+chrIII	1623047	1624740	+	cel_circ_0000328	1693	696	fem1	None	ANNOTATED, CDS, coding, INTERNAL	Y22D7AL.5a.2	hsp-60	Memczak2013
+chrI	13819657	13820345	-	cel_circ_0000151	688	688	fem1, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	W09G3.6	W09G3.6	Memczak2013
+chrIII	13307381	13307546	+	cel_circ_0000460	165	165	spe9	None	ANNOTATED, CDS, coding, UTR5	Y43F4B.7	Y43F4B.7	Memczak2013
+chrIII	6094060	6095491	-	cel_circ_0000388	1431	291	sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	C05D10.4b	C05D10.4	Memczak2013
+chrII	13527820	13528259	-	cel_circ_0000270	439	381	1cell	None	ANNOTATED, CDS, coding, INTERNAL	Y48E1B.14a	Y48E1B.14	Memczak2013
+chrV	4571714	4572374	+	cel_circ_0000603	660	320	1cell, fem1, spe9, sperm	None	ANNOTATED, CDS, coding, INTERNAL	Y61A9LA.3b	Y61A9LA.3	Memczak2013
+chrIV	805116	805352	+	cel_circ_0000466	236	183	1cell, fem1	None	ANNOTATED, CDS, coding, INTERNAL	Y55F3BL.1	Y55F3BL.1	Memczak2013
+chrIII	10064638	10064753	+	cel_circ_0000421	115	115	1cell, 2cell	None	ALT_DONOR, CDS, coding, INTERNAL	T16G12.5	ekl-6	Memczak2013
+chrIII	376444	381297	-	cel_circ_0000297	4853	2621	fem1	None	ALT_DONOR, CDS, coding, downstream_end	K10F12.4a	gsto-3	Memczak2013
+chrI	14770739	14771307	+	cel_circ_0000167	568	568	1cell, spe9, sperm	None	ANTISENSE, CDS, coding, INTERNAL, intronic	F39B2.7	F39B2.7	Memczak2013
+chrI	9115796	9115909	+	cel_circ_0000092	113	113	fem1	None	INTERGENIC	None	None	Memczak2013
+chrIII	3963383	3963529	+	cel_circ_0000373	146	146	sperm	None	ANTISENSE, CDS, coding, INTERNAL	R10E9.2	R10E9.2	Memczak2013
+chrII	13158438	13184590	+	cel_circ_0000268	26152	25085	1cell, 2cell, fem1, spe9, sperm, sperm_act	None	ALT_DONOR, CDS, coding, downstream_end, UTR3	F32A11.1	F32A11.1	Memczak2013
+chrI	5591553	5593783	-	cel_circ_0000063	2230	862	2cell, spe9, sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	M01E11.7a	tag-163	Memczak2013
+chrI	13776975	13777291	+	cel_circ_0000148	316	270	1cell, 2cell, fem1, spe9, sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	Y37H9A.1b	Y37H9A.1	Memczak2013
+chrIV	1100344	1100686	+	cel_circ_0000469	342	342	1cell, spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y55F3AR.1.2	Y55F3AR.1	Memczak2013
+chrI	6430388	6430614	-	cel_circ_0000076	226	182	sperm_act	None	ALT_ACCEPTOR, CDS, coding, INTERNAL, intronic	F37E3.3	F37E3.3	Memczak2013
+chrII	709756	710204	+	cel_circ_0000183	448	248	1cell, 2cell	None	ANNOTATED, CDS, coding, INTERNAL	T02H6.1b	T02H6.1	Memczak2013
+chrX	8275108	8276195	+	cel_circ_0000710	1087	404	fem1, spe9	None	ANNOTATED, CDS, coding, UTR5	F13B9.5.2	ksr-1	Memczak2013
+chrII	7075227	7083855	+	cel_circ_0000237	8628	8628	1cell, 2cell, fem1, spe9, sperm, sperm_act	None	ALT_DONOR, CDS, coding, downstream_end, UTR3	T02G5.8.1	kat-1	Memczak2013
+chrIV	3061660	3144837	+	cel_circ_0000508	83177	83120	1cell, 2cell, fem1, spe9, sperm, sperm_act	None	ALT_DONOR, CDS, coding, downstream_end, UTR3	Y67D8C.3a	Y67D8C.3	Memczak2013
+chrV	244545	245850	-	cel_circ_0000586	1305	885	fem1, spe9	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, upstream_start	R02C2.2	kin-34	Memczak2013
+chrI	13831725	13832133	-	cel_circ_0000152	408	361	fem1, spe9, sperm_act	None	ANNOTATED, CDS, coding, UTR5	W09G3.1b	W09G3.1	Memczak2013
+chrII	15107052	15107582	+	cel_circ_0000284	530	530	fem1	None	ANNOTATED, CDS, coding, INTERNAL	Y53F4B.21	Y53F4B.21	Memczak2013
+chrI	7145450	7147575	-	cel_circ_0000082	2125	938	fem1, spe9	None	ALT_ACCEPTOR, CDS, coding, upstream_start	H37N21.1	H37N21.1	Memczak2013
+chrV	19585245	19585686	+	cel_circ_0000681	441	274	sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	B0399.1a	kcnl-1	Memczak2013
+chrII	730503	730732	+	cel_circ_0000184	229	229	fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y39F10B.1a	Y39F10B.1	Memczak2013
+chrV	20401148	20403740	-	cel_circ_0000695	2592	363	fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	F53H2.3	F53H2.3	Memczak2013
+chrIII	1449964	1455758	-	cel_circ_0000320	5794	1396	fem1, spe9	None	ALT_ACCEPTOR, CDS, coding, upstream_start, UTR5	Y82E9BR.17a	Y82E9BR.17	Memczak2013
+chrI	6154076	6155661	+	cel_circ_0000071	1585	309	spe9	None	ANNOTATED, CDS, coding, UTR5	T09B4.5a	T09B4.5	Memczak2013
+chrIV	16437742	16446115	+	cel_circ_0000579	8373	8373	1cell, sperm	None	ALT_DONOR, CDS, coding, downstream_end, UTR3	Y10G11A.2a	dlc-3	Memczak2013
+chrII	1373807	1374994	-	cel_circ_0000190	1187	478	spe9	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, upstream_start	F54D12.6	rog-1	Memczak2013
+chrIV	1933688	1938198	+	cel_circ_0000479	4510	1253	fem1, spe9	None	ALT_DONOR, CDS, coding, INTERNAL	F52C12.4	F52C12.4	Memczak2013
+chrI	11928707	11929499	-	cel_circ_0000123	792	743	1cell, 2cell, fem1, spe9, sperm_act	None	ALT_ACCEPTOR, CDS, coding, upstream_start	R06C1.3	wve-1	Memczak2013
+chrII	5208924	5209039	-	cel_circ_0000225	115	115	sperm_act	None	ANTISENSE, CDS, coding, INTERNAL	C34F11.3a.2	C34F11.3	Memczak2013
+chrI	12762126	12762806	-	cel_circ_0000130	680	301	sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	B0019.1	amx-2	Memczak2013
+chrV	16376472	16376562	-	cel_circ_0000644	90	90	sperm	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	F13A7.1	F13A7.1	Memczak2013
+chrIII	3538359	3538448	+	cel_circ_0000370	89	89	sperm, sperm_act	None	ANTISENSE, CDS, coding, INTERNAL	C54C6.2	ben-1	Memczak2013
+chrV	11536033	11536674	+	cel_circ_0000622	641	310	sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	F38B7.1a	ccch-1	Memczak2013
+chrX	6095041	6095364	+	cel_circ_0000706	323	244	1cell	None	ALT_DONOR, CDS, coding, INTERNAL	C15H9.5.1	C15H9.5	Memczak2013
+chrIII	12447984	12450417	-	cel_circ_0000447	2433	1737	fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y49E10.19	ani-1	Memczak2013
+chrI	379677	379800	+	cel_circ_0000005	123	123	fem1	None	ANTISENSE, CDS, coding, INTERNAL	R119.4	pqn-59	Memczak2013
+chrI	11574147	11575692	-	cel_circ_0000117	1545	261	1cell, 2cell, fem1, spe9, sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	F15D3.6	F15D3.6	Memczak2013
+chrI	8996233	8996356	+	cel_circ_0000089	123	123	sperm, sperm_act	None	ALT_ACCEPTOR, ALT_DONOR, coding, INTERNAL, intronic	F32H2.9	tba-6	Memczak2013
+chrI	417524	418100	-	cel_circ_0000007	576	378	spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y50C1A.2	Y50C1A.2	Memczak2013
+chrIV	13702585	13703124	-	cel_circ_0000572	539	539	sperm, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	T23G4.1.1	T23G4.1.1	Memczak2013
+chrV	6437225	6439434	+	cel_circ_0000610	2209	2157	1cell, 2cell, spe9, sperm, sperm_act	None	ALT_DONOR, CDS, coding, downstream_end, UTR3	T05H4.5.1	T05H4.5	Memczak2013
+chrI	2173754	2174985	+	cel_circ_0000038	1231	307	fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	W03F11.6a	afd-1	Memczak2013
+chrIV	13497733	13499282	-	cel_circ_0000567	1549	511	fem1, spe9	None	ANNOTATED, CDS, coding, INTERNAL	Y45F10A.6b	tbc-9	Memczak2013
+chrIII	2957002	2957444	+	cel_circ_0000354	442	340	fem1, sperm	None	ANNOTATED, CDS, coding, INTERNAL	H05C05.1a.2	H05C05.1	Memczak2013
+chrIII	646750	649537	+	cel_circ_0000302	1514	683	spe9, sperm_act	None	ALT_ACCEPTOR, CDS, coding, upstream_start, UTR5	W06E11.7	W06E11.7	Memczak2013
+chrI	6087532	6087641	-	cel_circ_0000068	109	109	sperm_act	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL	ZK484.5	ZK484.5	Memczak2013

@@ -16,7 +16,7 @@ finaldata <- NULL
 N_of_circRNAs_raw <- c()
 for (i in 1:length(samples)){
   sample <- samples[i]
-  path <- paste0(output_dir,"/samples/", sample , "/circRNA_detection/circExplorer2/", sample ,"_circularRNA_known.txt")
+  path <- paste0(sample ,"_circularRNA_known.txt")
   # skip if no circRNAs found
   if (file.size(path)==0) next
   file <- read.table(path, sep = "\t")

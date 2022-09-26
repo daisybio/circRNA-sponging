@@ -97,6 +97,9 @@ mRNA.tpm <- remove.duplicates(mRNA.tpm, "\\.")
 print("Converting transcripts to genes...")
 gtf <- rtracklayer::readGFF(argv$gtf)
 transcript2gene <- unique(gtf[!is.na(gtf$transcript_id),c("gene_id", "transcript_id")])
+# uniform gene and transcript ids
+transcript2gene$gene_id <- sapply(strsplit(transcript2gene$gene_id, "\\."), "[", 1)
+transcript2gene$transcript_id <- sapply(strsplit(transcript2gene$transcript_id, "\\."), "[", 1)
 rownames(transcript2gene) <- transcript2gene$transcript_id
 
 conv <- merge(mRNA.quant, transcript2gene, by.x = 0, by.y = 2)
@@ -163,9 +166,10 @@ circExplorer2.color <- "#009933"
 
 # plot both
 png("quant_effects.png", width = 1200, height = 800, units = "px")
-plot(sums$key, log10(sums$count.y), type = "b", col = psirc.color, xlab = "chromosome", ylab = "circRNA counts over all samples (log10)", xaxt="n")
+plot(sums$key, log10(sums$count.y), type = "b", col = psirc.color, xlab = "chromosome", ylab = "circRNA counts over all samples (log10)", xaxt="n", yaxt="n", cex.lab = 2)
+axis(2,cex.axis=2)
 axis(1, at = round(seq(1, nrow(sums), nrow(sums)/length(chromosomes)))+middle.chromosome.pos, labels = F)
-text(round(seq(1, nrow(sums), nrow(sums)/length(chromosomes))), par("usr")[3] - 0.2, labels = chromosomes, srt = 45, pos = 1, xpd = TRUE)
+text(round(seq(1, nrow(sums), nrow(sums)/length(chromosomes))), par("usr")[3] - 0.2, labels = chromosomes, srt = 45, pos = 1, xpd = TRUE, cex = 2)
 lines(sums$key, log10(sums$count.x), type = "b", lty = 2, col = circExplorer2.color, pch = 18)
 legend("top", inset = c(-0.5, 0), legend = c("CircExplorer2", "psirc-quant"), col = c(circExplorer2.color, psirc.color), lty = c(1,1), cex=2)
 dev.off()

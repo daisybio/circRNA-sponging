@@ -26,6 +26,8 @@ if (!file.exists(index)) {
   }
   # read transcriptome
   transcriptome <- readDNAStringSet(argv$transcriptome)
+  # exclude other information TODO: determine splitter
+  names(transcriptome) <- sapply(strsplit(names(transcriptome), "\\."), "[", 1)
   # read circ fasta
   circ.fasta <- readDNAStringSet(argv$circ_fasta)
   # annotate circRNA fasta with C marker

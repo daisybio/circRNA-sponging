@@ -116,29 +116,31 @@ if (params.genomes && params.genome && !params.genomes.containsKey(params.genome
 }
 
 // fill params with iGenomes if not given by user
-STAR_index = params.STAR_index ?: params.genome ? params.genomes[ params.genome ].star ?: false : false
 species = params.species ?: params.genome ? params.genomes[ params.genome ].species ?: false : false
 fasta = params.fasta ?: params.genome ? params.genomes[ params.genome ].fasta ?: false : false
 gtf = params.gtf ?: params.genome ? params.genomes[ params.genome ].gtf ?: false : false
 bed12 = params.bed12 ?: params.genome ? params.genomes[ params.genome ].bed12 ?: false : false
 miRNA_fasta = params.miRNA_fasta ?: params.genome ? params.genomes[ params.genome ].mature ?: false : false
 
-// log parameter settings
-log.info "Parameters:\n\t--STAR_index:'${STAR_index}'\n\t--species:'${species}'\n\t--fasta:'${fasta}'\n\t--bed12:'${bed12}'\n\t--miRNA_fasta:'${miRNA_fasta}'\n"
-
 // include miRNA related and hairpin if miRNA_raw_counts not given and circRNA_only = false
 if(!params.miRNA_raw_counts && !params.circRNA_only) {
     miRNA_related_fasta = params.miRNA_related_fasta ?: params.genome ? params.genomes[ params.genome ].mature_rel ?: false : false
     hairpin_fasta = params.hairpin_fasta ?: params.genome ? params.genomes[ params.genome ].hairpin ?: false : false
-    ch_miRNA_related_fasta = Channel.value(file(miRNA_related_fasta))
+    
+    // This block solves the problem that both miRNA_related_fasta and miRNA_fasta have the sime file name: mature.fa
+    miRNA_related_fasta_original = file(miRNA_related_fasta)
+    miRNA_related_fasta_renamed = file("mature_related.fa")
+    miRNA_related_fasta_original.copyTo("mature_related.fa")
+    ch_miRNA_related_fasta = Channel.value(miRNA_related_fasta_renamed)
+
     ch_hairpin_fasta = Channel.value(file(hairpin_fasta))
     // log parameter settings
     log.info "\t--miRNA_related_fasta:'${miRNA_related_fasta}'\n\t--hairpin_fasta:'${hairpin_fasta}'\n"
 }
 
 // create channels for files
-Channel.value(file(fasta)).into { ch_fasta; ch_fasta_star }
-Channel.value(file(gtf)).into { ch_gtf; ch_gtf_psirc; ch_gtf_spongEffects }
+Channel.value(file(fasta)).into { ch_fasta; ch_fasta_star; ch_fasta_circ; ch_fasta_circ2 }
+Channel.value(file(gtf)).into { ch_gtf; ch_gtf_psirc; ch_gtf_spongEffects; ch_gtf_extract; ch_gtf_extract2 }
 ch_bed12 = Channel.value(file(bed12))
 Channel.value(file(miRNA_fasta)).into { mirna_fasta_miRanda; mirna_fasta_PITA; mirna_fasta_TarPmiR; mirna_fasta_miRDeep2; mirna_fasta_SPONGE }
 
@@ -176,7 +178,7 @@ process generate_star_index{
     output:
     file("star_index") into generated_star_index
                       
-    when: (params.STAR_index == null)
+    when: (params.STAR_index == 'generate')
 
     script:
     """
@@ -191,8 +193,11 @@ process generate_star_index{
     --genomeFastaFiles $fasta
     """
 }
+// handle STAR index options
+ch_star_index = params.STAR_index == 'generate' ? generated_star_index : params.STAR_index ? Channel.value(file(params.STAR_index)) : params.genome ? Channel.value(file(params.genomes[ params.genome ].star)) ?: false : false
 
-ch_star_index = STAR_index ? Channel.value(file(STAR_index)) : generated_star_index
+// log parameter settings
+log.info "Parameters:\n\t--STAR_index:'${ch_star_index}'\n\t--species:'${species}'\n\t--fasta:'${fasta}'\n\t--bed12:'${bed12}'\n\t--miRNA_fasta:'${miRNA_fasta}'\n"
 
 /*
 * PERFORM READ MAPPING OF totalRNA SAMPLES USING STAR
@@ -286,22 +291,26 @@ process extract_circRNA_sequences {
     
     input:
     file(circRNAs_raw) from ch_circRNA_counts_raw1
+    file(fasta) from ch_fasta_circ
+    file(gtf) from ch_gtf_extract
 
     output:
     file("circRNAs.fa") into circRNAs_raw_fasta
 
     script:
     """
-	Rscript "${projectDir}"/bin/extract_fasta.R $params.genome $circRNAs_raw
+	Rscript "${projectDir}"/bin/extract_fasta.R $fasta $gtf $circRNAs_raw
     """
 }
 
 /*
-* CREATE PSIRC INDEX IF NOT ALREADY PRESENT/ GIVEN
+* CREATE PSIRC INDEX IF NOT ALREADY PRESENT/GIVEN
 */
 psirc = params.psirc_exc ? params.psirc_exc : "psirc-quant"
 psirc_index_path = params.psirc_index ? params.psirc_index : params.outdir + "/results/psirc/psirc.index"
 if(!file(psirc_index_path).exists()) {
+    ch_transcriptome = Channel.value(file(params.transcriptome))
+
     process psirc_index {
         label 'process_medium'
         publishDir "${params.outdir}/results/psirc/", mode: params.publish_dir_mode
@@ -309,6 +318,7 @@ if(!file(psirc_index_path).exists()) {
         input:
         file(circ_fasta) from circRNAs_raw_fasta
         val(psirc_quant) from psirc
+        file(transcriptome) from ch_transcriptome
 
         output:
         file("psirc.index") into psirc_index
@@ -317,7 +327,7 @@ if(!file(psirc_index_path).exists()) {
         """
         Rscript "${projectDir}"/bin/build_psirc_index.R \
         --index "psirc.index" \
-        --transcriptome $params.transcriptome \
+        --transcriptome $transcriptome \
         --circ_fasta $circ_fasta \
         --psirc_quant $psirc_quant
         """
@@ -482,13 +492,15 @@ process circ_fastas{
 
     input:
     file(circRNAs_filtered) from ch_circRNA_counts_filtered1
+    file(fasta) from ch_fasta_circ2
+    file(gtf) from ch_gtf_extract2
 
     output:
     file("circRNAs.fa") into (circRNAs_fasta1, circRNAs_fasta2, circRNAs_fasta3)
 
     script:
     """
-	Rscript "${projectDir}"/bin/extract_fasta.R $params.genome $circRNAs_filtered
+	Rscript "${projectDir}"/bin/extract_fasta.R $fasta $gtf $circRNAs_filtered
     """
 }
 
@@ -541,7 +553,7 @@ miranda_output = miranda_path + "/bind_sites_raw.out"
 if (!file(miranda_output).exists()) {
     miranda_tmp = miranda_path + "/tmp"
     process miRanda {
-        label 'process_medium'
+        label 'process_long'
         publishDir miranda_tmp, mode: params.publish_dir_mode
         
         input:
@@ -613,7 +625,7 @@ if (params.tarpmir) {
     tarpmir_out = tarpmir_path + "/TarPmiR_bp.tsv"
     if (!file(tarpmir_out).exists()) {
         process TarPmiR {
-            label 'process_medium'
+            label 'process_long'
             publishDir tarpmir_tmp, mode: params.publish_dir_mode
 
             input:
@@ -653,7 +665,7 @@ if (params.tarpmir) {
 if (params.pita) {
     pita_tmp = "${params.outdir}/results/binding_sites/output/PITA/tmp"
     pita_out = "${params.outdir}/results/binding_sites/output/PITA/circRNA_pita_results.tsv"
-    pita_options = "-l " + params.pita_l + " -gu " + params.pita_gu + " -m " + params.pita_m
+    pita_options = "-l '" + params.pita_l + "' -gu '" + params.pita_gu + "' -m '" + params.pita_m + "'"
     if(!file(pita_out).exists()){
         process PITA {
             label 'process_long'
@@ -748,6 +760,7 @@ if (!params.circRNA_only) {
             tuple val(sampleID), file(read_file) from ch_smallRNA_reads
             val(index) from ch_bowtie_index
             val(adapter) from miRNA_adapter
+            file("*") from ch_generated_bowtie_index_files //TODO: Does probably not work if external bowtie index is provided
 
             output: 
             tuple val(sampleID), file("reads_collapsed.fa"), file("reads_vs_ref.arf") into ch_miRNA_mapping_output
@@ -779,6 +792,12 @@ if (!params.circRNA_only) {
 
             script:
             """
+            for fasta_file in *.fa; do
+                processed_file="processed_\$fasta_file"
+                cut -d ' ' -f1 \$fasta_file > \$processed_file
+                mv -f \$processed_file \$fasta_file
+            done
+
             miRDeep2.pl $reads_collapsed_fa $fasta $reads_vs_ref_arf $miRNA_fasta $miRNA_related_fasta $hairpin_fasta -t $species -d -v 
             """
         }

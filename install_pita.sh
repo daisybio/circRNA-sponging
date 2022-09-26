@@ -1,5 +1,5 @@
-#!/usr/bin/bash
-mkdir ./ext/PITA
+#!/bin/bash
+mkdir -p ./ext/PITA
 cd ./ext/PITA
 
 wget --no-check-certificate "https://genie.weizmann.ac.il/pubs/mir07/64bit_exe_pita_prediction.tar.gz"

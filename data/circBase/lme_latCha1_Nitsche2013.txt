@@ -1,4 +1,4 @@
-# chrom	start	end	strand	circRNA ID	genomic length	spliced seq length	samples	repeats	annotation	best transcript	gene symbol	circRNA study
+chrom	start	end	strand	circRNA ID	genomic length	spliced seq length	samples	repeats	annotation	best transcript	gene symbol	circRNA study
 JH128228	396513	399150	+	lme_circ_0000524	2637	177	liver, testis	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL, OVCODE, OVEXON	ENSLACT00000010065	GNPTG	Nitsche2013
 JH128981	213809	216698	+	lme_circ_0000109	2889	124	liver	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL, OVCODE, OVEXON	ENSLACT00000007069	FGG	Nitsche2013
 JH126734	2032749	2032911	*	lme_circ_0000590	162	162	testis	None	INTERGENIC	None	None	Nitsche2013

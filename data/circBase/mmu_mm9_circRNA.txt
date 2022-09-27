@@ -1,4 +1,4 @@
-# chrom	start	end	strand	circRNA ID	genomic length	spliced seq length	samples	repeats	annotation	best transcript	gene symbol	circRNA study
+chrom	start	end	strand	circRNA ID	genomic length	spliced seq length	samples	repeats	annotation	best transcript	gene symbol	circRNA study
 chr14	99472960	99473012	+	mmu_circ_0000562	52	52	mm_ES	None	ALT_ACCEPTOR, ALT_DONOR, coding, INTERNAL, UTR3	NM_175265	6720463M24Rik	Memczak2013
 chr17	91100083	91103707	-	mmu_circ_0000835	3624	3624	mm_head, mm_brain1	None	INTERGENIC	None	None	Memczak2013
 chr17	39981106	39981238	-	mmu_circ_0000759	132	132	mm_ES	None	INTERGENIC	None	None	Memczak2013

@@ -1,4 +1,4 @@
-# chrom	start	end	strand	circRNA ID	genomic length	spliced seq length	samples	repeats	annotation	best transcript	gene symbol	circRNA study
+chrom	start	end	strand	circRNA ID	genomic length	spliced seq length	samples	repeats	annotation	best transcript	gene symbol	circRNA study
 JH126644	1037919	1038114	*	lcm_circ_0000352	195	195	muscle	None	INTERGENIC	None	None	Nitsche2013
 JH126579	3982086	3986347	*	lcm_circ_0000561	4261	4261	muscle	None	INTERGENIC	None	None	Nitsche2013
 JH126562	10106564	10107420	+	lcm_circ_0000166	856	130	muscle	None	ALT_ACCEPTOR, ALT_DONOR, CDS, coding, INTERNAL, OVCODE, OVEXON	ENSLACT00000021937	akr7a3	Nitsche2013

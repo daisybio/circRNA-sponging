@@ -1,4 +1,4 @@
-# chrom	start	end	strand	circRNA ID	genomic length	spliced seq length	samples	repeats	annotation	best transcript	gene symbol	circRNA study
+chrom	start	end	strand	circRNA ID	genomic length	spliced seq length	samples	repeats	annotation	best transcript	gene symbol	circRNA study
 chrIII	1947632	1948044	-	cel_circ_0000338	412	412	1cell, 2cell, fem1, spe9, sperm_act	None	ANNOTATED, CDS, coding, INTERNAL	F53A3.2	polh-1	Memczak2013
 chrII	12675765	12676099	-	cel_circ_0000264	334	334	2cell, fem1, spe9, sperm_act	None	ANNOTATED, CDS, coding	Y38E10A.22	Y38E10A.22	Memczak2013
 chrIV	1610868	1611308	-	cel_circ_0000477	440	440	fem1	None	ANTISENSE, CDS, coding, INTERNAL, intronic	Y41D4B.10	dsl-3	Memczak2013

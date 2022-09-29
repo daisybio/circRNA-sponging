@@ -623,7 +623,7 @@ if (params.tarpmir) {
     tarpmir_tmp = tarpmir_path + "/tmp"
     // RUN TARPMIR ON CHUNKED MRNA FASTAS
     tarpmir_out = tarpmir_path + "/TarPmiR_bp.tsv"
-    if (!file(tarpmir_out).exists()) {
+    /*if (!file(tarpmir_out).exists()) {*/
         process TarPmiR {
             label 'process_long'
             publishDir tarpmir_tmp, mode: params.publish_dir_mode
@@ -652,9 +652,9 @@ if (params.tarpmir) {
         tarpmir_bp_file = bp_files.collectFile(name: tarpmir_out, newLine: true)
         // delete tmp files
         file(tarpmir_tmp).deleteDir()
-    } else {
+    /*} else {
         tarpmir_bp_file = Channel.fromPath(tarpmir_out)
-    }
+    }*/
 } else {
     tarpmir_bp_file = Channel.of( 'null' )
 }

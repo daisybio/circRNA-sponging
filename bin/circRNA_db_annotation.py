@@ -178,7 +178,7 @@ def read_db(db_loc):
                 d["header"] = split
                 c += 1
                 continue
-            d[key_gen(split[1], split[2], split[3], split[4])] = split      # key = position, value = all data
+            d[key_gen(split[0], split[1], split[2], split[3])] = split      # key = position, value = all data
             c += 1
     return d
 

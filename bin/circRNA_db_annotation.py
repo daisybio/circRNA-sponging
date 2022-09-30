@@ -214,7 +214,7 @@ def write_mapping_file(matched_dict, unannotated_dict, db_dict, output_loc, sepa
         # filter output and merge annotations
         for k, v in matched_dict.items():
             db_info = db_dict[k]
-            circBaseID = str(db_info[3])
+            circBaseID = str(db_info[db_info.index("circRNA ID")])
             # write annotated expression
             an_expr.write(separator.join(v[:7]) + separator + circBaseID + separator + separator.join(v[7:]) + "\n")
             data = v[:4]

@@ -48,33 +48,43 @@ splitter = args.splitter
 annotated_only = True if args.annotated_only == "true" else False
 
 # set pipeline home
-pipeline_home = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+pipeline_home = os.path.dirname(os.path.abspath(__file__))
+data_home = os.path.join(pipeline_home, "data", "circBase")
 
 
 class DbOrganism:
-    def __init__(self, name, version):
+    def __init__(self, name, version, data):
         self.name = name
         self.version = version
+        self.data = data
 
     # return db search format
     def get_db_name(self):
         return self.name + " (" + self.version + ")"
 
 
+class Database:
+    def __init__(self, name, test_url, search_url):
+        self.name = name
+        self.test_url = test_url
+        self.search_url = search_url
+
+
 db_genome_versions = {
-    "hsa": DbOrganism("Human", "hg19"),
-    "mmu": DbOrganism("Mouse", "mm9"),
-    "cel": DbOrganism("C.elegans", "ce6"),
-    "clc": DbOrganism("L.chalumnae", "latCha1")
+    "hsa": DbOrganism("Human", "hg19", os.path.join(data_home, "hsa_hg19_circRNA.txt")),
+    "mmu": DbOrganism("Mouse", "mm9", os.path.join(data_home, "mmu_mm9_circRNA.txt")),
+    "cel": DbOrganism("C.elegans", "ce6", os.path.join(data_home, "cel_ce6_Memczak2013.txt")),
+    "clc": DbOrganism("L.chalumnae", "latCha1", os.path.join(data_home, "lme_latCha1_Nitsche2013.txt"))
 }
 
 # species, original and converted genome
 organism = db_genome_versions[organism]
 converted_genome = organism.version
 original_genome = str(args.genome_version)
+offline_data = organism.data
 
 dbs = {
-    "circBase": "http://www.circbase.org/cgi-bin/listsearch.cgi",
+    "circBase": Database("circBase", "http://www.circbase.org/", "http://www.circbase.org/cgi-bin/listsearch.cgi")
 }
 
 
@@ -253,16 +263,23 @@ def read_html(response):
     return read_db_data_to_dict(header, data)
 
 
-def submit(tsv_data):
-    # get circBase url
-    url = dbs["circBase"]
+# check connection to circBase and if it responds to search queries
+def is_connected(url, options):
+    driver = webdriver.Firefox(options=options)
+    driver.get(url=url)
+    WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
+    textbox = driver.find_element(By.ID, "searchbox")   # enter dummy search
+    textbox.click()
+    textbox.send_keys("hsa_circ_0142668")
+    driver.find_element(By.ID, "submit").click()        # query search
+    response = bs(driver.page_source, "html.parser").find("title").text  # check response
+    driver.quit()
+    return "Error" not in response
 
-    # FireFox Options
-    FIREFOX_OPTS = Options()
-    FIREFOX_OPTS.log.level = "trace"    # Debug
-    FIREFOX_OPTS.headless = True
-    
-    driver = webdriver.Firefox(options=FIREFOX_OPTS)
+
+# single search thread
+def submit(tsv_data, url, options):
+    driver = webdriver.Firefox(options=options)
     driver.get(url=url)
     WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
     # select according organism
@@ -295,7 +312,7 @@ def submit(tsv_data):
 
 
 # make request using selenium
-def online_access(converted_circ_data, output_loc):
+def online_access(converted_circ_data, output_loc, url, options):
     # if more than 2500 entries are supplied, thread execute database search with splitter max splits
     tsv_data = tsvData(converted_circ_data)
     if len(tsv_data) > splitter:
@@ -315,7 +332,7 @@ def online_access(converted_circ_data, output_loc):
                     db_dict.update(r)   # add next entries
                 i += 1
     else:
-        db_dict = submit(tsv_data)
+        db_dict = submit(tsv_data, url, options)
     # extract only direct matches of genomic positions and no overlaps
     direct_matches = {x: converted_circ_data[x] for x in set(converted_circ_data.keys()).intersection(set(db_dict.keys()))}
     # extract all unannotated circRNAs
@@ -337,19 +354,33 @@ def main():
     no_header = args.no_header
 
     # CIRC RNA CONVERSION, TMP FILE
-    converted_data = convert_and_write(original_genome, converted_genome, d=circ_rna_loc,
-                                        s=separator, nh=no_header)
-
-    # DATABASE ACCESS
-    if not Path(db_data).is_file():
-        print("Attempting circBase online access")
+    converted_data = convert_and_write(original_genome, converted_genome,
+                                       d=circ_rna_loc, s=separator, nh=no_header)
+    db = dbs["circBase"]  # set db url
+    FIREFOX_OPTS = Options()  # set firefox options
+    FIREFOX_OPTS.log.level = "trace"  # Debug
+    FIREFOX_OPTS.headless = True
+    # CHECK DATABASE ACCESS
+    if not Path(db_data).is_file() and is_connected(db.test_url, FIREFOX_OPTS):
+        print("Attempting database online access")
         online_access(converted_circ_data=converted_data,
-                      output_loc=out_loc)
+                      output_loc=out_loc,
+                      url=db.search_url, options=FIREFOX_OPTS)
+    # OFFLINE ACCESS
     else:
-        print("Using circBase offline access")
+        # GIVEN PATH
+        if Path(db_data).is_file():
+            f = Path(db_data)
+            data = db_data
+        # DEFAULT PATH FROM GIT
+        else:
+            f = Path(offline_data)
+            data = offline_data
+
+        print("Attempting circBase offline access using " + str(f))
         offline_access(converted_circ_data=converted_data,
                        output_loc=out_loc,
-                       database_loc=db_data,
+                       database_loc=data,
                        separator=separator)
 
 

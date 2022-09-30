@@ -198,7 +198,7 @@ def write_mapping_file(matched_dict, unannotated_dict, db_dict, output_loc, sepa
     matched_dict.pop("header")
     # get db header
     db_header = db_dict["header"]
-    id_index = db_header.index("circBase ID")
+    id_index = db_header.index("circRNA ID")
     db_dict.pop("header")
 
     # extend header with converted position

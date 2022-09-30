@@ -198,6 +198,7 @@ def write_mapping_file(matched_dict, unannotated_dict, db_dict, output_loc, sepa
     matched_dict.pop("header")
     # get db header
     db_header = db_dict["header"]
+    id_index = db_header.index("circBase ID")
     db_dict.pop("header")
 
     # extend header with converted position
@@ -214,7 +215,7 @@ def write_mapping_file(matched_dict, unannotated_dict, db_dict, output_loc, sepa
         # filter output and merge annotations
         for k, v in matched_dict.items():
             db_info = db_dict[k]
-            circBaseID = str(db_info[db_info.index("circRNA ID")])
+            circBaseID = str(db_info[id_index])
             # write annotated expression
             an_expr.write(separator.join(v[:7]) + separator + circBaseID + separator + separator.join(v[7:]) + "\n")
             data = v[:4]
@@ -224,7 +225,7 @@ def write_mapping_file(matched_dict, unannotated_dict, db_dict, output_loc, sepa
             data.append(v[5])
             # add converted position
             data.append(k)
-            data.extend(db_info[3:])
+            data.extend(db_info[id_index:])
             output.write(separator.join(data) + "\n")
         # add unannotated circRNAs, um des Flexes Willen
         if not annotated_only:

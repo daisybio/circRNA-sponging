@@ -48,7 +48,7 @@ splitter = args.splitter
 annotated_only = True if args.annotated_only == "true" else False
 
 # set pipeline home
-pipeline_home = os.path.dirname(os.path.abspath(__file__))
+pipeline_home = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 data_home = os.path.join(pipeline_home, "data", "circBase")
 
 

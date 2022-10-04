@@ -734,7 +734,6 @@ if (!params.circRNA_only) {
             file(fasta) from ch_fasta
             
             output:
-            file("${fasta.baseName}*") into ch_generated_bowtie_index_files
             val("${fasta.baseName}") into ch_generated_bowtie_index
                             
             when: (params.bowtie_index == null)
@@ -760,7 +759,6 @@ if (!params.circRNA_only) {
             tuple val(sampleID), file(read_file) from ch_smallRNA_reads
             val(index) from ch_bowtie_index
             val(adapter) from miRNA_adapter
-            file("*") from ch_generated_bowtie_index_files //TODO: Does probably not work if external bowtie index is provided
 
             output: 
             tuple val(sampleID), file("reads_collapsed.fa"), file("reads_vs_ref.arf") into ch_miRNA_mapping_output

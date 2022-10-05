@@ -750,7 +750,9 @@ if (!params.circRNA_only) {
         /*
         * PERFORM miRNA READ MAPPING USING miRDeep2
         */
+
         miRNA_adapter = params.miRNA_adapter ? "-k " + params.miRNA_adapter : ""
+        log.info "using adapter: ${miRNA_adapter}"
         process miRDeep2_mapping {
             label 'process_high'
             publishDir "${params.outdir}/samples/${sampleID}/miRNA_detection/", mode: params.publish_dir_mode

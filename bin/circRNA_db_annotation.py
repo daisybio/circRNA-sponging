@@ -266,8 +266,8 @@ def read_html(response):
 
 # check connection to circBase and if it responds to search queries
 def is_connected(url, options):
-    driver = webdriver.Firefox(options=options)
     print("Testing url: " + str(url) + "...")
+    driver = webdriver.Firefox(options=options)
     driver.get(url=url)
     WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
     textbox = driver.find_element(By.ID, "searchbox")   # enter dummy search

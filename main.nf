@@ -135,7 +135,10 @@ if(!params.miRNA_raw_counts && !params.circRNA_only) {
 
     ch_hairpin_fasta = Channel.value(file(hairpin_fasta))
     // log parameter settings
-    log.info "\t--miRNA_related_fasta:'${miRNA_related_fasta}'\n\t--hairpin_fasta:'${hairpin_fasta}'\n"
+    log.info """
+        --miRNA_related_fasta:'${miRNA_related_fasta}'
+        --hairpin_fasta:'${hairpin_fasta}'
+    """.stripIndent()
     // get preset miRNA_adapter from config
     miRNA_adapter = params.miRNA_adapter
     // Sequencing presets override manual setting
@@ -150,8 +153,10 @@ if(!params.miRNA_raw_counts && !params.circRNA_only) {
     }
     // put adapter in miRDeep2 program call format
     miRNA_adapter_setting = miRNA_adapter ? "-k " + miRNA_adapter : ""
-    log.info "miRDeep2_mapping with following adapter sequence: ${miRNA_adapter}\n
-              \tmiRDeep2_mapping parameter: ${miRNA_adapter_setting}"
+    log.info """
+        -> miRDeep2_mapping with following adapter sequence: ${miRNA_adapter}
+            -> miRDeep2_mapping parameter: ${miRNA_adapter_setting}
+    """.stripIndent()
 }
 
 // create channels for files

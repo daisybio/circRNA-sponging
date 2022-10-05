@@ -726,21 +726,23 @@ if (!params.circRNA_only) {
         /*
         * GENERATE BOWTIE INDEX IN CASE IT IS NOT ALREADY PROVIDED
         */
+        bowtie_output = "${params.outdir}/bowtie_index"
         process generate_bowtie_index{
             label 'process_high'
-            publishDir "${params.outdir}/bowtie_index/", mode: params.publish_dir_mode
+            publishDir bowtie_output, mode: params.publish_dir_mode
 
             input:
             file(fasta) from ch_fasta
             
             output:
-            val("${fasta.baseName}") into ch_generated_bowtie_index
+            val("${bowtie_output}/${fasta.baseName}") into ch_generated_bowtie_index
+            file("${fasta.baseName}.*") into ch_generated_bowtie_index_files
                             
             when: (params.bowtie_index == null)
 
             script:
             """
-            echo "bowtie index is in ${fasta.baseName}"
+            echo "bowtie index will be generated and saved in ${bowtie_output}"
             bowtie-build $fasta ${fasta.baseName}
             """
         }

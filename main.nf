@@ -136,6 +136,22 @@ if(!params.miRNA_raw_counts && !params.circRNA_only) {
     ch_hairpin_fasta = Channel.value(file(hairpin_fasta))
     // log parameter settings
     log.info "\t--miRNA_related_fasta:'${miRNA_related_fasta}'\n\t--hairpin_fasta:'${hairpin_fasta}'\n"
+    // get preset miRNA_adapter from config
+    miRNA_adapter = params.miRNA_adapter
+    // Sequencing presets override manual setting
+    if (params.protocol == "illumina"){
+        miRNA_adapter = "TGGAATTCTCGGGTGCCAAGG"
+    } else if (params.protocol == "nextflex"){
+        miRNA_adapter = "TGGAATTCTCGGGTGCCAAGG"
+    } else if (params.protocol == "qiaseq"){
+        miRNA_adapter = "AACTGTAGGCACCATCAAT"
+    } else if (params.protocol == "cats"){
+        miRNA_adapter = "AAAAAAAA"
+    }
+    // put adapter in miRDeep2 program call format
+    miRNA_adapter_setting = miRNA_adapter ? "-k " + miRNA_adapter : ""
+    log.info "miRDeep2_mapping with following adapter sequence: ${miRNA_adapter}\n
+              \tmiRDeep2_mapping parameter: ${miRNA_adapter_setting}"
 }
 
 // create channels for files
@@ -143,17 +159,6 @@ Channel.value(file(fasta)).into { ch_fasta; ch_fasta_star; ch_fasta_circ; ch_fas
 Channel.value(file(gtf)).into { ch_gtf; ch_gtf_psirc; ch_gtf_spongEffects; ch_gtf_extract; ch_gtf_extract2 }
 ch_bed12 = Channel.value(file(bed12))
 Channel.value(file(miRNA_fasta)).into { mirna_fasta_miRanda; mirna_fasta_PITA; mirna_fasta_TarPmiR; mirna_fasta_miRDeep2; mirna_fasta_SPONGE }
-
-// Sequencing presets
-if (params.protocol == "illumina"){
-    params.miRNA_adapter = "TGGAATTCTCGGGTGCCAAGG"
-} else if (params.protocol == "nextflex"){
-    params.miRNA_adapter = "TGGAATTCTCGGGTGCCAAGG"
-} else if (params.protocol == "qiaseq"){
-    params.miRNA_adapter = "AACTGTAGGCACCATCAAT"
-} else if (params.protocol == "cats"){
-    params.miRNA_adapter = "AAAAAAAA"
-}
 
 /*
  * CREATE CHANNELS FOR INPUT READ FILES
@@ -750,9 +755,6 @@ if (!params.circRNA_only) {
         /*
         * PERFORM miRNA READ MAPPING USING miRDeep2
         */
-
-        miRNA_adapter = params.miRNA_adapter ? "-k " + params.miRNA_adapter : ""
-        log.info "using adapter: ${miRNA_adapter}"
         process miRDeep2_mapping {
             label 'process_high'
             publishDir "${params.outdir}/samples/${sampleID}/miRNA_detection/", mode: params.publish_dir_mode
@@ -760,7 +762,7 @@ if (!params.circRNA_only) {
             input:
             tuple val(sampleID), file(read_file) from ch_smallRNA_reads
             val(index) from ch_bowtie_index
-            val(adapter) from miRNA_adapter
+            val(adapter) from miRNA_adapter_setting
 
             output: 
             tuple val(sampleID), file("reads_collapsed.fa"), file("reads_vs_ref.arf") into ch_miRNA_mapping_output

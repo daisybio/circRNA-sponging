@@ -765,6 +765,7 @@ if (!params.circRNA_only) {
 
             script:
             """
+            echo "start mapping..."
             gunzip < $read_file > "${sampleID}.fastq"
             mapper.pl "${sampleID}.fastq" -e -h -i $adapter -l 18 -m -p $index -s "reads_collapsed.fa" -t "reads_vs_ref.arf" -v
             """

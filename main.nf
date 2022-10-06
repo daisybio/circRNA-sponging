@@ -824,6 +824,8 @@ if (!params.circRNA_only) {
             output:
             file("miRNA_counts_raw.tsv") into ch_miRNA_counts_raw
 
+            when: (!file("${params.outdir}/results/miRNA/miRNA_counts_raw.tsv").exists()
+
             script:
             """
             Rscript "${projectDir}"/bin/miRNA_summarize_results.R $params.samplesheet $params.outdir

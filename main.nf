@@ -761,7 +761,7 @@ if (!params.circRNA_only) {
         * PERFORM miRNA READ MAPPING USING miRDeep2
         */
         miRNA_counts_path = "${params.outdir}/results/miRNA/miRNA_counts_raw.tsv"
-        if (!file(miRNA_counts_path).exists() {
+        if (!file(miRNA_counts_path).exists()) {
             process miRDeep2_mapping {
                 label 'process_high'
                 publishDir "${params.outdir}/samples/${sampleID}/miRNA_detection/", mode: params.publish_dir_mode

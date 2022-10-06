@@ -760,76 +760,79 @@ if (!params.circRNA_only) {
         /*
         * PERFORM miRNA READ MAPPING USING miRDeep2
         */
-        process miRDeep2_mapping {
-            label 'process_high'
-            publishDir "${params.outdir}/samples/${sampleID}/miRNA_detection/", mode: params.publish_dir_mode
+        miRNA_counts_path = "${params.outdir}/results/miRNA/miRNA_counts_raw.tsv"
+        if (!file(miRNA_counts_path).exists() {
+            process miRDeep2_mapping {
+                label 'process_high'
+                publishDir "${params.outdir}/samples/${sampleID}/miRNA_detection/", mode: params.publish_dir_mode
 
-            input:
-            tuple val(sampleID), file(read_file) from ch_smallRNA_reads
-            val(index) from ch_bowtie_index
-            val(adapter) from miRNA_adapter_setting
+                input:
+                tuple val(sampleID), file(read_file) from ch_smallRNA_reads
+                val(index) from ch_bowtie_index
+                val(adapter) from miRNA_adapter_setting
 
-            output: 
-            tuple val(sampleID), file("reads_collapsed.fa"), file("reads_vs_ref.arf") into ch_miRNA_mapping_output
+                output:
+                tuple val(sampleID), file("reads_collapsed.fa"), file("reads_vs_ref.arf") into ch_miRNA_mapping_output
 
-            script:
-            """
-            echo "start mapping..."
-            gunzip < $read_file > "${sampleID}.fastq"
-            mapper.pl "${sampleID}.fastq" -e -h -i $adapter -l 18 -m -p $index -s "reads_collapsed.fa" -t "reads_vs_ref.arf" -v
-            """
-        }
+                script:
+                """
+                echo "start mapping..."
+                gunzip < $read_file > "${sampleID}.fastq"
+                mapper.pl "${sampleID}.fastq" -e -h -i $adapter -l 18 -m -p $index -s "reads_collapsed.fa" -t "reads_vs_ref.arf" -v
+                """
+            }
 
-        /*
-        * PERFORM miRNA QUANTIFICATION USING miRDeep2
-        */
-        process miRDeep2_quantification {
-            label 'process_high'
-            publishDir "${params.outdir}/samples/${sampleID}/miRNA_detection/", mode: params.publish_dir_mode
-    
-            input:
-            tuple val(sampleID), file(reads_collapsed_fa), file(reads_vs_ref_arf) from ch_miRNA_mapping_output
-            file(fasta) from ch_fasta
-            file(miRNA_fasta) from mirna_fasta_miRDeep2
-            file(miRNA_related_fasta) from ch_miRNA_related_fasta
-            file(hairpin_fasta) from ch_hairpin_fasta
-            val(species) from species
+            /*
+            * PERFORM miRNA QUANTIFICATION USING miRDeep2
+            */
+            process miRDeep2_quantification {
+                label 'process_high'
+                publishDir "${params.outdir}/samples/${sampleID}/miRNA_detection/", mode: params.publish_dir_mode
 
-            output:
-            file("miRNAs_expressed*") into ch_miRNA_expression_files
+                input:
+                tuple val(sampleID), file(reads_collapsed_fa), file(reads_vs_ref_arf) from ch_miRNA_mapping_output
+                file(fasta) from ch_fasta
+                file(miRNA_fasta) from mirna_fasta_miRDeep2
+                file(miRNA_related_fasta) from ch_miRNA_related_fasta
+                file(hairpin_fasta) from ch_hairpin_fasta
+                val(species) from species
 
-            script:
-            """
-            for fasta_file in *.fa; do
-                processed_file="processed_\$fasta_file"
-                cut -d ' ' -f1 \$fasta_file > \$processed_file
-                mv -f \$processed_file \$fasta_file
-            done
+                output:
+                file("miRNAs_expressed*") into ch_miRNA_expression_files
 
-            miRDeep2.pl $reads_collapsed_fa $fasta $reads_vs_ref_arf $miRNA_fasta $miRNA_related_fasta $hairpin_fasta -t $species -d -v 
-            """
-        }
+                script:
+                """
+                for fasta_file in *.fa; do
+                    processed_file="processed_\$fasta_file"
+                    cut -d ' ' -f1 \$fasta_file > \$processed_file
+                    mv -f \$processed_file \$fasta_file
+                done
 
-        /*
-        * MERGE RAW miRNA RESULTS INTO ONE TABLE SUMMARIZING ALL SAMPLES
-        */
-        process summarize_detected_miRNAs{
-            label 'process_medium'
+                miRDeep2.pl $reads_collapsed_fa $fasta $reads_vs_ref_arf $miRNA_fasta $miRNA_related_fasta $hairpin_fasta -t $species -d -v
+                """
+            }
 
-            publishDir "${params.outdir}/results/miRNA/", mode: params.publish_dir_mode
-        
-            input:
-            val(miRNAs_expressed) from ch_miRNA_expression_files.unique().collect()
+            /*
+            * MERGE RAW miRNA RESULTS INTO ONE TABLE SUMMARIZING ALL SAMPLES
+            */
+            process summarize_detected_miRNAs{
+                label 'process_medium'
 
-            output:
-            file("miRNA_counts_raw.tsv") into ch_miRNA_counts_raw
+                publishDir "${params.outdir}/results/miRNA/", mode: params.publish_dir_mode
 
-            when: (!file("${params.outdir}/results/miRNA/miRNA_counts_raw.tsv").exists()
+                input:
+                val(miRNAs_expressed) from ch_miRNA_expression_files.unique().collect()
 
-            script:
-            """
-            Rscript "${projectDir}"/bin/miRNA_summarize_results.R $params.samplesheet $params.outdir
-            """
+                output:
+                file("miRNA_counts_raw.tsv") into ch_miRNA_counts_raw
+
+                script:
+                """
+                Rscript "${projectDir}"/bin/miRNA_summarize_results.R $params.samplesheet $params.outdir
+                """
+            }
+        } else {
+            ch_miRNA_counts_raw = Channel.fromPath(miRNA_counts_path)
         }
     }
 

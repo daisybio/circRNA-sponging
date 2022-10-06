@@ -798,6 +798,8 @@ if (!params.circRNA_only) {
             output:
             file("miRNAs_expressed*") into ch_miRNA_expression_files
 
+            when: (!file("${params.outdir}/samples/${sampleID}/miRNA_detection/miRNAs_expressed*").exist())
+
             script:
             """
             for fasta_file in *.fa; do

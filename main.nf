@@ -208,7 +208,8 @@ ch_star_index = params.STAR_index == 'generate' ? generated_star_index : params.
 log.info "Parameters:\n\t--STAR_index:'${ch_star_index}'\n\t--species:'${species}'\n\t--fasta:'${fasta}'\n\t--bed12:'${bed12}'\n\t--miRNA_fasta:'${miRNA_fasta}'\n"
 
 // skip mapping if result is given
-if(!file("${params.outdir}/results/circRNA/circRNA_counts_raw.tsv").exists()) {
+mapping = "${params.outdir}/results/circRNA/circRNA_counts_raw.tsv"
+if(!file(mapping).exists()) {
     /*
     * PERFORM READ MAPPING OF totalRNA SAMPLES USING STAR
     */
@@ -291,6 +292,8 @@ if(!file("${params.outdir}/results/circRNA/circRNA_counts_raw.tsv").exists()) {
         Rscript "${projectDir}"/bin/circRNA_summarize_results.R $params.samplesheet $params.outdir
         """
     }
+} else {
+    Channel.fromPath(mapping).into{ch_circRNA_counts_raw1; ch_circRNA_counts_raw2}
 }
 
 /*

@@ -207,87 +207,90 @@ ch_star_index = params.STAR_index == 'generate' ? generated_star_index : params.
 // log parameter settings
 log.info "Parameters:\n\t--STAR_index:'${ch_star_index}'\n\t--species:'${species}'\n\t--fasta:'${fasta}'\n\t--bed12:'${bed12}'\n\t--miRNA_fasta:'${miRNA_fasta}'\n"
 
-/*
-* PERFORM READ MAPPING OF totalRNA SAMPLES USING STAR
-*/
-process STAR {
-    label 'process_high'
-    publishDir "${params.outdir}/samples/${sampleID}/circRNA_detection/", mode: params.publish_dir_mode
-    
-    input:
-    set val(sampleID), file(reads) from ch_totalRNA_reads1
-    file star_index from ch_star_index
+// skip mapping if result is given
+if(!file("${params.outdir}/results/circRNA/circRNA_counts_raw.tsv").exists()) {
+    /*
+    * PERFORM READ MAPPING OF totalRNA SAMPLES USING STAR
+    */
+    process STAR {
+        label 'process_high'
+        publishDir "${params.outdir}/samples/${sampleID}/circRNA_detection/", mode: params.publish_dir_mode
 
-    output:
-    tuple val(sampleID), file("Chimeric.out.junction") into chimeric_junction_files
+        input:
+        set val(sampleID), file(reads) from ch_totalRNA_reads1
+        file star_index from ch_star_index
 
-    script:
-    """
-    STAR --chimSegmentMin 10 --runThreadN 10 --genomeDir $star_index --readFilesCommand zcat --readFilesIn $reads
-    gzip Aligned.out.sam
-    """
-}
+        output:
+        tuple val(sampleID), file("Chimeric.out.junction") into chimeric_junction_files
 
-/*
-* PARSE STAR OUTPUT INTO CIRCExplorer2 FORMAT
-*/
-process circExplorer2_Parse {
-    label 'process_medium'
+        script:
+        """
+        STAR --chimSegmentMin 10 --runThreadN 10 --genomeDir $star_index --readFilesCommand zcat --readFilesIn $reads
+        gzip Aligned.out.sam
+        """
+    }
 
-    publishDir "${params.outdir}/samples/${sampleID}/circRNA_detection/circExplorer2", mode: params.publish_dir_mode
-    
-    input:
-    tuple val(sampleID), file(chimeric_junction) from chimeric_junction_files
+    /*
+    * PARSE STAR OUTPUT INTO CIRCExplorer2 FORMAT
+    */
+    process circExplorer2_Parse {
+        label 'process_medium'
 
-    output:
-    tuple val(sampleID), file("back_spliced_junction.bed") into backspliced_junction_bed_files
+        publishDir "${params.outdir}/samples/${sampleID}/circRNA_detection/circExplorer2", mode: params.publish_dir_mode
 
-    script:
-    """
-    CIRCexplorer2 parse -b "back_spliced_junction.bed" -t STAR $chimeric_junction        
-    """
-}
+        input:
+        tuple val(sampleID), file(chimeric_junction) from chimeric_junction_files
 
-/*
-* PERFORM circRNA QUANTIFICATION USING CIRCExplorer2
-*/
-process circExplorer2_Annotate {
-    label 'process_medium'
+        output:
+        tuple val(sampleID), file("back_spliced_junction.bed") into backspliced_junction_bed_files
 
-    publishDir "${params.outdir}/samples/${sampleID}/circRNA_detection/circExplorer2", mode: params.publish_dir_mode
-    
-    input:
-    tuple val(sampleID), file(backspliced_junction_bed) from backspliced_junction_bed_files
-    file(fasta) from ch_fasta
-    file(bed12) from ch_bed12
+        script:
+        """
+        CIRCexplorer2 parse -b "back_spliced_junction.bed" -t STAR $chimeric_junction
+        """
+    }
 
-    output:
-    file("${sampleID}_circularRNA_known.txt") into ch_circRNA_known_files
+    /*
+    * PERFORM circRNA QUANTIFICATION USING CIRCExplorer2
+    */
+    process circExplorer2_Annotate {
+        label 'process_medium'
 
-    script:
-    """
-    CIRCexplorer2 annotate -r $bed12 -g $fasta -b $backspliced_junction_bed -o "${sampleID}_circularRNA_known.txt"
-    """
-}
+        publishDir "${params.outdir}/samples/${sampleID}/circRNA_detection/circExplorer2", mode: params.publish_dir_mode
 
-/*
-* MERGE RAW circRNA RESULTS INTO ONE TABLE SUMMARIZING ALL SAMPLES
-*/
-process summarize_detected_circRNAs{
-    label 'process_medium'
+        input:
+        tuple val(sampleID), file(backspliced_junction_bed) from backspliced_junction_bed_files
+        file(fasta) from ch_fasta
+        file(bed12) from ch_bed12
 
-    publishDir "${params.outdir}/results/circRNA/", mode: params.publish_dir_mode
-    
-    input:
-    file(circRNA_file) from ch_circRNA_known_files.collect()
+        output:
+        file("${sampleID}_circularRNA_known.txt") into ch_circRNA_known_files
 
-    output:
-    file("circRNA_counts_raw.tsv") into (ch_circRNA_counts_raw1, ch_circRNA_counts_raw2)
+        script:
+        """
+        CIRCexplorer2 annotate -r $bed12 -g $fasta -b $backspliced_junction_bed -o "${sampleID}_circularRNA_known.txt"
+        """
+    }
 
-    script:
-    """
-    Rscript "${projectDir}"/bin/circRNA_summarize_results.R $params.samplesheet $params.outdir
-    """
+    /*
+    * MERGE RAW circRNA RESULTS INTO ONE TABLE SUMMARIZING ALL SAMPLES
+    */
+    process summarize_detected_circRNAs{
+        label 'process_medium'
+
+        publishDir "${params.outdir}/results/circRNA/", mode: params.publish_dir_mode
+
+        input:
+        file(circRNA_file) from ch_circRNA_known_files.collect()
+
+        output:
+        file("circRNA_counts_raw.tsv") into (ch_circRNA_counts_raw1, ch_circRNA_counts_raw2)
+
+        script:
+        """
+        Rscript "${projectDir}"/bin/circRNA_summarize_results.R $params.samplesheet $params.outdir
+        """
+    }
 }
 
 /*

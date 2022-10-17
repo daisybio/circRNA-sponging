@@ -293,6 +293,7 @@ if(!file(mapping).exists()) {
         """
     }
 } else {
+    // create channel from existing file
     Channel.fromPath(mapping).into{ch_circRNA_counts_raw1; ch_circRNA_counts_raw2}
 }
 

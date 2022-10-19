@@ -157,6 +157,12 @@ if(!params.miRNA_raw_counts && !params.circRNA_only) {
         -> miRDeep2_mapping with following adapter sequence: ${miRNA_adapter}
             -> miRDeep2_mapping parameter: ${miRNA_adapter_setting}
     """.stripIndent()
+
+    // sponging target symbols
+    target_scan_symbols = params.target_scan_symbols ?: params.genome ? params.genomes[ params.genome ].bindings ?: false : false
+    log.info """
+        -> using mRNA-miRNA interactions from: ${target_scan_symbols}
+    """.stripIndent()
 }
 
 // create channels for files
@@ -950,7 +956,7 @@ if (!params.circRNA_only) {
     */
     if (params.sponge) {
         // USE GIVEN TARGET SYMBOLS OR DEFAULT LOCATED IN DATA
-        target_scan_symbols = params.target_scan_symbols ? Channel.value(file(params.target_scan_symbols)) : Channel.value(file(projectDir + "/data/miRNA_target_symbols/hsa_mirWalk_lncbase_21_ENSG.tsv.gz"))
+        target_scan_symbols = params.target_scan_symbols ? Channel.value(file(params.target_scan_symbols)) : Channel.value(file())
         process SPONGE {
             label 'process_long'
             errorStrategy 'ignore'

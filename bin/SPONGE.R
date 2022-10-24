@@ -3,7 +3,7 @@
 if(!require(pacman)) install.packages("pacman", repos = "http://cran.us.r-project.org")
 pacman::p_load(SPONGE, argparser, data.table, dplyr, ggplot2, reshape2, stringr, VennDiagram, Biostrings, MetBrewer)
 
-args = commandArgs(trailingOnly = TRUE)
+args = commandArgs(trailingOnly = T)
 
 parser <- arg_parser("Argument parser for SPONGE analysis", name = "SPONGE_parser")
 parser <- add_argument(parser, "--gene_expr", help = "Gene expression file in tsv format as given by DeSeq2")
@@ -22,6 +22,7 @@ parser <- add_argument(parser, "--tarpmir_data", help = "default tarpmir output 
 parser <- add_argument(parser, "--pita_data", help = "Default PITA output", default = "null")
 parser <- add_argument(parser, "--majority_matcher", help = "Majority match setting, choose between (start, end, complete)", default = "end")
 parser <- add_argument(parser, "--tpm_map", help = "TPM map of circular and linear transcripts provided by pipeline")
+parser <- add_argument(parser, "--total_bindings", help = "Option to pass a compatible complete mRNA-miRNA binding site tsv file including circRNAs", default = NULL)
 # FLAGS
 parser <- add_argument(parser, "--normalize", help = "Normalize given gene expression before analysis", flag = T)
 parser <- add_argument(parser, "--tpm", help = "Use TPM instead of counts", flag = T)
@@ -140,7 +141,7 @@ majority_vote <- function(miranda, tarpmir, pita, match) {
   # build table
   splitter <- ifelse(match=="complete", 4, 3)
   majority.vote <- str_split_fixed(majority.vote, "\\|", splitter)
-  majority.vote <- as.data.frame.matrix(table(majority.vote[,2], majority.vote[,1]))
+  majority.vote <- data.frame(table(majority.vote[,2], majority.vote[,1]))
   # output VENN diagram
   library(RColorBrewer)
   myCol <- brewer.pal(3, "Pastel2")
@@ -175,10 +176,14 @@ majority_vote <- function(miranda, tarpmir, pita, match) {
 }
 
 # use pipeline outputs to create target scan symbols
-create_target_scan_symbols <- function(merged_data, majority, miranda, tarpmir, pita) {
+create_target_scan_symbols <- function(merged_data, majority, total_bindings, miranda, tarpmir, pita) {
+  if(!is.null(total_bindings)) {
+    print("using manually provided total RNA-miRNA bindings")
+    return(total_bindings)
+  }
   print("CREATING TARGET SCAN SYMBOLS")
   print("using given targets")
-  merged_data_targets <- data.frame(read.table(merged_data, header = T, sep = "\t"))
+  merged_data_targets <- read.table(merged_data, header = T, sep = "\t", check.names = F, stringsAsFactors = F)
   miranda_targets <- NULL
   tarpmir_targets <- NULL
   pita_targets <- NULL
@@ -188,48 +193,35 @@ create_target_scan_symbols <- function(merged_data, majority, miranda, tarpmir, 
     # process targets from miranda
     if (file.exists(miranda)) {
       print("processing miRanda targets")
-      miranda.bp <- data.frame(read.table(miranda, header = T, sep = "\t"))
-      miranda_targets <- as.data.frame.matrix(table(miranda.bp$Target, miranda.bp$miRNA))
+      miranda.bp <- read.table(miranda, header = T, sep = "\t", check.names = F, stringsAsFactors = F)
+      miranda_targets <- data.frame(table(miranda.bp$Target, miranda.bp$miRNA))
     }
     # process tarpmir data
     if (file.exists(tarpmir)) {
       print("processing TarPmiR data")
-      tarpmir_data <- read.table(tarpmir, header = F, sep = "\t")
-      tarpmir_targets <- as.data.frame.matrix(table(tarpmir_data$V2, tarpmir_data$V1))
+      tarpmir_data <- read.table(tarpmir, header = F, sep = "\t", check.names = F, stringsAsFactors = F)
+      tarpmir_targets <- data.frame(table(tarpmir_data$V2, tarpmir_data$V1))
     }
     # process PITA data
     if (file.exists(pita)) {
-      print("processsing PITA data")
-      pita_data <- read.table(pita, header = T, sep = "\t")
-      pita_targets <- as.data.frame.matrix(table(pita_data$UTR, pita_data$microRNA))
+      print("processing PITA data")
+      pita_data <- read.table(pita, header = T, sep = "\t", check.names = F, stringsAsFactors = F)
+      pita_targets <- data.frame(table(pita_data$UTR, pita_data$microRNA))
     }
   }
   
   # MERGE DATA
-  merged.targets <- NULL
   targets_data <- list(merged_data_targets, majority, miranda_targets, tarpmir_targets, pita_targets)
-  for (target in targets_data) {
-    # append data if present
-    if (!is.null(target)) {
-      colnames(target) <- gsub("\\.", "-", colnames(target))
-      # first data set
-      if (is.null(merged.targets)) {
-        merged.targets <- target
-      } else {
-        # merge by row names
-        merged.targets <- merge(merged.targets, target, by = 0, all = T)
-        # reformat rows
-        rownames(merged.targets) <- merged.targets$Row.names
-        # drop Row
-        merged.targets$Row.names <- NULL
-        # remove NAs
-        merged.targets[is.na(merged.targets)] <- 0
-        # combine tables
-        colnames(merged.targets) <- sapply(strsplit(colnames(merged.targets), "\\."), "[", 1)
-        merged.targets <- do.call(cbind,lapply(split(seq_len(ncol(merged.targets)),names(merged.targets)),function(x) rowSums(merged.targets[x])))
-      }
-    }
-  }
+  # remove null elements from list
+  targets_data[sapply(targets_data, is.null)] <- NULL
+  # bind targets
+  merged.targets <- bind_rows(targets_data)
+  # merge
+  merged.targets <- data.frame(dcast(merged.targets, Var1 ~ Var2), row.names = 1, check.names = F, stringsAsFactors = F)
+  # set NAs to 0
+  merged.targets[is.na(merged.targets)] <- 0
+  # convert back to matrix
+  merged.targets <- as.matrix(merged.targets)
   # return contingency table
   return(merged.targets)
 }
@@ -267,9 +259,12 @@ if (notset(argv$gene_expr) || notset(argv$mirna_expr)) {
   stop("One or more mandatory arguments are not given")
 }
 majority <- NULL
+total_bindings <- NULL
 n.targets <- length(sapply(list(argv$miranda, argv$tarpmir, argv$pita), notset))
 if (n.targets == 0) {
   stop("Supply at least one ")
+} else if (file.exists(argv$total_bindings)){
+  total_bindings <- read.table(argv$total_bindings, sep = "\t", stringsAsFactors = F, check.names = F)
 } else if (n.targets == 3) {
   majority <- majority_vote(argv$miranda, argv$tarpmir, argv$pita, argv$majority_matcher)
 }
@@ -277,6 +272,7 @@ if (n.targets == 0) {
 # SET TARGET SCAN SYMBOLS
 target_scan_symbols_counts <- create_target_scan_symbols(merged_data = argv$target_scan_symbols,
                                                          majority = majority,
+                                                         total_bindings = total_bindings,
                                                          miranda = argv$miranda,
                                                          tarpmir = argv$tarpmir,
                                                          pita = argv$pita)
@@ -329,8 +325,6 @@ gene_expr <- gene_expr[,shared.samples]
 mi_rna_expr <- mi_rna_expr[,shared.samples]
 dim(gene_expr)
 
-target_scan_symbols_counts <- as.matrix(target_scan_symbols_counts)
-
 # transform for sponge
 gene_expr[is.na(gene_expr)] <- 0
 mi_rna_expr[is.na(mi_rna_expr)] <- 0
@@ -370,6 +364,8 @@ if ("circBaseID" %in% colnames(circ_filtered_raw)){
 # transpose for SPONGE
 mi_rna_expr <- as.matrix(t(mi_rna_expr))
 gene_expr <- as.matrix(t(gene_expr))
+# cast to matrix
+target_scan_symbols_counts <- as.matrix(target_scan_symbols_counts)
 
 print("Gene expression:")
 print(gene_expr[1:5, 1:5])
@@ -397,6 +393,8 @@ genes_miRNA_candidates <- SPONGE::sponge_gene_miRNA_interaction_filter(
   mir_expr = mi_rna_expr,
   mir_predicted_targets = target_scan_symbols_counts,
   log.level = "INFO")
+
+save.image(file = file.path(out, "sponge.RData"))
 print("calculating ceRNA interactions...")
 # (B) ceRNA interactions
 ceRNA_interactions <- SPONGE::sponge(gene_expr = gene_expr,

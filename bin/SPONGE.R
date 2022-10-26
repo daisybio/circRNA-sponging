@@ -27,7 +27,7 @@ parser <- add_argument(parser, "--total_bindings", help = "Option to pass a comp
 # FLAGS
 parser <- add_argument(parser, "--normalize", help = "Normalize given gene expression before analysis", flag = T)
 parser <- add_argument(parser, "--tpm", help = "Use TPM instead of counts", flag = T)
-parser <- add_argument(parser, "--sponge_net", help = "Option to filter with elastic net", flag = T)
+parser <- add_argument(parser, "--no_net", help = "Option to filter with elastic net", flag = T)
 
 argv <- parse_args(parser, argv = args)
 
@@ -402,7 +402,8 @@ print("calculating ceRNA interactions...")
 ceRNA_interactions <- SPONGE::sponge(gene_expr = gene_expr,
                                      mir_expr = mi_rna_expr,
                                      mir_interactions = genes_miRNA_candidates,
-                                     log.level = "INFO")
+                                     log.level = "INFO",
+                                     elastic.net = !argv$no_net)
 
 save.image(file = file.path(out, "sponge.RData"))
 

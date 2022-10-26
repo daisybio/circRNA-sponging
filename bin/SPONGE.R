@@ -394,7 +394,8 @@ genes_miRNA_candidates <- SPONGE::sponge_gene_miRNA_interaction_filter(
   gene_expr = gene_expr,
   mir_expr = mi_rna_expr,
   mir_predicted_targets = target_scan_symbols_counts,
-  log.level = "INFO")
+  log.level = "INFO",
+  elastic.net = !argv$no_net)
 
 save.image(file = file.path(out, "sponge.RData"))
 print("calculating ceRNA interactions...")
@@ -402,9 +403,7 @@ print("calculating ceRNA interactions...")
 ceRNA_interactions <- SPONGE::sponge(gene_expr = gene_expr,
                                      mir_expr = mi_rna_expr,
                                      mir_interactions = genes_miRNA_candidates,
-                                     log.level = "INFO",
-                                     elastic.net = !argv$no_net)
-
+                                     log.level = "INFO")
 save.image(file = file.path(out, "sponge.RData"))
 
 print("building null model...")

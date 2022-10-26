@@ -23,9 +23,11 @@ parser <- add_argument(parser, "--pita_data", help = "Default PITA output", defa
 parser <- add_argument(parser, "--majority_matcher", help = "Majority match setting, choose between (start, end, complete)", default = "end")
 parser <- add_argument(parser, "--tpm_map", help = "TPM map of circular and linear transcripts provided by pipeline")
 parser <- add_argument(parser, "--total_bindings", help = "Option to pass a compatible complete mRNA-miRNA binding site tsv file including circRNAs", default = NULL)
+
 # FLAGS
 parser <- add_argument(parser, "--normalize", help = "Normalize given gene expression before analysis", flag = T)
 parser <- add_argument(parser, "--tpm", help = "Use TPM instead of counts", flag = T)
+parser <- add_argument(parser, "--sponge_net", help = "Option to filter with elastic net", flag = T)
 
 argv <- parse_args(parser, argv = args)
 

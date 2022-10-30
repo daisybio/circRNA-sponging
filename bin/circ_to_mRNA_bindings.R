@@ -94,4 +94,12 @@ mRNA <- merge(mRNA, genes, by.x = "group_name", by.y = "canonical_transcript")
 mRNA <- data.frame(row.names = 1, mRNA[!duplicated(mRNA$gene_id),c("gene_id", "width.x")])
 mRNA <- data.frame(row.names = 1, merge(linear.targets, mRNA, by = 0))
 colnames(mRNA) <- c("bindsites", "length")
-plot_bindsites(mRNA, circ.all, argv$type)
+#plot_bindsites(mRNA, circ.all, argv$type)
+
+# plot binding sites with linear regression
+bindings <- ggplot(data, aes(x=length, y=bindsites, col=type, shape = factor(type))) +
+    geom_point(size = 1.75) +
+    geom_smooth(method = "lm", se = F) +
+    scale_x_log10() + scale_y_log10() +
+    scale_color_manual(values = c("3UTR"="#0066CC", circRNA="#006033")) +
+    scale_shape_manual(values = c(6,1))

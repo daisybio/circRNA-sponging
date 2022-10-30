@@ -96,6 +96,9 @@ mRNA <- data.frame(row.names = 1, merge(linear.targets, mRNA, by = 0))
 colnames(mRNA) <- c("bindsites", "length")
 #plot_bindsites(mRNA, circ.all, argv$type)
 
+mRNA$type <- argv$type
+circ.all$type <- "circRNA"
+data <- rbind(mRNA, circ.all)
 # plot binding sites with linear regression
 bindings <- ggplot(data, aes(x=length, y=bindsites, col=type, shape = factor(type))) +
     geom_point(size = 1.75) +

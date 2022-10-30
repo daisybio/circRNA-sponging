@@ -22,11 +22,11 @@ plot_bindsites <- function(mRNA, circ, name){
   bindsites.to.length.plot <- ggplot() + 
     geom_point(data = mRNA, aes(x = length, y = bindsites, colour = "mRNA"), shape = 4) +
     geom_smooth(data = mRNA, aes(x = length, y = bindsites, col = "mRNA regression"), method = "lm", col = "darkorchid3") +
-    geom_point(data = circ.all, aes(x = length, y = bindsites, colour = "circRNA"), shape = 2) +
-    geom_smooth(data = circ.all, aes(x = length, y = bindsites, col = "circRNA regression"), method = "lm", col = "darkorange3") +
+    geom_point(data = circ, aes(x = length, y = bindsites, colour = "circRNA"), shape = 2) +
+    geom_smooth(data = circ, aes(x = length, y = bindsites, col = "circRNA regression"), method = "lm", col = "darkorange3") +
     scale_y_log10() +
     scale_x_log10() +
-    labs(x = "length (log10)", y = "bindsites (log10)", colour = "Legend", title = "3UTR") +
+    labs(x = "length (log10)", y = "bindsites (log10)", colour = "Legend", title = name) +
     scale_colour_manual(values = c(mRNA="#0066CC", circRNA="#006033", "mRNA regression"="darkorchid3", "circRNA regression"="darkorange3")) +
     theme(text = element_text(size=20)) +
     guides(color = guide_legend(override.aes = list(size = 3, shape = c(16,16,16,16))))

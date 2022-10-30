@@ -93,5 +93,6 @@ if (argv$type == "3UTR"){
 mRNA <- as.data.frame(mRNA)
 mRNA <- merge(mRNA, genes, by.x = "group_name", by.y = "canonical_transcript")
 mRNA <- data.frame(row.names = 1, mRNA[!duplicated(mRNA$gene_id),c("gene_id", "width.x")])
-mRNA <- data.frame(row.names = 1, colnames = c("bindsites", "length"), merge(linear.targets, mRNA, by = 0))
+mRNA <- data.frame(row.names = 1, merge(linear.targets, mRNA, by = 0))
+colnames(mRNA) <- c("bindsites", "length")
 plot_bindsites(mRNA.3UTR.final, circ.all, argv$type)

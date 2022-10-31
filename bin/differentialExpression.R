@@ -18,6 +18,27 @@ parser <- add_argument(parser, "--palette", help = "Palette to use for MetBrewer
 
 argv <- parse_args(parser, argv = args)
 
+# plot statistics
+pies <- function(filtering, annotation, s = 1.25){
+  # filtering data
+  label <- paste(round(prop.table(filtering)*100), "%",
+                 "\n", "(", filtering, ")", sep = "")
+  cond.col <- met.brewer("Austria", n = length(filtering))
+  # annotation data
+  label_annotation <- paste(round(prop.table(annotation)*100), "%",
+                            "\n", "(", annotation, ")", sep = "")
+  ac <- met.brewer("Kandinsky", 2, override.order = T, direction = -1)
+  names(ac) <- c("TRUE", "FALSE")
+  # split into two plots
+  png("ratios.png", res = 200, width = 1200, height = 800)
+  par(mfrow=c(1,2), mar=c(0.5, 2, 0.1, 1))
+  pie(filtering, col = cond.col, labels = label, cex = s, init.angle = -15, radius = 0.65)
+  legend("bottom", legend = names(filtering), fill = cond.col, cex = s)
+  pie(annotation, col = ac, labels = label_annotation, cex = s, init.angle = 75, radius = 0.65)
+  legend("bottom", legend = names(annotation), fill = ac, cex = s)
+  dev.off()
+}
+
 # create output data and plots
 create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.1, log2FC = 0, pseudocount = 0, filter = NULL, isLogFransformed = F, palette = "Renoir") {
   # create dirs in cwd
@@ -41,7 +62,7 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   signif.hits <- results[!is.na(results$padj) &
                            results$padj<as.double(padj) &
                            abs(results$log2FoldChange) > log2FC,]
-  
+
   # DE vs not
   png(filename = file.path(out, "nDE.png"), res = 200, width = 1300, height = 800)
   nDE <- c(rest=(nrow(results)-nrow(signif.hits)), DE=nrow(signif.hits))
@@ -152,15 +173,13 @@ if (annotation) {
   circ_RNA_annotation <- paste0(circ_RNAs$chr, ":", circ_RNAs$start, ":", circ_RNAs$stop, ":", circ_RNAs$strand)
 }
 
-# plot ratio if database annotation
-png(filename = "db_annotation.png", res = 200, width = 1300, height = 800)
+# ratio of database annotation
 db.rate <- table(grepl("circ", circ_RNA_annotation))
-label <- paste(round(prop.table(db.rate)*100), "%", sep = "")
-cond.col <- met.brewer(argv$palette, n = length(db.rate))
-pie(db.rate, col = cond.col, labels = label, main = "circRNA database annotation")
-par(mar = c(5, 4, 4, 8), xpd = T)
-legend("topright", legend = names(db.rate), fill = cond.col, inset = c(-0.05, 0), cex = 0.75)
-dev.off()
+names(db.rate) <- c("Not Annotated", "Annotated")
+# ratio of filtering
+filtering.rate <- c(Accepted = nrow(circ_RNAs), Rejected = nrow(circ.raw) - nrow(circ_RNAs))
+# plot ratios
+pies(db.rate, filtering.rate)
 
 # get raw expression values for filtered circRNAs and samples
 samples <- intersect(colnames(circ.raw), samples)

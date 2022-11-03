@@ -19,24 +19,6 @@ parser <- add_argument(parser, "--organism", help = "Organsim in three letter co
 
 argv <- parse_args(parser, argv = args)
 
-plot_bindsites <- function(mRNA, circ, name){
-  bindsites.to.length.plot <- ggplot() + 
-    geom_point(data = mRNA, aes(x = length, y = bindsites, colour = "mRNA"), shape = 4) +
-    geom_smooth(data = mRNA, aes(x = length, y = bindsites, col = "mRNA regression"), method = "lm", col = "darkorchid3") +
-    geom_point(data = circ, aes(x = length, y = bindsites, colour = "circRNA"), shape = 2) +
-    geom_smooth(data = circ, aes(x = length, y = bindsites, col = "circRNA regression"), method = "lm", col = "darkorange3") +
-    scale_y_log10() +
-    scale_x_log10() +
-    labs(x = "length (log10)", y = "bindsites (log10)", colour = "Legend", title = name) +
-    scale_colour_manual(values = c(mRNA="#0066CC", circRNA="#006033", "mRNA regression"="darkorchid3", "circRNA regression"="darkorange3")) +
-    theme(text = element_text(size=20)) +
-    guides(color = guide_legend(override.aes = list(size = 3, shape = c(16,16,16,16))))
-  png(paste(name, "png", sep = "."), res = 200, height = 800, width = 1200)
-  plot(bindsites.to.length.plot)
-  dev.off()
-}
-
-
 safe.mart.ensembl <- function(data.set){
   mart <- 0
   not_done=TRUE
@@ -67,8 +49,8 @@ print("reading circRNA fasta")
 circ.fasta <- readDNAStringSet(argv$circ_fasta)
 circ.fasta <- data.frame(names(circ.fasta), circ.fasta@ranges@width, row.names = 1)
 
-circ.all <- data.frame(row.names = 1, merge(circ.targets, circ.fasta, by = 0))
-colnames(circ.all) <- c("bindsites", "length")
+circ <- data.frame(row.names = 1, merge(circ.targets, circ.fasta, by = 0))
+colnames(circ) <- c("bindsites", "length")
 
 print("reading miRWalk2.0 targets")
 linear.targets <- fread(argv$linear_targets, select = 1:2, sep = "\t", header = T)
@@ -107,13 +89,28 @@ mRNA <- merge(mRNA, genes, by.x = "group_name", by.y = "canonical_transcript")
 mRNA <- data.frame(row.names = 1, mRNA[!duplicated(mRNA$gene_id),c("gene_id", "width.x")])
 mRNA$bindsites <- linear.targets[rownames(mRNA)]
 colnames(mRNA)[1] <- c("length")
-# plot ratios
-p <- plot_bindsites(mRNA, circ.all, argv$type)
-png(paste0(argv$type, ".png"), res = 200, height = 800, width = 1300)
 
+# plot ratios
+p <- ggplot() +
+    geom_point(data = mRNA, aes(x = length, y = bindsites, colour = "mRNA"), shape = 4) +
+    geom_smooth(data = mRNA, aes(x = length, y = bindsites, col = "mRNA regression"), method = "lm", col = "darkorchid3") +
+    geom_point(data = circ, aes(x = length, y = bindsites, colour = "circRNA"), shape = 2) +
+    geom_smooth(data = circ, aes(x = length, y = bindsites, col = "circRNA regression"), method = "lm", col = "darkorange3") +
+    scale_y_log10() +
+    scale_x_log10() +
+    labs(x = "length (log10)", y = "bindsites (log10)", colour = "Legend", title = argv$type) +
+    scale_colour_manual(values = c(mRNA="#0066CC", circRNA="#006033", "mRNA regression"="darkorchid3", "circRNA regression"="darkorange3")) +
+    theme(text = element_text(size=20)) +
+    guides(color = guide_legend(override.aes = list(size = 3, shape = c(16,16,16,16))))
+# save as png
+png(paste0(argv$type, ".png"), res = 200, height = 800, width = 1300)
+plot(p)
+dev.off()
+
+# different plot
 mRNA$type <- argv$type
-circ.all$type <- "circRNA"
-data <- rbind(mRNA, circ.all)
+circ$type <- "circRNA"
+data <- rbind(mRNA, circ)
 # plot binding sites with linear regression
 bindings <- ggplot(data, aes(x=length, y=bindsites, col=type, shape = factor(type))) +
     geom_point(size = 1.75) +

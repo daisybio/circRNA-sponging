@@ -14,15 +14,17 @@ parser <- add_argument(parser, "--meta", help = "Meta data describing the sample
 # add all target scan symbol options to be included -> will generate final target scan symbols
 parser <- add_argument(parser, "--output_dir", help = "Output directory", default = getwd())
 parser <- add_argument(parser, "--fdr", help = "FDR rate for ceRNA networks", default = 0.01)
-parser <- add_argument(parser, "--pseudocount", help = "Pseudocounts to use", default = 1e-3)
-parser <- add_argument(parser, "--cpus", help = "Number of cores to use for paralellization", default = 25)
+parser <- add_argument(parser, "--pseudocount", help = "Pseudo-counts to use", default = 1e-3)
+parser <- add_argument(parser, "--cpus", help = "Number of cores to use for parallelization", default = 25)
 parser <- add_argument(parser, "--target_scan_symbols", help = "Contingency matrix of target scan symbols provided as tsv", default = "null")
 parser <- add_argument(parser, "--miranda_data", help = "miRanda default output in tsv", default = "null")
-parser <- add_argument(parser, "--tarpmir_data", help = "default tarpmir output file in tsv", default = "null")
+parser <- add_argument(parser, "--tarpmir_data", help = "default TarPmiR output file in tsv", default = "null")
 parser <- add_argument(parser, "--pita_data", help = "Default PITA output", default = "null")
 parser <- add_argument(parser, "--majority_matcher", help = "Majority match setting, choose between (start, end, complete)", default = "end")
 parser <- add_argument(parser, "--tpm_map", help = "TPM map of circular and linear transcripts provided by pipeline")
 parser <- add_argument(parser, "--total_bindings", help = "Option to pass a compatible complete mRNA-miRNA binding site tsv file including circRNAs", default = NULL)
+parser <- add_argument(parser, "--f_test_p", help = "Option to filter with different f test p values", default = 0.05)
+parser <- add_argument(parser, "--coef_t", help = "Option to filter with different coefficient thresholds", default = 0.05)
 
 # FLAGS
 parser <- add_argument(parser, "--normalize", help = "Normalize given gene expression before analysis", flag = T)
@@ -395,7 +397,9 @@ genes_miRNA_candidates <- SPONGE::sponge_gene_miRNA_interaction_filter(
   mir_expr = mi_rna_expr,
   mir_predicted_targets = target_scan_symbols_counts,
   log.level = "INFO",
-  elastic.net = !argv$no_net)
+  elastic.net = !argv$no_net,
+  F.test.p.adj.threshold = argv$f_test_p,
+  coefficient.threshold = argv$coef_t)
 
 save.image(file = file.path(out, "sponge.RData"))
 print("calculating ceRNA interactions...")

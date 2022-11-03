@@ -30,10 +30,11 @@ plot_bindsites <- function(mRNA, circ, name){
     scale_colour_manual(values = c(mRNA="#0066CC", circRNA="#006033", "mRNA regression"="darkorchid3", "circRNA regression"="darkorange3")) +
     theme(text = element_text(size=20)) +
     guides(color = guide_legend(override.aes = list(size = 3, shape = c(16,16,16,16))))
-  png(paste(name, "png", sep = "."))
+  png(paste(name, "png", sep = "."), res = 200, height = 800, width = 1200)
   plot(bindsites.to.length.plot)
   dev.off()
 }
+
 
 safe.mart.ensembl <- function(data.set){
   mart <- 0

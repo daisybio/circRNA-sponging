@@ -13,6 +13,7 @@ parser <- arg_parser("Argument parser for circRNA quantification", name = "quant
 parser <- add_argument(parser, "--circ_targets", help = "circRNA targets as table in tsv format")
 parser <- add_argument(parser, "--circ_fasta", help = "circRNA fasta file")
 parser <- add_argument(parser, "--linear_targets", help = "mRNA 3UTR targets file as table in tsv format")
+parser <- add_argument(parser, "--miRWalk_data", help = "mRNA data directly from miRWalk")
 parser <- add_argument(parser, "--type", help = "Type of linear RNAs: CDS, 3UTR or 5UTR")
 parser <- add_argument(parser, "--organism", help = "Organsim in three letter code e.g. hsa for Human")
 
@@ -69,8 +70,19 @@ circ.fasta <- data.frame(names(circ.fasta), circ.fasta@ranges@width, row.names =
 circ.all <- data.frame(row.names = 1, merge(circ.targets, circ.fasta, by = 0))
 colnames(circ.all) <- c("bindsites", "length")
 
-print("reading linear targets")
-linear.targets <- read.table(argv$linear_targets, sep = "\t", header = T)
+print("reading miRWalk2.0 targets")
+linear.targets <- fread(argv$linear_targets, select = 1:2, sep = "\t", header = T)
+# build table
+linear.targets <- table(linear.targets$mRNA, linear.targets$miRNA)
+# convert genebank names to ENSG
+conv <- data.frame(
+    getBM(attributes = c("refseq_mrna", "ensembl_gene_id"),
+          filters = "refseq_mrna", values = rownames(linear.targets), mart = mart)
+    , check.names = F, stringsAsFactors = F, row.names = 1)
+rownames(linear.targets) <- conv[rownames(linear.targets),]
+# aggregate duplicate rows
+linear.targets <- as.data.frame.matrix(linear.targets) %>% group_by(rownames(linear.targets)) %>% summarise_all(funs(sum))
+linear.targets <- data.frame(linear.targets[!is.na(linear.targets$`rownames(linear.targets)`),], row.names = 1, check.names = F, stringsAsFactors = F)
 linear.targets <- rowSums(linear.targets)
 
 organism <- argv$organism
@@ -95,7 +107,9 @@ mRNA <- merge(mRNA, genes, by.x = "group_name", by.y = "canonical_transcript")
 mRNA <- data.frame(row.names = 1, mRNA[!duplicated(mRNA$gene_id),c("gene_id", "width.x")])
 mRNA$bindsites <- linear.targets[rownames(mRNA)]
 colnames(mRNA)[1] <- c("length")
-#plot_bindsites(mRNA, circ.all, argv$type)
+# plot ratios
+p <- plot_bindsites(mRNA, circ.all, argv$type)
+png(paste0(argv$type, ".png"), res = 200, height = 800, width = 1300)
 
 mRNA$type <- argv$type
 circ.all$type <- "circRNA"

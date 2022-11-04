@@ -91,6 +91,8 @@ mRNA <- merge(mRNA, genes, by.x = "group_name", by.y = "canonical_transcript")
 mRNA <- data.frame(row.names = 1, mRNA[!duplicated(mRNA$gene_id),c("gene_id", "width.x")])
 mRNA$bindsites <- linear.targets[rownames(mRNA)]
 colnames(mRNA)[1] <- c("length")
+# remove genes with 0 length or genes that have NA binding sites
+mRNA <- mRNA[mRNA$length!=0 & !is.na(mRNA$bindsites),]
 
 # plot ratios
 p <- ggplot() +

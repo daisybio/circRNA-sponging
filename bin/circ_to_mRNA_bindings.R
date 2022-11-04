@@ -16,6 +16,7 @@ parser <- add_argument(parser, "--linear_targets", help = "mRNA 3UTR targets fil
 parser <- add_argument(parser, "--miRWalk_data", help = "mRNA data directly from miRWalk")
 parser <- add_argument(parser, "--type", help = "Type of linear RNAs: CDS, 3UTR or 5UTR")
 parser <- add_argument(parser, "--organism", help = "Organsim in three letter code e.g. hsa for Human")
+parser <- add_argument(parser, "--biomaRt", help = "BiomaRt dataset name")
 
 argv <- parse_args(parser, argv = args)
 
@@ -39,7 +40,8 @@ safe.mart.ensembl <- function(data.set){
   print("SUCCESS")
   return(mart)
 }
-
+# load biomaRt
+mart <- safe.mart.ensembl(argv$biomaRt)
 # load targets
 print("reading circRNA targets")
 circ.targets <- read.table(argv$circ_targets, sep = "\t", header = T)

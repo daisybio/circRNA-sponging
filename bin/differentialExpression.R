@@ -136,7 +136,7 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
                      fontsize = 25)
 
   # return calculated data
-  return(list(significant_hits = signif.hits, counts = filtered, PCA_data = PCA_data, palette = annotation.colors)
+  return(list(significant_hits = signif.hits, counts = filtered, PCA_data = PCA_data, palette = annotation.colors))
 }
 
 # read gene expression and add pseudocount

@@ -134,6 +134,9 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
                      treeheight_row = 0, treeheight_col = 0, 
                      annotation_colors = list(condition = annotation.colors), 
                      fontsize = 25)
+
+  # return calculated data
+  return(list(significant_hits = signif.hits, counts = filtered, PCA_data = PCA_data, palette = annotation.colors)
 }
 
 # read gene expression and add pseudocount
@@ -200,7 +203,7 @@ res <- DESeq2::results(dds)
 res <- res[order(res$padj),]
 DESeq2::summary(res)
 
-create_outputs(d = dds, results = res, marker = "condition", out = "total_rna", nsub = 100,
+linear_DE <- create_outputs(d = dds, results = res, marker = "condition", out = "total_rna", nsub = 100,
                padj = argv$fdr, log2FC = argv$log2fc, palette = argv$palette)
 # CIRCULAR RNA
 
@@ -214,7 +217,7 @@ res.circ <- DESeq2::results(dds.circ)
 res.circ <- res.circ[order(res.circ$padj),]
 # create summary
 DESeq2::summary(res.circ)
-create_outputs(dds.circ, res.circ, marker = "condition", out = "circ_rna_DE", nsub = 100,
+circ_DE <- create_outputs(dds.circ, res.circ, marker = "condition", out = "circ_rna_DE", nsub = 100,
                padj = argv$fdr, log2FC = argv$log2fc, palette = argv$palette)
 
 # save R image

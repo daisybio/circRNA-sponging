@@ -81,51 +81,7 @@ rownames(gene.ens.all) <- gene.ens.all$ensembl_gene_id
 lncs <- gene.ens.all[gene.ens.all$gene_biotype=="lncRNA",1]
 lncs_interactions <- ceRNA_interactions_fdr[ceRNA_interactions_fdr$geneA %in% lncs |
                                               ceRNA_interactions_fdr$geneB %in% lncs,]
-
-# set network
-differential.circ.in.ce.network <- circ.mRNA.only
-
-differential.circ.plot <- sponge_plot_network(differential.circ.in.ce.network, genes_miRNA_candidates, ) %>%
-  visNetwork::visEdges(arrows = list(to = list(enabled = T, scaleFactor = 1)))
-differential.circ.plot$x$edges$label <- paste("mscor:", round(differential.circ.in.ce.network$mscor, 2))
-
-# break types of RNA down to lncRNA and coding
-gene.ens.all$gene_biotype[gene.ens.all$gene_biotype != "protein_coding" & gene.ens.all$gene_biotype != "lncRNA"] <- "other_RNA"
-
-hgncs <- merge(signif.hits, gene.ens.all, by.x = "X", by.y = "ensembl_gene_id")
-nodes <- differential.circ.plot$x$nodes
-nodes <- merge(nodes, gene.ens.all, by = 1, all.x = T)
-# change to hgnc
-nodes[!is.na(nodes$hgnc_symbol),1:2] <- nodes[!is.na(nodes$hgnc_symbol),"hgnc_symbol"]
-
-# add circRNA as biotype
-nodes[is.na(nodes$gene_biotype) & !grepl("ENSG", nodes$id),"gene_biotype"] <- "circRNA"
-# label unknown RNAs as other
-nodes[is.na(nodes$gene_biotype), "gene_biotype"] <- "other_RNA"
-
-# remove preset color and shape
-nodes <- nodes[,-c(3,4)]
-# change to group
-colnames(nodes)[8] <- "group"
-
-# mark differentially expressed RNAs
-nodes[nodes$id %in% hgncs$hgnc_symbol | nodes$id %in% signif.hits$X,"group"] <- "DE"
-# change edges
-edges <- differential.circ.plot$x$edges
-# convert geneA and geneB
-edges <- merge(edges, gene.ens.all, by.x = "from", by.y = 1, all.x = T)
-edges[!is.na(edges$hgnc_symbol),"from"] <- edges$hgnc_symbol[!is.na(edges$hgnc_symbol)]
-edges <- merge(edges, gene.ens.all, by.x = "to", by.y = 1, all.x = T)
-edges[!is.na(edges$hgnc_symbol.y),"to"] <- edges$hgnc_symbol.y[!is.na(edges$hgnc_symbol.y)]
-
-graph <- visNetwork(nodes = nodes, edges = edges) %>%
-  visIgraphLayout(type = "full", physics = F) %>%
-  visGroups(groupname = "circRNA", shape = "rectangle", color = "#33FF99") %>%
-  visGroups(groupname = "protein_coding", shape = "triangle", color = "#0066CC") %>%
-  visGroups(groupname = "lncRNA", shape = "square", color = "#F8766D") %>%
-  visGroups(groupname = "other_RNA", color = "#DC71FA", shape = "diamond") %>%
-  visGroups(groupname = "DE", color = "#CC3333") %>%
-  visLegend()
-graph
-
-visNetwork::visSave(graph, file = "DE_SPONGE.html")
+# plot network
+network <- plot_network(circ.mRNA.only, annotation = gene.ens.all)
+# save network to file
+visNetwork::visSave(network, file = "DE_SPONGE.html")

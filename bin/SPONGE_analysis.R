@@ -30,7 +30,6 @@ plot_network <- function(ceRNA_network, signif_hits=NULL, gtf=NULL, annotation=N
     # break types of RNA down to lncRNA, coding, and rest
     annotation$gene_biotype[annotation$gene_biotype != "protein_coding" & annotation$gene_biotype != "lncRNA"] <- "other_RNA"
     
-    hgncs <- merge(signif.hits, annotation, by.x = "X", by.y = "ensembl_gene_id")
     nodes <- merge(nodes, annotation, by = 1, all.x = T)
     
     # change to hgnc

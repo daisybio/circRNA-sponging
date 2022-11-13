@@ -6,7 +6,7 @@ library(MetBrewer)
 
 args = commandArgs(trailingOnly = TRUE)
 
-plot_network <- function(ceRNA_network, signif_hits=NA, gtf=NA, annotation=NA) {
+plot_network <- function(ceRNA_network, signif_hits=NULL, gtf=NULL, annotation=NULL) {
   # plot network
   ceRNA_plot <- sponge_plot_network(ceRNA_network, genes_miRNA_candidates, ) %>%
     visNetwork::visEdges(arrows = list(to = list(enabled = T, scaleFactor = 1)))
@@ -17,16 +17,16 @@ plot_network <- function(ceRNA_network, signif_hits=NA, gtf=NA, annotation=NA) {
   edges <- ceRNA_plot$x$edges
   
   # mark differentially expressed RNAs
-  if (!is.na(signif_hits)){
+  if (!is.null(signif_hits)){
     nodes[nodes$id %in% hgncs$hgnc_symbol | nodes$id %in% signif_hits$X,"group"] <- "DE"
   }
-  if (!is.na(gtf)) {
+  if (!is.null(gtf)) {
     gtf <- rtracklayer::readGFF(gtf)
     annotation <- unique(gtf[!is.na(gtf$transcript_id),c("gene_id", "gene_name", "gene_biotype")])
     colnames(annotation) <- c("ensembl_gene_id", "hgnc_symbol", "gene_biotype")
     rownames(annotation) <- annotation$ensembl_gene_id
   }
-  if (!is.na(annotation)){
+  if (!is.null(annotation)){
     # break types of RNA down to lncRNA, coding, and rest
     annotation$gene_biotype[annotation$gene_biotype != "protein_coding" & annotation$gene_biotype != "lncRNA"] <- "other_RNA"
     

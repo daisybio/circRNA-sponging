@@ -1,31 +1,29 @@
 import argparse
-from email.errors import HeaderParseError
-
 from pyliftover import LiftOver
 import os
 from bs4 import BeautifulSoup as bs
 from selenium import webdriver
-import pandas
+import pandas as pd
 from pathlib import Path
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.firefox.options import Options
 import threading
 import logging
 import time
 import concurrent.futures
 
+
 parser = argparse.ArgumentParser()
 
 parser.add_argument("-o", "--organism", help="Organism in three letter code (hsa for human)", required=True)
 parser.add_argument("-gv", "--genome_version", help="Used genome version", required=True)
 parser.add_argument("-d", "--data_loc", help="Location of data to be converted", required=True)
+parser.add_argument("-m", "--meta", help="Path to meta file of circRNA expression", required=True)
 # optional
-parser.add_argument("-ao", "--annotated_only", help="Keep annotated circRNAs only (true/false)", default=None)
 parser.add_argument("-out", "--output", help="Output directory", default="./")
 parser.add_argument("-s", "--separator", help="Separator of file", default="\t")
 parser.add_argument("-chrC", "--chromosome", help="Column of chromosome", default=0)
@@ -45,7 +43,11 @@ end_c = args.end
 strand_c = args.strand
 organism = args.organism
 splitter = args.splitter
-annotated_only = True if args.annotated_only == "true" else False
+
+# read meta file
+meta = pd.read_csv(args.meta, delimiter="\t")
+# set sample names
+samples = meta["samples"]
 
 # set pipeline home
 pipeline_home = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -163,9 +165,31 @@ def convert_and_write(o, c, d, s, nh):
             i += 1
     return data
 
+
+# write annotated output circ rna
+def write_mapping_file(matched_dict, unannotated_dict, db_dict, output_loc, separator):
+    print("[final] found " + str(len(matched_dict)) + " exact matching circRNAs to submitted query of size " + str(
+        len(unannotated_dict)))
+    # pop header
+    header = matched_dict.pop("header")
+    # build expression data frame from matched dictionary and database data
+    # clone matching dict
+    data = dict(matched_dict)
+    # extend expression header with database info
+    header.extend(db_dict.pop("header"))
+    # extend expression with database data
+    [data[k].extend(db_dict[k]) for k in data]
+    # convert to data frame
+    data = pd.DataFrame(data.values(), columns=header, index=data.keys())
+    # remove samples from data frame to create pure annotation file with original positions as row names
+    data = data.drop(samples, axis=1)
+    # create output file location
+    annotation_file = os.path.join(output_loc, "circRNAs_annotated.tsv")
+    # write to disk
+    data.to_csv(annotation_file, sep=separator)
+
+
 # OFFLINE ACCESS ----------------------------------------------------------
-
-
 # reads the offline database
 def read_db(db_loc):
     d = {}
@@ -183,56 +207,6 @@ def read_db(db_loc):
     return d
 
 
-# write annotated output circ rna
-def write_mapping_file(matched_dict, unannotated_dict, db_dict, output_loc, separator):
-    # build expression header
-    expr_header = matched_dict["header"][:7]
-    expr_header.append("circBaseID")
-    expr_header.extend(matched_dict["header"][7:])
-    # build annotation header
-    header = matched_dict["header"][:4]
-    # add circRNA type
-    header.append("type")
-    header.append(matched_dict["header"][5])
-    # remove headers from dicts
-    matched_dict.pop("header")
-    # get db header
-    db_header = db_dict["header"]
-    id_index = db_header.index("circRNA ID")
-    db_dict.pop("header")
-
-    # extend header with converted position
-    header.append(converted_genome + "_converted_pos")
-    # extend rest of db data without already present information
-    header.extend(db_header[3:])
-    print("[final] found " + str(len(matched_dict)) + " exact matching circRNAs to submitted query of size " + str(len(unannotated_dict)))
-    annotation_file = os.path.join(output_loc, "circRNAs_annotated.tsv")
-    annotated_expr = os.path.join(output_loc, "circRNA_counts_annotated.tsv")
-    with open(annotation_file, "w") as output, open(annotated_expr, "w") as an_expr:
-        if header is not None:
-            output.write(str(separator).join(header) + "\n")
-            an_expr.write(str(separator).join(expr_header) + "\n")
-        # filter output and merge annotations
-        for k, v in matched_dict.items():
-            db_info = db_dict[k]
-            circBaseID = str(db_info[id_index])
-            # write annotated expression
-            an_expr.write(separator.join(v[:7]) + separator + circBaseID + separator + separator.join(v[7:]) + "\n")
-            data = v[:4]
-            # show circRNA type
-            data.append(v[6])
-            # include ensgid
-            data.append(v[5])
-            # add converted position
-            data.append(k)
-            data.extend(db_info[id_index:])
-            output.write(separator.join(data) + "\n")
-        # add unannotated circRNAs, um des Flexes Willen
-        if not annotated_only:
-            for k, v in unannotated_dict.items():
-                an_expr.write(separator.join(v[:7]) + separator + "None" + separator + separator.join(v[7:]) + "\n")
-
-
 # LAUNCH OFFLINE MODE
 def offline_access(converted_circ_data, output_loc, database_loc, separator):
     db_circ_rna = read_db(database_loc)
@@ -243,17 +217,17 @@ def offline_access(converted_circ_data, output_loc, database_loc, separator):
 
 
 # ONLINE ACCESS -------------------------------------------------------------
-def read_db_data_to_dict(header, data, out="raw.matches"):
-    d = {}
-    with open(out, "w") as o:
-        for split in data:
-            o.write("\t".join(split) + "\n")
-            if len(split) < 3:
-                continue
-            key = str(split[1]) + "_" + str(split[2])
-            d[key] = split
-        d["header"] = header
-    return d
+def read_raw_data(header, data):
+    # add header
+    hits = {"header": header}
+    for row in data:
+        if len(row) < 3:
+            continue
+        # create key of first two columns
+        key = "_".join([row[1], row[2]])
+        # save row as value for key
+        hits[key] = row
+    return hits
 
 
 def read_html(response):
@@ -261,7 +235,7 @@ def read_html(response):
     table = soup.find("table")
     header = [h.text for h in table.find_all("th")]
     data = [[d.text for d in h.find_all("td")] for h in table.find_all("tr")]
-    return read_db_data_to_dict(header, data)
+    return read_raw_data(header, data)
 
 
 # check connection to circBase and if it responds to search queries
@@ -323,7 +297,9 @@ def online_access(converted_circ_data, output_loc, url, options):
         print("Splitting search into " + str(len(range(0, len(converted_circ_data), splitter))) + " parts")
         with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
             logging.basicConfig(level=logging.INFO, format='%(relativeCreated)6d %(threadName)s %(message)s')
-            results = [executor.submit(submit, d) for d in [tsv_data[i:i+splitter] for i in range(0, len(converted_circ_data), splitter)]]
+            results = [executor.submit(submit, d, url, options)
+                       for d in [tsv_data[i:i+splitter]
+                                 for i in range(0, len(converted_circ_data), splitter)]]
             db_dict = {}
             i = 0
             for f in concurrent.futures.as_completed(results):
@@ -338,10 +314,13 @@ def online_access(converted_circ_data, output_loc, url, options):
     else:
         db_dict = submit(tsv_data, url, options)
     # extract only direct matches of genomic positions and no overlaps
-    direct_matches = {x: converted_circ_data[x] for x in set(converted_circ_data.keys()).intersection(set(db_dict.keys()))}
+    direct_matches = {x: converted_circ_data[x]
+                      for x in set(converted_circ_data.keys()).intersection(set(db_dict.keys()))}
+    print(f"Found a total of {len(direct_matches.keys())} exact matching circRNAs in database")
     # extract all unannotated circRNAs
-    unannotated_matches = {x: converted_circ_data[x] for x in set(converted_circ_data.keys()).difference(set(db_dict.keys()))}
-    print("Writing output file")
+    unannotated_matches = {x: converted_circ_data[x]
+                           for x in set(converted_circ_data.keys()).difference(set(db_dict.keys()))}
+    print("Writing output files")
     write_mapping_file(direct_matches, unannotated_matches, db_dict, output_loc, "\t")
 
 

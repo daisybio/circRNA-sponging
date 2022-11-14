@@ -45,9 +45,9 @@ organism = args.organism
 splitter = args.splitter
 
 # read meta file
-meta = pd.read_csv(args.meta, delimiter="\t")
+meta = pd.read_csv(args.meta, delimiter="\t", )
 # set sample names
-samples = meta["samples"]
+samples = meta["sample"]
 
 # set pipeline home
 pipeline_home = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -170,23 +170,25 @@ def convert_and_write(o, c, d, s, nh):
 def write_mapping_file(matched_dict, unannotated_dict, db_dict, output_loc, separator):
     print("[final] found " + str(len(matched_dict)) + " exact matching circRNAs to submitted query of size " + str(
         len(unannotated_dict)))
-    # pop header
-    header = matched_dict.pop("header")
-    # build expression data frame from matched dictionary and database data
-    # clone matching dict
-    data = dict(matched_dict)
-    # extend expression header with database info
-    header.extend(db_dict.pop("header"))
-    # extend expression with database data
-    [data[k].extend(db_dict[k]) for k in data]
-    # convert to data frame
-    data = pd.DataFrame(data.values(), columns=header, index=data.keys())
-    # remove samples from data frame to create pure annotation file with original positions as row names
-    data = data.drop(samples, axis=1)
-    # create output file location
-    annotation_file = os.path.join(output_loc, "circRNAs_annotated.tsv")
+
+    # convert database results to data frame
+    db_header = db_dict.pop("header")
+    db_df = pd.DataFrame(db_dict.values(), columns=db_header, index=db_dict.keys())
     # write to disk
-    data.to_csv(annotation_file, sep=separator)
+    annotation_file = os.path.join(output_loc, "circRNAs_annotated.tsv")
+    db_df.to_csv(annotation_file, sep=separator)
+    # ------------------------------------------------------------------------------
+    # convert matching expression entries
+    header = matched_dict.pop("header")
+    # build circRNA expression data frame
+    expr_df = pd.DataFrame(matched_dict.values(), columns=header, index=matched_dict.keys())
+    # insert circBase ID before first sample
+    new_idx = len(set(header) - set(samples)) - 1
+    # get according circBase IDs and insert at given index under name "circBaseID"
+    expr_df.insert(loc=new_idx, column="circBaseID", value=db_df.loc[(matched_dict.keys())]["circRNA ID"])
+    # write to disk
+    expression_file = os.path.join(output_loc, "circRNA_counts_annotated.tsv")
+    expr_df.to_csv(expression_file, sep=separator)
 
 
 # OFFLINE ACCESS ----------------------------------------------------------

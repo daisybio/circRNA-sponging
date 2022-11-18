@@ -7,7 +7,8 @@ args = commandArgs(trailingOnly = T)
 
 parser <- arg_parser("Argument parser for SPONGE analysis", name = "SPONGE_parser")
 parser <- add_argument(parser, "--gene_expr", help = "Gene expression file in tsv format as given by DeSeq2")
-parser <- add_argument(parser, "--circ_rna", help = "circRNA expression file in tsv format as given by pipeline")
+parser <- add_argument(parser, "--circ_expr", help = "circRNA expression file in tsv format as given by pipeline")
+parser <- add_argument(parser, "--circ_annotation", help = "circRNA expression file in tsv format as given by pipeline")
 parser <- add_argument(parser, "--mirna_expr", help = "miRNA expression file in tsv format")
 parser <- add_argument(parser, "--mir_fasta", help = "miRNA fasta file")
 parser <- add_argument(parser, "--meta", help = "Meta data describing the samples")
@@ -24,7 +25,7 @@ parser <- add_argument(parser, "--majority_matcher", help = "Majority match sett
 parser <- add_argument(parser, "--tpm_map", help = "TPM map of circular and linear transcripts provided by pipeline")
 parser <- add_argument(parser, "--total_bindings", help = "Option to pass a compatible complete mRNA-miRNA binding site tsv file including circRNAs", default = NULL)
 parser <- add_argument(parser, "--f_test_p", help = "Option to filter with different f test p values", default = 0.05)
-parser <- add_argument(parser, "--coef_t", help = "Option to filter with different coefficient thresholds", default = 0.05)
+parser <- add_argument(parser, "--coef_t", help = "Option to filter with different coefficient thresholds", default = -0.05)
 
 # FLAGS
 parser <- add_argument(parser, "--normalize", help = "Normalize given gene expression before analysis", flag = T)
@@ -282,10 +283,10 @@ target_scan_symbols_counts <- create_target_scan_symbols(merged_data = argv$targ
                                                          pita = argv$pita)
 # SET MIRNA EXPRESSION
 print("reading miRNA expression...")
-mi_rna_expr <- data.frame(read.table(file = argv$mirna_expr, header = T, sep = "\t"), row.names = 1)
+mi_rna_expr <- read.table(file = argv$mirna_expr, header = T, sep = "\t", check.names = F, row.names = 1)
 # SET GENE EXPRESSION
 print("reading gene expression...")
-gene_expr <- as.data.frame(read.table(file = argv$gene_expr, header = T, sep = "\t"))
+gene_expr <- read.table(file = argv$gene_expr, header = T, sep = "\t", check.names = F)
 
 if (argv$normalize & !argv$tpm) {
   # normalize expressions if not already done
@@ -295,21 +296,16 @@ if (argv$normalize & !argv$tpm) {
 
 # READ CIRC_RNA EXPRESSION AND COMBINE THEM
 print("adding circRNA expression...")
-circ_filtered_raw <- as.data.frame(read.table(file = argv$circ_rna, header = T, sep = "\t"))
+circ_filtered_raw <- read.table(file = argv$circ_expr, header = T, sep = "\t", check.names = F)
 print("reading samplesheet...")
-meta <- read.csv(argv$meta, sep = "\t")
-meta$sample <- gsub("-", ".", meta$sample)
+meta <- read.csv(argv$meta, sep = "\t", check.names = F)
 
 # filter for expressions only
 circ_filtered <- circ_filtered_raw[,meta$sample]
-
+# remove NAs
 circ_filtered <- circ_filtered[complete.cases(circ_filtered),]
 
-# build position keys
-positions <- paste0(circ_filtered_raw$chr, ":", circ_filtered_raw$start, "-", circ_filtered_raw$stop, "_", circ_filtered_raw$strand)
-# create names
-rownames(circ_filtered) <- positions
-
+# combine linear and circular expressions
 gene_expr <- rbind(gene_expr, circ_filtered)
 
 # filter for matching samples
@@ -351,19 +347,17 @@ if (argv$tpm) {
   mi_rna_expr[is.na(mi_rna_expr)] <- 0
 }
 
-save.image(file = file.path(out, "sponge.RData"))
-
 # annotate circRNAs if possible
-if ("circBaseID" %in% colnames(circ_filtered_raw)){
-  annotation <- data.table(position=positions, circBaseID=circ_filtered_raw$circBaseID)
-  annotation[annotation$circBaseID=="None",2] <- NA
-  # merge row names with known annotated rows
-  IDs <- rownames(gene_expr)
-  IDs <- merge(IDs, annotation, by = 1, all.x = T)
-  # only change names that are present in annotation
-  IDs[!is.na(IDs$circBaseID),"x"] <- IDs[!is.na(IDs$circBaseID),"circBaseID"]
-  rownames(gene_expr) <- IDs$x
+if("circBaseID" %in% colnames(circ_filtered_raw)) {
+    # get all circBase IDs for row names in the circRNA expression file
+    IDs <- rownames(gene_expr)
+    IDs <- merge(IDs, circ_filtered_raw[,"circBaseID"], by = 0, all.x = T)
+    # only change names that are present in annotation
+    IDs[!is.na(IDs[,"y"]),"x"] <- IDs[!is.na(IDs[,"y"]),"y"]
+    rownames(gene_expr) <- IDs$x
 }
+
+save.image(file = file.path(out, "sponge.RData"))
 
 # transpose for SPONGE
 mi_rna_expr <- as.matrix(t(mi_rna_expr))

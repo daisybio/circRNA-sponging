@@ -305,8 +305,6 @@ circ_filtered <- circ_filtered_raw[,meta$sample]
 # remove NAs
 circ_filtered <- circ_filtered[complete.cases(circ_filtered),]
 
-save.image(file = file.path(out, "sponge.RData"))
-
 # combine linear and circular expressions
 gene_expr <- rbind(gene_expr, circ_filtered)
 
@@ -354,12 +352,12 @@ if("circBaseID" %in% colnames(circ_filtered_raw)) {
     # get all circBase IDs for row names in the circRNA expression file
     IDs <- rownames(gene_expr)
     IDs <- merge(IDs, circ_filtered_raw[,"circBaseID"], by = 0, all.x = T)
+    # set NAs to None keyword
+    IDs[is.na(IDs$y),"y"] <- "None"
     # only change names that are present in annotation
-    IDs[!is.na(IDs[,"y"]),"x"] <- IDs[!is.na(IDs[,"y"]),"y"]
+    IDs[IDs[,"y"]!="None","x"] <- IDs[IDs[,"y"]!="None","y"]
     rownames(gene_expr) <- IDs$x
 }
-
-save.image(file = file.path(out, "sponge.RData"))
 
 # transpose for SPONGE
 mi_rna_expr <- as.matrix(t(mi_rna_expr))

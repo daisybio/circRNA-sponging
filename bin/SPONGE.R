@@ -283,10 +283,10 @@ target_scan_symbols_counts <- create_target_scan_symbols(merged_data = argv$targ
                                                          pita = argv$pita)
 # SET MIRNA EXPRESSION
 print("reading miRNA expression...")
-mi_rna_expr <- read.table(file = argv$mirna_expr, header = T, sep = "\t", check.names = F, row.names = 1)
+mi_rna_expr <- read.table(file = argv$mirna_expr, header = T, check.names = F, row.names = 1)
 # SET GENE EXPRESSION
 print("reading gene expression...")
-gene_expr <- read.table(file = argv$gene_expr, header = T, sep = "\t", check.names = F)
+gene_expr <- read.table(file = argv$gene_expr, header = T, check.names = F)
 
 if (argv$normalize & !argv$tpm) {
   # normalize expressions if not already done
@@ -296,7 +296,7 @@ if (argv$normalize & !argv$tpm) {
 
 # READ CIRC_RNA EXPRESSION AND COMBINE THEM
 print("adding circRNA expression...")
-circ_filtered_raw <- read.table(file = argv$circ_expr, header = T, sep = "\t", check.names = F)
+circ_filtered_raw <- read.table(file = argv$circ_expr, header = T, check.names = F)
 print("reading samplesheet...")
 meta <- read.csv(argv$meta, sep = "\t", check.names = F)
 

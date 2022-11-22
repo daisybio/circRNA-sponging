@@ -305,6 +305,8 @@ circ_filtered <- circ_filtered_raw[,meta$sample]
 # remove NAs
 circ_filtered <- circ_filtered[complete.cases(circ_filtered),]
 
+save.image(file = file.path(out, "sponge.RData"))
+
 # combine linear and circular expressions
 gene_expr <- rbind(gene_expr, circ_filtered)
 

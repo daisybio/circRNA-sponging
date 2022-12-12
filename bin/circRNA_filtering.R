@@ -11,7 +11,7 @@ output_dir = args[3]
 samples_percentage = as.numeric(args[4]) # default 0.2, minimum percentage of samples, a circRNA has to be expressed in is to pass filtering
 read_cutoff = as.numeric(args[5]) # default 5, minimum number of reads, a circRNA is required to have to pass filtering
 
-expression_norm <- read.table(expression_norm_path, sep = "\t", header=T, stringsAsFactors = F, check.names = F)
+expression_norm <- read.table(expression_norm_path, sep = "\t", header = T, stringsAsFactors = F, check.names = F)
 
 # filter data: counts > 5 in at least 20% of samples
 if(length(samples) < 5){
@@ -34,4 +34,4 @@ for (i in 1:nrow(expr_only)){
 }
 filtered_data <- expression_norm[rows_to_keep,]
 # write final output
-write.table(filtered_data, file = "circRNA_counts_filtered.tsv", quote = F)
+write.table(filtered_data, file = "circRNA_counts_filtered.tsv", quote = F, sep = "\t")

@@ -72,4 +72,4 @@ rownames(finaldata) <- paste0(finaldata$chr, ":", finaldata$start, "-", finaldat
 # reorder data
 finaldata <- finaldata[,c("chr", "start", "stop", "strand", "gene_symbol", "type", samples)]
 # write to disk
-write.table(finaldata, file.path(output_dir, "circRNA_counts_raw.tsv"), quote = F)
+write.table(finaldata, file.path(output_dir, "circRNA_counts_raw.tsv"), quote = F, sep = "\t")

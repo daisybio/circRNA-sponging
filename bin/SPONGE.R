@@ -13,12 +13,11 @@ parser <- add_argument(parser, "--mirna_expr", help = "miRNA expression file in 
 parser <- add_argument(parser, "--mir_fasta", help = "miRNA fasta file")
 parser <- add_argument(parser, "--meta", help = "Meta data describing the samples")
 parser <- add_argument(parser, "--circ_bs", help = "circRNA-miRNA binding sites")
-# add all target scan symbol options to be included -> will generate final target scan symbols
+parser <- add_argument(parser, "--target_scan_symbols", help = "Linear RNA-miRNA binding sites")
 parser <- add_argument(parser, "--output_dir", help = "Output directory", default = getwd())
 parser <- add_argument(parser, "--fdr", help = "FDR rate for ceRNA networks", default = 0.01)
 parser <- add_argument(parser, "--pseudocount", help = "Pseudo-counts to use", default = 1e-3)
 parser <- add_argument(parser, "--cpus", help = "Number of cores to use for parallelization", default = 25)
-parser <- add_argument(parser, "--target_scan_symbols", help = "Contingency matrix of target scan symbols provided as tsv", default = "null")
 parser <- add_argument(parser, "--tpm_map", help = "TPM map of circular and linear transcripts provided by pipeline")
 parser <- add_argument(parser, "--total_bindings", help = "Option to pass a compatible complete mRNA-miRNA binding site tsv file including circRNAs", default = NULL)
 parser <- add_argument(parser, "--f_test_p", help = "Option to filter with different f test p values", default = 0.05)
@@ -90,130 +89,16 @@ split_encoding <- function(coded_vector) {
   return(paste(c(chr, start, end, strand), collapse = ":"))
 }
 
-# use only binding sites that 2/3 methods approve of; match criteria: complete(start and end pos), start(start pos), end(end pos)
-majority_vote <- function(miranda, tarpmir, pita, match) {
-  data <- list(miranda, tarpmir, pita)
-  # check files
-  if (length(Filter(file.exists, data)) != 3) {
-    print("not all three predictions given, no majority vote available")
-    return(NULL)
-  }
-  print("calculating majority vote of circRNA-miRNA binding sites")
-  
-  print("process miRanda targets")
-  miranda.bp <- data.frame(read.table(miranda, header = T, sep = "\t"))
-  miranda.bp[,c("start", "end")] <- str_split_fixed(miranda.bp$Subject.Al.Start.End., " ", 2)
-  
-  print("process TarPmiR targets")
-  tarpmir_data <- read.table(tarpmir, header = F, sep = "\t")
-  tarpmir_data <- tarpmir_data[,c(1:3)]
-  tarpmir_data[, c("start", "end")] <- str_split_fixed(tarpmir_data$V3, ",", 2)
-  colnames(tarpmir_data) <- c("miRNA", "mRNA", "pos", "start", "end")
-  
-  print("process PITA targets")
-  pita_data <- read.table(pita, header = T, sep = "\t")
-  # switch pita output labels
-  colnames(pita_data) <- c("UTR", "microRNA", "end", "start")
-  
-  print("creating keys...")
-  cat("using", match, "for matching binding sites\n")
-  
-  if (match=="complete") {
-    miranda.keys <- paste(miranda.bp$miRNA, miranda.bp$Target, miranda.bp$start, miranda.bp$end, sep="|")
-    tarpmir.keys <- paste0(tarpmir_data$miRNA, tarpmir_data$mRNA, tarpmir_data$start, tarpmir_data$end, sep="|")
-    pita.keys <- paste0(pita_data$microRNA, pita_data$UTR, pita_data$start, pita_data$end, sep="|")
-  } else if (match=="start") {
-    miranda.keys <- paste(miranda.bp$miRNA, miranda.bp$Target, miranda.bp$start, sep="|")
-    tarpmir.keys <- paste(tarpmir_data$miRNA, tarpmir_data$mRNA, tarpmir_data$start, sep="|")
-    pita.keys <- paste(pita_data$microRNA, pita_data$UTR, pita_data$start, sep="|")
-  } else if (match=="end") {
-    miranda.keys <- paste(miranda.bp$miRNA, miranda.bp$Target, miranda.bp$end, sep="|")
-    tarpmir.keys <- paste(tarpmir_data$miRNA, tarpmir_data$mRNA, tarpmir_data$end, sep="|")
-    pita.keys <- paste(pita_data$microRNA, pita_data$UTR, pita_data$end, sep="|")
-  } else {
-    stop("Wrong --majority_matcher argument given, use one of 'complete', 'start', 'end'")
-  }
-  
-  # search for intersections
-  miranda_x_tarpmir <- intersect(miranda.keys, tarpmir.keys)
-  miranda_x_pita <- intersect(miranda.keys, pita.keys)
-  tarpmir_x_pita <- intersect(tarpmir.keys, pita.keys)
-  # apply majority vote: only use binding sites where 2/3 approve
-  majority.vote <- c(miranda_x_tarpmir, miranda_x_pita, tarpmir_x_pita)
-  # build table
-  splitter <- ifelse(match=="complete", 4, 3)
-  majority.vote <- str_split_fixed(majority.vote, "\\|", splitter)
-  majority.vote <- data.frame(table(majority.vote[,2], majority.vote[,1]))
-  # output VENN diagram
-  library(RColorBrewer)
-  myCol <- brewer.pal(3, "Pastel2")
-  venn.diagram(x = list(miranda.keys, tarpmir.keys, pita.keys), 
-               category.names = c("miRanda", "TarPmiR", "PITA"), 
-               filename = file.path(out, "plots/binding_sites.png"), output = T,
-               imagetype="png",
-               height = 800, 
-               width = 1200, 
-               resolution = 300,
-               compression = "lzw",
-               
-               # Circles
-               lwd = 2,
-               lty = 'blank',
-               fill = myCol,
-               
-               # Numbers
-               cex = .6,
-               fontface = "bold",
-               fontfamily = "sans",
-               
-               # Set names
-               cat.cex = 0.6,
-               cat.fontface = "bold",
-               cat.default.pos = "outer",
-               cat.pos = c(-27, 27, 135),
-               cat.dist = c(0.055, 0.055, 0.085),
-               cat.fontfamily = "sans",
-               rotation = 1)
-  return(majority.vote)
-}
-
 # use pipeline outputs to create target scan symbols
-create_target_scan_symbols <- function(merged_data, majority, total_bindings, miranda, tarpmir, pita) {
+create_target_scan_symbols <- function(merged_data, majority, total_bindings) {
   if(!is.null(total_bindings)) {
     print("using manually provided total RNA-miRNA bindings")
     return(total_bindings)
   }
-  print("CREATING TARGET SCAN SYMBOLS")
-  print("using given targets")
   merged_data_targets <- read.table(merged_data, header = T, sep = "\t", check.names = F, stringsAsFactors = F)
-  miranda_targets <- NULL
-  tarpmir_targets <- NULL
-  pita_targets <- NULL
-  
-  # add individually if no majority vote could be formed
-  if (is.null(majority)) {
-    # process targets from miranda
-    if (file.exists(miranda)) {
-      print("processing miRanda targets")
-      miranda.bp <- read.table(miranda, header = T, sep = "\t", check.names = F, stringsAsFactors = F)
-      miranda_targets <- data.frame(table(miranda.bp$Target, miranda.bp$miRNA))
-    }
-    # process tarpmir data
-    if (file.exists(tarpmir)) {
-      print("processing TarPmiR data")
-      tarpmir_data <- read.table(tarpmir, header = F, sep = "\t", check.names = F, stringsAsFactors = F)
-      tarpmir_targets <- data.frame(table(tarpmir_data$V2, tarpmir_data$V1))
-    }
-    # process PITA data
-    if (file.exists(pita)) {
-      print("processing PITA data")
-      pita_data <- read.table(pita, header = T, sep = "\t", check.names = F, stringsAsFactors = F)
-      pita_targets <- data.frame(table(pita_data$UTR, pita_data$microRNA))
-    }
-  }
-  
-  # MERGE DATA
-  targets_data <- list(merged_data_targets, majority, miranda_targets, tarpmir_targets, pita_targets)
+
+  print("Combining linear and circular miRNA-binding sites...")
+  targets_data <- list(merged_data_targets, majority)
   # remove null elements from list
   targets_data[sapply(targets_data, is.null)] <- NULL
   # bind targets
@@ -224,6 +109,7 @@ create_target_scan_symbols <- function(merged_data, majority, total_bindings, mi
   merged.targets[is.na(merged.targets)] <- 0
   # convert back to matrix
   merged.targets <- as.matrix(merged.targets)
+  print("finished")
   # return contingency table
   return(merged.targets)
 }
@@ -256,28 +142,22 @@ normalize.data <- function(data){
 }
 
 # PROCESS INPUTS ------------------------------------------------
-# check required inputs
-if (notset(argv$gene_expr) || notset(argv$mirna_expr)) {
-  stop("One or more mandatory arguments are not given")
-}
 majority <- NULL
 total_bindings <- NULL
-n.targets <- length(sapply(list(argv$miranda, argv$tarpmir, argv$pita), notset))
-if (n.targets == 0) {
-  stop("Supply at least one ")
-} else if (file.exists(argv$total_bindings)){
+# read precomputed total bindings of linear and cirular RNA
+if (file.exists(argv$total_bindings)){
   total_bindings <- read.table(argv$total_bindings, sep = "\t", stringsAsFactors = F, check.names = F)
-} else if (n.targets == 3) {
-  majority <- majority_vote(argv$miranda, argv$tarpmir, argv$pita, argv$majority_matcher)
+# read majority vote
+} else if (file.exists(argv$circ_bs)) {
+  majority <- read.table(argv$circ_bs, sep = "\t", check.names = F, header = T)
+} else {
+  stop("Please provide circular RNA-miRNA binding sites (--circ_bs) or precomputed RNA-miRNA binding sites (--total_bindings)")
 }
 
 # SET TARGET SCAN SYMBOLS
 target_scan_symbols_counts <- create_target_scan_symbols(merged_data = argv$target_scan_symbols,
                                                          majority = majority,
-                                                         total_bindings = total_bindings,
-                                                         miranda = argv$miranda,
-                                                         tarpmir = argv$tarpmir,
-                                                         pita = argv$pita)
+                                                         total_bindings = total_bindings)
 # SET MIRNA EXPRESSION
 print("reading miRNA expression...")
 mi_rna_expr <- read.table(file = argv$mirna_expr, header = T, check.names = F, row.names = 1)

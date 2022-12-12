@@ -16,8 +16,8 @@ finaldata <- NULL
 N_of_circRNAs_raw <- c()
 for (i in 1:length(samples)){
   sample <- samples[i]
-  path <- file.path(output_dir, sample, "circRNA_detection", "circExplorer2", paste0(sample ,"_circularRNA_known.txt"))
-  print(path)
+  path <- file.path(output_dir,"samples", sample, "circRNA_detection", "circExplorer2", paste0(sample ,"_circularRNA_known.txt"))
+  message("Processing CIRCexplorer2 output for sample: ", sample)
   # skip if no circRNAs found
   if(file.size(path) == 0){
     warning(paste0("Sample ", sample, " has no circRNAs that could be detected with CIRCexplorer2. Sample will be removed from results"))

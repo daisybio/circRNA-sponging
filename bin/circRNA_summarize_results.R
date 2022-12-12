@@ -9,7 +9,7 @@ if (length(args)!=2) {
 dataset_path = args[1]
 output_dir = args[2]
 
-dataset <- read.table(dataset_path, sep = "\t", header=T, stringsAsFactors = F)
+dataset <- read.table(dataset_path, sep = "\t", header = T, stringsAsFactors = F)
 samples <- dataset$sample
 
 finaldata <- NULL
@@ -33,26 +33,37 @@ for (i in 1:length(samples)){
   expression_raw <- expression_raw[!grepl("_", expression_raw$chr, fixed = T),]
   
   # compact and remove duplicates
-  compact_raw <- data.table(circRNA=paste0(expression_raw$chr, ":", expression_raw$start, "-", expression_raw$stop,"_", expression_raw$strand, "!", expression_raw$gene_symbol), 
-                            counts = expression_raw$counts,
-                            type = expression_raw$type)
-  # compact_raw <- compact_raw[, max(counts), by=circRNA]
-  compact_raw <- compact_raw[!duplicated(circRNA),]
-  
-  compact_raw$chr <- sapply(strsplit(as.character(compact_raw$circRNA),':'), "[", 1)
-  compact_raw$start <- as.numeric(sapply(strsplit(sapply(strsplit(as.character(compact_raw$circRNA),':'), "[", 2),'-'), "[", 1))
-  compact_raw$stop <- as.numeric(sapply(strsplit(sapply(strsplit(as.character(compact_raw$circRNA),'-'), "[", 2),'_'), "[", 1))
-  compact_raw$strand <- sapply(strsplit(sapply(strsplit(as.character(compact_raw$circRNA),'_'), "[", 2), '!'), "[", 1)
-  compact_raw$gene_symbol <- sapply(strsplit(sapply(strsplit(as.character(compact_raw$circRNA),'_'), "[", 2), '!'), "[", 2)
+  compact_raw <- data.table(circRNA=paste(expression_raw$chr,
+                                           expression_raw$start,
+                                           expression_raw$stop,
+                                           expression_raw$strand,
+                                           expression_raw$gene_symbol,
+                                           expression_raw$type, sep = ":"),
+                            counts = expression_raw$counts)
+  compact_raw <- compact_raw[, max(counts), by=circRNA]
+  # rebuild original data
+  data <- strsplit(as.character(compact_raw$circRNA),':')[[1]]
+  compact_raw$chr <- data[1]
+  compact_raw$start <- data[2]
+  compact_raw$stop <- data[3]
+  compact_raw$strand <- data[4]
+  compact_raw$gene_symbol <- data[5]
+  compact_raw$type <- data[6]
+  # build ID
+  rownames(compact_raw) <- paste0(compact_raw$chr, ":", compact_raw$start, "-", compact_raw$stop, "_", compact_raw$strand)
   
   expression <- compact_raw[,c("chr", "start", "stop", "strand", "gene_symbol", "type", "counts")]
   colnames(expression)[7] <- sample
-  
+  # first entry
   if(is.null(finaldata)){
     finaldata <- expression
   } else {
     finaldata <- merge(finaldata, expression, by = c("chr", "start", "stop", "strand", "gene_symbol", "type"), all = T)
   }
 }
+# remove NAs
 finaldata[is.na(finaldata)] <- 0
-write.table(finaldata, paste0("circRNA_counts_raw.tsv"), quote = F, sep = "\t", row.names = F)
+# remove duplicate row names
+finaldata <- finaldata[!duplicated(circRNA),]
+# write to disk
+write.table(finaldata, file.path(output_dir, "circRNA_counts_raw.tsv"), quote = F)

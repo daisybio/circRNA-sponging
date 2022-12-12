@@ -167,7 +167,7 @@ if(!params.miRNA_raw_counts && !params.circRNA_only) {
 
 // create channels for files
 Channel.value(file(fasta)).into { ch_fasta; ch_fasta_star; ch_fasta_circ; ch_fasta_circ2 }
-Channel.value(file(gtf)).into { ch_gtf; ch_gtf_psirc; ch_gtf_spongEffects; ch_gtf_extract; ch_gtf_extract2 }
+Channel.value(file(gtf)).into { ch_gtf; ch_gtf_psirc; ch_gtf_spongEffects; ch_gtf_extract }
 ch_bed12 = Channel.value(file(bed12))
 Channel.value(file(miRNA_fasta)).into { mirna_fasta_miRanda; mirna_fasta_PITA; mirna_fasta_TarPmiR; mirna_fasta_miRDeep2; mirna_fasta_SPONGE }
 
@@ -229,6 +229,7 @@ if(!file(mapping).exists()) {
 
         output:
         tuple val(sampleID), file("Chimeric.out.junction") into chimeric_junction_files
+        file("Aligned.out.sam.gz") into alignments
 
         script:
         """
@@ -316,7 +317,7 @@ process extract_circRNA_sequences {
     file(gtf) from ch_gtf_extract
 
     output:
-    file("circRNAs.fa") into circRNAs_raw_fasta
+    file("circRNAs.fa") into (circRNAs_raw_fasta, circRNAs_raw_fasta2)
 
     script:
     """
@@ -506,22 +507,21 @@ if (params.database_annotation){
 /*
 * EXTRACT circRNA FASTAS
 */
-process circ_fastas{
+process filter_circRNA_fasta{
     label 'process_medium'
 
     publishDir "${params.outdir}/results/binding_sites/input/", mode: params.publish_dir_mode
 
     input:
     file(circRNAs_filtered) from ch_circRNA_counts_filtered1
-    file(fasta) from ch_fasta_circ2
-    file(gtf) from ch_gtf_extract2
+    file(circ_fasta) from circRNAs_raw_fasta2
 
     output:
-    file("circRNAs.fa") into (circRNAs_fasta1, circRNAs_fasta2, circRNAs_fasta3)
+    file("circRNAs_filtered.fa") into (circRNAs_fasta1, circRNAs_fasta2, circRNAs_fasta3)
 
     script:
     """
-	Rscript "${projectDir}"/bin/extract_fasta.R $fasta $gtf $circRNAs_filtered
+	Rscript "${projectDir}"/bin/filter_fasta.R $fasta $circRNAs_filtered
     """
 }
 
@@ -576,7 +576,7 @@ if (!file(miranda_output).exists()) {
     process miRanda {
         label 'process_long'
         publishDir miranda_tmp, mode: params.publish_dir_mode
-        
+
         input:
         file(circRNA_fasta) from circRNAs_fasta1.splitFasta( by: params.splitter, file: true )
         file(miRNA_fasta) from mirna_fasta_miRanda
@@ -602,7 +602,7 @@ if (!file(miranda_output).exists()) {
 process binding_sites_processing {
     label 'process_medium'
     publishDir miranda_path, mode: params.publish_dir_mode
-    
+
     input:
     file(bind_sites_raw) from bind_sites_out
 
@@ -622,10 +622,10 @@ process binding_sites_processing {
 process binding_sites_filtering {
     label 'process_medium'
     publishDir miranda_path, mode: params.publish_dir_mode
-    
+
     input:
     file(bind_sites_proc) from bind_sites_processed
-    
+
     output:
     file("bindsites_25%_filtered.tsv") into (ch_bindsites_filtered1, ch_bindsites_filtered2)
 
@@ -731,10 +731,10 @@ if (!params.circRNA_only) {
         /*
         * IF RAW miRNA COUNTS ARE ALREADY SPECIFIED IN A FILE
         */
-        ch_miRNA_counts_raw = Channel.fromPath(params.miRNA_raw_counts) 
+        ch_miRNA_counts_raw = Channel.fromPath(params.miRNA_raw_counts)
 
     } else {
-    
+
         /*
         * PERFORM miRNA DETECTION USING miRDeep2 FROM SPECIFIED READ FILES
         * CREATE INPUT CHANNEL
@@ -754,11 +754,11 @@ if (!params.circRNA_only) {
 
             input:
             file(fasta) from ch_fasta
-            
+
             output:
             val("${bowtie_output}/${fasta.baseName}") into ch_generated_bowtie_index
             file("${fasta.baseName}.*") into ch_generated_bowtie_index_files
-                            
+
             when: (params.bowtie_index == null)
 
             script:
@@ -857,7 +857,7 @@ if (!params.circRNA_only) {
             label 'process_low'
 
             publishDir "${params.outdir}/results/miRNA/", mode: params.publish_dir_mode
-            
+
             input:
             file(miRNA_counts_raw) from ch_miRNA_counts_raw
 
@@ -872,7 +872,7 @@ if (!params.circRNA_only) {
     } else {
         ch_miRNA_counts_raw.into{ ch_miRNA_counts_norm1; ch_miRNA_counts_norm2 }
     }
-    
+
 
     /*
     * FILTER miRNAs TO REDUCE LOW EXPRESSED ONES
@@ -882,7 +882,7 @@ if (!params.circRNA_only) {
             label 'process_medium'
 
             publishDir "${params.outdir}/results/miRNA/", mode: params.publish_dir_mode
-            
+
             input:
             file(miRNA_counts_norm) from ch_miRNA_counts_norm1
 
@@ -897,7 +897,7 @@ if (!params.circRNA_only) {
     } else {
         ch_miRNA_counts_norm1.into{ch_miRNA_counts_filtered1; ch_miRNA_counts_filtered2; ch_miRNA_counts_filtered3}
     }
-    
+
     /*
     * FOR ALL POSSIBLE circRNA-miRNA PAIRS COMPUTE PEARSON CORRELATION
     * USES ONLY miRanda bindsites
@@ -907,7 +907,7 @@ if (!params.circRNA_only) {
             label 'process_high'
 
             publishDir "${params.outdir}/results/sponging/", mode: params.publish_dir_mode
-            
+
             input:
             file(miRNA_counts_filtered) from ch_miRNA_counts_filtered1
             file(circRNA_counts_filtered) from ch_circRNA_counts_filtered3
@@ -930,7 +930,7 @@ if (!params.circRNA_only) {
             label 'process_high'
 
             publishDir "${params.outdir}/results/sponging/", mode: params.publish_dir_mode
-            
+
             input:
             file(correlations) from ch_correlations
             file(miRNA_counts_filtered) from ch_miRNA_counts_filtered2

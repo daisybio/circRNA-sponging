@@ -27,7 +27,7 @@ if(length(samples) < 5){
 
 miRNA_expression <- read.table(miRNA_filtered_path, header = T, stringsAsFactors = F, check.names = F)
 
-circRNA_expression <- read.table(circRNA_filtered_path,header = T, stringsAsFactors = F, check.names = F)
+circRNA_expression <- read.table(circRNA_filtered_path, header = T, stringsAsFactors = F, check.names = F)
 # check for annotation
 annotation <- "circBaseID" %in% colnames(circRNA_expression)
 
@@ -35,7 +35,6 @@ header <- "circRNA\tmiRNA\tcircRNA_miRNA_ratio\tmiRNA_binding_sites\tpearson_R\t
 #write(header, file=paste0("filtered_circRNA_miRNA_correlation_libSizeEstNorm_directwritten.tsv"), append = F)
 
 miRNA_for_row <- function(miRNA_expr_line, circRNA, circRNA_counts){
-  #miRNA <- as.character(miRNA_expr_line[1])
   mirna <- as.character(miRNA_expr_line[1])
 
   # get sample counts for current miRNA
@@ -62,8 +61,7 @@ miRNA_for_row <- function(miRNA_expr_line, circRNA, circRNA_counts){
   } else {
     stop("Why is the counted matrix containing the same pair in this amount: ", length(pair))
   }
-  
-  
+
   # compute circRNA-miRNA correlation for all samples
   cor_res <- cor.test(joined_counts$miRNA_counts, joined_counts$circRNA_counts,  method = "pearson", use = "complete.obs")
   corr_R <- as.numeric(as.character(cor_res$estimate))

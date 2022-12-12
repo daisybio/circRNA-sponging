@@ -17,7 +17,7 @@ parser <- add_argument(parser, "--majority_matcher", help = "Majority match sett
 
 argv <- parse_args(parser, argv = args)
 
-majority_vote <- function(miranda, tarpmir, pita, match, out = "./") {
+majority_vote <- function(linear_targets, miranda, tarpmir, pita, match, out = "./") {
   data <- list(miranda, tarpmir, pita)
   # check files
   if (length(Filter(file.exists, data)) != 3) {

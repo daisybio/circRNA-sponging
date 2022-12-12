@@ -34,4 +34,4 @@ for (i in 1:nrow(expr_only)){
 }
 filtered_data <- expression_norm[rows_to_keep,]
 # write final output
-write.table(filtered_data, file = "circRNA_counts_filtered.tsv", quote = F, sep = "\t", row.names = F)
+write.table(filtered_data, file = "circRNA_counts_filtered.tsv", quote = F)

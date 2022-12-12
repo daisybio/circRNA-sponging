@@ -10,6 +10,7 @@ parser <- add_argument(parser, "--gene_expr", help = "Gene expression file in ts
 parser <- add_argument(parser, "--samplesheet", help = "Meta data for expressions in tsv")
 parser <- add_argument(parser, "--circ_filtered", help = "circRNA filtered expression file in tsv format as given by pipeline")
 parser <- add_argument(parser, "--circ_raw", help = "circRNA raw expression file in tsv format as given by pipeline")
+parser <- add_argument(parser, "--circ_annotation", help = "circRNA annotation file given by pipeline")
 parser <- add_argument(parser, "--tpm_map", help = "TPM map of circular and linear transcripts provided by pipeline")
 # parameter settings
 parser <- add_argument(parser, "--fdr", help = "FDR threshold", default = 0.01)
@@ -139,10 +140,10 @@ create_outputs <- function(d, results, marker, out, nsub=1000, n = 20, padj = 0.
   return(list(significant_hits = signif.hits, counts = filtered, PCA_data = PCA_data, palette = annotation.colors))
 }
 
-# read gene expression and add pseudocount
+# read gene expression
 gene_expression <- as.matrix(read.table(file = argv$gene_expr, header = T, sep = "\t", stringsAsFactors = F, check.names = F))
 
-# metadata
+# meta data for data set
 samplesheet <- read.table(file = argv$samplesheet, sep = "\t", header = T)
 
 # plot ratio of conditions
@@ -155,25 +156,28 @@ par(mar = c(5, 4, 4, 8), xpd = T)
 legend("topright", legend = names(condition.occurences), fill = cond.col, inset = c(-0.05, 0), cex = 0.75)
 dev.off()
 
-# circRNAs filtered
-circ_RNAs <- read.table(file = argv$circ_filtered, sep = "\t", header = T, stringsAsFactors = F, check.names = F)
-filtered.circs <- paste0(circ_RNAs$chr, ":", circ_RNAs$start, "-", circ_RNAs$stop, ":", circ_RNAs$strand)
 # raw circRNA expression
 circ.raw <- read.table(file = argv$circ_raw, sep = "\t", header = T, stringsAsFactors = F, check.names = F)
-circ.raw$key <- paste0(circ.raw$chr, ":", circ.raw$start, "-", circ.raw$stop, ":", circ.raw$strand)
+# circRNAs filtered
+circ_RNAs <- read.table(file = argv$circ_filtered, sep = "\t", header = T, stringsAsFactors = F, check.names = F)
 
-annotation <- "circBaseID" %in% colnames(circ_RNAs)
 # get samples
 samples <- samplesheet$sample
 
-# DIFFERENTIAL circRNA EXPRESSION
-# use given annotation if possible
-if (annotation) {
-  circ_RNA_annotation <- ifelse(circ_RNAs$circBaseID != "None", 
-                                circ_RNAs$circBaseID, 
-                                paste0(circ_RNAs$chr, ":", circ_RNAs$start, ":", circ_RNAs$stop, ":", circ_RNAs$strand))
-} else {
-  circ_RNA_annotation <- paste0(circ_RNAs$chr, ":", circ_RNAs$start, ":", circ_RNAs$stop, ":", circ_RNAs$strand)
+# get raw expression values for filtered circRNAs and samples
+samples <- intersect(colnames(circ.raw), samples)
+circ_expr <- circ.raw[rownames(circ_RNAs), samples]
+
+# annotate circRNAs if possible
+if("circBaseID" %in% colnames(circ_RNAs)) {
+    # get all circBase IDs for row names in the circRNA expression file
+    IDs <- rownames(circ_expr)
+    IDs <- merge(IDs, circ_RNAs[,"circBaseID"], by = 0, all.x = T)
+    # set NAs to None keyword
+    IDs[is.na(IDs$y),"y"] <- "None"
+    # only change names that are present in annotation
+    IDs[IDs[,"y"]!="None","x"] <- IDs[IDs[,"y"]!="None","y"]
+    rownames(circ_expr) <- IDs$x
 }
 
 # ratio of database annotation
@@ -184,11 +188,7 @@ filtering.rate <- c(Accepted = nrow(circ_RNAs), Rejected = nrow(circ.raw) - nrow
 # plot ratios
 pies(db.rate, filtering.rate)
 
-# get raw expression values for filtered circRNAs and samples
-samples <- intersect(colnames(circ.raw), samples)
-circ_expr <- circ.raw[circ.raw$key %in% filtered.circs, samples]
-rownames(circ_expr) <- circ_RNA_annotation
-
+# add pseudo-count
 pseudocount = 1
 gene_expression <- gene_expression + pseudocount
 circ_expr <- as.matrix(circ_expr) + pseudocount

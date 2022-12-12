@@ -7,7 +7,8 @@ if (length(args)!=2) {
   stop("Two argument must be supplied", call.=FALSE)
 }
 dataset_path = args[1]
-output_dir = args[2]
+input_dir = args[2]
+output_dir = args[3]
 
 dataset <- read.table(dataset_path, sep = "\t", header = T, stringsAsFactors = F)
 samples <- dataset$sample
@@ -16,7 +17,7 @@ finaldata <- NULL
 N_of_circRNAs_raw <- c()
 for (i in 1:length(samples)){
   sample <- samples[i]
-  path <- file.path(output_dir,"samples", sample, "circRNA_detection", "circExplorer2", paste0(sample ,"_circularRNA_known.txt"))
+  path <- file.path(input_dir,"samples", sample, "circRNA_detection", "circExplorer2", paste0(sample ,"_circularRNA_known.txt"))
   message("Processing CIRCexplorer2 output for sample: ", sample)
   # skip if no circRNAs found
   if(file.size(path) == 0){

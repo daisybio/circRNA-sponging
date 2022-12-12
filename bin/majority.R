@@ -32,12 +32,12 @@ majority_vote <- function(miranda, tarpmir, pita, match, out = "./") {
   miranda.bp[,c("start", "end")] <- str_split_fixed(miranda.bp$Subject.Al.Start.End., " ", 2)
 
   print("process TarPmiR targets")
-  tarpmir_data <- fread(tarpmir, header = F, sep = "\t", check.names = F, stringsAsFactors = F, select = 1:3)
+  tarpmir_data <- fread(tarpmir, header = F, sep = "\t", check.names = F, stringsAsFactors = F, select = 1:3, fill = T)
   tarpmir_data[, c("start", "end")] <- str_split_fixed(tarpmir_data$V3, ",", 2)
   colnames(tarpmir_data) <- c("miRNA", "mRNA", "pos", "start", "end")
 
   print("process PITA targets")
-  pita_data <- fread(pita, header = T, sep = "\t", check.names = F, stringsAsFactors = F, select = 1:4)
+  pita_data <- fread(pita, header = T, sep = "\t", check.names = F, stringsAsFactors = F, select = 1:4, fill = T)
   # switch pita output labels
   colnames(pita_data) <- c("UTR", "microRNA", "end", "start")
 

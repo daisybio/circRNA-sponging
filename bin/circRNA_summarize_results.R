@@ -68,7 +68,5 @@ for (i in 1:length(samples)){
 }
 # remove NAs
 finaldata[is.na(finaldata)] <- 0
-# remove duplicate row names
-finaldata <- finaldata[!duplicated(circRNA),]
 # write to disk
 write.table(finaldata, file.path(output_dir, "circRNA_counts_raw.tsv"), quote = F)

@@ -46,28 +46,30 @@ for (i in 1:length(samples)){
                                            expression_raw$type, sep = ":"),
                             counts = expression_raw$counts)
   compact_raw <- compact_raw[, max(counts), by=circRNA]
-  # rebuild original data
-  data <- strsplit(as.character(compact_raw$circRNA),':')
-  compact_raw$chr <- sapply(data, "[", 1)
-  compact_raw$start <- sapply(data, "[", 2)
-  compact_raw$stop <- sapply(data, "[", 3)
-  compact_raw$strand <- sapply(data, "[", 4)
-  compact_raw$gene_symbol <- sapply(data, "[", 5)
-  compact_raw$type <- sapply(data, "[", 6)
-  # build ID
-  compact_raw <- data.frame(compact_raw, check.names = F)
-  rownames(compact_raw) <- paste0(compact_raw$chr, ":", compact_raw$start, "-", compact_raw$stop, "_", compact_raw$strand)
   
-  expression <- compact_raw[,c("chr", "start", "stop", "strand", "gene_symbol", "type", "V1")]
+  expression <- compact_raw
   colnames(expression)[7] <- sample
   # first entry
   if(is.null(finaldata)){
     finaldata <- expression
   } else {
-    finaldata <- merge(finaldata, expression, by = c("chr", "start", "stop", "strand", "gene_symbol", "type"), all = T)
+    finaldata <- merge(finaldata, expression, by = "circRNA", all = T)
   }
 }
 # remove NAs
 finaldata[is.na(finaldata)] <- 0
+# rebuild original data
+data <- strsplit(as.character(finaldata$circRNA),':')
+finaldata$chr <- sapply(data, "[", 1)
+finaldata$start <- sapply(data, "[", 2)
+finaldata$stop <- sapply(data, "[", 3)
+finaldata$strand <- sapply(data, "[", 4)
+finaldata$gene_symbol <- sapply(data, "[", 5)
+finaldata$type <- sapply(data, "[", 6)
+# set IDs as row names
+finaldata <- data.frame(finaldata, check.names = F)
+rownames(finaldata) <- paste0(finaldata$chr, ":", finaldata$start, "-", finaldata$stop, "_", finaldata$strand)
+# reorder data
+finaldata <- finaldata[,c("chr", "start", "stop", "strand", "gene_symbol", "type", samples)]
 # write to disk
 write.table(finaldata, file.path(output_dir, "circRNA_counts_raw.tsv"), quote = F)

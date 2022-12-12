@@ -36,4 +36,5 @@ dds <- DESeq2::estimateSizeFactors(dds)
 normalized_counts <- DESeq2::counts(dds, normalized=TRUE)
 # add circRNA data to counts
 normalized_data <- cbind(circRNA_names, normalized_counts)
+normalized_data <- subset(normalized_data, select = -c(order, key)
 write.table(normalized_data, paste0("circRNA_counts_normalized.tsv"), quote = F, sep = "\t")

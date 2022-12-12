@@ -8,7 +8,7 @@ if (length(args)!=2) {
 }
 dataset_path = args[1]
 input_dir = args[2]
-output_dir = args[3]
+output_dir = "./"
 
 dataset <- read.table(dataset_path, sep = "\t", header = T, stringsAsFactors = F)
 samples <- dataset$sample
@@ -48,12 +48,12 @@ for (i in 1:length(samples)){
   compact_raw <- compact_raw[, max(counts), by=circRNA]
   # rebuild original data
   data <- strsplit(as.character(compact_raw$circRNA),':')[[1]]
-  compact_raw$chr <- data[1]
-  compact_raw$start <- data[2]
-  compact_raw$stop <- data[3]
-  compact_raw$strand <- data[4]
-  compact_raw$gene_symbol <- data[5]
-  compact_raw$type <- data[6]
+  compact_raw$chr <- sapply(data, "[", 1)
+  compact_raw$start <- sapply(data, "[", 2)
+  compact_raw$stop <- sapply(data, "[", 3)
+  compact_raw$strand <- sapply(data, "[", 4)
+  compact_raw$gene_symbol <- sapply(data, "[", 5)
+  compact_raw$type <- sapply(data, "[", 6)
   # build ID
   rownames(compact_raw) <- paste0(compact_raw$chr, ":", compact_raw$start, "-", compact_raw$stop, "_", compact_raw$strand)
   

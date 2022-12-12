@@ -34,10 +34,6 @@ dds <- DESeq2::DESeqDataSetFromMatrix(countData = round(data + 1), colData = met
 dds <- DESeq2::estimateSizeFactors(dds)
 
 normalized_counts <- DESeq2::counts(dds, normalized=TRUE)
-
-# add circRNA position back to counts table
-merged_data <- merge(circRNA_names, normalized_counts, by = "row.names")
-merged_data <- merged_data[order(merged_data$order), ]
-normalized_data <- subset(merged_data, select = -c(order, Row.names))
-
+# add circRNA data to counts
+normalized_data <- cbind(circRNA_names, normalized_counts)
 write.table(normalized_data, paste0("circRNA_counts_normalized.tsv"), quote = F, sep = "\t")

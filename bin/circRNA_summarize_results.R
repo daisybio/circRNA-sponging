@@ -57,7 +57,7 @@ for (i in 1:length(samples)){
   # build ID
   rownames(compact_raw) <- paste0(compact_raw$chr, ":", compact_raw$start, "-", compact_raw$stop, "_", compact_raw$strand)
   
-  expression <- compact_raw[,c("chr", "start", "stop", "strand", "gene_symbol", "type", "counts")]
+  expression <- compact_raw[,c("chr", "start", "stop", "strand", "gene_symbol", "type", "V1")]
   colnames(expression)[7] <- sample
   # first entry
   if(is.null(finaldata)){

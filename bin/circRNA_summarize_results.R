@@ -47,7 +47,7 @@ for (i in 1:length(samples)){
                             counts = expression_raw$counts)
   compact_raw <- compact_raw[, max(counts), by=circRNA]
   # rebuild original data
-  data <- strsplit(as.character(compact_raw$circRNA),':')[[1]]
+  data <- strsplit(as.character(compact_raw$circRNA),':')
   compact_raw$chr <- sapply(data, "[", 1)
   compact_raw$start <- sapply(data, "[", 2)
   compact_raw$stop <- sapply(data, "[", 3)

@@ -48,7 +48,7 @@ for (i in 1:length(samples)){
   compact_raw <- compact_raw[, max(counts), by=circRNA]
   
   expression <- compact_raw
-  colnames(expression)[7] <- sample
+  colnames(expression)[2] <- sample
   # first entry
   if(is.null(finaldata)){
     finaldata <- expression

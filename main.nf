@@ -627,7 +627,7 @@ process binding_sites_filtering {
     file(bind_sites_proc) from bind_sites_processed
 
     output:
-    file("bindsites_25%_filtered.tsv") into (ch_bindsites_filtered1, ch_bindsites_filtered2)
+    file("bindsites_25%_filtered.tsv") into ch_bindsites_filtered
 
     script:
     """
@@ -716,6 +716,30 @@ if (params.pita) {
     }
 } else {
     pita_results = Channel.of( 'null' )
+}
+
+/*
+PERFORM MAJORITY VOTE FOR circRNA-miRNA BINDING SITES
+*/
+process binding_site_majority_vote{
+    label 'process_high'
+    publishDir "${params.outdir}/results/binding_sites/output", mode: params.publish_dir_mode
+
+    input:
+    file(miranda) from ch_bindsites_filtered
+    file(tarpmir) from tarpmir_bp_file
+    file(pita) from pita_results
+
+    output:
+    file("majority.tsv.gz") into (bs_majority_correlation_analysis, bs_majority_SPONGE)
+
+    script:
+    """
+    Rscript "${projectDir}"/bin/majority.R --miranda_data $miranda \\
+                                           --tarpmir_data $tarpmir \\
+                                           --pita_data $pita \\
+                                           --majority_matcher $params.majority_matcher
+    """
 }
 
 /*
@@ -911,7 +935,7 @@ if (!params.circRNA_only) {
             input:
             file(miRNA_counts_filtered) from ch_miRNA_counts_filtered1
             file(circRNA_counts_filtered) from ch_circRNA_counts_filtered3
-            file(filtered_bindsites) from ch_bindsites_filtered1
+            file(filtered_bindsites) from bs_majority_correlation_analysis
 
             output:
             file("filtered_circRNA_miRNA_correlation.tsv") into ch_correlations
@@ -968,10 +992,8 @@ if (!params.circRNA_only) {
             file(circRNA_counts_filtered) from ch_circRNA_counts_filtered5
             file(mirna_expression) from ch_miRNA_counts_filtered3
             file(miRNA_fasta) from mirna_fasta_SPONGE
-            file(miranda_bind_sites) from ch_bindsites_filtered2
             file(target_scan_symbols) from target_scan_symbols
-            val(tarpmir) from tarpmir_bp_file
-            val(pita) from pita_results
+            file(circRNA_bs) from bs_majority_SPONGE
             val(normalize) from params.normalize ? "--normalize" : ""
             val(tpm_map) from TPM_map2
             val(tpm) from params.tpm ? "--tpm" : ""
@@ -992,10 +1014,7 @@ if (!params.circRNA_only) {
             --meta $params.samplesheet \\
             --fdr $params.fdr \\
             --target_scan_symbols $target_scan_symbols \\
-            --miranda_data $miranda_bind_sites \\
-            --tarpmir_data $tarpmir \\
-            --pita_data $pita \\
-            --majority_matcher $params.majority_matcher \\
+            --circ_bs $circRNA_bs \\
             --pseudocount $params.pseudocount \\
             --tpm_map $tpm_map \\
             $tpm \\

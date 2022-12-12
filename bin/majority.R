@@ -2,6 +2,7 @@
 
 # majority vote
 library(BiocGenerics)
+library(data.table)
 library(stringr)
 library(RColorBrewer)
 library(VennDiagram)

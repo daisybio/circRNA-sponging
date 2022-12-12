@@ -55,6 +55,7 @@ for (i in 1:length(samples)){
   compact_raw$gene_symbol <- sapply(data, "[", 5)
   compact_raw$type <- sapply(data, "[", 6)
   # build ID
+  compact_raw <- data.frame(compact_raw, check.names = F)
   rownames(compact_raw) <- paste0(compact_raw$chr, ":", compact_raw$start, "-", compact_raw$stop, "_", compact_raw$strand)
   
   expression <- compact_raw[,c("chr", "start", "stop", "strand", "gene_symbol", "type", "V1")]

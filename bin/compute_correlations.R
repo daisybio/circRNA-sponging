@@ -16,10 +16,7 @@ filtered_bindsites_path = args[4]
 dataset <- read.table(dataset_path, sep = "\t", header=T, stringsAsFactors = F)
 samples <- dataset$sample
 
-raw_bindSites <- read.table(filtered_bindsites_path, header = T, sep = "\t", stringsAsFactors = F)
-bindSites <- raw_bindSites[,c(1,2)]
-
-pairBindSites <- data.table(dplyr::count(bindSites, Target, miRNA, name="freq"))
+pairBindSites <- read.table(filtered_bindsites_path, header = T, sep = "\t", stringsAsFactors = F)
 
 if(length(samples) < 5){
   stop("Cannot perform correlation on less than 5 samples")
@@ -62,12 +59,7 @@ miRNA_for_row <- function(miRNA_expr_line, circRNA, circRNA_counts){
   #binding_sites <- nrow(bindsitDT[miRNA == mirna & Target == circRNA])
   
   # pair <- pairBindSites[miRNA == mirna & Target == circRNA]
-  pair <- pairBindSites[circRNA, mirna]
-  if(is.na(pair) | is.null(pair)) {
-    binding_sites = 0
-  } else {
-    binding_sites = pair
-  }
+  binding_sites <- pairBindSites[circRNA, mirna]
 
   # compute circRNA-miRNA correlation for all samples
   cor_res <- cor.test(joined_counts$miRNA_counts, joined_counts$circRNA_counts,  method = "pearson", use = "complete.obs")

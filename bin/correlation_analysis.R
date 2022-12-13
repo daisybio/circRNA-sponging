@@ -5,6 +5,23 @@ suppressMessages(library(data.table))
 suppressMessages(library(ggplot2))
 suppressMessages(library(ggrepel))
 
+annotate <- function(expression, annotated_expression){
+    # annotate circRNAs if possible
+    if("circBaseID" %in% colnames(annotated_expression)) {
+        # get all circBase IDs for row names in the circRNA expression file
+        IDs <- rownames(expression)
+        IDs <- merge(IDs, annotated_expression[,"circBaseID"], by = 0, all.x = T)
+        # set NAs to None keyword
+        IDs[is.na(IDs$y),"y"] <- "None"
+        # only change names that are present in annotation
+        IDs[IDs[,"y"]!="None","x"] <- IDs[IDs[,"y"]!="None","y"]
+        rownames(expression) <- IDs$x
+    } else {
+        print("no annotation column found")
+    }
+    return(expression)
+}
+
 # read input parameters
 args = commandArgs(trailingOnly=TRUE)
 if (length(args)!=8) {
@@ -19,7 +36,6 @@ sample_path = args[6]
 miRNA_raw_path = args[7]
 circRNA_raw_path = args[8]
 
-
 # compute paths
 statistics_file <- paste0("sponging_statistics.txt")
 plot_folder <- paste0("plots/")
@@ -30,12 +46,12 @@ dataset <- read.table(dataset_path, sep = "\t", header=T, stringsAsFactors = F)
 samples <- dataset$sample
 
 miRNA_expression_raw <- read.table(miRNA_raw_path, header = T, stringsAsFactors = F, check.names = F)
-circRNA_expression_raw <- read.table(circRNA_raw_path,header = T, stringsAsFactors = F, check.names = F)
+circRNA_expression_raw <- read.table(circRNA_raw_path, header = T, stringsAsFactors = F, check.names = F)
 
 miRNA_expression <- read.table(miRNA_filtered_path, header = T, stringsAsFactors = F, check.names = F)
-circRNA_expression <- read.table(circRNA_filtered_path,header = T, stringsAsFactors = F, check.names = F)
-# check for annotation
-annotation <- "circBaseID" %in% colnames(circRNA_expression)
+circRNA_expression <- read.table(circRNA_filtered_path, header = T, stringsAsFactors = F, check.names = F)
+# annotate expression
+circRNA_expression <- annotate(circRNA_expression, circRNA_expression)
 
 # write starting statistics to file
 file.create(statistics_file)

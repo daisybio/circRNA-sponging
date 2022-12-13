@@ -55,7 +55,7 @@ miRNA_for_row <- function(miRNA_expr_line, circRNA, circRNA_counts){
   
   # pair <- pairBindSites[miRNA == mirna & Target == circRNA]
   pair <- pairBindSites[circRNA, mirna]
-  if(is.na(pair) | is.null()) {
+  if(is.na(pair) | is.null(pair)) {
     binding_sites = 0
   } else {
     binding_sites = pair

@@ -28,6 +28,14 @@ if(length(samples) < 5){
 miRNA_expression <- read.table(miRNA_filtered_path, header = T, stringsAsFactors = F, check.names = F)
 
 circRNA_expression <- read.table(circRNA_filtered_path, header = T, stringsAsFactors = F, check.names = F)
+
+# filter expression for miRNA binding pairs
+valid_circRNAs <- intersect(rownames(circRNA_expression), rownames(pairBindSites))
+valid_miRNAs <- intersect(miRNA_expression$miRNA, colnames(pairBindSites))
+
+circRNA_expression <- circRNA_expression[valid_circRNAs,]
+miRNA_expression <- miRNA_expression[miRNA_expression$miRNA == valid_miRNAs,]
+
 # check for annotation
 annotation <- "circBaseID" %in% colnames(circRNA_expression)
 
@@ -107,15 +115,15 @@ circRNA_for_row <- function(circRNA_expr_line){
     circRNA <- ifelse(circRNA_expr_line[8] != "None", 
                                   circRNA_expr_line[8], 
                                   paste0(circRNA_expr_line[1], ":", circRNA_expr_line[2], ":", circRNA_expr_line[3], ":", circRNA_expr_line[4]))
-    circRNA_counts <- circRNA_expr_line[-c(1:8)]
   } else {
     chr <- as.character(circRNA_expr_line[1])
     start <- as.numeric(as.character(circRNA_expr_line[2]))
     end <- as.numeric(as.character(circRNA_expr_line[3]))
     strand <- as.character(circRNA_expr_line[4])
     circRNA <- paste(chr,":", start, "-", end, "_", strand, sep="")
-    circRNA_counts <- circRNA_expr_line[-c(1:7)]
   }
+  # extract pure counts only
+  circRNA_counts <- circRNA_expr_line[,samples]
   
   # get sample counts for current circRNA
   circRNA_counts <- data.frame(sample = as.character(names(circRNA_counts)), "circRNA_counts" = as.numeric(unname(circRNA_counts)))

@@ -55,12 +55,10 @@ miRNA_for_row <- function(miRNA_expr_line, circRNA, circRNA_counts){
   
   # pair <- pairBindSites[miRNA == mirna & Target == circRNA]
   pair <- pairBindSites[circRNA, mirna]
-  if(nrow(pair) == 0){
-    binding_sites = 0 
-  } else if(nrow(pair) == 1){
-    binding_sites = pair$freq
+  if(is.na(pair) | is.null()) {
+    binding_sites = 0
   } else {
-    stop("Why is the counted matrix containing the same pair in this amount: ", length(pair))
+    binding_sites = pair
   }
 
   # compute circRNA-miRNA correlation for all samples

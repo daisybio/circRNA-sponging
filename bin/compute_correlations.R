@@ -53,7 +53,8 @@ miRNA_for_row <- function(miRNA_expr_line, circRNA, circRNA_counts){
   #mirna <-miRNA
   #binding_sites <- nrow(bindsitDT[miRNA == mirna & Target == circRNA])
   
-  pair <- pairBindSites[miRNA == mirna & Target == circRNA]
+  # pair <- pairBindSites[miRNA == mirna & Target == circRNA]
+  pair <- pairBindSites[circRNA, mirna]
   if(nrow(pair) == 0){
     binding_sites = 0 
   } else if(nrow(pair) == 1){

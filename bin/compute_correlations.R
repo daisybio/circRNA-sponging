@@ -30,8 +30,10 @@ miRNA_expression <- read.table(miRNA_filtered_path, header = T, stringsAsFactors
 circRNA_expression <- read.table(circRNA_filtered_path, header = T, stringsAsFactors = F, check.names = F)
 
 # filter expression for miRNA binding pairs
+valid_circRNAs <- intersect(rownames(circRNA_expression), rownames(pairBindSites))
 valid_miRNAs <- intersect(miRNA_expression$miRNA, colnames(pairBindSites))
 
+circRNA_expression <- circRNA_expression[valid_circRNAs,]
 miRNA_expression <- miRNA_expression[miRNA_expression$miRNA %in% valid_miRNAs,]
 
 # check for annotation

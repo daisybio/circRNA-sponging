@@ -91,8 +91,13 @@ miRNA_for_row <- function(miRNA_expr_line, circRNA, circRNA_counts){
   normalized_counts[,"miRNA_counts"] <- (normalized_counts[,"miRNA_counts"] - min_miRNA_counts)/(max_miRNA_counts - min_miRNA_counts)
   norm_reg_model <- lm(miRNA_counts~circRNA_counts, data = normalized_counts)
   RSS_norm <- sum(norm_reg_model$residuals^2)
-  
-  
+
+  # annotate if possible
+  if (annotation){
+    an = circRNA_expression[circRNA,"circBaseID"]
+    if (an != "None") circRNA = an
+  }
+
   res <- data.frame(circRNA = as.character(circRNA), miRNA = as.character(mirna), 
                     circRNA_miRNA_ratio = as.numeric(circRNA_miRNA_ratio), 
                     miRNA_binding_sites = as.numeric(binding_sites), 
@@ -108,18 +113,11 @@ miRNA_for_row <- function(miRNA_expr_line, circRNA, circRNA_counts){
 
 circRNA_for_row <- function(circRNA_expr_line){
   # get coordinations of current circRNA
-  if (annotation) {
-    circRNA <- circRNA_expr_line[8]
-    circRNA <- ifelse(circRNA_expr_line[8] != "None", 
-                                  circRNA_expr_line[8], 
-                                  paste0(circRNA_expr_line[1], ":", circRNA_expr_line[2], ":", circRNA_expr_line[3], ":", circRNA_expr_line[4]))
-  } else {
-    chr <- as.character(circRNA_expr_line[1])
-    start <- as.numeric(as.character(circRNA_expr_line[2]))
-    end <- as.numeric(as.character(circRNA_expr_line[3]))
-    strand <- as.character(circRNA_expr_line[4])
-    circRNA <- paste(chr,":", start, "-", end, "_", strand, sep="")
-  }
+  chr <- as.character(circRNA_expr_line[1])
+  start <- as.numeric(as.character(circRNA_expr_line[2]))
+  end <- as.numeric(as.character(circRNA_expr_line[3]))
+  strand <- as.character(circRNA_expr_line[4])
+  circRNA <- paste(chr,":", start, "-", end, "_", strand, sep="")
   # extract pure counts only
   circRNA_counts <- circRNA_expr_line[samples]
   

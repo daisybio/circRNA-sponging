@@ -85,6 +85,9 @@ converted_genome = organism.version
 original_genome = str(args.genome_version)
 offline_data = organism.data
 
+# create converter
+CONVERTER = LiftOver(original_genome, converted_genome)
+
 dbs = {
     "circBase": Database("circBase", "http://www.circbase.org/", "http://www.circbase.org/cgi-bin/listsearch.cgi")
 }
@@ -122,12 +125,16 @@ def tsvData(data):
 
 
 # READ FOUND CIRC RNA AND CONVERT GENOMIC POSITIONS
-def convert(c, x, y, s, converter):
-    first = converter.convert_coordinate(c, int(x), s)
-    second = converter.convert_coordinate(c, int(y), s)
+def convert(row):
+    c = row["chr"]
+    x = row["start"]
+    y = row["stop"]
+    s = row["strand"]
+    first = CONVERTER.convert_coordinate(c, int(x), s)
+    second = CONVERTER.convert_coordinate(c, int(y), s)
     if len(first) == 0 or len(second) == 0:
         return None, None
-    return str(first[0][1]), str(second[0][1])
+    return key_gen(c, str(first[0][1]), str(second[0][1]), s)
 
 
 # read input data, convert each position, write tmp file for db, return whole converted data
@@ -136,6 +143,11 @@ def convert_and_write(o, c, d, s, nh):
     # create LiftOver for desired genome versions
     converter = LiftOver(o, c)
     data = {}
+    data = pd.read_csv(d, sep=s)
+    # convert positions and change row names to converted samples
+    data["converted_key"] = data.apply(convert, axis=1)
+    data.set_index("converted_key")
+
     with open(d, "r") as file:
         i = 0
         for line in file:

@@ -167,24 +167,21 @@ plotCorrelationForPair <- function(circRNA, miRNA, circRNA_expression_df, miRNA_
   width = 6, height = 4)
 
 if (sample_path != "null") {
-	
-	sample_structure <- read.table(sample_path, sep = "\t", header=T, stringsAsFactors = F)
-	joined_counts <- merge(joined_counts, sample_structure, by="sample")
+    sample_structure <- read.table(sample_path, sep = "\t", header=T, stringsAsFactors = F)
+    joined_counts <- merge(joined_counts, sample_structure, by="sample")
 
-p_colored <- ggplot(joined_counts, aes(x=circRNA_counts, y=miRNA_counts)) + 
-    geom_point(size = 2, aes(col = group))+
-    geom_smooth(method = "lm", formula = y ~ x) +
-    labs(title=name, 
-       x ="circRNA counts", 
-       y = "miRNA counts", 
-       subtitle=paste0("R=",round(R_value, digits = 2),
-		       ", bind-sites=", bind_sites,
-                       ", p-adj=",round(adjusted_p_value, digits = 8)))
+    p_colored <- ggplot(joined_counts, aes(x=circRNA_counts, y=miRNA_counts)) +
+        geom_point(size = 2, aes(col = group))+
+        geom_smooth(method = "lm", formula = y ~ x) +
+        labs(title=name,
+           x ="circRNA counts",
+           y = "miRNA counts",
+           subtitle=paste0("R=",round(R_value, digits = 2),
+                   ", bind-sites=", bind_sites,
+                           ", p-adj=",round(adjusted_p_value, digits = 8)))
 
-  ggsave(filename = paste0(plot_folder, plot_name,"_groups.png"), plot = p_colored,
-  width = 6, height = 4)
-
-
+    ggsave(filename = paste0(plot_folder, plot_name,"_groups.png"), plot = p_colored,
+              width = 6, height = 4)
 }
 }
 

@@ -112,6 +112,7 @@ circRNA_for_row <- function(circRNA_expr_line){
   end <- as.numeric(as.character(circRNA_expr_line[3]))
   strand <- as.character(circRNA_expr_line[4])
   circRNA <- paste(chr,":", start, "-", end, "_", strand, sep="")
+  message("processing: ", circRNA)
   # extract pure counts only
   circRNA_counts <- circRNA_expr_line[samples]
   

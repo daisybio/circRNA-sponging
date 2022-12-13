@@ -34,7 +34,7 @@ valid_circRNAs <- intersect(rownames(circRNA_expression), rownames(pairBindSites
 valid_miRNAs <- intersect(miRNA_expression$miRNA, colnames(pairBindSites))
 
 circRNA_expression <- circRNA_expression[valid_circRNAs,]
-miRNA_expression <- miRNA_expression[miRNA_expression$miRNA == valid_miRNAs,]
+miRNA_expression <- miRNA_expression[miRNA_expression$miRNA %in% valid_miRNAs,]
 
 # check for annotation
 annotation <- "circBaseID" %in% colnames(circRNA_expression)

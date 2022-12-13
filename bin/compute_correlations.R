@@ -13,10 +13,10 @@ miRNA_filtered_path = args[2]
 circRNA_filtered_path = args[3]
 filtered_bindsites_path = args[4]
 
-dataset <- read.table(dataset_path, sep = "\t", header=T, stringsAsFactors = F)
+dataset <- read.table(dataset_path, sep = "\t", header=T, stringsAsFactors = F, check.names = F)
 samples <- dataset$sample
 
-pairBindSites <- read.table(filtered_bindsites_path, header = T, sep = "\t", stringsAsFactors = F)
+pairBindSites <- read.table(filtered_bindsites_path, header = T, sep = "\t", stringsAsFactors = F, check.names = F)
 
 if(length(samples) < 5){
   stop("Cannot perform correlation on less than 5 samples")

@@ -125,10 +125,10 @@ plotCorrelationForPair <- function(circRNA, miRNA, circRNA_expression_df, miRNA_
   
   # get sample counts for current miRNA
   miRNA_counts <- data.frame(t(miRNA_expression_df[miRNA_expression_df$miRNA == miRNA,]))
-  miRNA_counts <- miRNA_counts[-1, ] 
   miRNA_counts <- as.data.frame(miRNA_counts)
   colnames(miRNA_counts) <- "miRNA_counts"
   miRNA_counts$sample <- row.names(miRNA_counts)
+  miRNA_counts <- miRNA_counts[-1, ]
   miRNA_counts$miRNA_counts <- as.numeric(as.character(miRNA_counts$miRNA_counts))
   
   # compute circRNA expression vs. miRNA expression

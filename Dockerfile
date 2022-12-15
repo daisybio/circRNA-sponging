@@ -26,6 +26,7 @@ RUN R -e "install.packages('pacman', repos='http://cran.rstudio.com/')"
 # install all packages
 COPY R_p_install.R /
 RUN Rscript /R_p_install.R \
+      BiocManager \
       biomaRt \
       argparser \
       data.table \
@@ -45,10 +46,8 @@ RUN Rscript /R_p_install.R \
       BSgenome \
       GenomicRanges \
       GenomicFeatures \
-      seqinr
-
-# SPONGE
-RUN R -e "BiocManager::install('SPONGE')"
+      seqinr \
+      SPONGE \
 
 # install psirc
 COPY install_psirc.sh /

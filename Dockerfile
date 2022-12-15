@@ -88,6 +88,7 @@ RUN set -x \
             libx11-dev \
             libdbus-glib-1-2 \
             curl \
+            lxml \
       && curl -sSLO https://download-installer.cdn.mozilla.net/pub/firefox/releases/${FIREFOX_VER}/linux-x86_64/en-US/firefox-${FIREFOX_VER}.tar.bz2 \
       && tar -jxf firefox-* \
       && mv firefox /opt/ \

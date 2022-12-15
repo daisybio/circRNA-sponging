@@ -30,6 +30,7 @@ parser.add_argument("-startC", "--start", help="Column of start of position", de
 parser.add_argument("-endC", "--end", help="Column of end of position", default=2)
 parser.add_argument("-strandC", "--strand", help="Column of strand", default=3)
 parser.add_argument("-ann", "--annotated_only", help="Only keep annotated circRNAs", action="store_true")
+parser.add_argument("-gecko", "--gecko_binary", help="Location of geckodriver executable", default=None)
 parser.add_argument("-off", "--offline_access", default="None", help="Location of database offline data")
 parser.add_argument("-split", "--splitter", default=1000,
                     help="Maximum number of entries before splitting into search threads")
@@ -281,6 +282,11 @@ def main():
     FIREFOX_OPTS = Options()  # set firefox options
     FIREFOX_OPTS.log.level = "trace"  # Debug
     FIREFOX_OPTS.headless = True
+    # add geckodriver binary location
+    if args.gecko_binary is not None:
+        from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
+        FIREFOX_OPTS.binary = FirefoxBinary(args.gecko_binary)
+
     # CHECK DATABASE ACCESS
     if not Path(db_data).is_file() and is_connected(db.test_url, FIREFOX_OPTS):
         print("Connected to database")

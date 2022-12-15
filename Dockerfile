@@ -70,6 +70,7 @@ ENV PATH /opt/conda/envs/nf-core-circrnasponging/bin:$PATH
 
 # Dump the details of the installed packages to a file for posterity
 RUN conda env export --name nf-core-circrnasponging > nf-core-circrnasponging.yml
+RUN conda install -c anaconda lxml
 # include firefox and geckodriver
 ENV GECKODRIVER_VER v0.31.0
 ENV FIREFOX_VER 100.0

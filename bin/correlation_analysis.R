@@ -118,13 +118,13 @@ plotCorrelationDistribution(correlations_processed, paste("Filter: adj_pval <", 
 # define function for plotting correlation for specific pair
 plotCorrelationForPair <- function(circRNA, miRNA, circRNA_expression_df, miRNA_expression_df, bind_sites, R_value, adjusted_p_value, plot_folder, plot_name){
   name <- paste(circRNA, " VS. ", miRNA, sep = "")
-  circRNA_counts <- t(circRNA_expression_df[circRNA,samples])
+  circRNA_counts <- data.frame(t(circRNA_expression_df[circRNA,samples]))
   colnames(circRNA_counts) <- "circRNA_counts"
   circRNA_counts$sample <- row.names(circRNA_counts)
   circRNA_counts$circRNA_counts <- as.numeric(as.character(circRNA_counts$circRNA_counts))
   
   # get sample counts for current miRNA
-  miRNA_counts <- t(miRNA_expression_df[miRNA_expression_df$miRNA == miRNA,])
+  miRNA_counts <- data.frame(t(miRNA_expression_df[miRNA_expression_df$miRNA == miRNA,]))
   miRNA_counts <- miRNA_counts[-1, ] 
   miRNA_counts <- as.data.frame(miRNA_counts)
   colnames(miRNA_counts) <- "miRNA_counts"

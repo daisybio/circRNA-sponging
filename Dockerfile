@@ -3,7 +3,7 @@ RUN apt-get update && apt-get install -y libglpk-dev
 # R packages that are not in conda
 RUN R -e "install.packages('pacman', repos='http://cran.rstudio.com/')"
 # SPONGE
-RUN R -e "BiocManager::install("SPONGE")"
+RUN R -e "BiocManager::install('SPONGE')"
 
 # install psirc from git repository
 ARG DEBIAN_FRONTEND=noninteractive

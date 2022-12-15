@@ -1,6 +1,7 @@
-FROM nfcore/base:1.12.1
-LABEL authors="Octavia Ciora, Leon Schwartz, Markus Hoffmann" \
-      description="Docker image containing all software requirements for the nf-core/circrnasponging pipeline"
+FROM rocker/tidyverse:4.2.0 as Rbase
+RUN apt-get update && apt-get install -y libglpk-dev
+# R packages that are not in conda
+RUN R -e "install.packages('pacman', repos='http://cran.rstudio.com/')"
 
 # install psirc from git repository
 ARG DEBIAN_FRONTEND=noninteractive
@@ -19,11 +20,6 @@ RUN apt-get update && apt-get install -y \
       g++ \
       && rm -rf /var/lib/apt/lists/*
 
-# add R and base software
-RUN apt-get update && apt-get install -y libglpk-dev r-base
-# R package loader
-RUN R -e "install.packages('pacman', repos='http://cran.rstudio.com/')"
-# install all packages
 COPY R_p_install.R /
 RUN Rscript /R_p_install.R \
       BiocManager \
@@ -47,8 +43,13 @@ RUN Rscript /R_p_install.R \
       GenomicRanges \
       GenomicFeatures \
       seqinr \
-      SPONGE \
+      SPONGE
 
+FROM nfcore/base:1.12.1
+LABEL authors="Octavia Ciora, Leon Schwartz, Markus Hoffmann" \
+      description="Docker image containing all software requirements for the nf-core/circrnasponging pipeline"
+# add R
+COPY --from=Rbase /usr/* /usr/
 # install psirc
 COPY install_psirc.sh /
 RUN bash /install_psirc.sh

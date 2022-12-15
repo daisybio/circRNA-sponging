@@ -49,7 +49,7 @@ FROM nfcore/base:1.12.1
 LABEL authors="Octavia Ciora, Leon Schwartz, Markus Hoffmann" \
       description="Docker image containing all software requirements for the nf-core/circrnasponging pipeline"
 # add R
-COPY --from=Rbase ./ /
+COPY --from=Rbase / /
 # install psirc
 COPY install_psirc.sh /
 RUN bash /install_psirc.sh

@@ -16,7 +16,6 @@ import logging
 import time
 import concurrent.futures
 
-
 parser = argparse.ArgumentParser()
 
 parser.add_argument("-o", "--organism", help="Organism in three letter code (hsa for human)", required=True)
@@ -30,9 +29,10 @@ parser.add_argument("-chrC", "--chromosome", help="Column of chromosome", defaul
 parser.add_argument("-startC", "--start", help="Column of start of position", default=1)
 parser.add_argument("-endC", "--end", help="Column of end of position", default=2)
 parser.add_argument("-strandC", "--strand", help="Column of strand", default=3)
-parser.add_argument("-nh", "--no_header", help="Specified file has no header", action='store_true')
+parser.add_argument("-ann", "--annotated_only", help="Only keep annotated circRNAs", action="store_true")
 parser.add_argument("-off", "--offline_access", default="None", help="Location of database offline data")
-parser.add_argument("-split", "--splitter", default=1000, help="Maximum number of entries before splitting into search threads")
+parser.add_argument("-split", "--splitter", default=1000,
+                    help="Maximum number of entries before splitting into search threads")
 
 args = parser.parse_args()
 
@@ -43,6 +43,8 @@ end_c = args.end
 strand_c = args.strand
 organism = args.organism
 splitter = args.splitter
+# filtering option
+annotated_only = args.annotated_only
 
 # read meta file
 meta = pd.read_csv(args.meta, delimiter="\t", )
@@ -95,33 +97,12 @@ dbs = {
 
 # generate key for specific circRNA
 def key_gen(c, x, y, s):
-    return str(c)+":"+str(x)+"-"+str(y)+"_"+str(s)
-
-
-# get key information from key_gen as bed format
-def key_to_bed(k):
-    s1 = k.split(":")   # "chr1":,"start-end_strand"
-    c = s1[0]   # chr
-    s2 = s1[1].split("_")   # "start-end", "strand"
-    strand = s2[1]  # strand
-    lr = s2[0].split("-")   # "start", "end"
-    s = lr[0]   # start
-    e = lr[1]   # end
-    return " ".join([c, s, e, strand])
+    return str(c) + ":" + str(x) + "-" + str(y) + "_" + str(s)
 
 
 # format for database
 def db_format(c, x, y, s):
-    return "\t".join([c, x, y, s])+"\n"
-
-
-# generate string to search in circBase
-def tsvData(data):
-    x = []
-    for key in data.keys():
-        if key != "header":
-            x.append(key_to_bed(key))
-    return x
+    return "\t".join([c, x, y, s]) + "\n"
 
 
 # READ FOUND CIRC RNA AND CONVERT GENOMIC POSITIONS
@@ -133,123 +114,74 @@ def convert(row):
     first = CONVERTER.convert_coordinate(c, int(x), s)
     second = CONVERTER.convert_coordinate(c, int(y), s)
     if len(first) == 0 or len(second) == 0:
+        print("Uplift failed for circRNA: ", ":".join(row.values[0:4].astype(str)))
         return None, None
     return key_gen(c, str(first[0][1]), str(second[0][1]), s)
 
 
+def set_key(row):
+    return key_gen(row["chr"], row["start"], row["stop"], row["strand"])
+
+
 # read input data, convert each position, write tmp file for db, return whole converted data
-def convert_and_write(o, c, d, s, nh):
+def lifted_data(d, s):
     print("lifting coordinates")
-    # create LiftOver for desired genome versions
-    converter = LiftOver(o, c)
-    data = {}
+    # read input circRNA expression
     data = pd.read_csv(d, sep=s)
     # convert positions and change row names to converted samples
     data["converted_key"] = data.apply(convert, axis=1)
-    data.set_index("converted_key")
-
-    with open(d, "r") as file:
-        i = 0
-        for line in file:
-            # split line according to given separator
-            split = line.rstrip("\n").split(s)
-            chromosome = split[chr_c]
-            start_pos = split[start_c]
-            end_pos = split[end_c]
-            strand = split[strand_c]
-            # no header option
-            if i == 0:
-                if not nh:
-                    i += 1
-                    data["header"] = split
-                    continue
-
-            # convert position
-            x_converted, y_converted = convert(chromosome, start_pos, end_pos, strand, converter)
-            # skip if no conversion possible
-            if x_converted is None:
-                print("Conversion failed for line " + str(i) + ": " + str(s).join([chromosome, start_pos, end_pos, strand]))
-                continue
-            # save line to data with according key
-            k = key_gen(chromosome, x_converted, y_converted, strand)
-            data[k] = split
-            # increase counter
-            i += 1
-    return data
+    return data.set_index("converted_key")
 
 
-# write annotated output circ rna
-def write_mapping_file(matched_dict, unannotated_dict, db_dict, output_loc, separator):
-    print("[final] found " + str(len(matched_dict)) + " exact matching circRNAs to submitted query of size " + str(
-        len(unannotated_dict)))
+def annotate_expression(converted_circ_data, db_result):
+    # extract direct matches of genomic positions and no overlaps
+    direct_matches = set(converted_circ_data.index).intersection(set(db_result.index))
+    direct_matches_df = converted_circ_data.loc[direct_matches]
+    # annotate direct matches with circBase ID
+    direct_matches_df.insert(loc=6, column="circBaseID", value=db_result["circRNA ID"])
+    print(f"Found a total of {len(direct_matches)} exact matching circRNAs in database")
 
-    # convert database results to data frame
-    db_header = db_dict.pop("header")
-    db_df = pd.DataFrame(db_dict.values(), columns=db_header, index=db_dict.keys())
-    # write to disk
-    annotation_file = os.path.join(output_loc, "circRNAs_annotated.tsv")
-    db_df.to_csv(annotation_file, sep=separator)
-    # ------------------------------------------------------------------------------
-    # convert matching expression entries
-    header = matched_dict.pop("header")
-    # build circRNA expression data frame
-    expr_df = pd.DataFrame(matched_dict.values(), columns=header, index=matched_dict.keys())
-    # insert circBase ID before first sample
-    new_idx = len(set(header) - set(samples)) - 1
-    # get according circBase IDs and insert at given index under name "circBaseID"
-    expr_df.insert(loc=new_idx, column="circBaseID", value=db_df.loc[(matched_dict.keys())]["circRNA ID"])
-    # write to disk
-    expression_file = os.path.join(output_loc, "circRNA_counts_annotated.tsv")
-    expr_df.to_csv(expression_file, sep=separator)
+    # extract all unannotated circRNAs
+    unannotated_matches = set(converted_circ_data.index) - direct_matches
+    no_match_df = converted_circ_data.loc[unannotated_matches]
+    # set annotation to "None"
+    no_match_df.insert(loc=6, column="circBaseID", value=["None"] * len(no_match_df))
+
+    # only include annotated circRNAs
+    if annotated_only:
+        print("Excluding not annotated circRNAs")
+        circRNA_expression = direct_matches_df
+    # concat both parts
+    else:
+        print("Including not annotated circRNAs")
+        circRNA_expression = pd.concat([direct_matches_df, no_match_df])
+    return circRNA_expression
 
 
 # OFFLINE ACCESS ----------------------------------------------------------
 # reads the offline database
 def read_db(db_loc):
-    d = {}
-    with open(db_loc, "r") as db:
-        c = 0
-        for line in db:
-            split = line.rstrip("\n").split("\t")
-            # save header
-            if c == 0:
-                d["header"] = split
-                c += 1
-                continue
-            d[key_gen(split[0], split[1], split[2], split[3])] = split      # key = position, value = all data
-            c += 1
-    return d
+    # read circBase database file
+    data = pd.read_csv(db_loc, sep="\t")
+    # set index to key_gen
+    data["key"] = data.apply(set_key, axis=1)
+    return data.set_index("key")
 
 
 # LAUNCH OFFLINE MODE
-def offline_access(converted_circ_data, output_loc, database_loc, separator):
-    db_circ_rna = read_db(database_loc)
-    matched_keys = set(converted_circ_data.keys()).intersection(set(db_circ_rna.keys()))
-    m = {k: converted_circ_data[k] for k in matched_keys}
-    unannotated = {k: converted_circ_data[k] for k in set(converted_circ_data.keys()).difference(set(db_circ_rna.keys()))}
-    write_mapping_file(m, unannotated, db_circ_rna, output_loc, separator)
+def offline_access(database_loc):
+    return read_db(database_loc)
 
 
 # ONLINE ACCESS -------------------------------------------------------------
-def read_raw_data(header, data):
-    # add header
-    hits = {"header": header}
-    for row in data:
-        if len(row) < 3:
-            continue
-        # create key of first two columns
-        key = "_".join([row[1], row[2]])
-        # save row as value for key
-        hits[key] = row
-    return hits
-
-
 def read_html(response):
-    soup = bs(response, "html.parser")
-    table = soup.find("table")
-    header = [h.text for h in table.find_all("th")]
-    data = [[d.text for d in h.find_all("td")] for h in table.find_all("tr")]
-    return read_raw_data(header, data)
+    data = pd.read_html(response)[0]
+
+    def key(row):
+        return row["position (genome browser link)"] + "_" + row["strand"]
+
+    data["key"] = data.apply(key, axis=1)
+    return data.set_index("key")
 
 
 # check connection to circBase and if it responds to search queries
@@ -258,10 +190,10 @@ def is_connected(url, options):
     driver = webdriver.Firefox(options=options)
     driver.get(url=url)
     WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
-    textbox = driver.find_element(By.ID, "searchbox")   # enter dummy search
+    textbox = driver.find_element(By.ID, "searchbox")  # enter dummy search
     textbox.click()
     textbox.send_keys("hsa_circ_0142668")
-    driver.find_element(By.ID, "submit").click()        # query search
+    driver.find_element(By.ID, "submit").click()  # query search
     print("Entering dummy search: hsa_circ_0142668")
     WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
     response = bs(driver.page_source, "html.parser").find("title").text  # check response
@@ -270,7 +202,7 @@ def is_connected(url, options):
 
 
 # single search thread
-def submit(tsv_data, url, options):
+def submit(bed, url, options):
     driver = webdriver.Firefox(options=options)
     driver.get(url=url)
     WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
@@ -283,8 +215,8 @@ def submit(tsv_data, url, options):
     # select it
     textbox.click()
     # fill data
-    for circ in tsv_data:
-        textbox.send_keys(circ)
+    for coord in bed:
+        textbox.send_keys(coord)
         textbox.send_keys(Keys.ENTER)
     time.sleep(0.5)
     # submit form and retrieve data
@@ -304,38 +236,33 @@ def submit(tsv_data, url, options):
 
 
 # make request using selenium
-def online_access(converted_circ_data, output_loc, url, options):
+def online_access(converted_circ_data, url, options):
+    print("Building query...")
     # if more than 2500 entries are supplied, thread execute database search with splitter max splits
-    tsv_data = tsvData(converted_circ_data)
-    if len(tsv_data) > splitter:
+    bed = list(converted_circ_data[["chr", "start", "stop", "strand"]].astype(str).apply(" ".join, axis=1))
+    if len(bed) > splitter:
         print("Splitting search into " + str(len(range(0, len(converted_circ_data), splitter))) + " parts")
         with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
             logging.basicConfig(level=logging.INFO, format='%(relativeCreated)6d %(threadName)s %(message)s')
             results = [executor.submit(submit, d, url, options)
-                       for d in [tsv_data[i:i+splitter]
-                                 for i in range(0, len(converted_circ_data), splitter)]]
-            db_dict = {}
+                       for d in [bed[i:i + splitter]
+                                 for i in range(0, len(converted_circ_data), splitter)
+                                 ]
+                       ]
+            db_result = None
             i = 0
-            for f in concurrent.futures.as_completed(results):
+            for thread in concurrent.futures.as_completed(results):
                 # each threads database search result as dict
-                r = f.result()
-                print(str(i) + ": found ", str(len(r.keys())) + " overlapping circRNAs")
-                if len(db_dict.keys()) == 0:
-                    db_dict = r         # initiate first entry
+                df = thread.result()
+                print(str(i) + ": found ", str(len(df)) + " overlapping circRNAs")
+                if db_result is None:
+                    db_result = df  # initiate first data frame
                 else:
-                    db_dict.update(r)   # add next entries
+                    db_result = pd.concat([db_result, df])  # add other frames
                 i += 1
     else:
-        db_dict = submit(tsv_data, url, options)
-    # extract only direct matches of genomic positions and no overlaps
-    direct_matches = {x: converted_circ_data[x]
-                      for x in set(converted_circ_data.keys()).intersection(set(db_dict.keys()))}
-    print(f"Found a total of {len(direct_matches.keys())} exact matching circRNAs in database")
-    # extract all unannotated circRNAs
-    unannotated_matches = {x: converted_circ_data[x]
-                           for x in set(converted_circ_data.keys()).difference(set(db_dict.keys()))}
-    print("Writing output files")
-    write_mapping_file(direct_matches, unannotated_matches, db_dict, output_loc, "\t")
+        db_result = submit(bed, url, options)
+    return db_result
 
 
 def main():
@@ -347,38 +274,39 @@ def main():
     db_data = args.offline_access
     # check separator option
     separator = args.separator
-    # NO HEADER OPTION
-    no_header = args.no_header
 
-    # CIRC RNA CONVERSION, TMP FILE
-    converted_data = convert_and_write(original_genome, converted_genome,
-                                       d=circ_rna_loc, s=separator, nh=no_header)
+    # CIRC RNA CONVERSION
+    converted_data = lifted_data(d=circ_rna_loc, s=separator)
     db = dbs["circBase"]  # set db url
     FIREFOX_OPTS = Options()  # set firefox options
     FIREFOX_OPTS.log.level = "trace"  # Debug
     FIREFOX_OPTS.headless = True
     # CHECK DATABASE ACCESS
     if not Path(db_data).is_file() and is_connected(db.test_url, FIREFOX_OPTS):
-        print("Attempting database online access")
-        online_access(converted_circ_data=converted_data,
-                      output_loc=out_loc,
-                      url=db.search_url, options=FIREFOX_OPTS)
+        print("Connected to database")
+        database_result = online_access(converted_circ_data=converted_data,
+                                        url=db.search_url, options=FIREFOX_OPTS)
     # OFFLINE ACCESS
     else:
         # GIVEN PATH
         if Path(db_data).is_file():
-            f = Path(db_data)
-            data = db_data
+            database_loc = db_data
         # DEFAULT PATH FROM GIT
         else:
-            f = Path(offline_data)
-            data = offline_data
+            database_loc = offline_data
 
-        print("Attempting circBase offline access using " + str(f))
-        offline_access(converted_circ_data=converted_data,
-                       output_loc=out_loc,
-                       database_loc=data,
-                       separator=separator)
+        print("Attempting circBase offline access using " + str(Path(database_loc)))
+        database_result = offline_access(database_loc=database_loc)
+
+    # remove duplicate matches
+    database_result = database_result[~database_result.index.duplicated(keep='first')]
+    # annotate with database ID
+    circRNA_expression = annotate_expression(converted_circ_data=converted_data, db_result=database_result)
+
+    # save annotated expression
+    circRNA_expression.to_csv(os.path.join(out_loc, "circRNA_counts_annotated.tsv"), sep="\t")
+    # save database output
+    database_result.to_csv(os.path.join(out_loc, "circRNAs_annotated.tsv"), sep="\t")
 
 
 if __name__ == "__main__":

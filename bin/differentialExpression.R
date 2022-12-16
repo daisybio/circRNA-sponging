@@ -172,12 +172,11 @@ circ_expr <- circ.raw[rownames(circ_RNAs), samples]
 if("circBaseID" %in% colnames(circ_RNAs)) {
     # get all circBase IDs for row names in the circRNA expression file
     IDs <- rownames(circ_expr)
-    IDs <- merge(IDs, circ_RNAs[,"circBaseID", drop = F], by = 0, all.x = T)
-    # set NAs to None keyword
-    IDs[is.na(IDs$y),"y"] <- "None"
-    # only change names that are present in annotation
-    IDs[IDs[,"y"]!="None","x"] <- IDs[IDs[,"y"]!="None","y"]
-    rownames(circ_expr) <- IDs$x
+    try_an <- circ_RNAs[IDs, "circBaseID"]
+    new <- which(!is.na(try_an) & try_an != "None")
+    # annotate
+    IDs[new] <- try_an[new]
+    rownames(circ_expr) <- IDs
 }
 
 # ratio of database annotation

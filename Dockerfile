@@ -102,3 +102,5 @@ RUN set -x \
       && curl -sSLO https://github.com/mozilla/geckodriver/releases/download/${GECKODRIVER_VER}/geckodriver-${GECKODRIVER_VER}-linux64.tar.gz \
       && tar zxf geckodriver-*.tar.gz \
       && mv geckodriver /usr/bin/
+
+RUN pip3 install lxml

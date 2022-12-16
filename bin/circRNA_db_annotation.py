@@ -310,7 +310,8 @@ def main():
     database_result = database_result[~database_result.index.duplicated(keep='first')]
     # annotate with database ID
     circRNA_expression = annotate_expression(converted_circ_data=converted_data, db_result=database_result)
-
+    # remove index label
+    circRNA_expression.index.name = None
     # save annotated expression
     circRNA_expression.to_csv(os.path.join(out_loc, "circRNA_counts_annotated.tsv"), sep="\t")
     # save database output

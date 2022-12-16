@@ -50,7 +50,7 @@ registerDoParallel(cl)
 
 # meta data
 meta <- read.csv(file = argv.e$meta, sep = "\t")
-meta$sample <- gsub("-", ".", meta$sample)
+
 # split between train and test
 n.train <- round(nrow(meta)*argv.e$train)
 n.test <- round(nrow(meta)-n.train)
@@ -101,6 +101,9 @@ filtered_network_centralities <- filter_ceRNA_network(sponge_effects = train_ceR
 RNAs <- c("lncRNA","circRNA")
 RNAs.ofInterest <- ensembl.df %>% dplyr::filter(gene_biotype %in% RNAs) %>%
   dplyr::select(ensembl_gene_id)
+# add circRNAs of the data set
+new_circRNAs <- data.frame(ensembl_gene_id=colnames(gene_expr)[grep("c", colnames(gene_expr))])
+RNAs.ofInterest <- rbind(RNAs.ofInterest, new_circRNAs)
 central_gene_modules<-get_central_modules(central_nodes = RNAs.ofInterest$ensembl_gene_id,
                                           node_centrality = filtered_network_centralities$Node_Centrality,
                                           ceRNA_class = RNAs, 

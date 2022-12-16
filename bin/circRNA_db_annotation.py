@@ -156,7 +156,9 @@ def annotate_expression(converted_circ_data, db_result):
     else:
         print("Including not annotated circRNAs")
         circRNA_expression = pd.concat([direct_matches_df, no_match_df])
-    return circRNA_expression
+    # reset row names to original genome versions, replace converted index
+    circRNA_expression["ID"] = circRNA_expression.apply(set_key, axis=1)
+    return circRNA_expression.set_index("ID")
 
 
 # OFFLINE ACCESS ----------------------------------------------------------

@@ -70,7 +70,10 @@ ENV PATH /opt/conda/envs/nf-core-circrnasponging/bin:$PATH
 
 # Dump the details of the installed packages to a file for posterity
 RUN conda env export --name nf-core-circrnasponging > nf-core-circrnasponging.yml
-RUN apt-get install python3-lxml
+RUN apt-get update && apt-get install -y libxml2-dev \
+    libxslt-dev \
+    python-dev \
+    lib32z1-dev
 # include firefox and geckodriver
 ENV GECKODRIVER_VER v0.31.0
 ENV FIREFOX_VER 100.0

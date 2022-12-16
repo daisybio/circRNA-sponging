@@ -103,4 +103,5 @@ RUN set -x \
       && tar zxf geckodriver-*.tar.gz \
       && mv geckodriver /usr/bin/
 
-RUN pip3 install lxml
+RUN pip3 install lxml \
+    html5lib

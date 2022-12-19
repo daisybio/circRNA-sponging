@@ -210,7 +210,7 @@ mi_rna_expr[is.na(mi_rna_expr)] <- 0
 if (argv$tpm) {
   # convert circRNA and linear expression
   print("using TPMs instead of counts for gene and miRNA expression")
-  TPM.map <- read.table(argv$tpm_map, header = T, sep = "\t")
+  TPM.map <- read.table(argv$tpm_map, header = T, sep = "\t", check.names = F)
   gene_expr <- TPM.map[rownames(gene_expr), colnames(gene_expr)]
   # convert miRNA expression
   mir_fasta <- readDNAStringSet(argv$mir_fasta)

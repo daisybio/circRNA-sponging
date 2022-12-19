@@ -309,25 +309,12 @@ if (nrow(ceRNA_interactions_fdr)<min.interactions && nrow(ceRNA_interactions_sig
   cat("current fdr relevant interactions:", nrow(ceRNA_interactions_fdr))
   ceRNA_interactions_fdr <- ceRNA_interactions_fdr[order(ceRNA_interactions_fdr$p.adj),]
 }
-# cut samples if too many are detected TODO: choose cutoff
-cutoff <- 8500
-if (nrow(ceRNA_interactions_fdr)>10000){
-  print("Warning: fdr setting too loose, generated over 10000 significant hits; adjusting")
-  ceRNA_interactions_fdr <- ceRNA_interactions_fdr[order(ceRNA_interactions_fdr$p.adj),]
-  ceRNA_interactions_fdr <- head(ceRNA_interactions_fdr, cutoff)
-}
 
 dir.create("circRNA/plots", recursive = T)
 dir.create("total/plots", recursive = T)
 
 # save R objects
 save.image(file = file.path(out, "sponge.RData"))
-
-# GENERAL NETWORK
-ceRNA_network_plot <- sponge_plot_network(ceRNA_interactions_fdr, genes_miRNA_candidates)
-ceRNA_network_plot <- sponge_plot_network(ceRNA_interactions_fdr, genes_miRNA_candidates, )
-ceRNA_network_plot$x$edges$label <- paste("mscor:", round(ceRNA_interactions_fdr$mscor, 2))
-visNetwork::visSave(ceRNA_network_plot, file = "total/plots/network.html")
 
 # MOST SIGNIFICANT SPONGES
 network_centralities <- sponge_node_centralities(ceRNA_interactions_fdr)
@@ -339,26 +326,8 @@ png("total/plots/centralities.png")
 plot(weighed_network_plot)
 dev.off()
 
-# STRONGEST LINEAR
-ceRNA_strongest <- ceRNA_interactions_fdr[order(ceRNA_interactions_fdr$mscor, decreasing = T),]
-ceRNA_strongest <- head(ceRNA_strongest, 100)
-ceRNA_strongest_plot <- sponge_plot_network(ceRNA_strongest, genes_miRNA_candidates, ) %>%
-  visNetwork::visEdges(arrows = list(to = list(enabled = T, scaleFactor = 1)))
-ceRNA_strongest_plot$x$edges$label <- paste("mscor:", round(ceRNA_strongest$mscor, 2))
-visNetwork::visSave(ceRNA_strongest_plot, file = "total/plots/strongest_network.html")
-write.table(ceRNA_strongest, "total/strongest_linear_ceRNAs.tsv", sep = "\t", row.names = F)
-
-# CIRC RNA ONLY
-ceRNA_interactions_all_circ <- subnetwork(ceRNA_interactions_fdr, pattern = "c")
 # CIRC RNA MRNA ONLY
 circ.mRNA.only <- circ.mRNA.subnetwork(ceRNA_interactions_fdr, "c")
-
-# add scores
-circRNA_network_plot <- sponge_plot_network(ceRNA_interactions_all_circ, genes_miRNA_candidates, )
-circRNA_network_plot$x$edges$label <- paste("mscor:", round(ceRNA_interactions_all_circ$mscor, 2))
-
-visNetwork::visSave(circRNA_network_plot, file = "circRNA/plots/circ_network.html")
-# save significant circRNAs that act as ceRNAs
 write.table(ceRNA_interactions_all_circ, "circRNA/circRNAs_as_ceRNAs.tsv", sep = "\t", row.names = F)
 
 # NETWORK ANALYSIS CIRC

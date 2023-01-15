@@ -43,7 +43,8 @@ RUN Rscript /R_p_install.R \
       GenomicRanges \
       GenomicFeatures \
       seqinr \
-      SPONGE
+      SPONGE \
+      ggpubr
 
 FROM nfcore/base:1.12.1
 LABEL authors="Octavia Ciora, Leon Schwartz, Markus Hoffmann" \

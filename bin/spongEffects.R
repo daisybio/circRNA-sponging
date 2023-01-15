@@ -1,7 +1,9 @@
 #!/usr/bin/env Rscript
 
 if(!require(pacman)) install.packages("pacman", repos = "http://cran.us.r-project.org")
-pacman::p_load(SPONGE, doParallel, foreach, dplyr, argparser, visNetwork, MetBrewer, pheatmap)
+pacman::p_load(SPONGE, doParallel, foreach, dplyr,
+               argparser, visNetwork, MetBrewer,
+               pheatmap, ggplot2, reshape2, ggpubr)
 
 ########################
 ## GENERAL FUNCTIONS ###
@@ -288,6 +290,47 @@ plot_target_gene_expressions <- function(target, target_genes, gene_expression, 
                      main = label, fontsize_row = 10)
 }
 
+# plot expression of miRNAs in module for specific RNA (no negative values!)
+plot_miRNAs_per_gene <- function(target, genes_miRNA_candidates, mi_rna_expr, meta, 
+                                 log_transform = T, pseudocount = 1e-3, unit = "counts", 
+                                 split = "condition", annotation_colors = NULL) {
+  # extract miRNAs associated with given RNA
+  candidates <- genes_miRNA_candidates[[target]]
+  miRNAs <- candidates[["mirna"]]
+  miRNA_expr <- mi_rna_expr[,miRNAs]
+  
+  # sum all expressions for the given conditions
+  miRNA_expr <- merge(miRNA_expr, meta[,c("sample", split)], by.x = 0, by.y = "sample")
+  miRNA_expr <- data.frame(miRNA_expr, row.names = 1, check.names = F)
+  miRNA_expr <- aggregate(miRNA_expr[,1:(ncol(miRNA_expr)-1)], list(condition=miRNA_expr[,split]), FUN=sum)
+  miRNA_expr <- t(data.frame(miRNA_expr, row.names = 1))
+  miRNA_expr <- melt(miRNA_expr, id.vars = "x", varnames = c("miRNA", "variable"))
+  miRNA_expr$miRNA <- gsub("\\.", "-", miRNA_expr$miRNA)
+  
+  # label
+  label <- paste0("miRNA ", unit, " over samples")
+  # log transform if given
+  if (log_transform){
+    miRNA_expr$value <- log10(miRNA_expr$value + pseudocount)
+    label <- paste0("log10 + ", pseudocount, " ", label)
+  }
+  # annotation colors are given
+  if (!is.null(annotation_colors)) {
+    annotation.colors <- annotation_colors
+  } else {
+    annotation.colors <- hcl.colors(length(conditions), palette = hcl.pals(type = "diverging")[12])
+  }
+  # name colors
+  names(annotation.colors) <- conditions
+  # two bar plots in one
+  bars <- ggplot(miRNA_expr, aes(y=miRNA, x=value, fill=variable)) +
+    ggtitle(target) +
+    geom_bar(stat='identity', position='dodge') +
+    xlab(label) + 
+    scale_fill_manual(values = annotation.colors, name = "Condition")
+  return(bars)
+}
+
 args.effects <- commandArgs(trailingOnly = TRUE)
 
 effects_parser <- arg_parser("Argument parser for spongEffects module", name = "spongEffects_parser")
@@ -541,8 +584,14 @@ for (candidate in candidates) {
   module_miRNA_plot <- plot_miRNAs_per_gene(candidate, genes_miRNA_interactions_manual,
                                             mi_rna_expr = mi_rna_expr, meta = meta,
                                             log_transform = T)
-  candidate_plots[[candidate]] <- list(module_gene_plot, module_miRNA_plot)
+  candidate_plots[[candidate]] <- ggarrange(module_gene_plot, module_miRNA_plot, ncol = 2, nrow = 1)
 }
+# arrange candidate plots
+candidate_plots_arranged <- ggarrange(plotlist = candidate_plots, ncol = 1, nrow = k)
+# save candidate heat maps
+ggsave(file.path(PLOT_DIR, "candidates_hms.png"), candidate_plots_arranged,
+       width = 5.25, height = 10.25, dpi = 1200)
+       
 #-------------------------spongEffects HMAP------------------------
 train.hmap <- plot_hmap(trained_model = trained.model, spongEffects = train.modules,
                         meta_data = train.meta, label = "label", sampleIDs = "sampleIDs", Modules_to_Plot = 2,
@@ -555,3 +604,6 @@ ggsave(file.path(PLOT_DIR, "train_hm.png"), train.hmap,
        width = 7.25, height = 5.25, dpi = 1200)
 ggsave(file.path(PLOT_DIR, "test_hm.png"), test.hmap,
        width = 7.25, height = 5.25, dpi = 1200)
+
+#-------------------------SAVE R-SESSION----------------------------
+save.image(file.path(ROOT, "spongEffects.RData"))

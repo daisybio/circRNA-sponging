@@ -1021,35 +1021,7 @@ if (!params.circRNA_only) {
             $normalize
             """
         }
-        /*
-        * PERFORM SPONGE circRNA DE ANALSIS
-        */
-        if (params.differential_expression) {
-            process SPONGE_DE_ANALYSIS {
-                label 'process_low'
-                errorStrategy 'ignore'
-
-                publishDir "${params.outdir}/results/sponging/SPONGE/DE_analysis", mode: params.publish_dir_mode
-
-                input:
-                file(sponge_data) from sponge_rimage1
-                file(circ_signif_DE) from DE_circ_signif
-                file(mRNA_signif_DE) from DE_mRNA_signif
-                file(gtf) from ch_gtf_spongEffects
-
-                output:
-                file("DE_SPONGE.html") into DE_SPONGE_graph
-
-                script:
-                """
-                Rscript "${projectDir}"/bin/SPONGE_analysis.R \\
-                $sponge_data \\
-                $circ_signif_DE \\
-                $mRNA_signif_DE \\
-                $gtf
-                """
-            }
-        }
+        
         /*
         * RUN spongEffects ON SPONGE RESULTS
         */
@@ -1062,6 +1034,7 @@ if (!params.circRNA_only) {
 
                 input:
                 file(sponge_data) from sponge_rimage2
+                file(gtf) from ch_gtf_spongEffects
 
                 output:
                 file("*") into spongEffectsResults
@@ -1071,7 +1044,8 @@ if (!params.circRNA_only) {
                 Rscript "${projectDir}"/bin/spongEffects.R \\
                 --spongeData $sponge_data \\
                 --meta $params.samplesheet \\
-                --train $params.se_train
+                --train $params.se_train \\
+                --gtf $gtf
                 """
             }
         }

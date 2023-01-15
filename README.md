@@ -1,4 +1,4 @@
-# ![nf-core/circrnasponging](docs/images/nf-core-circrnasponging_logo.png)
+# ![nf-core/circrnasponging](docs/images/circRNAsponging_logo.png)
 
 **Analysis of circRNA and miRNA sponging**.
 
@@ -49,17 +49,17 @@ By default, the pipeline currently performs the following:
   + smallRNA read mapping and quantification (using `miRDeep2`)
   + aggregation of identified miRNAs over all samples, normalization and filtering
 * circRNA-miRNA binding sites:
-  + binding sites processing and filtering (`miranda`)
+  + binding sites processing and filtering (`miRanda`)
   + `TarPmiR`
   + `PITA`
   + majority vote (2/3) for downstream analyses
 * sponging analyses:
-  + Correlation analysis between circRNA and miRNA expression (using `miranda`)
+  + Correlation analysis between circRNA and miRNA expression (using `miRanda`)
   + mRNA-circRNA-miRNA networks (using majority vote with `SPONGE`)
   + Analysis of networks and plotting
   + ceRNA network analysis (using `SPONGE` package extension `spongEffects`)
 
-<img src="images/workflow.PNG" width = "700">
+<img src="images/workflow.png" width = "700">
 
 ## Documentation
 <!--The nf-core/circrnasponging pipeline comes with documentation about the pipeline: [usage](https://nf-co.re/circrnasponging/usage) and [output](https://nf-co.re/circrnasponging/output). -->
@@ -69,13 +69,7 @@ In order to run the sponging analysis on a dataset using our pipeline, the data 
 ### Installation
 Pull pipeline from github using:
 ```
-  git clone https://github.com/biomedbigdata/nf-core-circRNA-sponging.git
-```
-Switch to extension branch:
-```
-  cd nf-core-circRNA-sponging/
-  git fetch
-  git checkout extension
+  git clone https://github.com/biomedbigdata/circRNA-sponging.git
 ```
 
 ### Basic Workflow
@@ -118,7 +112,7 @@ Other reference files are supported through iGenomes and automatically downloade
   --bed12
   --fasta
   --gtf
-  // sRNA options
+  // smallRNA options
   --miRNA_fasta
   --hairpin_fasta
   --miRNA_related_fasta
@@ -233,7 +227,7 @@ Format specification:
 
 ## Pipeline Execution and Configuration
 To execute the pipeline, run the following command:
-```nextflow run nf-core-circrnasponging/ -c my.config -profile [singularity/docker],cluster```
+```nextflow run circRNAsponging/ -c my.config -profile [singularity/docker],cluster```
 where `my.config` is a configuration file specifying parameters and execution settings. An example configuration file is shown below:
 ```
 params {

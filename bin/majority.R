@@ -33,7 +33,7 @@ majority_vote <- function(miranda, tarpmir, pita, match, out = "./") {
 
   print("process TarPmiR targets")
   tarpmir_data <- fread(tarpmir, header = F, sep = "\t", check.names = F, stringsAsFactors = F, select = 1:3, fill = T)
-  tarpmir_data[, c("start", "end")] <- str_split_fixed(tarpmir_data$V3, ",", 2)
+  tarpmir_data <- cbind(tarpmir_data, str_split_fixed(tarpmir_data$V3, ",", 2))
   colnames(tarpmir_data) <- c("miRNA", "mRNA", "pos", "start", "end")
 
   print("process PITA targets")
@@ -64,8 +64,9 @@ majority_vote <- function(miranda, tarpmir, pita, match, out = "./") {
   miranda_x_tarpmir <- intersect(miranda.keys, tarpmir.keys)
   miranda_x_pita <- intersect(miranda.keys, pita.keys)
   tarpmir_x_pita <- intersect(tarpmir.keys, pita.keys)
+  all <- Reduce(intersect, list(miranda.keys, tarpmir.keys, pita.keys))
   # apply majority vote: only use binding sites where 2/3 approve
-  majority.vote <- c(miranda_x_tarpmir, miranda_x_pita, tarpmir_x_pita)
+  majority.vote <- c(miranda_x_tarpmir, miranda_x_pita, tarpmir_x_pita, all)
   # build table
   splitter <- ifelse(match=="complete", 4, 3)
   majority.vote <- str_split_fixed(majority.vote, "\\|", splitter)

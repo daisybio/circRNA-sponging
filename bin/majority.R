@@ -60,13 +60,12 @@ majority_vote <- function(miranda, tarpmir, pita, match, out = "./") {
     stop("Wrong --majority_matcher argument given, use one of 'complete', 'start', 'end'")
   }
 
-  # search for intersections
-  miranda_x_tarpmir <- intersect(miranda.keys, tarpmir.keys)
-  miranda_x_pita <- intersect(miranda.keys, pita.keys)
-  tarpmir_x_pita <- intersect(tarpmir.keys, pita.keys)
-  all <- Reduce(intersect, list(miranda.keys, tarpmir.keys, pita.keys))
+  # calculate proportions
+  majority.vote <- c(miranda.keys, tarpmir.keys, pita.keys)
+  majority.vote <- table(majority.vote)
   # apply majority vote: only use binding sites where 2/3 approve
-  majority.vote <- c(miranda_x_tarpmir, miranda_x_pita, tarpmir_x_pita, all)
+  majority.vote <- names(majority.vote[majority.vote != 1])
+  
   # build table
   splitter <- ifelse(match=="complete", 4, 3)
   majority.vote <- str_split_fixed(majority.vote, "\\|", splitter)

@@ -783,7 +783,7 @@ if (!params.circRNA_only) {
             val("${bowtie_output}/${fasta.baseName}") into ch_generated_bowtie_index
             file("${fasta.baseName}.*") into ch_generated_bowtie_index_files
 
-            when: (params.bowtie_index == null)
+            when: (params.bowtie_index == "generate")
 
             script:
             """
@@ -792,8 +792,7 @@ if (!params.circRNA_only) {
             """
         }
 
-        ch_bowtie_index = params.bowtie_index ? Channel.value(params.bowtie_index) : ch_generated_bowtie_index
-
+        ch_bowtie_index = params.bowtie_index == 'generate' ? ch_generated_bowtie_index : params.bowtie_index ? Channel.value(params.bowtie_index) : params.genome ? Channel.value(file(params.genomes[ params.genome ].bowtie)) ?: false : false
         /*
         * PERFORM miRNA READ MAPPING USING miRDeep2
         */

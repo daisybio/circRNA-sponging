@@ -59,7 +59,7 @@ By default, the pipeline currently performs the following:
   + Analysis of networks and plotting
   + ceRNA network analysis (using `SPONGE` package extension `spongEffects`)
 
-<img src="images/workflow.png" width = "700">
+<img src="images/workflow.PNG" width = "700">
 
 ## Documentation
 <!--The nf-core/circrnasponging pipeline comes with documentation about the pipeline: [usage](https://nf-co.re/circrnasponging/usage) and [output](https://nf-co.re/circrnasponging/output). -->

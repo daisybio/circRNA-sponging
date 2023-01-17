@@ -33,7 +33,6 @@ The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool
 ## Pipeline Summary
 
 By default, the pipeline currently performs the following:
-<!-- TODO nf-core: Fill in short bullet-pointed list of default steps of pipeline -->
 * circRNA analysis:
   + totalRNA back-splicing-junction (BSJ) mapping (using `STAR`)
   + circRNA detection (using `circExplorer2`)
@@ -56,8 +55,8 @@ By default, the pipeline currently performs the following:
 * sponging analyses:
   + Correlation analysis between circRNA and miRNA expression (using `miRanda`)
   + mRNA-circRNA-miRNA networks (using majority vote with `SPONGE`)
-  + Analysis of networks and plotting
   + ceRNA network analysis (using `SPONGE` package extension `spongEffects`)
+  + Analysis of networks and plotting
 
 <img src="images/workflow.PNG" width = "700">
 
@@ -75,12 +74,11 @@ Pull pipeline from github using:
 ### Basic Workflow
 The following options are mandatory for executing the full workflow of the pipeline:
 
-
 ```
 BASIC OPTIONS:
   --samplesheet [path/to/sampleseet.tsv]
   --outdir [path/to/output_directory]
-  --genome [string] # genome version of RNA-seq data, hg38 for human, etc.
+  --genome [string] # genome version of RNA-seq data, GRCh38 for human, etc.
   -profile [configuration_profile] # docker, singularity, slurm, etc.
   Adapter trimming:
     --miRNA_adapter [adapter_sequence] # miRNA adapter used for trimming
@@ -107,7 +105,7 @@ A linear transcriptome has to be supplied with:
 ```
   --transcriptome "path/to/transcriptome"
 ```
-Other reference files are supported through iGenomes and automatically downloaded (see conf/igenomes.config for details). These files can also be given manually by the user with these parameters:
+Other reference files are supported through iGenomes and automatically downloaded (see conf/igenomes.config for details) (https://emea.support.illumina.com/sequencing/sequencing_software/igenome.html). These files can also be given manually by the user with these parameters:
 ```
   --bed12
   --fasta

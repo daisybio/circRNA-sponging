@@ -79,12 +79,12 @@ BASIC OPTIONS:
   --samplesheet [path/to/sampleseet.tsv]
   --outdir [path/to/output_directory]
   --genome [string] # genome version of RNA-seq data, GRCh38 for human, etc.
+  --transcriptome [string] # path to transcriptome
   -profile [configuration_profile] # docker, singularity, slurm, etc.
-  Adapter trimming:
-    --miRNA_adapter [adapter_sequence] # miRNA adapter used for trimming
-    OR 
-    --protocol [sequencing_protocol] # protocol used in smallRNA sequencing, e.g. illumina, cat, etc.
-}
+```
+Run the pipeline using the following command:
+```
+  nextflow run 
 ```
 
 ### Input Files
@@ -107,10 +107,12 @@ A linear transcriptome has to be supplied with:
 ```
 Other reference files are supported through iGenomes and automatically downloaded (see conf/igenomes.config for details) (https://emea.support.illumina.com/sequencing/sequencing_software/igenome.html). These files can also be given manually by the user with these parameters:
 ```
+  totalRNA files:
   --bed12
   --fasta
   --gtf
-  // smallRNA options
+
+  smallRNA files:
   --miRNA_fasta
   --hairpin_fasta
   --miRNA_related_fasta
@@ -118,6 +120,13 @@ Other reference files are supported through iGenomes and automatically downloade
   --STAR_index
 ```
 mature and hairpin miRNA sequences for the organism used in the analysis, e.g.  mouse and mature miRNA sequences from related species, e.g. rat and human.  Instructions forgenerating the miRNA reference files can be found in the [`miRDeep2 tutorial`](https://drmirdeep.github.io/mirdeep2_tutorial.html).
+
+Conserning miRNA adapter trimming, the pipeline will use the default adapter for Illumina sequencing, which can be altered by supplying one of the following parameters.
+```
+  --miRNA_adapter [adapter_sequence] # miRNA adapter used for trimming
+  OR 
+  --protocol [sequencing_protocol] # protocol used in smallRNA sequencing, e.g. illumina, cat, etc.
+```
 
 ### Additional Features and Advanced Options
 #### Skip miRNA Quantification
@@ -284,26 +293,45 @@ The output folder is structured as shown below. The circRNA/miRNA results for ea
 |   |   |   |─── circRNA_counts_raw.tsv
 |   |   |   └─── circRNA_counts_filtered.tsv
 |   |   |   └─── circRNA_counts_annotated.tsv
+|   |   |─── psirc
+|   |   |   |─── psirc.index
+|   |   |   └─── quant_circ_expression.tsv
+|   |   |   └─── quant_linear_expression.tsv
+|   |   |   └─── TPM_map.tsv
+|   |   |   └─── quant_effects.png
 |   |   |─── miRNA
 |   |   |   |─── miRNA_counts_raw.tsv
+|   |   |   └─── miRNA_counts_normalized.tsv.tsv
 |   |   |   └─── miRNA_counts_filtered.tsv
 |   |   |─── differential_expression
 |   |   |   └─── totalRNA
+|   |   |   |   └─── total_rna.tsv
+|   |   |   |   └─── volcano.png
+|   |   |   |   └─── nDE.png
+|   |   |   |   └─── HMAP.png
 |   |   |   └─── circRNA_DE
-|   |   |   └─── RData
+|   |   |   |   └─── circRNA_DE.tsv
+|   |   |   |   └─── volcano.png
+|   |   |   |   └─── nDE.png
+|   |   |   |   └─── HMAP.png
+|   |   |   └─── DESeq2.RData
 |   |   |─── binding_sites
 |   |   |   └─── PITA
 |   |   |   └─── TarPmiR
 |   |   |   └─── miRanda
+|   |   |   └─── majority.tsv.gz
 |   |   |─── sponging
 |   |   |   |─── sponging_statistics.txt
 |   |   |   |─── filtered_circRNA_miRNA_correlation.tsv
-|   |   |   └─── plots
+|   |   |   |─── plots
+|   |   |   |   └─── top1_circRNA_miRNA.png
+|   |   |   |   └─── ...
 |   |   |   └─── SPONGE
 |   |   |   |   └─── plots
 |   |   |   |   └─── circRNA
 |   |   |   |   └─── total
 |   |   |   |   └─── RData
+|   |   |   |   └─── spongEffects
 └── └── └── 
 ```
 

@@ -37,6 +37,8 @@ names(ci.ranges) <- row.names(ci.expression)
 
 # extract exons
 exons <- gtf[gtf$type == "exon",]
+# extract introns
+introns <- gaps(exons)
 
 # splice sequences
 print("splicing circRNAs...")
@@ -47,7 +49,8 @@ circ.exons <- overlap(exons, circ.ranges)
 circ.sequences <- DNAStringSet(sapply(getSeq(fasta, circ.exons), unlist))
 # get intronic sequences
 print("intronic circRNAs")
-ci.sequences <- getSeq(fasta, ci.ranges)
+circ.introns <- overlap(introns, ci.ranges)
+ci.sequences <- DNAStringSet(sapply(getSeq(fasta, circ.introns), unlist))
 # combine sequences
 all.sequences <- c(circ.sequences, ci.sequences)
 print("writing final circRNA fasta")

@@ -61,6 +61,11 @@ cat(paste0("Number of filtered circRNAs used for the correlation analysis: ", nr
 
 # read correlation data
 correlations <- data.frame(read.table(correlations_path, sep = "\t", stringsAsFactors = F, header = T))
+cat(paste0("Initial number of circRNA-miRNA pairs (including NAs in column miRNA_binding_sites): ", nrow(correlations)),file=statistics_file,append=TRUE, sep="\n")
+
+# removing pairs where number of binding sites is NA
+correlations_no_NA <- correlations[!is.na(correlations$miRNA_binding_sites),]
+cat(paste0("Number of circRNA-miRNA pairs (after removing NAs in column miRNA_binding_sites): ", nrow(correlations_no_NA)),file=statistics_file,append=TRUE, sep="\n")
 
 # define function for plotting correlation distribution
 plotCorrelationDistribution <- function(correlations_df, filter_criteria_string, plot_folder, plot_name){
@@ -79,12 +84,33 @@ plotCorrelationDistribution <- function(correlations_df, filter_criteria_string,
 }
 
 # unfiltered results
-correlations_processed <- correlations
+correlations_processed <- correlations_no_NA
 n_of_pairs_init <- nrow(correlations_processed)
 n_of_pairs <- n_of_pairs_init
 cat(paste0("Number of circRNA-miRNA pairs (unfiltered): ", n_of_pairs, " (", round(n_of_pairs/n_of_pairs_init*100,  digits=2), " %)"), file=statistics_file, append=TRUE, sep="\n")
 plotCorrelationDistribution(correlations_processed, "unfiltered", plot_folder, paste0("correlation_distribution_unfiltered"))
 
+###### NO BINDING SITES ######
+# filter for circRNA-miRNA pairs having no common binding site
+correlations_no_bind <- correlations_processed[correlations_processed$miRNA_binding_sites < 1,]
+n_of_pairs <- nrow(correlations_no_bind)
+cat(paste0("Number of circRNA-miRNA pairs (filter: no binding sites): ", n_of_pairs, " (", round(n_of_pairs/n_of_pairs_init*100,  digits=2), " %)"), file=statistics_file, append=TRUE, sep="\n")
+plotCorrelationDistribution(correlations_no_bind, "Filter: no common binding sites", plot_folder, "correlation_distribution_noBindSites")
+
+# filter for circRNA-miRNA pairs having no common binding site for significant p-value < 0.05
+adj_pval_filter = 0.05
+correlations_no_bind <- data.frame(correlations_no_bind[correlations_no_bind$adj_pval < adj_pval_filter,])
+n_of_pairs <- nrow(correlations_no_bind)
+cat(paste0("Number of circRNA-miRNA pairs (filter: no binding sites & correlation p-value < ", adj_pval_filter , "): ", n_of_pairs, " (", round(n_of_pairs/n_of_pairs_init*100,  digits=2), " %)"), file=statistics_file, append=TRUE, sep="\n")
+
+# norm RSS < 1.5
+maxRSS = 1.5
+correlations_no_bind <- correlations_no_bind[correlations_no_bind$RSS_norm < maxRSS,]
+n_of_pairs <- nrow(correlations_no_bind)
+cat(paste0("Number of circRNA-miRNA pairs (filter: no binding sites & correlation p-value < ", adj_pval_filter , " & residual sum of squares < ", maxRSS , "): ", n_of_pairs, " (", round(n_of_pairs/n_of_pairs_init*100,  digits=2), " %)"), file=statistics_file, append=TRUE, sep="\n")
+plotCorrelationDistribution(correlations_no_bind,  paste("Filter: adj_pval <", adj_pval_filter, ", normRSS <", maxRSS, ", no bind_sites"), plot_folder, paste0("correlation_distribution_noBindSites_adj_pval", adj_pval_filter,"_RSS", maxRSS))
+
+###### WITH BINDING SITES ######
 # filter for circRNA having mind. 1 binding site from that miRNA
 bind_sites_filter = 1
 correlations_processed <- correlations_processed[correlations_processed$miRNA_binding_sites >= bind_sites_filter,]
@@ -92,8 +118,17 @@ n_of_pairs <- nrow(correlations_processed)
 cat(paste0("Number of circRNA-miRNA pairs (filter: number of binding sites >= ", bind_sites_filter,"): ", n_of_pairs, " (", round(n_of_pairs/n_of_pairs_init*100,  digits=2), " %)"), file=statistics_file, append=TRUE, sep="\n")
 plotCorrelationDistribution(correlations_processed, paste0("Filter: binding sites > ", bind_sites_filter), plot_folder, paste0("correlation_distribution_minBindSites", bind_sites_filter))
 
-# significant p-value < 0.05
+# filter for circRNA having mind. 10 binding site from that miRNA
+bind_sites_filter = 10
+correlations_bind_10 <- correlations_processed[correlations_processed$miRNA_binding_sites >= bind_sites_filter,]
+n_of_pairs <- nrow(correlations_bind_10)
+cat(paste0("Number of circRNA-miRNA pairs (filter: number of binding sites >= ", bind_sites_filter,"): ", n_of_pairs, " (", round(n_of_pairs/n_of_pairs_init*100,  digits=2), " %)"), file=statistics_file, append=TRUE, sep="\n")
+plotCorrelationDistribution(correlations_bind_10, paste0("Filter: binding sites > ", bind_sites_filter), plot_folder, paste0("correlation_distribution_minBindSites", bind_sites_filter))
+
+# significant p-value < 0.05 for 1 bind. sites
+bind_sites_filter = 1
 adj_pval_filter = 0.05
+correlations_processed <- correlations_processed[correlations_processed$miRNA_binding_sites >= bind_sites_filter,]
 correlations_processed <- data.frame(correlations_processed[correlations_processed$adj_pval < adj_pval_filter,])
 n_of_pairs <- nrow(correlations_processed)
 cat(paste0("Number of circRNA-miRNA pairs (filter: number of binding sites >= ", bind_sites_filter," & correlation p-value < ", adj_pval_filter , "): ", n_of_pairs, " (", round(n_of_pairs/n_of_pairs_init*100,  digits=2), " %)"), file=statistics_file, append=TRUE, sep="\n")

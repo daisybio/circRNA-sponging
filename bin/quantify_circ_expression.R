@@ -80,7 +80,7 @@ for (path in abundances) {
   abundance.mRNA <- circ_or_linear$linear
   
   # save tpms
-  circ.tpm[abundance.circ$target_id, sample] <- log2(abundance.circ$tpm + argv$pseudocount)
+  circ.tpm[abundance.circ$target_id, sample] <- abundance.circ$tpm
   # add pseudocount later because of aggregate
   mRNA.tpm[abundance.mRNA$target_id, sample] <- abundance.mRNA$tpm
   
@@ -93,6 +93,9 @@ for (path in abundances) {
 # remove duplicate transcript versions etc
 mRNA.quant <- remove.duplicates(mRNA.quant, "\\.")
 mRNA.tpm <- remove.duplicates(mRNA.tpm, "\\.")
+
+# saving transcript expression to file
+write.table(mRNA.quant, file = "linearTranscripts.tsv", sep = "\t", row.names = T)
 
 print("Converting transcripts to genes...")
 gtf <- rtracklayer::readGFF(argv$gtf)

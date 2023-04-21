@@ -121,6 +121,7 @@ fasta = params.fasta ?: params.genome ? params.genomes[ params.genome ].fasta ?:
 gtf = params.gtf ?: params.genome ? params.genomes[ params.genome ].gtf ?: false : false
 bed12 = params.bed12 ?: params.genome ? params.genomes[ params.genome ].bed12 ?: false : false
 miRNA_fasta = params.miRNA_fasta ?: params.genome ? params.genomes[ params.genome ].mature ?: false : false
+biomart = params.genomes[ params.genome ].biomaRt
 
 // include miRNA related and hairpin if miRNA_raw_counts not given and circRNA_only = false
 if(!params.miRNA_raw_counts && !params.circRNA_only) {
@@ -167,7 +168,7 @@ if(!params.miRNA_raw_counts && !params.circRNA_only) {
 
 // create channels for files
 Channel.value(file(fasta)).into { ch_fasta; ch_fasta_star; ch_fasta_circ; ch_fasta_circ2 }
-Channel.value(file(gtf)).into { ch_gtf; ch_gtf_psirc; ch_gtf_spongEffects; ch_gtf_extract }
+Channel.value(file(gtf)).into { ch_gtf; ch_gtf_psirc; ch_gtf_spongEffects; ch_gtf_extract; ch_gtf_suppa }
 ch_bed12 = Channel.value(file(bed12))
 Channel.value(file(miRNA_fasta)).into { mirna_fasta_miRanda; mirna_fasta_PITA; mirna_fasta_TarPmiR; mirna_fasta_miRDeep2; mirna_fasta_SPONGE }
 
@@ -401,7 +402,8 @@ if (!file(psirc_out + "quant_linear_expression.tsv").exists()) {
         output:
         file("quant_circ_expression.tsv") into ch_circRNA_counts_raw_quant
         file("quant_linear_expression.tsv") into (gene_expression1, gene_expression2)
-        file("TPM_map.tsv") into (TPM_map1, TPM_map2)
+        file("linearTranscripts.tsv") into ch_linear_transcripts
+        file("TPM_map.tsv") into (TPM_map1, TPM_map2, TPM_map3)
         file("quant_effects.png") into quant_effects
         file("statistics.tsv") into quant_stats
 
@@ -501,7 +503,149 @@ if (params.database_annotation){
         Channel.fromPath(circ_counts_annotated_path).into{ ch_circRNA_counts_filtered1; ch_circRNA_counts_filtered2; ch_circRNA_counts_filtered3; ch_circRNA_counts_filtered4; ch_circRNA_counts_filtered5 }
     }
 } else {
-    ch_circRNA_counts_filtered.into{ ch_circRNA_counts_filtered1; ch_circRNA_counts_filtered2; ch_circRNA_counts_filtered3; ch_circRNA_counts_filtered4; ch_circRNA_counts_filtered5 }
+    ch_circRNA_counts_filtered.into{ ch_circRNA_counts_filtered1; ch_circRNA_counts_filtered2; ch_circRNA_counts_filtered3; 
+    ch_circRNA_counts_filtered4; ch_circRNA_counts_filtered5; ch_circRNA_counts_filtered6, ch_circRNA_counts_filtered7, ch_circRNA_counts_filtered8 }
+}
+
+/*
+* Prepare input gtf for suppa2 differential splicing analysis
+*/
+process suppa_prepare_data{
+    label 'process_medium'
+
+    publishDir "${params.outdir}/results/circRNA/suppa/data", mode: params.publish_dir_mode
+
+    input:
+    file(circExpression) from ch_circRNA_counts_filtered6
+    file(gtf) from ch_gtf_suppa
+    file(linearTs) from ch_linear_transcripts
+    file(tpm) from TPM_map3
+    val(mart) from biomart
+
+    output:
+    file("inclCircRNAs.gtf") into (ch_incl_circ_gtf, ch_incl_circ_gtf1)
+    file("allTranscriptsTPMs.tsv") into allTranscriptsTPMs
+
+    script:
+    """
+    Rscript "${projectDir}"/bin/constructGTFinclCircRNAs.R \\
+    -m $param.samplesheet \\
+    -e $circExpression \\
+    -s "${params.outdir}/samples" \\
+    -g $gtf \\
+    -t $linearTs \\
+    -tpm $tpm \\
+    -b $mart
+    """
+}
+
+/*
+* Generate transcript splicing events with circRNAs
+*/
+process suppa_generateEvents{
+    label 'process_low'
+
+    publishDir "${params.outdir}/results/circRNA/suppa/events", mode: params.publish_dir_mode
+
+    input:
+    file(inclCircGtf) from ch_incl_circ_gtf
+
+    output:
+    file("*.ioi") into ch_suppa_ioi
+
+    script:
+    """
+    suppa.py generateEvents -i $inclCircGtf -o ./suppa -f ioi
+    """
+}
+
+/*
+* Generate psi values per isoform
+*/
+process suppa_psiPerIsoform{
+    label 'process_high'
+
+    publishDir "${params.outdir}/results/circRNA/suppa/psi", mode: params.publish_dir_mode
+
+    input:
+    file(inclCircGtf) from ch_incl_circ_gtf1
+    file(circExpr) from ch_circRNA_counts_filtered7
+
+    output:
+    file("*.psi") into ch_suppa_all_psi
+
+    script:
+    """
+    suppa.py psiPerIsoform -g $inclCircGtf -e $circExpr -o ./
+    """
+}
+
+/*
+* Run suppa diffSplice with circular transcripts
+*/
+process suppa_splitPsi{
+    label 'process_high'
+
+    publishDir "${params.outdir}/results/circRNA/suppa/splitData", mode: params.publish_dir_mode
+
+    input:
+    file(allPsi) from ch_suppa_all_psi
+    file(circExpr) from ch_circRNA_counts_filtered8
+
+    output:
+    file("*.psi") into ch_suppa_split_psi
+
+    script:
+    """
+    Rscript "${projectDir}"/bin/splitData.R $allPsi $circExpr $params.samplesheet
+    """
+}
+
+/*
+* Run suppa diffSplice with circular transcripts
+*/
+process suppa_normalize{
+    label 'process_high'
+
+    publishDir "${params.outdir}/results/circRNA/suppa/norm", mode: params.publish_dir_mode
+
+    input:
+    file(psi) from ch_suppa_all_psi
+    
+    output:
+    file("violins.png") into violin_plots
+    file("*.tsv") into ch_suppa_norm_psi_split
+
+    script:
+    """
+    Rscript "${projectDir}"/bin/psiVecAnalysis.R -m $params.samplesheet -i $psi
+    """
+}
+
+/*
+* Run suppa diffSplice with circular transcripts
+*/
+process suppa_diffSplice{
+    label 'process_high'
+
+    publishDir "${params.outdir}/results/circRNA/suppa/diffSplice", mode: params.publish_dir_mode
+
+    input:
+    file(ioi) from ch_suppa_ioi
+    file(psis) from ch_suppa_norm_psi_split
+    file(tpms) from ch_suppa_split_tpm
+
+    output:
+    file("*.dps*") into ch_suppa_dpsis
+    file("*.psivec") into ch_suppa_psivec
+
+    script:
+    """
+    suppa.py diffSplice -m empirical \\
+    -i $ioi \\
+    -p $psis -e $tpms \\
+    -gc -o out
+    """
 }
 
 /*

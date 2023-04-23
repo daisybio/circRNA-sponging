@@ -68,14 +68,15 @@ rnaTypeRatiosCollapsed[,c("gene_id", "transcript_type")] <- rnaTypeRatios[,c("ge
 rnaTypeRatiosCollapsedMelted <- melt(rnaTypeRatiosCollapsed, id.vars = c("gene_id", "transcript_type"))
 rnaTypeRatiosCollapsedMelted$value <- rnaTypeRatiosCollapsedMelted$value*100
 boxP <- ggviolin(rnaTypeRatiosCollapsedMelted, x = "transcript_type", y = "value",
-                 fill = "variable", add = "boxplot", add.params = list(fill = "white", width = 0.1)) +
-  scale_fill_manual(values = colors) +
-  stat_compare_means(method = "t.test", label.x = 1, label.y = 125) +
-  stat_compare_means(label = "p.signif", method = "t.test", ref.group = "linearRNA", vjust = -4.25) +
-  scale_y_continuous(breaks = seq(0, 100, 25)) +
-  facet_wrap(~variable) +
-  xlab("Transcript Type") +
-  ylab("Percent Spliced In (PSI) value, normalized by sample-wise mean of transcript type") +
-  theme(text = element_text(size = 12), strip.text.x = element_text(size = 12))
+                  fill = "variable", add = "boxplot", add.params = list(fill = "white", width = 0.1)) +
+          scale_fill_manual(values = cell.colors) +
+          stat_compare_means(method = "anova", label.x = 1, label.y = 125) +
+          stat_compare_means(label = "p.signif", method = "t.test", ref.group = "linearRNA", vjust = -2.25) +
+          scale_y_continuous(breaks = seq(0, 100, 25)) +
+          facet_wrap(~variable) +
+          xlab("Transcript Type") +
+          ylab("Percent Spliced In (PSI) \n normalized by sample-wise mean of transcript type") +
+          theme(text = element_text(size = 18), strip.text.x = element_text(size = 18),
+                legend.title = element_blank())
+ggsave(filename = "violins.png", plot = boxP, width = 12, height = 8, dpi = 300)
 
-ggsave(filename = "violins.png", plot = boxP, width = 8, height = 12, dpi = 300)

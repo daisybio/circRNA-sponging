@@ -48,39 +48,32 @@ dpsiPerConditions$Spval <- ifelse(dpsiPerConditions$p.val <= signifPval, "v", ""
 dpsiPerConditions$level <- paste0(dpsiPerConditions$Spsi,"_", dpsiPerConditions$Spval)
 
 dpsiPerConditions$p.val <- -log10(dpsiPerConditions$p.val)
-signifColors <- setNames(c("grey", "blue2", "darkgreen", "red3"), c("_", "p_", "_v", "p_v"))
+signifColors <- setNames(c("darkgrey", "blue2", "darkgreen", "red3"), c("_", "p_", "_v", "p_v"))
 signifLabels <- c("not significant",
                   paste0("p-value >= ", signifPval),
                   paste0("dPSI >= ", signifDpsi),
                   "both")
-dpsiPerConditionsLinear <- dpsiPerConditions %>% filter(transcript_type == "linearRNA")
-dpsiPerConditions <- dpsiPerConditions %>% filter(transcript_type == "circRNA")
 # volcano plot  
-p <- ggplot(dpsiPerConditionsLinear, aes(x = dPSI, y = p.val)) +
-  geom_point(size = 2, aes(color = level)) +
-  scale_color_manual(values = signifColors,
-                     labels = signifLabels) +
-  ylab("-log10(p-value)") + xlab("PSI (cond2) - PSI (cond1)") +
-  theme(legend.title = element_blank(), text = element_text(size = 12)) +
-  facet_wrap(~conditions)
-ggsave("linearVolcanos.png", plot = p, dpi = 300, width = 10, height = 4)
-
 p <- ggplot(dpsiPerConditions, aes(x = dPSI, y = p.val)) +
   geom_point(size = 2, aes(color = level)) +
+  geom_hline(yintercept = -log10(signifPval), linetype = "dashed", color = "grey") +
+  geom_vline(xintercept = -signifDpsi, linetype = "dashed", color = "grey") +
+  geom_vline(xintercept = signifDpsi, linetype = "dashed", color = "grey") +
   scale_color_manual(values = signifColors,
                      labels = signifLabels) +
   ylab("-log10(p-value)") + xlab("PSI (cond2) - PSI (cond1)") +
-  theme(legend.title = element_blank(), text = element_text(size = 12)) +
-  facet_wrap(~conditions)
-ggsave("circularVolcanos.png", plot = p, dpi = 300, width = 10, height = 4)
+  theme(legend.title = element_blank(), 
+        text = element_text(size = 14), strip.text.x = element_text(size = 12), 
+        legend.position = "bottom", legend.direction = "horizontal") +
+  facet_wrap(transcript_type~conditions)
+ggsave("volcanos.png", plot = p, dpi = 300, width = 10, height = 4)
 
 # filter for pvalue of <= 0.05 and ΔPSI >= 50%
-dpsiPerConditions %>% 
+dpsiPerConditions %>% filter(transcript_type == "circRNA") %>%
   filter(p.val >= -log10(pValue), abs(dPSI) >= mindPsi) %>% 
   arrange(desc(p.val), abs(dPSI)) %>%
   write.table(file = "signifCircRNAs.tsv", sep = "\t", row.names = F, quote = F)
-dpsiPerConditionsLinear %>% 
+dpsiPerConditions %>% filter(transcript_type == "linearRNA") %>%
   filter(p.val >= -log10(pValue), abs(dPSI) >= mindPsi) %>% 
   arrange(desc(p.val), abs(dPSI)) %>%
   write.table(file = "signifLinearRNAs.tsv", sep = "\t", row.names = F, quote = F)
-

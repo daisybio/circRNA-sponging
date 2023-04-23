@@ -583,27 +583,6 @@ process suppa_psiPerIsoform{
 /*
 * Run suppa diffSplice with circular transcripts
 */
-process suppa_splitPsi{
-    label 'process_high'
-
-    publishDir "${params.outdir}/results/circRNA/suppa/splitData", mode: params.publish_dir_mode
-
-    input:
-    file(allPsi) from ch_suppa_all_psi
-    file(circExpr) from ch_circRNA_counts_filtered8
-
-    output:
-    file("*.psi") into ch_suppa_split_psi
-
-    script:
-    """
-    Rscript "${projectDir}"/bin/splitData.R $allPsi $circExpr $params.samplesheet
-    """
-}
-
-/*
-* Run suppa diffSplice with circular transcripts
-*/
 process suppa_normalize{
     label 'process_high'
 
@@ -614,11 +593,32 @@ process suppa_normalize{
     
     output:
     file("violins.png") into violin_plots
-    file("*.tsv") into ch_suppa_norm_psi_split
+    file("*.psi") into ch_suppa_norm_psi_split
+    file("*.tsv") into ch_suppa_norm_top_circRNAs
 
     script:
     """
     Rscript "${projectDir}"/bin/psiVecAnalysis.R -m $params.samplesheet -i $psi
+    """
+}
+
+/*
+* Split TPM expression by each condition in samplesheet
+*/
+process suppa_splitTPM{
+    label 'process_high'
+
+    publishDir "${params.outdir}/results/circRNA/suppa/norm", mode: params.publish_dir_mode
+
+    input:
+    file(psi) from allTranscriptsTPMs
+    
+    output:
+    file("*.tsv") into ch_suppa_split_tpm
+
+    script:
+    """
+    Rscript "${projectDir}"/bin/spltData.R $psi $params.samplesheet
     """
 }
 
@@ -632,8 +632,8 @@ process suppa_diffSplice{
 
     input:
     file(ioi) from ch_suppa_ioi
-    file(psis) from ch_suppa_norm_psi_split
-    file(tpms) from ch_suppa_split_tpm
+    val(psis) from ch_suppa_norm_psi_split.map {f -> f.getName() }.sort().join(" ")
+    val(tpms) from ch_suppa_split_tpm.map {f -> f.getName() }.sort().join(" ")
 
     output:
     file("*.dps*") into ch_suppa_dpsis

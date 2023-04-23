@@ -6,14 +6,8 @@ library(ggplot2)
 library(ggpubr)
 library(reshape2)
 library(MetBrewer)
+library(argparser)
 
-
-readdPsi <- function(path) {
-  dPsi <- read.csv(path, sep = "\t", check.names = F)
-  dPsi$conditions <- sub("_dPSI", "", colnames(dPsi)[2])
-  colnames(dPsi)[2:3] <- c("dPSI", "p.val")
-  dPsi
-}
 
 annotatePsi <- function(psivec) {
   psivec[,c("gene_id", "transcript_id")] <- str_split_fixed(rownames(psivec), ";", 2)
@@ -77,10 +71,11 @@ boxP <- ggviolin(rnaTypeRatiosCollapsedMelted, x = "transcript_type", y = "value
                  fill = "variable", add = "boxplot", add.params = list(fill = "white", width = 0.1)) +
   scale_fill_manual(values = colors) +
   stat_compare_means(method = "t.test", label.x = 1, label.y = 125) +
+  stat_compare_means(label = "p.signif", method = "t.test", ref.group = "linearRNA", vjust = -4.25) +
   scale_y_continuous(breaks = seq(0, 100, 25)) +
   facet_wrap(~variable) +
   xlab("Transcript Type") +
   ylab("Percent Spliced In (PSI) value, normalized by sample-wise mean of transcript type") +
   theme(text = element_text(size = 12), strip.text.x = element_text(size = 12))
 
-ggsave(filename = "violins.png", plot = boxP, width = 8, height = 12, dpi = 1624)
+ggsave(filename = "violins.png", plot = boxP, width = 8, height = 12, dpi = 300)

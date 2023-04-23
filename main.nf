@@ -526,6 +526,8 @@ process suppa_prepare_data{
     file("inclCircRNAs.gtf") into (ch_incl_circ_gtf, ch_incl_circ_gtf1)
     file("allTranscriptsTPMs.tsv") into allTranscriptsTPMs
 
+    when: (params.suppa2)
+
     script:
     """
     Rscript "${projectDir}"/bin/constructGTFinclCircRNAs.R \\
@@ -553,6 +555,8 @@ process suppa_generateEvents{
     output:
     file("*.ioi") into ch_suppa_ioi
 
+    when: (params.suppa2)
+
     script:
     """
     suppa.py generateEvents -i $inclCircGtf -o ./suppa -f ioi
@@ -573,6 +577,8 @@ process suppa_psiPerIsoform{
 
     output:
     file("*.psi") into ch_suppa_all_psi
+
+    when: (params.suppa2)
 
     script:
     """
@@ -596,6 +602,8 @@ process suppa_normalize{
     file("*.psi") into ch_suppa_norm_psi_split
     file("*.tsv") into ch_suppa_norm_top_circRNAs
 
+    when: (params.suppa2)
+
     script:
     """
     Rscript "${projectDir}"/bin/psiVecAnalysis.R -m $params.samplesheet -i $psi
@@ -615,6 +623,8 @@ process suppa_splitTPM{
     
     output:
     file("*.tsv") into ch_suppa_split_tpm
+
+    when: (params.suppa2)
 
     script:
     """
@@ -639,12 +649,39 @@ process suppa_diffSplice{
     file("*.dps*") into ch_suppa_dpsis
     file("*.psivec") into ch_suppa_psivec
 
+    when: (params.suppa2)
+
     script:
     """
     suppa.py diffSplice -m empirical \\
     -i $ioi \\
     -p $psis -e $tpms \\
     -gc -o out
+    """
+}
+
+/*
+* analyze diffSplice outputs
+*/
+process suppa_analysis{
+    label 'process_high'
+
+    publishDir "${params.outdir}/results/circRNA/suppa/analysis", mode: params.publish_dir_mode
+
+    input:
+    file(psi) from ch_suppa_dpsis
+    
+    output:
+    file("*.png") into ch_suppa_volcanos
+    file("*.tsv") into ch_suppa_signif
+
+    when: (params.suppa2)
+
+    script:
+    """
+    Rscript "${projectDir}"/bin/analyzePsis.R -m $params.samplesheet \\
+    -i "${params.outdir}/results/circRNA/suppa/diffSplice" \\
+    -p $params.fdr -d $params.log2fc
     """
 }
 

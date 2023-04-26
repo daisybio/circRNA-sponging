@@ -19,13 +19,13 @@ def read_names(path, sep="\t"):
 
 def get_circRNAs(config_file):
     out_dir = get_outdir(config_file)
-    raw = os.path(out_dir, "results", "circRNA", "circRNA_counts_raw.tsv")
-    filtered = os.path(out_dir, "results", "circRNA", "circRNA_counts_filtered.tsv")
+    raw = os.path.join(out_dir, "results", "circRNA", "circRNA_counts_raw.tsv")
+    filtered = os.path.join(out_dir, "results", "circRNA", "circRNA_counts_filtered.tsv")
     return {"raw": read_names(raw), "filtered": read_names(filtered)}
     
 
 def write_stats(polyA, totalRNA, out_base):
-    with open(os.path(out_base, "stats.tsv"), "w") as out:
+    with open(os.path.join(out_base, "stats.tsv"), "w") as out:
         # header
         out.write("\t".join(["Type", "n_polyA", "n_totalRNA", "n_overlapping",
                              "FP_all", "FP_overlap"])+"\n")
@@ -50,4 +50,5 @@ args = parser.parse_args()
 polyA_d = get_circRNAs(args.polyA)
 totalRNA_d = get_circRNAs(args.totalRNA)
 # compare counts
+os.makedirs(args.outdir, parents=True, exist_ok=True)
 write_stats(polyA_d, totalRNA_d, args.outdir)

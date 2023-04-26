@@ -50,5 +50,5 @@ args = parser.parse_args()
 polyA_d = get_circRNAs(args.polyA)
 totalRNA_d = get_circRNAs(args.totalRNA)
 # compare counts
-os.makedirs(args.outdir, parents=True, exist_ok=True)
+os.makedirs(args.outdir, exist_ok=True)
 write_stats(polyA_d, totalRNA_d, args.outdir)

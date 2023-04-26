@@ -1,6 +1,12 @@
 import argparse
-import json
 import os
+
+
+def get_outdir(path):
+    with open(path, "r") as c:
+        for line in c:
+            if "outdir" in line:
+                return line[line.index("=")+1:].replace("'", "").rstrip()
 
 
 def read_names(path, sep="\t"):
@@ -12,12 +18,10 @@ def read_names(path, sep="\t"):
 
 
 def get_circRNAs(config_file):
-    with open(config_file) as c:
-        config = json.load(c)
-        out_dir = config['params']['outdir']
-        raw = os.path(out_dir, "results", "circRNA", "circRNA_counts_raw.tsv")
-        filtered = os.path(out_dir, "results", "circRNA", "circRNA_counts_filtered.tsv")
-        return {"raw": read_names(raw), "filtered": read_names(filtered)}
+    out_dir = get_outdir(config_file)
+    raw = os.path(out_dir, "results", "circRNA", "circRNA_counts_raw.tsv")
+    filtered = os.path(out_dir, "results", "circRNA", "circRNA_counts_filtered.tsv")
+    return {"raw": read_names(raw), "filtered": read_names(filtered)}
     
 
 def write_stats(polyA, totalRNA, out_base):

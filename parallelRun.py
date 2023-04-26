@@ -13,7 +13,7 @@ args = parser.parse_args()
 
 
 def call_pipeline(configs_path, profile_opts, workdir, dummy=False):
-    cmd = ["nextflow", "run", "./", "-c", configs_path, "-profile", profile_opts, "-w", workdir]
+    cmd = ["nextflow", "run", "./", "-c", configs_path, "-profile", profile_opts, "-w", workdir, "--circRNA_only", "true"]
     print("[info] calling process:", " ".join(cmd))
     os.spawnl(os.P_DETACH, " ".join(cmd))
 

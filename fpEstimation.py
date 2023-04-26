@@ -35,7 +35,8 @@ def write_stats(polyA, totalRNA, out_base):
             fp_all = n_poly / n_tot
             ov = polyA[t].intersection(totalRNA[t])
             fp_ov = len(ov) / n_tot
-            out.write("\t".join([t, n_poly, n_tot, len(ov), fp_all, fp_ov])+"\n")
+            out.write("\t".join([t, str(n_poly), str(n_tot), 
+                                 str(len(ov)), str(fp_all), str(fp_ov)])+"\n")
 
 
 parser = argparse.ArgumentParser(

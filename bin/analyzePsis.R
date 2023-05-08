@@ -17,7 +17,8 @@ parser <- add_argument(parser, "-m", help = "Meta file")
 parser <- add_argument(parser, "-i", help = "Suppa2 diffSplice output directory", default = "./")
 # parameter settings
 parser <- add_argument(parser, "-p", help = "P-value cutoff", default = 0.05)
-parser <- add_argument(parser, "-d", help = "Minimum difference in psi values between conditions", default = 0.0)
+parser <- add_argument(parser, "-d", help = "Minimum difference in psi values between conditions",
+                       default = 0.25)
 
 argv <- parse_args(parser, argv = args)
 
@@ -27,7 +28,7 @@ mindPsi = argv$d
 meta <- read.csv(argv$m, sep = "\t")
 conditions <- unique(meta$condition)
 # read diffSplice dpsi results
-dpsiFiles <- list.files(path = argv$i, pattern = ".dpsi")
+dpsiFiles <- list.files(path = argv$i, pattern = ".dpsi", full.names = T)
 dpsiPerConditions <- do.call(rbind, lapply(dpsiFiles, readdPsi))
 
 # split event into gene and transcript ids
@@ -66,7 +67,7 @@ p <- ggplot(dpsiPerConditions, aes(x = dPSI, y = p.val)) +
         text = element_text(size = 14), strip.text.x = element_text(size = 12), 
         legend.position = "bottom", legend.direction = "horizontal") +
   facet_wrap(transcript_type~conditions)
-ggsave("volcanos.png", plot = p, dpi = 300, width = 10, height = 4)
+ggsave("volcanos.png", plot = p, dpi = 300, width = 8, height = 6)
 
 # filter for pvalue of <= 0.05 and ΔPSI >= 50%
 dpsiPerConditions %>% filter(transcript_type == "circRNA") %>%

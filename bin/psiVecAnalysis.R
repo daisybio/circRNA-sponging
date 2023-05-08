@@ -17,18 +17,48 @@ annotatePsi <- function(psivec) {
   psivec
 }
 
-normalizePerTranscriptType <- function(psivec, samples) {
-  message("normalize psi values for mean of psi of linear and circular transcripts")
-  means <- psivec %>% group_by(transcript_type) %>% summarise_at(vars(samples), mean)
+normalizePerTranscriptType <- function(vec, samples) {
+  message("normalizing psi values for mean psi of linear and circular transcripts...")
+  means <- vec %>% group_by(transcript_type) %>% summarise_at(vars(samples), mean)
   
-  psivec[psivec$transcript_type=="circRNA",samples] <- psivec[psivec$transcript_type=="circRNA",samples] /
+  vec[vec$transcript_type=="circRNA",samples] <- vec[vec$transcript_type=="circRNA",samples] /
     as.vector(means[means$transcript_type=="circRNA", samples])
-  psivec[psivec$transcript_type=="linearRNA",samples] <- psivec[psivec$transcript_type=="linearRNA",samples] / 
+  vec[vec$transcript_type=="linearRNA",samples] <- vec[vec$transcript_type=="linearRNA",samples] / 
     as.vector(means[means$transcript_type=="linearRNA", samples])
-  psivec %>% group_by(gene_id) %>% mutate(across(samples, function(s) s/sum(s)))
+  vec %>% group_by(gene_id) %>% mutate(across(samples, function(s) s/sum(s)))
 }
+
+sumPerTranscriptType <- function(vec, normalized=T) {
+  lab <- ifelse(normalized, "Percent Spliced In (PSI) \n normalized by sample-wise mean of transcript type",
+                "Percent Spliced In (PSI)")
+  name <- ifelse(normalized, "normalized", "raw")
+  # group data by host gene and summarize per transcript type if the gene contains circular transcripts
+  rnaTypeRatios <- vec %>%
+    group_by(gene_id) %>% filter(length(unique(transcript_type))>1) %>% 
+    group_by(gene_id, transcript_type) %>%
+    summarise_at(samples, sum)
+  # collapse replicates of conditions
+  rnaTypeRatiosCollapsed <- as.data.frame(t(rowsum(t(rnaTypeRatios[,samples]), group = meta$condition)/c(table(meta$condition))))
+  rnaTypeRatiosCollapsed[,c("gene_id", "transcript_type")] <- rnaTypeRatios[,c("gene_id", "transcript_type")]
+  # create boxplots between transcript types
+  rnaTypeRatiosCollapsedMelted <- melt(rnaTypeRatiosCollapsed, id.vars = c("gene_id", "transcript_type"))
+  rnaTypeRatiosCollapsedMelted$value <- rnaTypeRatiosCollapsedMelted$value*100
+  boxP <- ggviolin(rnaTypeRatiosCollapsedMelted, x = "transcript_type", y = "value",
+                   fill = "variable", add = "boxplot", add.params = list(fill = "white", width = 0.1)) +
+    scale_fill_manual(values = colors) +
+    stat_compare_means(method = "t.test", label.x = 1, label.y = 125) +
+    stat_compare_means(label = "p.signif", method = "t.test", ref.group = "linearRNA", vjust = -2.25) +
+    scale_y_continuous(breaks = seq(0, 100, 25)) +
+    facet_wrap(~variable) +
+    xlab("Transcript Type") +
+    ylab(lab) +
+    theme(text = element_text(size = 18), strip.text.x = element_text(size = 18),
+          strip.text.y = element_text(size = 18), legend.title = element_blank())
+  ggsave(filename = paste0(name, "_", "violins.png"), plot = boxP, width = 12, height = 8, dpi = 300) 
+}
+
 #### CLI ARGS ####
-args = commandArgs(trailingOnly = TRUE)
+args <- commandArgs(trailingOnly = TRUE)
 
 parser <- arg_parser("Argument parser for differenial splicing analysis", name = "DE_parser")
 parser <- add_argument(parser, "-m", help = "Meta data for expressions in tsv")
@@ -49,34 +79,13 @@ psivec <- read.csv(argv$i, sep = "\t", check.names = F)
 #### START SAMPLE-WISE ANALYSIS ####
 colnames(psivec) <- samples
 psivec <- annotatePsi(psivec)
-psivec <- normalizePerTranscriptType(psivec, samples)
+psivec_norm <- normalizePerTranscriptType(psivec, samples)
 message("writing normalized psis")
 sapply(unique(meta$condition), function(ct) {
   s <- meta[meta$condition==ct,"sample"]
-  write.table(psivec[,s], file = paste0(ct, ".psi"),
+  write.table(psivec_norm[,s], file = paste0(ct, ".psi"),
               sep = "\t", quote = F)
 })
-# group data by host gene and summarize per transcript type if the gene contains circular transcripts
-rnaTypeRatios <- psivec %>%
-  group_by(gene_id) %>% filter(length(unique(transcript_type))>1) %>% 
-  group_by(gene_id, transcript_type) %>%
-  summarise_at(samples, sum)
-# collapse replicates of conditions
-rnaTypeRatiosCollapsed <- as.data.frame(t(rowsum(t(rnaTypeRatios[,samples]), group = meta$condition)/c(table(meta$condition))))
-rnaTypeRatiosCollapsed[,c("gene_id", "transcript_type")] <- rnaTypeRatios[,c("gene_id", "transcript_type")]
-# create boxplots between transcript types
-rnaTypeRatiosCollapsedMelted <- melt(rnaTypeRatiosCollapsed, id.vars = c("gene_id", "transcript_type"))
-rnaTypeRatiosCollapsedMelted$value <- rnaTypeRatiosCollapsedMelted$value*100
-boxP <- ggviolin(rnaTypeRatiosCollapsedMelted, x = "transcript_type", y = "value",
-                  fill = "variable", add = "boxplot", add.params = list(fill = "white", width = 0.1)) +
-          scale_fill_manual(values = cell.colors) +
-          stat_compare_means(method = "anova", label.x = 1, label.y = 125) +
-          stat_compare_means(label = "p.signif", method = "t.test", ref.group = "linearRNA", vjust = -2.25) +
-          scale_y_continuous(breaks = seq(0, 100, 25)) +
-          facet_wrap(~variable) +
-          xlab("Transcript Type") +
-          ylab("Percent Spliced In (PSI) \n normalized by sample-wise mean of transcript type") +
-          theme(text = element_text(size = 18), strip.text.x = element_text(size = 18),
-                legend.title = element_blank())
-ggsave(filename = "violins.png", plot = boxP, width = 12, height = 8, dpi = 300)
 
+sumPerTranscriptType(psivec, normalized = F)
+sumPerTranscriptType(psivec_norm, normalized = T)

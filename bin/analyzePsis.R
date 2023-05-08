@@ -41,25 +41,23 @@ expr <- paste0("(?<=", cp, ")", "(-)", "(?=", cp, ")")
 dpsiPerConditions[, c("Cond1", "Cond2")] <- str_split_fixed(dpsiPerConditions$conditions, regex(expr), 2)
 dpsiPerConditions$transcript_type <- ifelse(grepl("c", dpsiPerConditions$transcript_id),
                                                   "circRNA", "linearRNA")
-signifPval = 0.01
-signifDpsi = 0.25
 
-dpsiPerConditions$Spsi <- ifelse(abs(dpsiPerConditions$dPSI) >= signifDpsi, "p", "")
-dpsiPerConditions$Spval <- ifelse(dpsiPerConditions$p.val <= signifPval, "v", "")
+dpsiPerConditions$Spsi <- ifelse(abs(dpsiPerConditions$dPSI) >= mindPsi, "p", "")
+dpsiPerConditions$Spval <- ifelse(dpsiPerConditions$p.val <= pValue, "v", "")
 dpsiPerConditions$level <- paste0(dpsiPerConditions$Spsi,"_", dpsiPerConditions$Spval)
 
 dpsiPerConditions$p.val <- -log10(dpsiPerConditions$p.val)
 signifColors <- setNames(c("darkgrey", "blue2", "darkgreen", "red3"), c("_", "p_", "_v", "p_v"))
 signifLabels <- c("not significant",
-                  paste0("p-value >= ", signifPval),
-                  paste0("dPSI >= ", signifDpsi),
+                  paste0("p-value >= ", pValue),
+                  paste0("dPSI >= ", mindPsi),
                   "both")
 # volcano plot  
 p <- ggplot(dpsiPerConditions, aes(x = dPSI, y = p.val)) +
   geom_point(size = 2, aes(color = level)) +
-  geom_hline(yintercept = -log10(signifPval), linetype = "dashed", color = "grey") +
-  geom_vline(xintercept = -signifDpsi, linetype = "dashed", color = "grey") +
-  geom_vline(xintercept = signifDpsi, linetype = "dashed", color = "grey") +
+  geom_hline(yintercept = -log10(pValue), linetype = "dashed", color = "grey") +
+  geom_vline(xintercept = -mindPsi, linetype = "dashed", color = "grey") +
+  geom_vline(xintercept = mindPsi, linetype = "dashed", color = "grey") +
   scale_color_manual(values = signifColors,
                      labels = signifLabels) +
   ylab("-log10(p-value)") + xlab("PSI (cond2) - PSI (cond1)") +

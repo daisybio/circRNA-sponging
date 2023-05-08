@@ -53,8 +53,18 @@ sumPerTranscriptType <- function(vec, normalized=T) {
     xlab("Transcript Type") +
     ylab(lab) +
     theme(text = element_text(size = 18), strip.text.x = element_text(size = 18),
-          strip.text.y = element_text(size = 18), legend.title = element_blank())
-  ggsave(filename = paste0(name, "_", "violins.png"), plot = boxP, width = 12, height = 8, dpi = 300) 
+          legend.title = element_blank())
+  ggsave(filename = paste0(name, "_", "violins.png"), plot = boxP, width = 12, height = 8, dpi = 300)
+  # save circRNAs with higher sums than linear transcripts of same host gene
+  # save circRNAs with higher sums than linear transcripts of same host gene
+  dPSIs <- rnaTypeRatios[seq(1, nrow(rnaTypeRatios), 2),samples] -
+    rnaTypeRatios[seq(2, nrow(rnaTypeRatios)+1, 2),samples]
+  rownames(dPSIs) <- unique(rnaTypeRatios$gene_id)
+  signifHostGenes <- dPSIs[rowSums(dPSIs > 0) > 0,]
+  vec %>% filter(gene_id%in%rownames(signifHostGenes)) %>% 
+    filter(transcript_type=="circRNA") %>%
+    write.table(file = paste0(name, "_majorityCircRNAs.tsv"), 
+                sep = "\t", quote = F, row.names = F)
 }
 
 #### CLI ARGS ####

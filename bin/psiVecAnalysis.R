@@ -56,15 +56,20 @@ sumPerTranscriptType <- function(vec, normalized=T) {
           legend.title = element_blank())
   ggsave(filename = paste0(name, "_", "violins.png"), plot = boxP, width = 12, height = 8, dpi = 300)
   # save circRNAs with higher sums than linear transcripts of same host gene
-  # save circRNAs with higher sums than linear transcripts of same host gene
-  dPSIs <- rnaTypeRatios[seq(1, nrow(rnaTypeRatios), 2),samples] -
-    rnaTypeRatios[seq(2, nrow(rnaTypeRatios)+1, 2),samples]
-  rownames(dPSIs) <- unique(rnaTypeRatios$gene_id)
-  signifHostGenes <- dPSIs[rowSums(dPSIs > 0) > 0,]
+  mask <- rnaTypeRatiosCollapsed[seq(1, nrow(rnaTypeRatiosCollapsed), 2),conditions] +
+            rnaTypeRatiosCollapsed[seq(2, nrow(rnaTypeRatiosCollapsed)+1, 2),conditions] - 1 <= 1e-3
+  dPSIs <- rnaTypeRatiosCollapsed[seq(1, nrow(rnaTypeRatiosCollapsed), 2),conditions] -
+    rnaTypeRatiosCollapsed[seq(2, nrow(rnaTypeRatiosCollapsed)+1, 2),conditions]
+  dPSIs <- dPSIs[rowSums(mask)==length(conditions),]
+  rownames(dPSIs) <- unique(rnaTypeRatiosCollapsed$gene_id)
+  dPSIs$n <- rowSums(dPSIs > 0)
+  dPSIs <- dPSIs[order(dPSIs$n, decreasing = T),]
+  signifHostGenes <- dPSIs[(dPSIs$n > 0) > 0,]
+  # extract relevant circRNAs and write to file
   vec %>% filter(gene_id%in%rownames(signifHostGenes)) %>% 
     filter(transcript_type=="circRNA") %>%
-    write.table(file = paste0(name, "_majorityCircRNAs.tsv"), 
-                sep = "\t", quote = F, row.names = F)
+  write.table(file = paste0(name, "_majorityCircRNAs.tsv"), 
+              sep = "\t", quote = F, row.names = F)
 }
 
 #### CLI ARGS ####

@@ -393,8 +393,6 @@ registerDoParallel(cl)
 
 #---------------------------META FILE/ CONDITIONS---------------------
 meta <- read.csv(file = argv$meta, sep = "\t")
-# add cell type column
-meta$cell_type <- sapply(strsplit(meta$sample, "_"), "[", 1)
 
 # ----------------EXPRESSION SPLITTING--------------------------------
 n.train <- round(nrow(meta)*split_training)
@@ -403,7 +401,7 @@ cat("using", n.train, "samples for training\n", "and", n.test, "for testing\n")
 # randomize samples
 meta <- meta[sample(1:nrow(meta)), ]
 # take n samples from each group
-cond.split <- split(meta, meta$cell_type)
+cond.split <- split(meta, meta$condition)
 cond.ratio <- round(sapply(cond.split, function(x) nrow(x)*split_training))
 train.meta <- data.table::rbindlist(mapply(function(x,y) x[1:y,], cond.split, cond.ratio, SIMPLIFY = F))
 colnames(train.meta)<-c("sampleIDs",c(colnames(train.meta)[3:length(train.meta)-1],"label"))

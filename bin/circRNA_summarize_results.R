@@ -56,6 +56,7 @@ for (i in 1:length(samples)){
     finaldata <- merge(finaldata, expression, by = "circRNA", all = T)
   }
 }
+if (nrow(finaldata) == 1) stop("No circRNAs were detected by CIRCexplorer2")
 # remove NAs
 finaldata[is.na(finaldata)] <- 0
 # rebuild original data

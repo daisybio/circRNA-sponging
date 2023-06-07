@@ -182,6 +182,7 @@ Channel.fromPath(params.samplesheet)
 /*
 * GENERATE STAR INDEX IN CASE IT IS NOT ALREADY PROVIDED BY iGenomes
 */
+generate_star = params.STAR_index == 'generate'
 process generate_star_index{
     label 'process_high'
     publishDir "${params.outdir}/", mode: params.publish_dir_mode
@@ -193,7 +194,7 @@ process generate_star_index{
     output:
     file("star_index") into generated_star_index
                       
-    when: (params.STAR_index == 'generate')
+    when: (generate_star)
 
     script:
     """
@@ -209,7 +210,7 @@ process generate_star_index{
     """
 }
 // handle STAR index options
-ch_star_index = params.STAR_index == 'generate' ? generated_star_index : params.STAR_index ? Channel.value(file(params.STAR_index)) : params.genome ? Channel.value(file(params.genomes[ params.genome ].star)) ?: false : false
+ch_star_index = generate_star ? generated_star_index : params.STAR_index ? Channel.value(file(params.STAR_index)) : params.genome ? Channel.value(file(params.genomes[ params.genome ].star)) ?: false : false
 
 // log parameter settings
 log.info "Parameters:\n\t--STAR_index:'${ch_star_index}'\n\t--species:'${species}'\n\t--fasta:'${fasta}'\n\t--bed12:'${bed12}'\n\t--miRNA_fasta:'${miRNA_fasta}'\n"
@@ -503,8 +504,7 @@ if (params.database_annotation){
         Channel.fromPath(circ_counts_annotated_path).into{ ch_circRNA_counts_filtered1; ch_circRNA_counts_filtered2; ch_circRNA_counts_filtered3; ch_circRNA_counts_filtered4; ch_circRNA_counts_filtered5 }
     }
 } else {
-    ch_circRNA_counts_filtered.into{ ch_circRNA_counts_filtered1; ch_circRNA_counts_filtered2; ch_circRNA_counts_filtered3; 
-    ch_circRNA_counts_filtered4; ch_circRNA_counts_filtered5; ch_circRNA_counts_filtered6; ch_circRNA_counts_filtered7; ch_circRNA_counts_filtered8 }
+    ch_circRNA_counts_filtered.into{ ch_circRNA_counts_filtered1; ch_circRNA_counts_filtered2; ch_circRNA_counts_filtered3; ch_circRNA_counts_filtered4; ch_circRNA_counts_filtered5; ch_circRNA_counts_filtered6; ch_circRNA_counts_filtered7; ch_circRNA_counts_filtered8 }
 }
 
 /*

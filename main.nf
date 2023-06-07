@@ -488,7 +488,8 @@ if (params.database_annotation){
 
         output:
         file("circRNAs_annotated.tsv") into circRNAs_annotated
-        file("circRNA_counts_annotated.tsv") into (ch_circRNA_counts_filtered1, ch_circRNA_counts_filtered2, ch_circRNA_counts_filtered3, ch_circRNA_counts_filtered4, ch_circRNA_counts_filtered5)
+        file("circRNA_counts_annotated.tsv") into (ch_circRNA_counts_filtered1, ch_circRNA_counts_filtered2, ch_circRNA_counts_filtered3, ch_circRNA_counts_filtered4, ch_circRNA_counts_filtered5, 
+    ch_circRNA_counts_filtered6, ch_circRNA_counts_filtered7, ch_circRNA_counts_filtered8)
         script:
         if( params.offline_circ_db == null )
             """
@@ -501,10 +502,12 @@ if (params.database_annotation){
         }
     } else {
         circRNAs_annotated = Channel.fromPath(circ_annotation)
-        Channel.fromPath(circ_counts_annotated_path).into{ ch_circRNA_counts_filtered1; ch_circRNA_counts_filtered2; ch_circRNA_counts_filtered3; ch_circRNA_counts_filtered4; ch_circRNA_counts_filtered5 }
+        Channel.fromPath(circ_counts_annotated_path).into{ ch_circRNA_counts_filtered1; ch_circRNA_counts_filtered2; ch_circRNA_counts_filtered3; ch_circRNA_counts_filtered4; ch_circRNA_counts_filtered5; 
+                                                           ch_circRNA_counts_filtered6; ch_circRNA_counts_filtered7; ch_circRNA_counts_filtered8 }
     }
 } else {
-    ch_circRNA_counts_filtered.into{ ch_circRNA_counts_filtered1; ch_circRNA_counts_filtered2; ch_circRNA_counts_filtered3; ch_circRNA_counts_filtered4; ch_circRNA_counts_filtered5; ch_circRNA_counts_filtered6; ch_circRNA_counts_filtered7; ch_circRNA_counts_filtered8 }
+    ch_circRNA_counts_filtered.into{ ch_circRNA_counts_filtered1; ch_circRNA_counts_filtered2; ch_circRNA_counts_filtered3; ch_circRNA_counts_filtered4; ch_circRNA_counts_filtered5; 
+                                     ch_circRNA_counts_filtered6; ch_circRNA_counts_filtered7; ch_circRNA_counts_filtered8 }
 }
 
 /*

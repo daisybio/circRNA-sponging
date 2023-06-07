@@ -213,7 +213,7 @@ process generate_star_index{
 ch_star_index = generate_star ? generated_star_index : params.STAR_index ? Channel.value(file(params.STAR_index)) : params.genome ? Channel.value(file(params.genomes[ params.genome ].star)) ?: false : false
 
 // log parameter settings
-log.info "Parameters:\n\t--STAR_index:'${ch_star_index}'\n\t--species:'${species}'\n\t--fasta:'${fasta}'\n\t--bed12:'${bed12}'\n\t--miRNA_fasta:'${miRNA_fasta}'\n"
+log.info "Parameters:\n\t--STAR_index:'${ch_star_index.value}'\n\t--species:'${species}'\n\t--fasta:'${fasta}'\n\t--bed12:'${bed12}'\n\t--miRNA_fasta:'${miRNA_fasta}'\n"
 
 // skip mapping if result is given
 mapping = "${params.outdir}/results/circRNA/circRNA_counts_raw.tsv"
@@ -645,8 +645,8 @@ process suppa_diffSplice{
 
     input:
     file(ioi) from ch_suppa_ioi
-    val(psis) from ch_suppa_norm_psi_split.map {f -> f.getName() }.sort().join(" ")
-    val(tpms) from ch_suppa_split_tpm.map {f -> f.getName() }.sort().join(" ")
+    val(psis) from ch_suppa_norm_psi_split.collect {f -> return f.getName() }.sort()
+    val(tpms) from ch_suppa_split_tpm.collect {f -> return f.getName() }.sort()
 
     output:
     file("*.dps*") into ch_suppa_dpsis
@@ -657,8 +657,8 @@ process suppa_diffSplice{
     script:
     """
     suppa.py diffSplice -m empirical \\
-    -i $ioi \\
-    -p $psis -e $tpms \\
+    -i ${ioi.join(" ")} \\
+    -p ${psis.join(" ")} -e $tpms \\
     -gc -o out
     """
 }

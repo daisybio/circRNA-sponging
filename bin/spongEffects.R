@@ -527,7 +527,7 @@ density_plot_train <- plot_density_scores(trained_model = trained.model, spongEf
                                           meta_data = train.meta, label = "label", sampleIDs = "sampleIDs")
 # save class plot
 ggsave(file.path(PLOT_DIR, "classification.png"), density_plot_train,
-       width = 7.25, height = 5.25, dpi = 1200)
+       width = 12, height = 8, dpi = 300)
 
 #-------------------------PLOT TOP RESULTS-------------------------
 lollipop_plot <- plot_modules(trained_model = trained.model, k_modules_red = 2,

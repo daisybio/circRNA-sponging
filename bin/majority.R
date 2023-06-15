@@ -69,7 +69,7 @@ majority_vote <- function(miranda, tarpmir, pita, match, out = "./") {
   # build table
   splitter <- ifelse(match=="complete", 4, 3)
   majority.vote <- str_split_fixed(majority.vote, "\\|", splitter)
-  majority.vote <- data.frame(table(majority.vote[,2], majority.vote[,1]))
+  majority.vote <- as.data.frame.matrix(table(majority.vote[,2], majority.vote[,1]))
   # output venn diagram
   myCol <- brewer.pal(3, "Pastel2")
   venn.diagram(x = list(miranda.keys, tarpmir.keys, pita.keys),

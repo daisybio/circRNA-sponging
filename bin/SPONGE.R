@@ -98,17 +98,21 @@ create_target_scan_symbols <- function(merged_data, majority, total_bindings) {
   merged_data_targets <- read.table(merged_data, header = T, sep = "\t", check.names = F, stringsAsFactors = F)
 
   print("Combining linear and circular miRNA-binding sites...")
+  merged_data_targets <- data.frame(id=rownames(merged_data_targets),
+                                    merged_data_targets, check.names = F)
+  majority <- data.frame(id=rownames(majority),
+                         majority, check.names = F)
+  
   targets_data <- list(merged_data_targets, majority)
-  # remove null elements from list
-  targets_data[sapply(targets_data, is.null)] <- NULL
   # bind targets
   merged.targets <- bind_rows(targets_data)
-  # merge
-  merged.targets <- data.frame(dcast(merged.targets, Var1 ~ Var2), row.names = 1, check.names = F, stringsAsFactors = F)
   # set NAs to 0
   merged.targets[is.na(merged.targets)] <- 0
   # convert back to matrix
   merged.targets <- as.matrix(merged.targets)
+  # aggregate rows
+  merged.targets <- aggregate(merged.targets%>%select(-id), by = list(merged.targets$id), FUN = sum)
+  merged.targets <- data.frame(merged.targets, row.names = 1, check.names = F)
   print("finished")
   # return contingency table
   return(merged.targets)

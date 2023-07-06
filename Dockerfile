@@ -1,4 +1,4 @@
-FROM rocker/tidyverse:4.2.0 as Rbase
+FROM rocker/r2u:22.04 as Rbase
 RUN apt-get update && apt-get install -y libglpk-dev
 # R packages that are not in conda
 RUN R -e "install.packages('pacman', repos='http://cran.rstudio.com/')"

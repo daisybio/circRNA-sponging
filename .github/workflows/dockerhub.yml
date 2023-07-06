@@ -8,10 +8,10 @@ name: Docker
 on:
   push:
     branches:
-      - main
+      - extension
   pull_request:
     branches:
-      - main
+      - extension
       
 env:
   IMAGE_NAME: bigdatainbiomedicine/circrna-sponging

@@ -231,12 +231,10 @@ if(!file(mapping).exists()) {
 
         output:
         tuple val(sampleID), file("Chimeric.out.junction") into chimeric_junction_files
-        file("Aligned.out.sam.gz") into alignments
 
         script:
         """
-        STAR --chimSegmentMin 10 --runThreadN 10 --genomeDir $star_index --readFilesCommand zcat --readFilesIn $reads
-        gzip Aligned.out.sam
+        STAR --chimSegmentMin 10 --outSAMtype BAM Unsorted --runThreadN 10 --genomeDir $star_index --readFilesCommand zcat --readFilesIn $reads
         """
     }
 

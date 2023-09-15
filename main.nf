@@ -525,7 +525,7 @@ process suppa_prepare_data{
 
     output:
     file("inclCircRNAs.gtf") into (ch_incl_circ_gtf, ch_incl_circ_gtf1)
-    file("allTranscriptsTPMs.tsv") into allTranscriptsTPMs
+    file("allTranscriptsTPMs.tsv") into (allTranscriptsTPMs, allTranscriptsTPMs2)
 
     when: (params.suppa2)
 
@@ -574,7 +574,7 @@ process suppa_psiPerIsoform{
 
     input:
     file(inclCircGtf) from ch_incl_circ_gtf1
-    file(circExpr) from ch_circRNA_counts_filtered7
+    file(transcriptExpr) from allTranscriptsTPMs
 
     output:
     file("*.psi") into ch_suppa_all_psi
@@ -583,7 +583,7 @@ process suppa_psiPerIsoform{
 
     script:
     """
-    suppa.py psiPerIsoform -g $inclCircGtf -e $circExpr -o ./
+    suppa.py psiPerIsoform -g $inclCircGtf -e $transcriptExpr -o ./
     """
 }
 
@@ -620,7 +620,7 @@ process suppa_splitTPM{
     publishDir "${params.outdir}/results/circRNA/suppa/norm", mode: params.publish_dir_mode
 
     input:
-    file(psi) from allTranscriptsTPMs
+    file(psi) from allTranscriptsTPMs2
     
     output:
     file("*.tsv") into ch_suppa_split_tpm
@@ -629,7 +629,7 @@ process suppa_splitTPM{
 
     script:
     """
-    Rscript "${projectDir}"/bin/spltData.R $psi $params.samplesheet
+    Rscript "${projectDir}"/bin/splitData.R $psi $params.samplesheet
     """
 }
 

@@ -94,10 +94,10 @@ bed12 = params.bed12 ?: params.genome ? params.genomes[ params.genome ].bed12 ?:
 miRNA_fasta = params.miRNA_fasta ?: params.genome ? params.genomes[ params.genome ].mature ?: false : false
 star = params.STAR_index ?: params.genome ? params.genomes[ params.genome ].star ?: false : false
 
-ch_genome_fasta = Channel.fromPath(fasta)
-ch_star_index = Channel.fromPath(star)
-ch_gtf = Channel.fromPath(gtf)
-ch_bed12 = Channel.fromPath(bed12)
+ch_genome_fasta = Channel.value(file(fasta))
+ch_star_index = Channel.value(file(star))
+ch_gtf = Channel.value(file(gtf))
+ch_bed12 = Channel.value(file(bed12))
 
 workflow CIRCRNA_SPONGING {
     main:

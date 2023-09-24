@@ -3,6 +3,7 @@ include { CIRCEXPLORER2_PARSE } from '../modules/nf-core/circexplorer2/parse/mai
 include { CIRCEXPLORER2_ANNOTATE } from '../modules/nf-core/circexplorer2/annotate/main'
 include { SUMMARIZE } from '../modules/local/summarize.nf'
 include { BEDTOOLS_GETFASTA } from '../modules/nf-core/bedtools/getfasta/main.nf'
+include { BEDTOOLS_MAP as IDENTIFY_EXONS_INTRONS } from '../modules/nf-core/bedtools/map/main.nf'
 
 def get_circRNA_paths(LinkedHashMap row) {
     def array = []
@@ -58,6 +59,12 @@ workflow CIRCRNA {
 
         SUMMARIZE (CIRCEXPLORER2_ANNOTATE.out.txt.map{ it[1] }.collect())
 
+        IDENTIFY_EXONS_INTRONS (
+            SUMMARIZE.out.combine(ch_gtf).map{ [[id: "identifyExonsIntrons"], it[0], it[1]] },
+            [[], []]
+        )
+
+        // TODO: Base the GETFASTA process on the intron/exon locations
         BEDTOOLS_GETFASTA (
             SUMMARIZE.out,
             ch_genome_fasta

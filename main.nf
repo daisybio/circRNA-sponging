@@ -86,6 +86,7 @@ if (params.genomes && params.genome && !params.genomes.containsKey(params.genome
 }
 
 include { CIRCRNA } from "./subworkflows/circRNA.nf"
+include { BEDTOOLS_SORT as SORT_GTF } from './modules/nf-core/bedtools/sort/main.nf'
  
 species = params.species ?: params.genome ? params.genomes[ params.genome ].species ?: false : false
 fasta = params.fasta ?: params.genome ? params.genomes[ params.genome ].fasta ?: false : false
@@ -101,9 +102,14 @@ ch_bed12 = Channel.value(file(bed12))
 
 workflow CIRCRNA_SPONGING {
     main:
+        SORT_GTF(
+          ch_gtf.map{ [[id: "gtf"], it] },
+          []
+        )
+
         CIRCRNA(
           ch_star_index,
-          ch_gtf,
+          SORT_GTF.out.sorted.map{ it[1] },
           ch_genome_fasta,
           ch_bed12
         )

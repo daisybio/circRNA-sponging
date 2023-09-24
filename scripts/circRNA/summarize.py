@@ -39,4 +39,4 @@ dataframes = { sample_name: read_df(sample_name, sample_file)
 
 merged = pd.concat(dataframes).groupby(grouping_cols, as_index=False).sum()
 
-merged.to_csv(args.output, sep='\t', index=False)
+merged.to_csv(args.output, sep='\t', index=False, header=False)

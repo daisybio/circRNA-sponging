@@ -2,6 +2,7 @@ include { STAR_ALIGN } from '../modules/nf-core/star/align/main.nf'
 include { CIRCEXPLORER2_PARSE } from '../modules/nf-core/circexplorer2/parse/main'
 include { CIRCEXPLORER2_ANNOTATE } from '../modules/nf-core/circexplorer2/annotate/main'
 include { SUMMARIZE } from '../modules/local/summarize.nf'
+include { BEDTOOLS_GETFASTA } from '../modules/nf-core/bedtools/getfasta/main.nf'
 
 def get_circRNA_paths(LinkedHashMap row) {
     def array = []
@@ -56,4 +57,9 @@ workflow CIRCRNA {
         )
 
         SUMMARIZE (CIRCEXPLORER2_ANNOTATE.out.txt.map{ it[1] }.collect())
+
+        BEDTOOLS_GETFASTA (
+            SUMMARIZE.out,
+            ch_genome_fasta
+        )
 }

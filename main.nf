@@ -92,7 +92,7 @@ fasta = params.fasta ?: params.genome ? params.genomes[ params.genome ].fasta ?:
 gtf = params.gtf ?: params.genome ? params.genomes[ params.genome ].gtf ?: false : false
 bed12 = params.bed12 ?: params.genome ? params.genomes[ params.genome ].bed12 ?: false : false
 miRNA_fasta = params.miRNA_fasta ?: params.genome ? params.genomes[ params.genome ].mature ?: false : false
-star = params.star ?: params.genome ? params.genomes[ params.genome ].star ?: false : false
+star = params.STAR_index ?: params.genome ? params.genomes[ params.genome ].star ?: false : false
 
 ch_genome_fasta = Channel.fromPath(fasta)
 ch_star_index = Channel.fromPath(star)

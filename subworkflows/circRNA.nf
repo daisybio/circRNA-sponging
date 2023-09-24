@@ -37,7 +37,11 @@ workflow CIRCRNA {
     main:
         STAR_ALIGN (
             ch_totalRNA_reads,
-            ch_star_index.map{ [[], it] }
+            ch_star_index.map{ [[], it] },
+            ch_gtf.map{ [[], it] },
+            true,
+            false,
+            false
         )
 
         CIRCEXPLORER2_PARSE (
